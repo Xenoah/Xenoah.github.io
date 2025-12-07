@@ -3,22 +3,109 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <title>リンク</title>
+
+<style>
+.center-area {
+    text-align: center;
+}
+
+.link-box {
+    display: block;
+    width: 300px;
+    padding: 10px;
+    margin: 15px auto;
+    border: 2px solid #0099ff;
+    border-radius: 10px;
+    background-color: #f0f8ff;
+    color: #000;
+    text-decoration: none;
+}
+
+.link-box-inner {
+    display: inline-flex;
+    align-items: center;
+}
+
+.link-box img {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.link-text {
+    font-size: 14px;
+    text-align: left;
+}
+
+/* ▼ ホバー反転効果 ▼ */
+.link-box:hover {
+    background-color: #0099ff; /* 外枠と同じ色 */
+    color: #ffffff;            /* テキストを白に */
+}
+
+.link-box:hover img {
+    opacity: 0.9; /* 画像のコントラスト調整（任意） */
+}
+</style>
+
+
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
-    <LEFT>
-<img src="file_index/xenoah_banner.png" alt="Xenoahロゴ">
-</LEFT>
+<left>
+    <img src="file_index/xenoah_banner.png" alt="Xenoahロゴ">
+</left>
 
 <center>
     <h2>リンク</h2>
 </center>
 <hr>
 
-<ul>
-  <!-- ここにリンクを <li>タグで追加していく -->
-</ul>
+<div class="center-area">
+
+    <!-- ▼ ボタン1 ▼ -->
+    <a class="link-box" href="https://xenoah.com/" target="_blank">
+        <div class="link-box-inner">
+            <img src="file_link/logo_x_fillWhite.png">
+            <div class="link-text"><b>x.com</b> 日々の業務報告用</div>
+        </div>
+    </a>
+
+    <!-- ▼ ボタン2 ▼ -->
+    <a class="link-box" href="https://github.com/Xenoah" target="_blank">
+        <div class="link-box-inner">
+            <img src="file_link/logo_github_gray.png">
+            <div class="link-text"><b>github.com</b> なにか上げるかも?</div>
+        </div>
+    </a>
+
+    <!-- ▼ ボタン3 ▼ -->
+    <a class="link-box" href="https://3droid.booth.pm/" target="_blank">
+        <div class="link-box-inner">
+            <img src="file_link/logo_booth.png">
+            <div class="link-text"><b>booth.pm</b> 主に3Dデーター配布</div>
+        </div>
+    </a>
+
+    <!-- ▼ ボタン4 ▼ -->
+    <a class="link-box" href="https://vrchat.com/home/user/Noah-JP" target="_blank">
+        <div class="link-box-inner">
+            <img src="file_link/logo_vrchat_square.png">
+            <div class="link-text"><b>vrchat.com</b> 感性の刺激に良い</div>
+        </div>
+    </a>
+
+    <!-- ▼ ボタン5 ▼ -->
+    <a class="link-box" href="discordapp.com/users/1110528762099007548" target="_blank">
+        <div class="link-box-inner">
+            <img src="file_link/logo_Discord_Black.png">
+            <div class="link-text"><b>discord.com</b> ほぼ使ってないかも</div>
+        </div>
+    </a>
+
+</div>
 
 </body>
 </html>
