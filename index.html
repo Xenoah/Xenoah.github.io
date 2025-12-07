@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>XenoahHP_index</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<title>Xenoahのホームページ</title>
 </head>
-<body>
 
-<h1>XenoahHP_index</h1>
+<!-- 左18%, 右82% のクラシック2分割フレーム -->
+<frameset cols="18%,82%">
+    <!-- 左メニュー -->
+    <frame src="menu.htm" name="left" scrolling="auto" marginwidth="0" marginheight="0">
 
-<p>誠意制作なう</p>
+    <!-- 右メイン（最初に表示するページ） -->
+    <frame src="top.htm" name="right" scrolling="auto" marginwidth="0" marginheight="0">
 
+    <noframes>
+        <body>
+            このページはフレーム対応ブラウザでご覧ください。
+        </body>
+    </noframes>
+</frameset>
 
-
-</body>
 </html>
