@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おすすめ商品レビュー | 観測者セレクト</title>
+
+    <!-- SEO基本設定 -->
+    <meta name="description" content="Amazonで買えるおすすめ製品を紹介するレビューサイト。観測者セレクト。">
+    <meta name="keywords" content="Amazon, レビュー, 商品紹介, アフィリエイト">
+    <meta property="og:title" content="観測者セレクト | Amazonおすすめレビュー">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourname.github.io/">
+    <meta property="og:description" content="Amazonで買えるおすすめ製品を紹介するレビューサイト。">
+    <meta property="og:image" content="https://yourimage-url">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            padding: 0 20px;
+            line-height: 1.9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .item-box {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .item-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        .amazon-box {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>観測者セレクト – Amazonおすすめレビュー</h1>
+<p>実際に使って良かった製品、気になるアイテムを分析的に紹介するレビューサイト。</p>
+
+<!-- ▼ 商品1 ▼ -->
+<div class="item-box">
+    <div class="item-title">商品名（あなたが書く）</div>
+    <p>ここに商品の説明を書く。利点、欠点、比較情報など入れるとアフィリエイト審査も通りやすい。</p>
+
+    <div class="amazon-box">
+        <!-- ▼ Amazonアフィリエイト広告コードをここに貼る ▼ -->
+        <iframe style="width:120px;height:240px;" 
+            marginwidth="0" marginheight="0" scrolling="no" frameborder="0"
+            src="【ここにAmazonの広告リンクURL】">
+        </iframe>
+        <!-- ▲ 貼る場所 ▲ -->
+    </div>
+</div>
+
+<!-- ▼ 商品2（増やしたいだけ増やせる） ▼ -->
+<div class="item-box">
+    <div class="item-title">商品名</div>
+    <p>レビューや特徴。</p>
+    <div class="amazon-box">
+        <!-- Amazon広告 -->
+    </div>
+</div>
+
+
+<footer style="text-align:center; margin-top:50px;">
+    © 2025 観測者セレクト
+</footer>
+
+</body>
+</html>
