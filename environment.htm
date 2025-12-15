@@ -70,17 +70,36 @@ h2 {
     background-color: #f8fbff;
 }
 
+/* 本文側：ソフト見出し（アイコン＋2段） */
+.software-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.software-header-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
 .category {
     font-size: 14px;
     color: #555;
+    margin: 0;
 }
 
 .software-title {
     font-size: 22px;
     font-weight: bold;
-    margin: 5px 0 15px 0;
+    margin: 3px 0 0 0;
 }
 
+/* 画像＋説明 */
 .content {
     display: flex;
     gap: 20px;
@@ -127,7 +146,7 @@ h2 {
 <hr>
 
 <!-- =========================
-     目次
+     目次（アイコン＋2段）
      ========================= -->
 <div class="toc">
 <b>目次</b>
@@ -191,133 +210,210 @@ h2 {
 </div>
 
 <!-- =========================
-     各ソフト詳細
+     各ソフト詳細（本文側もアイコン＋2段）
      ========================= -->
 
+<!-- VS Code -->
 <div class="software-box" id="vscode">
-<div class="category">分類：プログラミング / 総合開発環境</div>
-<div class="software-title">Visual Studio Code</div>
-<div class="content">
-<img src="images/vscode.png">
-<div class="description">
-HTML / CSS / Python / VBA など幅広く使用。  
-GitHub連携や拡張機能を活用した軽量な開発環境。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://code.visualstudio.com/" target="_blank">
-https://code.visualstudio.com/
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_vscode.png" alt="VS Code アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：プログラミング / 総合開発環境</div>
+      <div class="software-title">Visual Studio Code</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/vscode.png" alt="VS Code スクリーンショット">
+    <div class="description">
+      HTML / CSS / Python / VBA など幅広く使用。<br>
+      GitHub連携や拡張機能を活用した軽量な開発環境。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://code.visualstudio.com/" target="_blank">
+      https://code.visualstudio.com/
+    </a>
+  </div>
 </div>
 
+<!-- Fusion 360 -->
 <div class="software-box" id="fusion360">
-<div class="category">分類：3D CAD</div>
-<div class="software-title">Fusion 360</div>
-<div class="content">
-<img src="images/fusion360.png">
-<div class="description">
-機械設計、治具設計、3Dプリント用モデル作成に使用。  
-パラメトリック設計による高い柔軟性。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.autodesk.co.jp/products/fusion-360" target="_blank">
-https://www.autodesk.co.jp/products/fusion-360
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_Fusion360.png" alt="Fusion 360 アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：3D CAD</div>
+      <div class="software-title">Fusion 360</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/fusion360.png" alt="Fusion 360 スクリーンショット">
+    <div class="description">
+      機械設計、治具設計、3Dプリント用モデル作成に使用。<br>
+      パラメトリック設計による高い柔軟性。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.autodesk.co.jp/products/fusion-360" target="_blank">
+      https://www.autodesk.co.jp/products/fusion-360
+    </a>
+  </div>
 </div>
 
+<!-- Blender -->
 <div class="software-box" id="blender">
-<div class="category">分類：3D CG</div>
-<div class="software-title">Blender</div>
-<div class="content">
-<img src="images/blender.png">
-<div class="description">
-キャラクターモデリングやアバター制作に使用。  
-ボーン、シェイプキー、マテリアル設定まで対応。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.blender.org/" target="_blank">
-https://www.blender.org/
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_Blender.png" alt="Blender アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：3D CG</div>
+      <div class="software-title">Blender</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/blender.png" alt="Blender スクリーンショット">
+    <div class="description">
+      キャラクターモデリングやアバター制作に使用。<br>
+      ボーン、シェイプキー、マテリアル設定まで対応。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.blender.org/" target="_blank">
+      https://www.blender.org/
+    </a>
+  </div>
 </div>
 
+<!-- KiCad -->
 <div class="software-box" id="kicad">
-<div class="category">分類：電子回路設計</div>
-<div class="software-title">KiCad</div>
-<div class="content">
-<img src="images/kicad.png">
-<div class="description">
-回路図作成、PCB設計に使用。  
-個人制作レベルでの基板設計に十分対応可能。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.kicad.org/" target="_blank">
-https://www.kicad.org/
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_KiCad.png" alt="KiCad アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：電子回路設計</div>
+      <div class="software-title">KiCad</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/kicad.png" alt="KiCad スクリーンショット">
+    <div class="description">
+      回路図作成、PCB設計に使用。<br>
+      個人制作レベルでの基板設計に十分対応可能。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.kicad.org/" target="_blank">
+      https://www.kicad.org/
+    </a>
+  </div>
 </div>
 
+<!-- GIMP -->
 <div class="software-box" id="gimp">
-<div class="category">分類：画像編集</div>
-<div class="software-title">GIMP</div>
-<div class="content">
-<img src="images/gimp.png">
-<div class="description">
-画像編集、背景透過、バナー制作などに使用。  
-軽快でラフな作業に向いている。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.gimp.org/" target="_blank">
-https://www.gimp.org/
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_GIMP.png" alt="GIMP アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：画像編集</div>
+      <div class="software-title">GIMP</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/gimp.png" alt="GIMP スクリーンショット">
+    <div class="description">
+      画像編集、背景透過、バナー制作などに使用。<br>
+      軽快でラフな作業に向いている。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.gimp.org/" target="_blank">
+      https://www.gimp.org/
+    </a>
+  </div>
 </div>
 
+<!-- DaVinci Resolve -->
 <div class="software-box" id="davinci">
-<div class="category">分類：動画編集</div>
-<div class="software-title">DaVinci Resolve</div>
-<div class="content">
-<img src="images/davinci.png">
-<div class="description">
-動画編集およびカラーグレーディングに使用。  
-無料版でも高品質な映像制作が可能。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank">
-https://www.blackmagicdesign.com/products/davinciresolve
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_DaVinci-Resolve.png" alt="DaVinci Resolve アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：動画編集</div>
+      <div class="software-title">DaVinci Resolve</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/davinci.png" alt="DaVinci Resolve スクリーンショット">
+    <div class="description">
+      動画編集およびカラーグレーディングに使用。<br>
+      無料版でも高品質な映像制作が可能。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank">
+      https://www.blackmagicdesign.com/products/davinciresolve
+    </a>
+  </div>
 </div>
 
+<!-- FL Studio Mobile -->
 <div class="software-box" id="flstudio">
-<div class="category">分類：音楽制作</div>
-<div class="software-title">FL Studio Mobile</div>
-<div class="content">
-<img src="images/flstudio.png">
-<div class="description">
-モバイル環境での作曲やアイデアスケッチに使用。  
-ループ制作や簡易ミックスに適している。
-</div>
-</div>
-<div class="url">
-公式サイト：
-<a href="https://www.image-line.com/fl-studio-mobile/" target="_blank">
-https://www.image-line.com/fl-studio-mobile/
-</a>
-</div>
+
+  <div class="software-header">
+    <div class="software-header-icon">
+      <img src="images_environment/logo_FLStudio.png" alt="FL Studio Mobile アイコン">
+    </div>
+    <div class="software-header-text">
+      <div class="category">分類：音楽制作</div>
+      <div class="software-title">FL Studio Mobile</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <img src="images/flstudio.png" alt="FL Studio Mobile スクリーンショット">
+    <div class="description">
+      モバイル環境での作曲やアイデアスケッチに使用。<br>
+      ループ制作や簡易ミックスに適している。
+    </div>
+  </div>
+
+  <div class="url">
+    公式サイト：
+    <a href="https://www.image-line.com/fl-studio-mobile/" target="_blank">
+      https://www.image-line.com/fl-studio-mobile/
+    </a>
+  </div>
 </div>
 
 </div>
