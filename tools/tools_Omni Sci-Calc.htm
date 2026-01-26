@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Omni Sci-Calc</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-color: #333;
+            --accent-color: #0d6efd;
+            --key-bg: #2d2d2d;
+            --key-bg-hover: #3d3d3d;
+            --screen-bg: #000000;
+            --input-bg: #121212;
+            --input-text: #ffffff;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color: #0d6efd;
+            --key-bg: #f1f3f5;
+            --key-bg-hover: #e9ecef;
+            --screen-bg: #f8f9fa;
+            --input-bg: #ffffff;
+            --input-text: #212529;
+        }
+
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; transition: background-color 0.3s, color 0.3s; padding-bottom: 60px; touch-action: manipulation; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        h3, h4, h5, h6, label, span, div { color: var(--text-main); }
+        .text-muted { color: var(--text-muted) !important; }
+
+        /* 電卓ディスプレイ */
+        .calc-screen {
+            background: var(--screen-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        #expressionDisplay { font-size: 0.9rem; color: var(--text-muted); min-height: 1.2em; overflow: hidden; white-space: nowrap; }
+        #resultDisplay { 
+            font-size: 2rem; font-weight: bold; color: var(--text-main); 
+            border:none; background:transparent; width:100%; text-align:right; outline:none; font-family: monospace; 
+        }
+        
+        /* キーパッド */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .sci-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4列に変更してバランス調整 */
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .btn-key {
+            background-color: var(--key-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            transition: 0.1s;
+        }
+        .btn-key.sm { font-size: 0.9rem; padding: 10px 0; }
+        .btn-key:active { transform: scale(0.95); }
+        .btn-key:hover { background-color: var(--key-bg-hover); color: var(--text-main); }
+        .btn-op { color: var(--accent-color); font-weight: bold; }
+        .btn-eq { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+        .btn-eq:hover { filter: brightness(1.1); background-color: var(--accent-color); color: #fff; }
+        
+        /* グラフエリア */
+        .graph-wrapper {
+            position: relative;
+            width: 100%; height: 350px;
+            background: var(--screen-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        /* ドロップエリア */
+        .drop-area {
+            border: 2px dashed var(--border-color); border-radius: 12px; padding: 30px;
+            text-align: center; background: rgba(128,128,128,0.05); cursor: pointer; transition: 0.2s;
+        }
+        .drop-area:hover { border-color: var(--accent-color); background: rgba(13, 110, 253, 0.1); }
+
+        /* タブナビ */
+        .nav-tabs { border-bottom: 1px solid var(--border-color); }
+        .nav-tabs .nav-link { color: var(--text-muted); cursor: pointer; border: none; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+        .nav-tabs .nav-link:hover { color: var(--text-main); }
+        .nav-tabs .nav-link.active { color: var(--accent-color); background: transparent; border-bottom: 3px solid var(--accent-color); font-weight: bold; }
+        
+        .hidden { display: none !important; }
+        .history-container { max-height: 200px; overflow-y: auto; border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 10px; }
+        .history-item { cursor: pointer; border-bottom: 1px solid var(--border-color); padding: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
+        .history-item:hover { background: rgba(128,128,128,0.1); }
+        
+        /* フォームコントロールのダークモード対応 */
+        .form-control, .form-select, .input-group-text {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        /* placeholder color fix */
+        ::placeholder { color: var(--text-muted) !important; opacity: 1; }
+
+        footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="container py-4" style="max-width: 800px;">
+    <!-- ヘッダー -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0"><i class="bi bi-calculator"></i> <span data-i18n="appTitle">Omni Sci-Calc</span></h3>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <!-- 言語切替 -->
+            <div class="btn-group btn-group-sm" role="group">
+                <input type="radio" class="btn-check" name="lang" id="langJP" checked onclick="setLang('ja')">
+                <label class="btn btn-outline-secondary" for="langJP">JP</label>
+                <input type="radio" class="btn-check" name="lang" id="langEN" onclick="setLang('en')">
+                <label class="btn btn-outline-secondary" for="langEN">EN</label>
+            </div>
+
+            <!-- テーマ -->
+            <input type="color" class="form-control form-control-color" id="accentColorPicker" value="#0d6efd" title="Color">
+            <div class="form-check form-switch ms-2">
+                <input class="form-check-input" type="checkbox" id="themeToggle">
+                <label class="form-check-label" for="themeToggle"><i class="bi bi-moon-stars-fill"></i></label>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインカード -->
+    <div class="card h-100">
+        <!-- 統一タブナビゲーション -->
+        <div class="card-header bg-transparent border-bottom-0 pb-0">
+            <ul class="nav nav-tabs card-header-tabs" id="mainTabs">
+                <li class="nav-item"><a class="nav-link active" data-target="tab-calc"><i class="bi bi-grid-3x3"></i> <span data-i18n="tabCalc">電卓</span></a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-ocr"><i class="bi bi-camera"></i> OCR</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-graph"><i class="bi bi-graph-up"></i> <span data-i18n="tabGraph">グラフ</span></a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-csv"><i class="bi bi-file-earmark-spreadsheet"></i> CSV</a></li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4">
+            
+            <!-- 1. 電卓タブ (統合) -->
+            <div id="tab-calc" class="tab-pane">
+                <div class="calc-screen">
+                    <div id="expressionDisplay"></div>
+                    <input type="text" id="resultDisplay" placeholder="0" autocomplete="off">
+                </div>
+
+                <!-- 関数キー (展開式) -->
+                <div class="d-grid mb-2">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#sciKeypad" aria-expanded="false">
+                        <i class="bi bi-chevron-down"></i> <span data-i18n="btnSci">関数キーを表示/非表示</span>
+                    </button>
+                </div>
+                <div class="collapse" id="sciKeypad">
+                    <div class="sci-grid">
+                        <button class="btn btn-key sm" onclick="insert('sin(')">sin</button>
+                        <button class="btn btn-key sm" onclick="insert('cos(')">cos</button>
+                        <button class="btn btn-key sm" onclick="insert('tan(')">tan</button>
+                        <button class="btn btn-key sm" onclick="insert('^')">x^y</button>
+                        
+                        <button class="btn btn-key sm" onclick="insert('asin(')">asin</button>
+                        <button class="btn btn-key sm" onclick="insert('acos(')">acos</button>
+                        <button class="btn btn-key sm" onclick="insert('atan(')">atan</button>
+                        <button class="btn btn-key sm" onclick="insert('sqrt(')">√</button>
+
+                        <button class="btn btn-key sm" onclick="insert('log(')">log</button>
+                        <button class="btn btn-key sm" onclick="insert('ln(')">ln</button>
+                        <button class="btn btn-key sm" onclick="insert('exp(')">exp</button>
+                        <button class="btn btn-key sm" onclick="insert('abs(')">abs</button>
+
+                        <button class="btn btn-key sm" onclick="insert('pi')">π</button>
+                        <button class="btn btn-key sm" onclick="insert('e')">e</button>
+                        <button class="btn btn-key sm" onclick="insert('random')">Rand</button>
+                        <button class="btn btn-key sm" onclick="insert(',')">,</button>
+                    </div>
+                </div>
+
+                <!-- 基本キー -->
+                <div class="calc-grid">
+                    <button class="btn btn-key text-danger" onclick="clearAll()">AC</button>
+                    <button class="btn btn-key text-warning" onclick="backspace()"><i class="bi bi-backspace"></i></button>
+                    <button class="btn btn-key btn-op" onclick="insert('(')">(</button>
+                    <button class="btn btn-key btn-op" onclick="insert(')')">)</button>
+                    
+                    <button class="btn btn-key" onclick="insert('7')">7</button>
+                    <button class="btn btn-key" onclick="insert('8')">8</button>
+                    <button class="btn btn-key" onclick="insert('9')">9</button>
+                    <button class="btn btn-key btn-op" onclick="insert('÷')">÷</button>
+                    
+                    <button class="btn btn-key" onclick="insert('4')">4</button>
+                    <button class="btn btn-key" onclick="insert('5')">5</button>
+                    <button class="btn btn-key" onclick="insert('6')">6</button>
+                    <button class="btn btn-key btn-op" onclick="insert('×')">×</button>
+                    
+                    <button class="btn btn-key" onclick="insert('1')">1</button>
+                    <button class="btn btn-key" onclick="insert('2')">2</button>
+                    <button class="btn btn-key" onclick="insert('3')">3</button>
+                    <button class="btn btn-key btn-op" onclick="insert('-')">-</button>
+                    
+                    <button class="btn btn-key" onclick="insert('0')">0</button>
+                    <button class="btn btn-key" onclick="insert('.')">.</button>
+                    <button class="btn btn-key" onclick="insert('ans')">Ans</button>
+                    <button class="btn btn-key btn-op" onclick="insert('+')">+</button>
+                </div>
+                <div class="d-grid mt-2">
+                    <button class="btn btn-key btn-eq" onclick="calculate()">= <span data-i18n="btnCalc">計算実行</span></button>
+                </div>
+                
+                <!-- 電卓履歴 -->
+                <div class="history-container">
+                    <h6 class="small border-bottom pb-1" data-i18n="histTitle">計算履歴</h6>
+                    <div id="calcHistoryList">
+                        <div class="text-center text-muted small mt-2" data-i18n="histNone">履歴なし</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. OCRタブ -->
+            <div id="tab-ocr" class="tab-pane hidden">
+                <div class="drop-area mb-3" id="ocrDropZone">
+                    <i class="bi bi-camera-fill fs-1 text-secondary"></i>
+                    <p class="mb-0" data-i18n="ocrDrop">画像をドロップ / カメラ起動</p>
+                    <input type="file" id="ocrInput" accept="image/*" capture="environment" hidden>
+                </div>
+                <div id="ocrProgress" class="progress hidden mb-3" style="height: 5px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                </div>
+                <button class="btn btn-outline-primary w-100 mb-2" id="insertOcrBtn" disabled>
+                    <i class="bi bi-arrow-up-circle"></i> <span data-i18n="ocrInsert">認識結果を計算機へ送る</span>
+                </button>
+                <textarea id="ocrResultText" class="form-control" rows="4" placeholder="..." readonly></textarea>
+            </div>
+
+            <!-- 3. グラフタブ -->
+            <div id="tab-graph" class="tab-pane hidden">
+                <div class="graph-wrapper">
+                    <canvas id="graphCanvas"></canvas>
+                </div>
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text">y =</span>
+                    <input type="text" id="graphFormula" class="form-control" placeholder="sin(x)" value="sin(x)">
+                    <button class="btn btn-primary" onclick="drawGraph()" data-i18n="btnDraw">描画</button>
+                </div>
+
+                <div class="row g-2 align-items-center mb-2">
+                    <!-- X Range -->
+                    <div class="col-6">
+                        <label class="small text-muted" data-i18n="rangeX">X範囲</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" id="graphMinX" class="form-control" value="-10">
+                            <input type="number" id="graphMaxX" class="form-control" value="10">
+                        </div>
+                    </div>
+                    <!-- Y Range -->
+                    <div class="col-6">
+                        <label class="small text-muted" data-i18n="rangeY">Y範囲</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" id="graphMinY" class="form-control" value="-5">
+                            <input type="number" id="graphMaxY" class="form-control" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グラフ履歴 -->
+                <div class="history-container">
+                    <h6 class="small border-bottom pb-1" data-i18n="graphHist">描画履歴</h6>
+                    <div id="graphHistoryList">
+                        <div class="text-center text-muted small mt-2" data-i18n="histNone">履歴なし</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. CSV/統計タブ -->
+            <div id="tab-csv" class="tab-pane hidden">
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="csvLabel">CSVファイル読み込み</label>
+                    <input class="form-control" type="file" id="csvInput" accept=".csv">
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statSum">合計</small><span id="statSum" class="fw-bold">--</span></div></div>
+                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statAvg">平均</small><span id="statAvg" class="fw-bold">--</span></div></div>
+                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statMax">最大</small><span id="statMax" class="fw-bold">--</span></div></div>
+                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statMin">最小</small><span id="statMin" class="fw-bold">--</span></div></div>
+                    <div class="col-12"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statDev">標準偏差</small><span id="statDev" class="fw-bold">--</span></div></div>
+                </div>
+                <button class="btn btn-sm btn-outline-success w-100" onclick="exportCSV()"><i class="bi bi-download"></i> <span data-i18n="btnExport">結果をCSVで保存</span></button>
+            </div>
+
+        </div>
+    </div>
+    
+    <footer>
+        <p>Omni Sci-Calc</p>
+    </footer>
+
+</div>
+
+<!-- Tesseract.js -->
+<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+
+<script>
+    // --- Translation Data ---
+    const i18n = {
+        ja: {
+            appTitle: "Omni Sci-Calc",
+            tabCalc: "電卓", tabGraph: "グラフ",
+            btnSci: "関数キーを表示/非表示",
+            btnCalc: "計算実行",
+            histTitle: "計算履歴", histNone: "履歴なし",
+            ocrDrop: "画像をドロップ / カメラ起動", ocrInsert: "認識結果を計算機へ送る",
+            btnDraw: "描画", rangeX: "X範囲 (横軸)", rangeY: "Y範囲 (縦軸)", graphHist: "描画履歴",
+            csvLabel: "CSVファイル読み込み", statSum: "合計", statAvg: "平均", statMax: "最大", statMin: "最小", statDev: "標準偏差", btnExport: "結果をCSVで保存"
+        },
+        en: {
+            appTitle: "Omni Sci-Calc",
+            tabCalc: "Calculator", tabGraph: "Graph",
+            btnSci: "Show/Hide Sci-Keys",
+            btnCalc: "Calculate",
+            histTitle: "History", histNone: "No history",
+            ocrDrop: "Drop image / Open camera", ocrInsert: "Insert to Calculator",
+            btnDraw: "Plot", rangeX: "X Range", rangeY: "Y Range", graphHist: "Plot History",
+            csvLabel: "Load CSV File", statSum: "Sum", statAvg: "Avg", statMax: "Max", statMin: "Min", statDev: "Std Dev", btnExport: "Export CSV"
+        }
+    };
+
+    let currentLang = 'ja';
+
+    // --- State & History ---
+    const state = { ans: 0, calcHistory: [], graphHistory: [], csvData: [] };
+
+    // --- DOM Elements ---
+    const el = {
+        dispExp: document.getElementById('expressionDisplay'),
+        dispRes: document.getElementById('resultDisplay'),
+        calcHistoryList: document.getElementById('calcHistoryList'),
+        graphHistoryList: document.getElementById('graphHistoryList'),
+        graphCanvas: document.getElementById('graphCanvas'),
+        graphFormula: document.getElementById('graphFormula'),
+        themeToggle: document.getElementById('themeToggle'),
+        colorPicker: document.getElementById('accentColorPicker')
+    };
+
+    // --- Localization ---
+    function setLang(lang) {
+        currentLang = lang;
+        const data = i18n[lang];
+        document.querySelectorAll('[data-i18n]').forEach(e => {
+            const key = e.getAttribute('data-i18n');
+            if(data[key]) e.innerText = data[key];
+        });
+        // Update placeholders/values if needed (none critical for now)
+    }
+
+    // --- Theme & Tab Logic ---
+    el.themeToggle.addEventListener('change', () => {
+        document.documentElement.setAttribute('data-theme', el.themeToggle.checked ? 'light' : 'dark');
+        drawGraph(); 
+    });
+    el.colorPicker.addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--accent-color', e.target.value);
+        drawGraph(); // Re-draw graph to update line color
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            const target = e.target.closest('.nav-link'); // Handle icon click
+            target.classList.add('active');
+            
+            const targetId = target.getAttribute('data-target');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+
+            if(targetId === 'tab-graph') drawGraph();
+        });
+    });
+
+    // --- Calculator Engine ---
+    function insert(val) {
+        const input = el.dispRes;
+        const currentPos = input.selectionStart || input.value.length;
+        const valStr = val.toString();
+        const text = input.value;
+        input.value = text.slice(0, currentPos) + valStr + text.slice(currentPos);
+        input.focus();
+        input.setSelectionRange(currentPos + valStr.length, currentPos + valStr.length);
+    }
+    
+    function clearAll() { el.dispRes.value = ''; el.dispExp.innerText = ''; }
+    function backspace() { el.dispRes.value = el.dispRes.value.slice(0, -1); }
+
+    function safeEvaluate(expr, xVal = null) {
+        let clean = expr
+            .replace(/×/g, '*')
+            .replace(/÷/g, '/')
+            .replace(/ans/gi, state.ans)
+            .replace(/sin/g, 'Math.sin')
+            .replace(/cos/g, 'Math.cos')
+            .replace(/tan/g, 'Math.tan')
+            .replace(/asin/g, 'Math.asin')
+            .replace(/acos/g, 'Math.acos')
+            .replace(/atan/g, 'Math.atan')
+            .replace(/sqrt/g, 'Math.sqrt')
+            .replace(/log/g, 'Math.log10')
+            .replace(/ln/g, 'Math.log')
+            .replace(/exp/g, 'Math.exp')
+            .replace(/abs/g, 'Math.abs')
+            .replace(/pi/gi, 'Math.PI')
+            .replace(/e/gi, 'Math.E')
+            .replace(/\^/g, '**')
+            .replace(/random/g, 'Math.random()');
+        try {
+            return xVal !== null ? new Function('x', 'return ' + clean)(xVal) : new Function('return ' + clean)();
+        } catch (e) { throw new Error("Err"); }
+    }
+
+    function calculate() {
+        const expr = el.dispRes.value;
+        if (!expr.trim()) return;
+        try {
+            const res = safeEvaluate(expr);
+            const resFixed = parseFloat(res.toFixed(10));
+            el.dispExp.innerText = expr + ' =';
+            el.dispRes.value = resFixed;
+            state.ans = resFixed;
+            state.calcHistory.unshift({ expr, res: resFixed });
+            if(state.calcHistory.length > 20) state.calcHistory.pop();
+            renderCalcHistory();
+        } catch (e) { el.dispExp.innerText = 'Error'; }
+    }
+
+    function renderCalcHistory() {
+        const list = el.calcHistoryList;
+        if (state.calcHistory.length === 0) {
+            list.innerHTML = `<div class="text-center text-muted small mt-2">${i18n[currentLang].histNone}</div>`;
+            return;
+        }
+        list.innerHTML = state.calcHistory.map(item => `
+            <div class="history-item" onclick="el.dispRes.value='${item.res}'">
+                <span class="text-muted small text-truncate" style="max-width: 60%;">${item.expr}</span>
+                <span class="fw-bold" style="color:var(--text-main)">= ${item.res}</span>
+            </div>
+        `).join('');
+    }
+
+    // --- Graphing ---
+    function drawGraph() {
+        const canvas = el.graphCanvas;
+        const ctx = canvas.getContext('2d');
+        const expr = el.graphFormula.value;
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        const W = canvas.width, H = canvas.height;
+
+        ctx.clearRect(0, 0, W, H);
+
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        // Dark Mode Text Fix: White text on dark bg
+        const textColor = isLight ? '#666' : '#e0e0e0';
+        const axisColor = isLight ? '#999' : '#555';
+        const gridColor = isLight ? '#e0e0e0' : '#333';
+        const graphColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+
+        const minX = parseFloat(document.getElementById('graphMinX').value) || -10;
+        const maxX = parseFloat(document.getElementById('graphMaxX').value) || 10;
+        const minY = parseFloat(document.getElementById('graphMinY').value) || -5;
+        const maxY = parseFloat(document.getElementById('graphMaxY').value) || 5;
+        const rangeX = maxX - minX, rangeY = maxY - minY;
+        
+        const toPx = (x, y) => ({ x: (x - minX) / rangeX * W, y: H - (y - minY) / rangeY * H });
+
+        // Grid & Ticks
+        ctx.lineWidth = 1;
+        ctx.font = '12px sans-serif'; // Bigger font
+        ctx.fillStyle = textColor;
+        
+        const getStep = (r) => {
+            const rs = r/8; const p = Math.pow(10, Math.floor(Math.log10(rs)));
+            const b = rs/p; return (b<2?1:b<5?2:5)*p;
+        };
+        const stepX = getStep(rangeX), stepY = getStep(rangeY);
+
+        const startX = Math.ceil(minX / stepX) * stepX;
+        for(let x = startX; x <= maxX; x += stepX) {
+            const px = toPx(x, 0).x;
+            ctx.beginPath();
+            ctx.strokeStyle = (Math.abs(x)<stepX/10) ? axisColor : gridColor;
+            ctx.lineWidth = (Math.abs(x)<stepX/10) ? 2 : 1;
+            ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+            if(px > 10 && px < W-10) ctx.fillText(parseFloat(x.toFixed(4)), px + 2, H - 5);
+        }
+
+        const startY = Math.ceil(minY / stepY) * stepY;
+        for(let y = startY; y <= maxY; y += stepY) {
+            const py = toPx(0, y).y;
+            ctx.beginPath();
+            ctx.strokeStyle = (Math.abs(y)<stepY/10) ? axisColor : gridColor;
+            ctx.lineWidth = (Math.abs(y)<stepY/10) ? 2 : 1;
+            ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke();
+            if(py > 10 && py < H-10) ctx.fillText(parseFloat(y.toFixed(4)), 5, py - 2);
+        }
+
+        if(!expr || !expr.includes('x')) return;
+
+        ctx.beginPath();
+        ctx.strokeStyle = graphColor;
+        ctx.lineWidth = 2;
+        let first = true;
+        for (let px = 0; px <= W; px+=2) {
+            const xVal = minX + (px / W) * rangeX;
+            try {
+                const yVal = safeEvaluate(expr, xVal);
+                if (isNaN(yVal) || !isFinite(yVal) || yVal > maxY + rangeY || yVal < minY - rangeY) { first = true; continue; }
+                const pt = toPx(xVal, yVal);
+                if (first) { ctx.moveTo(pt.x, pt.y); first = false; } else { ctx.lineTo(pt.x, pt.y); }
+            } catch (e) {}
+        }
+        ctx.stroke();
+        
+        if(state.graphHistory[0] !== expr) {
+            state.graphHistory.unshift(expr);
+            if(state.graphHistory.length > 10) state.graphHistory.pop();
+            renderGraphHistory();
+        }
+    }
+
+    function renderGraphHistory() {
+        const list = el.graphHistoryList;
+        list.innerHTML = state.graphHistory.map(f => `
+            <div class="history-item" onclick="el.graphFormula.value='${f}'; drawGraph();">
+                <span class="font-monospace" style="color:var(--accent-color)">y = ${f}</span>
+                <i class="bi bi-arrow-counterclockwise text-muted"></i>
+            </div>
+        `).join('');
+    }
+
+    // --- CSV & OCR ---
+    const csvInput = document.getElementById('csvInput');
+    csvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => processCSV(evt.target.result);
+        reader.readAsText(file);
+    });
+
+    function processCSV(text) {
+        const nums = [];
+        text.split(/\r\n|\n/).forEach(line => {
+            line.split(',').forEach(cell => {
+                const n = parseFloat(cell.trim());
+                if (!isNaN(n)) nums.push(n);
+            });
+        });
+        if (nums.length === 0) return;
+        const sum = nums.reduce((a, b) => a + b, 0);
+        const avg = sum / nums.length;
+        const variance = nums.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / nums.length;
+        
+        document.getElementById('statSum').innerText = sum.toFixed(4);
+        document.getElementById('statAvg').innerText = avg.toFixed(4);
+        document.getElementById('statMax').innerText = Math.max(...nums);
+        document.getElementById('statMin').innerText = Math.min(...nums);
+        document.getElementById('statDev').innerText = Math.sqrt(variance).toFixed(4);
+        state.csvData = nums;
+    }
+    
+    function exportCSV() {
+        if(state.csvData.length === 0) { alert('No data'); return; }
+        const header = `Sum,${document.getElementById('statSum').innerText}\nAvg,${document.getElementById('statAvg').innerText}`;
+        const blob = new Blob([header], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'stats.csv';
+        a.click();
+    }
+
+    const ocrDrop = document.getElementById('ocrDropZone');
+    const ocrInput = document.getElementById('ocrInput');
+    const ocrResult = document.getElementById('ocrResultText');
+    const insertOcrBtn = document.getElementById('insertOcrBtn');
+    
+    ocrDrop.addEventListener('click', () => ocrInput.click());
+    ocrDrop.addEventListener('drop', (e) => { e.preventDefault(); if(e.dataTransfer.files.length) runOCR(e.dataTransfer.files[0]); });
+    ocrInput.addEventListener('change', (e) => { if(e.target.files.length) runOCR(e.target.files[0]); });
+
+    function runOCR(file) {
+        ocrResult.value = 'Analyzing...';
+        document.getElementById('ocrProgress').classList.remove('hidden');
+        Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
+            document.getElementById('ocrProgress').classList.add('hidden');
+            ocrResult.value = text.replace(/\n/g, ' ').trim();
+            insertOcrBtn.disabled = false;
+        });
+    }
+    insertOcrBtn.addEventListener('click', () => {
+        let txt = ocrResult.value.replace(/[^0-9+\-*/().xy^sinco tanloge]/gi, '');
+        el.dispRes.value = txt;
+        document.querySelector('[data-target="tab-calc"]').click();
+    });
+
+    // Init
+    window.addEventListener('load', drawGraph);
+</script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
