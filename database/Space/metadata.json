@@ -1,0 +1,5 @@
+{
+  "name": "宇宙機データベース",
+  "description": "日本の人工衛星・探査機の包括的なデーターベース。ミッション詳細、成果、AIによる解説を提供します。",
+  "requestFramePermissions": []
+}

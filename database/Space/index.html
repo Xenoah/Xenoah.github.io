@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宇宙機データベース</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Space Grotesk', 'sans-serif'],
+            },
+            colors: {
+              space: {
+                900: '#0B0D17',
+                800: '#151932',
+                700: '#232946',
+                accent: '#00D4FF',
+                secondary: '#7000FF'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0B0D17;
+        color: #E2E8F0;
+      }
+      .glass-panel {
+        background: rgba(21, 25, 50, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #0B0D17; }
+      ::-webkit-scrollbar-thumb { background: #232946; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #3c4570; }
+      
+      /* Loading Animation */
+      .loader {
+        border: 3px solid rgba(255,255,255,0.1);
+        border-radius: 50%;
+        border-top: 3px solid #00D4FF;
+        width: 40px;
+        height: 40px;
+        -webkit-animation: spin 1s linear infinite; /* Safari */
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+    
+    <!-- Import Map for Dependencies: Dependencies pinned to React 18 to avoid version conflicts -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?deps=react@18.2.0,react-dom@18.2.0",
+        "recharts": "https://esm.sh/recharts@2.12.3?deps=react@18.2.0,react-dom@18.2.0",
+        "@google/genai": "https://esm.sh/@google/genai@0.1.1"
+      }
+    }
+    </script>
+    
+    <!-- Babel for in-browser JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Main Application Logic Embedded -->
+    <script type="text/babel" data-type="module">
+      import React, { useState, useEffect, useMemo, createContext, useContext, useRef } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { HashRouter, Routes, Route, Link, useLocation, useParams } from 'react-router-dom';
+      import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+      import { GoogleGenAI } from '@google/genai';
+
+      // --- Constants ---
+      const MissionStatus = {
+        ACTIVE: '運用中',
+        RETIRED: '運用終了',
+        FAILED: '失敗',
+        SUCCESS: '成功（運用終了）',
+        FUTURE: '打ち上げ予定'
+      };
+
+      const DataContext = createContext([]);
+
+      // --- Service ---
+      const getSatelliteInsight = async (satellite, question) => {
+        const apiKey = localStorage.getItem('gemini_api_key');
+        if (!apiKey) {
+          return "APIキーが設定されていません。ページ上部の設定からAPIキーを入力してください。";
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+        const modelId = "gemini-2.0-flash"; 
+        
+        const prompt = `
+          あなたは日本の宇宙開発、特に人工衛星や探査機の歴史と技術に精通した専門家AIです。
+          
+          対象の衛星/探査機情報:
+          名称: ${satellite.name} (英語名: ${satellite.englishName})
+          正式名称: ${satellite.officialName}
+          ミッション名: ${satellite.missionName}
+          運用機関: ${satellite.operator || '不明'}
+          種類: ${satellite.type}
+          状態: ${satellite.status}
+          打ち上げ日: ${satellite.launchDate}
+          説明: ${satellite.description}
+          主な成果: ${satellite.achievements.join(', ')}
+
+          ユーザーの質問: "${question}"
+
+          この情報とあなたの持つ一般的な知識に基づいて、ユーザーの質問に日本語で答えてください。
+          トーンは教育的で、宇宙への興味を掻き立てるような魅力的なものにしてください。
+          技術的な詳細が必要な場合を除き、回答は簡潔（約150文字程度）にまとめてください。
+        `;
+
+        try {
+          const response = await ai.models.generateContent({
+            model: modelId,
+            contents: prompt,
+          });
+          return response.text || "申し訳ありませんが、応答を生成できませんでした。";
+        } catch (error) {
+          console.error("Gemini API Error:", error);
+          return `AIとの通信中にエラーが発生しました: ${error.message}`;
+        }
+      };
+
+      // --- Components ---
+      const getStatusColor = (status) => {
+        switch (status) {
+          case MissionStatus.ACTIVE: return 'bg-green-500/20 text-green-300 border-green-500/50';
+          case MissionStatus.SUCCESS: return 'bg-blue-500/20 text-blue-300 border-blue-500/50';
+          case MissionStatus.RETIRED: return 'bg-gray-500/20 text-gray-300 border-gray-500/50';
+          case MissionStatus.FAILED: return 'bg-red-500/20 text-red-300 border-red-500/50';
+          default: return 'bg-space-700 text-gray-300';
+        }
+      };
+
+      const SatelliteCard = ({ data, viewMode }) => {
+        const hasImage = data.imageUrl && data.imageUrl.length > 0;
+        
+        const ImagePlaceholder = () => (
+          <div className="w-full h-full bg-space-800 flex flex-col items-center justify-center p-4">
+             <div className="w-16 h-16 rounded-full bg-space-700 flex items-center justify-center mb-2 border border-white/10">
+                <span className="text-2xl font-bold text-space-accent">{data.englishName.substring(0, 2)}</span>
+             </div>
+             <span className="text-xs text-gray-500 font-mono">{data.officialName}</span>
+          </div>
+        );
+
+        if (viewMode === 'list') {
+          return (
+            <Link 
+              to={`/satellite/${data.id}`}
+              className="group relative block rounded-xl overflow-hidden glass-panel transition-all duration-300 hover:bg-space-800/50 hover:shadow-lg border border-white/5 p-4"
+            >
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                 <div className="w-full md:w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-space-900 border border-white/10">
+                    {hasImage ? (
+                      <img src={data.imageUrl} alt={data.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImagePlaceholder />
+                    )}
+                 </div>
+                 <div className="flex-grow min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-3 mb-1">
+                      <h3 className="text-lg font-bold text-white group-hover:text-space-accent transition-colors">
+                        {data.name}
+                      </h3>
+                      <span className="text-sm text-gray-400 font-mono">({data.englishName})</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(data.status)}`}>
+                        {data.status}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-1">{data.missionName}</p>
+                 </div>
+              </div>
+            </Link>
+          );
+        }
+
+        return (
+          <Link 
+            to={`/satellite/${data.id}`}
+            className="group relative block rounded-2xl overflow-hidden glass-panel transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-space-accent/20"
+          >
+            <div className="aspect-video w-full overflow-hidden bg-space-800 relative border-b border-white/5">
+              {hasImage ? (
+                <img src={data.imageUrl} alt={data.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
+              ) : (
+                <ImagePlaceholder />
+              )}
+              <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md ${getStatusColor(data.status)}`}>
+                  {data.status}
+                </span>
+              </div>
+            </div>
+            <div className="p-5">
+              <h3 className="text-xl font-display font-bold text-white group-hover:text-space-accent transition-colors">
+                {data.name}
+              </h3>
+              <p className="text-xs text-space-accent/70 font-mono mb-2">{data.officialName}</p>
+              <p className="text-gray-500 text-xs line-clamp-2 h-8">{data.description}</p>
+            </div>
+          </Link>
+        );
+      };
+
+      const Navbar = () => {
+        const location = useLocation();
+        const isActive = (path) => location.pathname === path;
+        
+        const handleSetKey = () => {
+          const key = prompt("Google Gemini APIキーを入力してください（ブラウザに保存されます）:", localStorage.getItem('gemini_api_key') || '');
+          if (key !== null) {
+            localStorage.setItem('gemini_api_key', key);
+            alert("保存しました。");
+          }
+        };
+
+        return (
+          <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-space-900/80 backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                <Link to="/" className="flex items-center gap-3 group">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-space-secondary to-space-accent flex items-center justify-center shadow-lg">
+                    <span className="text-white text-xs">🚀</span>
+                  </div>
+                  <span className="text-lg font-display font-bold text-white tracking-wide">
+                    宇宙機<span className="text-space-accent">データベース</span>
+                  </span>
+                </Link>
+                <div className="flex space-x-6 items-center">
+                  <Link to="/" className={`text-sm font-medium ${isActive('/') ? 'text-space-accent' : 'text-gray-400 hover:text-white'}`}>一覧</Link>
+                  <Link to="/stats" className={`text-sm font-medium ${isActive('/stats') ? 'text-space-accent' : 'text-gray-400 hover:text-white'}`}>統計</Link>
+                  <button onClick={handleSetKey} className="text-xs bg-space-700 px-2 py-1 rounded text-gray-300 hover:bg-space-600">API設定</button>
+                </div>
+              </div>
+            </div>
+          </nav>
+        );
+      };
+
+      // --- Pages ---
+      const Home = () => {
+        const data = useContext(DataContext);
+        const [searchTerm, setSearchTerm] = useState('');
+        const [filterType, setFilterType] = useState('すべて');
+        const [viewMode, setViewMode] = useState('grid');
+
+        const filteredData = useMemo(() => {
+          return data.filter(sat => {
+            const term = searchTerm.toLowerCase();
+            const matchesSearch = 
+              sat.name.toLowerCase().includes(term) || 
+              sat.englishName.toLowerCase().includes(term) ||
+              sat.missionName.toLowerCase().includes(term);
+            const matchesType = filterType === 'すべて' || sat.type === filterType;
+            return matchesSearch && matchesType;
+          });
+        }, [searchTerm, filterType, data]);
+
+        const uniqueTypes = ['すべて', ...Array.from(new Set(data.map(s => s.type)))];
+
+        return (
+          <div className="min-h-screen bg-space-900 pb-20">
+            <div className="relative py-12 px-4 bg-space-800 text-center">
+              <h1 className="text-3xl md:text-5xl font-display font-bold text-white mb-4">日本の宇宙開発</h1>
+              <div className="max-w-xl mx-auto mt-6">
+                <input
+                  type="text"
+                  placeholder="衛星名で検索..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-space-900 border border-white/10 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-space-accent"
+                />
+              </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 mt-6 flex gap-2 overflow-x-auto pb-4">
+               {uniqueTypes.map(type => (
+                 <button
+                   key={type}
+                   onClick={() => setFilterType(type)}
+                   className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                     filterType === type ? 'bg-space-accent text-space-900' : 'bg-space-800 text-gray-400'
+                   }`}
+                 >
+                   {type}
+                 </button>
+               ))}
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 py-8">
+              <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
+                {filteredData.map(sat => (
+                  <SatelliteCard key={sat.id} data={sat} viewMode={viewMode} />
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const SatelliteDetail = () => {
+        const { id } = useParams();
+        const data = useContext(DataContext);
+        const [satellite, setSatellite] = useState(null);
+        const [chatInput, setChatInput] = useState('');
+        const [chatHistory, setChatHistory] = useState([]);
+        const [isTyping, setIsTyping] = useState(false);
+        const chatEndRef = useRef(null);
+
+        useEffect(() => {
+          const found = data.find(s => s.id === id);
+          setSatellite(found);
+          if (found) {
+              setChatHistory([{
+                  id: 'init',
+                  role: 'model',
+                  text: `こんにちは！${found.name}について質問があればどうぞ。`,
+                  timestamp: Date.now()
+              }]);
+          }
+        }, [id, data]);
+
+        const handleSendMessage = async (e) => {
+          e.preventDefault();
+          if (!chatInput.trim()) return;
+
+          const userMsg = { id: Date.now().toString(), role: 'user', text: chatInput };
+          setChatHistory(prev => [...prev, userMsg]);
+          setChatInput('');
+          setIsTyping(true);
+
+          const answer = await getSatelliteInsight(satellite, userMsg.text);
+          setChatHistory(prev => [...prev, { id: Date.now().toString(), role: 'model', text: answer }]);
+          setIsTyping(false);
+        };
+
+        if (!satellite) return <div className="p-10 text-white text-center">Loading or Not Found...</div>;
+
+        return (
+          <div className="min-h-screen bg-space-900 pb-20 pt-6">
+            <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                 <div className="glass-panel p-8 rounded-2xl">
+                    <h1 className="text-4xl font-bold text-white mb-2">{satellite.name}</h1>
+                    <p className="text-xl text-space-accent">{satellite.englishName}</p>
+                    <div className="mt-4 text-gray-300">{satellite.description}</div>
+                    <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                      <div><span className="text-gray-500 block">打ち上げ</span> {satellite.launchDate}</div>
+                      <div><span className="text-gray-500 block">状態</span> {satellite.status}</div>
+                      <div><span className="text-gray-500 block">運用機関</span> {satellite.operator}</div>
+                      <div><span className="text-gray-500 block">ロケット</span> {satellite.launchVehicle}</div>
+                    </div>
+
+                    {satellite.officialUrl && (
+                      <div className="mt-8 pt-6 border-t border-white/10">
+                        <a 
+                          href={satellite.officialUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-3 bg-space-accent/10 text-space-accent border border-space-accent/40 rounded-lg hover:bg-space-accent/20 transition-all hover:scale-105"
+                        >
+                          <span className="font-bold">公式サイトへ移動</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                          </svg>
+                        </a>
+                      </div>
+                    )}
+                 </div>
+              </div>
+              
+              <div className="lg:col-span-1">
+                <div className="glass-panel rounded-2xl flex flex-col h-[500px] border border-space-accent/20">
+                  <div className="p-4 border-b border-white/10 bg-space-800/50 rounded-t-2xl">
+                    <h3 className="text-lg font-bold text-white">AI解説員</h3>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {chatHistory.map(msg => (
+                      <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === 'user' ? 'bg-space-accent text-space-900' : 'bg-space-700 text-gray-200'}`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                    {isTyping && <div className="text-gray-500 text-xs">入力中...</div>}
+                  </div>
+                  <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10">
+                     <input 
+                       className="w-full bg-space-900 border border-white/20 text-white rounded-lg px-4 py-2"
+                       value={chatInput}
+                       onChange={e => setChatInput(e.target.value)}
+                       placeholder="質問する..."
+                     />
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const Stats = () => {
+        const data = useContext(DataContext);
+        const typeCounts = data.reduce((acc, curr) => { acc[curr.type] = (acc[curr.type] || 0) + 1; return acc; }, {});
+        const typeData = Object.entries(typeCounts).map(([name, value]) => ({ name, value }));
+        const COLORS = ['#00D4FF', '#7000FF', '#FF0080', '#FFD700', '#00FF9D'];
+
+        return (
+          <div className="min-h-screen bg-space-900 p-8">
+            <h1 className="text-3xl font-bold text-white mb-8">統計データ</h1>
+            <div className="glass-panel p-6 rounded-2xl max-w-2xl mx-auto h-[400px]">
+              <h3 className="text-white mb-4">ミッション種類別割合</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
+                    {typeData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      };
+
+      // --- App Root ---
+      const App = () => {
+        const [data, setData] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+
+        useEffect(() => {
+          fetch('./data.json')
+            .then(res => {
+               if(!res.ok) throw new Error('Failed to load data.json');
+               return res.json();
+            })
+            .then(d => {
+               setData(d);
+               setLoading(false);
+            })
+            .catch(e => {
+               console.error(e);
+               setError(e.message);
+               setLoading(false);
+            });
+        }, []);
+
+        if (loading) {
+          return (
+            <div className="min-h-screen bg-space-900 flex flex-col items-center justify-center text-white">
+              <div className="loader mb-4"></div>
+              <p>Loading Mission Data...</p>
+            </div>
+          );
+        }
+
+        if (error) {
+          return (
+            <div className="min-h-screen bg-space-900 flex flex-col items-center justify-center text-red-400 p-4 text-center">
+              <h2 className="text-2xl mb-2">Error Loading Data</h2>
+              <p>{error}</p>
+              <p className="text-sm text-gray-500 mt-4">
+                ※ ローカルファイル(file://)で開いている場合、ブラウザのセキュリティ制限により外部ファイルを読み込めないことがあります。<br/>
+                VSCodeのLive Server機能や、<code>python -m http.server</code> などを使用して開いてください。
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <DataContext.Provider value={data}>
+            <HashRouter>
+              <div className="bg-space-900 min-h-screen text-white">
+                <Navbar />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/satellite/:id" element={<SatelliteDetail />} />
+                  <Route path="/stats" element={<Stats />} />
+                </Routes>
+              </div>
+            </HashRouter>
+          </DataContext.Provider>
+        );
+      };
+
+      const root = createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
