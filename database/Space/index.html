@@ -84,15 +84,19 @@
   </style>
 
   <!-- UMD Scripts for file:// compatibility -->
-  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/recharts@2.12.3/umd/Recharts.min.js"></script>
-  <script crossorigin src="https://unpkg.com/history@5.3.0/umd/history.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-router@6.22.3/umd/react-router.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-router-dom@6.22.3/umd/react-router-dom.production.min.js"></script>
+  <!-- Local UMD Scripts for offline compatibility -->
+  <script src="./lib/react.production.min.js"></script>
+  <script src="./lib/react-dom.production.min.js"></script>
+  <script src="./lib/Recharts.min.js"></script>
+  <script src="./lib/history.production.min.js"></script>
+  <script src="./lib/react-router.production.min.js"></script>
+  <script src="./lib/react-router-dom.production.min.js"></script>
 
   <!-- Babel for in-browser JSX transformation -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./lib/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="./lib/tailwind.js"></script>
 
 </head>
 
