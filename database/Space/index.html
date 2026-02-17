@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAXA Spacecraft Database</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0B0D17;
+            --accent-cyan: #00D4FF;
+            --accent-purple: #7000FF;
+            --text-main: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-hover: rgba(255, 255, 255, 0.1);
+            --danger: #FF4444;
+            --success: #00CC88;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 40%);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Utility Classes */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            opacity: 0.9;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #FFF, #AAA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-Operational {
+            background: rgba(0, 204, 136, 0.2);
+            color: #00CC88;
+            border: 1px solid rgba(0, 204, 136, 0.3);
+        }
+
+        .status-Retired {
+            background: rgba(100, 100, 100, 0.2);
+            color: #A0A0A0;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+        }
+
+        .status-Failed {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Chart Canvas */
+        #chart-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Chat UI */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+        }
+
+        /* Navbar */
+        .navbar {
+            padding: 20px 0;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-cyan);
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .markdown-body ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .markdown-body p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useContext, createContext, useMemo } = React;
+
+        // --- Context ---
+        const SatelliteContext = createContext();
+
+        const SatelliteProvider = ({ children }) => {
+            const [satellites, setSatellites] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
+
+            useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        const response = await fetch('./data.json');
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        setSatellites(data);
+                    } catch (e) {
+                        console.error("Fetch error:", e);
+                        setError(e.message);
+                        if (window.location.protocol === 'file:') {
+                            setError("ローカルファイル(file://)からはデータを読み込めません。ローカルサーバーを起動するか、GitHub Pages等にアップロードしてください。");
+                        }
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                fetchData();
+            }, []);
+
+            const saveApiKey = (key) => {
+                setApiKey(key);
+                localStorage.setItem('gemini_api_key', key);
+            };
+
+            return (
+                <SatelliteContext.Provider value={{ satellites, loading, error, apiKey, saveApiKey }}>
+                    {children}
+                </SatelliteContext.Provider>
+            );
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Rocket: () => <i data-lucide="rocket"></i>,
+            Search: () => <i data-lucide="search"></i>,
+            Settings: () => <i data-lucide="settings"></i>,
+            ExternalLink: () => <i data-lucide="external-link"></i>,
+            MessageSquare: () => <i data-lucide="message-square"></i>,
+            BarChart: () => <i data-lucide="bar-chart-2"></i>,
+            Home: () => <i data-lucide="home"></i>,
+            Send: () => <i data-lucide="send"></i>,
+            Cpu: () => <i data-lucide="cpu"></i>,
+            Satellite: () => <i data-lucide="satellite"></i>,
+            Globe: () => <i data-lucide="globe"></i>
+        };
+
+        // --- Components ---
+
+        const Navbar = ({ currentPage, setPage, setShowSettings }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            return (
+                <nav className="navbar glass">
+                    <div className="container nav-content">
+                        <a href="#" className="logo" onClick={(e) => { e.preventDefault(); setPage('home'); }}>
+                            <span className="text-accent"><Icons.Rocket /></span>
+                            SpaceDB
+                        </a>
+                        <div className="nav-links">
+                            <a href="#" className={`nav-link ${currentPage === 'home' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('home'); }}>
+                                一覧
+                            </a>
+                            <a href="#" className={`nav-link ${currentPage === 'stats' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('stats'); }}>
+                                統計
+                            </a>
+                            <button className="btn" onClick={() => setShowSettings(true)}>
+                                <Icons.Settings /> API設定
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+
+        const LoadingSpinner = () => (
+            <div className="loading-container">
+                <div className="text-accent spin" style={{ fontSize: '48px' }}><Icons.Rocket /></div>
+                <p>Loading database...</p>
+            </div>
+        );
+
+        const ErrorDisplay = ({ message }) => (
+            <div className="container" style={{ textAlign: 'center', padding: '40px', color: 'var(--danger)' }}>
+                <h2>Error Loading Data</h2>
+                <p style={{ marginTop: '20px', color: 'var(--text-main)' }}>{message}</p>
+            </div>
+        );
+
+        const SettingsModal = ({ show, onClose, currentKey, onSave }) => {
+            const [key, setKey] = useState(currentKey);
+
+            if (!show) return null;
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content glass" onClick={e => e.stopPropagation()}>
+                        <h2 style={{ marginBottom: '20px' }}>Gemini API設定</h2>
+                        <p style={{ marginBottom: '16px', color: '#A0A0A0', fontSize: '0.9rem' }}>
+                            AI解説機能を使用するには、Google Gemini APIキーが必要です。
+                            キーはブラウザのlocalStorageにのみ保存されます。
+                        </p>
+                        <input
+                            type="password"
+                            className="chat-input"
+                            style={{ width: '100%', marginBottom: '20px' }}
+                            placeholder="API Key (AIza...)"
+                            value={key}
+                            onChange={(e) => setKey(e.target.value)}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                            <button className="btn" onClick={onClose}>キャンセル</button>
+                            <button className="btn btn-primary" onClick={() => { onSave(key); onClose(); }}>保存</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Pages ---
+
+        const Home = ({ satellites, onSelect }) => {
+            const [search, setSearch] = useState('');
+            const [filterType, setFilterType] = useState('All');
+
+            const types = ['All', ...new Set(satellites.map(s => s.type))];
+
+            const filtered = satellites.filter(s => {
+                const matchesSearch = s.name.includes(search) ||
+                    s.englishName.toLowerCase().includes(search.toLowerCase()) ||
+                    s.missionName.includes(search);
+                const matchesType = filterType === 'All' || s.type === filterType;
+                return matchesSearch && matchesType;
+            });
+
+            return (
+                <div className="container fade-in">
+                    <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+                        <h1 style={{ fontSize: '3rem', marginBottom: '16px' }}>日本の宇宙機データベース</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>JAXAの人工衛星・探査機アーカイブ</p>
+                    </header>
+
+                    <div className="glass" style={{ padding: '24px', marginBottom: '40px', display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px 16px', borderRadius: '8px' }}>
+                            <Icons.Search />
+                            <input
+                                type="text"
+                                placeholder="衛星名、ミッション名で検索..."
+                                style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none' }}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+                            {types.map(type => (
+                                <button
+                                    key={type}
+                                    className={`btn ${filterType === type ? 'btn-primary' : ''}`}
+                                    onClick={() => setFilterType(type)}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid">
+                        {filtered.map(sat => (
+                            <div key={sat.id} className="glass card" style={{ overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => onSelect(sat.id)}>
+                                <div style={{ height: '200px', background: '#000', position: 'relative', overflow: 'hidden' }}>
+                                    {sat.imageUrl ? (
+                                        <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} alt={sat.name} />
+                                    ) : (
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', color: '#333' }}>
+                                            {sat.englishName[0]}
+                                        </div>
+                                    )}
+                                    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                                        <span className={`badge status-${sat.status}`}>{sat.status}</span>
+                                    </div>
+                                </div>
+                                <div style={{ padding: '20px' }}>
+                                    <h3 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>{sat.name}</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '12px' }}>{sat.englishName}</p>
+                                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', height: '3em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{sat.missionName}</p>
+                                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>{sat.type}</span>
+                                        <span className="btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>詳細 <Icons.Rocket /></span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {filtered.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                            該当する衛星が見つかりません
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SatelliteDetail = ({ satellite, onBack, apiKey, onOpenSettings }) => {
+            const [chatMessages, setChatMessages] = useState([
+                { role: 'model', text: `こんにちは！私は${satellite.name}の専門AI解説員です。${satellite.name}について、なんでも聞いてください。` }
+            ]);
+            const [input, setInput] = useState('');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const chatEndRef = React.useRef(null);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [chatMessages]);
+
+            const handleSend = async () => {
+                if (!input.trim()) return;
+                if (!apiKey) {
+                    onOpenSettings();
+                    return;
+                }
+
+                const userMsg = input;
+                setInput('');
+                setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+                setIsGenerating(true);
+
+                try {
+                    const systemPrompt = `
+                        あなたは日本の人工衛星・探査機「${satellite.name}」の専門家です。
+                        以下の情報を元に、ユーザーの質問に日本語でわかりやすく、少し興奮気味に答えてください。
+                        宇宙への情熱を持って、教育的な観点も含めてください。
+
+                        基本情報:
+                        正式名称: ${satellite.officialName}
+                        英語名: ${satellite.englishName}
+                        ミッション: ${satellite.missionName}
+                        概要: ${satellite.description}
+                        成果: ${satellite.achievements.join(', ')}
+                        打ち上げ日: ${satellite.launchDate}
+                        機関: ${satellite.agency}
+                        ロケット: ${satellite.rocket}
+                        状態: ${satellite.status}
+                    `;
+
+                    // Simple implementation using REST API for Gemini
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { role: 'user', parts: [{ text: systemPrompt + "\n\nユーザーの質問: " + userMsg }] }
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.error.message);
+                    }
+
+                    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "すみません、うまく答えられませんでした。";
+                    setChatMessages(prev => [...prev, { role: 'model', text: aiResponse }]);
+
+                } catch (error) {
+                    console.error(error);
+                    setChatMessages(prev => [...prev, { role: 'model', text: `エラーが発生しました: ${error.message}` }]);
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            return (
+                <div className="container fade-in">
+                    <button onClick={onBack} className="btn" style={{ marginBottom: '20px' }}>
+                        ← 一覧に戻る
+                    </button>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '32px', alignItems: 'start' }}>
+                        {/* Main Content */}
+                        <div className="glass" style={{ padding: '32px' }}>
+                            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                                        <h1 style={{ fontSize: '2.5rem', color: 'var(--accent-cyan)' }}>{satellite.name}</h1>
+                                        <span className={`badge status-${satellite.status}`}>{satellite.status}</span>
+                                    </div>
+                                    <h2 style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: '400' }}>{satellite.officialName}</h2>
+                                </div>
+                                {satellite.officialUrl && (
+                                    <a href={satellite.officialUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                        公式サイト <Icons.ExternalLink />
+                                    </a>
+                                )}
+                            </div>
+
+                            <div style={{ aspectRatio: '16/9', overflow: 'hidden', borderRadius: '12px', marginBottom: '32px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {satellite.imageUrl ? (
+                                    <img src={satellite.imageUrl} alt={satellite.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div style={{ fontSize: '6rem', color: '#333', fontWeight: 'bold' }}>{satellite.englishName[0]}</div>
+                                )}
+                            </div>
+
+                            <section style={{ marginBottom: '32px' }}>
+                                <h3 style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--accent-purple)' }}>ミッション概要</h3>
+                                <p style={{ lineHeight: '1.8', fontSize: '1.05rem' }}>{satellite.description}</p>
+                            </section>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>打ち上げ日</h4>
+                                    <p style={{ fontSize: '1.1rem' }}>{satellite.launchDate}</p>
+                                </div>
+                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>運用機関</h4>
+                                    <p style={{ fontSize: '1.1rem' }}>{satellite.agency}</p>
+                                </div>
+                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>ロケット</h4>
+                                    <p style={{ fontSize: '1.1rem' }}>{satellite.rocket}</p>
+                                </div>
+                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>種別</h4>
+                                    <p style={{ fontSize: '1.1rem' }}>{satellite.type}</p>
+                                </div>
+                            </div>
+
+                            <section>
+                                <h3 style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--accent-purple)' }}>主な成果・マイルストーン</h3>
+                                <ul style={{ listStyle: 'none' }}>
+                                    {satellite.achievements.map((item, idx) => (
+                                        <li key={idx} style={{ marginBottom: '12px', display: 'flex', alignItems: 'start', gap: '10px' }}>
+                                            <span style={{ color: 'var(--success)' }}>✓</span> {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        </div>
+
+                        {/* Chat Side */}
+                        <div className="glass chat-container" style={{ position: 'sticky', top: '20px' }}>
+                            <div style={{ padding: '16px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
+                                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Icons.MessageSquare /> AI解説員
+                                </h3>
+                            </div>
+                            <div className="chat-messages">
+                                {chatMessages.map((msg, idx) => (
+                                    <div key={idx} className={`message ${msg.role === 'user' ? 'user' : 'ai'}`}>
+                                        {msg.text}
+                                    </div>
+                                ))}
+                                {isGenerating && (
+                                    <div className="message ai">
+                                        <span className="spin" style={{ display: 'inline-block', marginRight: '5px' }}>⏳</span> 考え中...
+                                    </div>
+                                )}
+                                <div ref={chatEndRef}></div>
+                            </div>
+                            <div className="chat-input-area">
+                                <input
+                                    type="text"
+                                    className="chat-input"
+                                    placeholder={apiKey ? "質問を入力..." : "APIキーを設定してください"}
+                                    value={input}
+                                    onChange={e => setInput(e.target.value)}
+                                    onKeyPress={e => e.key === 'Enter' && handleSend()}
+                                    disabled={!apiKey || isGenerating}
+                                />
+                                <button className="btn btn-primary" onClick={handleSend} disabled={!apiKey || isGenerating}>
+                                    <Icons.Send />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Stats = ({ satellites }) => {
+            const chartRef = React.useRef(null);
+            const canvasRef = React.useRef(null);
+
+            useEffect(() => {
+                if (!canvasRef.current || satellites.length === 0) return;
+
+                const typeCounts = {};
+                satellites.forEach(s => {
+                    typeCounts[s.type] = (typeCounts[s.type] || 0) + 1;
+                });
+
+                const ctx = canvasRef.current.getContext('2d');
+
+                if (chartRef.current) {
+                    chartRef.current.destroy();
+                }
+
+                chartRef.current = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(typeCounts),
+                        datasets: [{
+                            data: Object.values(typeCounts),
+                            backgroundColor: [
+                                '#00D4FF',
+                                '#7000FF',
+                                '#00CC88',
+                                '#FF4444',
+                                '#FFBB33'
+                            ],
+                            borderColor: '#0B0D17',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#FFF',
+                                    font: { family: 'Space Grotesk' }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'ミッション種別分布',
+                                color: '#FFF',
+                                font: { size: 16, family: 'Space Grotesk' }
+                            }
+                        }
+                    }
+                });
+
+                return () => {
+                    if (chartRef.current) chartRef.current.destroy();
+                };
+            }, [satellites]);
+
+            return (
+                <div className="container fade-in">
+                    <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+                        <h1 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>統計データ</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>データベースの統計情報</p>
+                    </header>
+
+                    <div className="glass" style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
+                        <div id="chart-container">
+                            <canvas ref={canvasRef}></canvas>
+                        </div>
+                        <div style={{ marginTop: '40px', textAlign: 'center' }}>
+                            <h3>登録衛星数: <span style={{ fontSize: '2rem', color: 'var(--accent-cyan)' }}>{satellites.length}</span> 機</h3>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- App ---
+
+        const App = () => {
+            const { satellites, loading, error, apiKey, saveApiKey } = useContext(SatelliteContext);
+            const [currentPage, setCurrentPage] = useState('home');
+            const [selectedSatelliteId, setSelectedSatelliteId] = useState(null);
+            const [showSettings, setShowSettings] = useState(false);
+
+            // Handle routing manually for simple hash-like navigation without actual hash change to keep it simple in file://
+            // Note: In a real app we might use react-router-dom HashRouter. For this single file, state based routing is fine.
+
+            const handleSatelliteSelect = (id) => {
+                setSelectedSatelliteId(id);
+                setCurrentPage('detail');
+                window.scrollTo(0, 0);
+            };
+
+            const handlePageChange = (page) => {
+                setCurrentPage(page);
+                if (page !== 'detail') setSelectedSatelliteId(null);
+                window.scrollTo(0, 0);
+            };
+
+            const selectedSatellite = useMemo(() =>
+                satellites.find(s => s.id === selectedSatelliteId),
+                [satellites, selectedSatelliteId]);
+
+            useEffect(() => {
+                lucide.createIcons();
+            });
+
+            if (loading) return <LoadingSpinner />;
+            if (error) return <ErrorDisplay message={error} />;
+
+            return (
+                <div>
+                    <Navbar
+                        currentPage={currentPage}
+                        setPage={handlePageChange}
+                        setShowSettings={setShowSettings}
+                    />
+
+                    <main style={{ paddingBottom: '60px' }}>
+                        {currentPage === 'home' && (
+                            <Home satellites={satellites} onSelect={handleSatelliteSelect} />
+                        )}
+                        {currentPage === 'detail' && selectedSatellite && (
+                            <SatelliteDetail
+                                satellite={selectedSatellite}
+                                onBack={() => handlePageChange('home')}
+                                apiKey={apiKey}
+                                onOpenSettings={() => setShowSettings(true)}
+                            />
+                        )}
+                        {currentPage === 'stats' && (
+                            <Stats satellites={satellites} />
+                        )}
+                    </main>
+
+                    <SettingsModal
+                        show={showSettings}
+                        onClose={() => setShowSettings(false)}
+                        currentKey={apiKey}
+                        onSave={saveApiKey}
+                    />
+
+                    <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', borderTop: '1px solid var(--glass-border)' }}>
+                        <p>© 2026 JAXA Spacecraft Database (Unofficial Fan App)</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <SatelliteProvider>
+                <App />
+            </SatelliteProvider>
+        );
+    </script>
+</body>
+
+</html>

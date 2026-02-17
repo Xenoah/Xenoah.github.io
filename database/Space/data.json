@@ -1,0 +1,102 @@
+[
+    {
+        "id": "hayabusa2",
+        "name": "はやぶさ2",
+        "englishName": "Hayabusa2",
+        "officialName": "小惑星探査機「はやぶさ2」",
+        "missionName": "小惑星リュウグウ サンプルリターン",
+        "status": "Operational",
+        "type": "Science",
+        "description": "「はやぶさ」の後継機として、C型小惑星「リュウグウ」からのサンプルリターン・および以前の技術の実証・深化を目的として開発された小惑星探査機。2014年に打ち上げられ、2020年に地球への帰還カプセル投下に成功。現在は拡張ミッションとして小惑星1998 KY26へ向かっている。",
+        "achievements": [
+            "小惑星リュウグウ到着",
+            "人工クレーター生成実験成功",
+            "2回のタッチダウン成功",
+            "地球へのサンプルリターン成功"
+        ],
+        "imageUrl": "",
+        "officialUrl": "https://www.jaxa.jp/projects/sas/hayabusa2/index_j.html",
+        "launchDate": "2014-12-03",
+        "agency": "JAXA",
+        "rocket": "H-IIA Launch Vehicle No. 26"
+    },
+    {
+        "id": "kaguya",
+        "name": "かぐや",
+        "englishName": "KAGUYA (SELENE)",
+        "officialName": "月周回衛星「かぐや」",
+        "missionName": "月の起源と進化の解明",
+        "status": "Retired",
+        "type": "Science",
+        "description": "アポロ計画以来最大規模の月探査計画として、月の起源と進化の研究のために開発された月周回衛星。主衛星と2つの副衛星（「おきな」「おうな」）で構成され、月全土の重力場測定や地形観測を行った。2009年に月面に制御落下しミッションを終了した。",
+        "achievements": [
+            "詳細な月面地形図の作成",
+            "月重力場の精密測定",
+            "ハイビジョンカメラによる「地球の出」撮影"
+        ],
+        "imageUrl": "",
+        "officialUrl": "https://www.jaxa.jp/projects/sas/selene/index_j.html",
+        "launchDate": "2007-09-14",
+        "agency": "JAXA",
+        "rocket": "H-IIA Launch Vehicle No. 13"
+    },
+    {
+        "id": "slim",
+        "name": "SLIM",
+        "englishName": "SLIM",
+        "officialName": "小型月着陸実証機",
+        "missionName": "高精度月面着陸技術の実証",
+        "status": "Operational",
+        "type": "Technology",
+        "description": "「降りたいところに降りる」ピンポイント着陸技術を実証するための小型月着陸機。2024年1月20日、日本初となる月面着陸に成功（世界で5カ国目）。着陸時の姿勢異常により太陽電池が働かなかったが、その後日照条件の回復により復活し、越夜にも成功した。",
+        "achievements": [
+            "日本初の月面着陸成功",
+            "目標地点へのピンポイント着陸成功（誤差100m以内達成）",
+            "マルチバンド分光カメラによる岩石観測"
+        ],
+        "imageUrl": "",
+        "officialUrl": "https://www.jaxa.jp/projects/sas/slim/index_j.html",
+        "launchDate": "2023-09-07",
+        "agency": "JAXA",
+        "rocket": "H-IIA Launch Vehicle No. 47"
+    },
+    {
+        "id": "michibiki",
+        "name": "みちびき",
+        "englishName": "MICHIBIKI (QZS)",
+        "officialName": "準天頂衛星システム",
+        "missionName": "高精度測位サービスの提供",
+        "status": "Operational",
+        "type": "Navigation",
+        "description": "日本のほぼ天頂（真上）を通る軌道を持つ衛星システム。GPSと互換性を持ち、山間部やビル街でも測位信号を受信しやすくすることで、安定した高精度測位サービスを提供する。現在は4機体制で運用中。",
+        "achievements": [
+            "センチメータ級測位補強サービスの提供",
+            "災害・危機管理通報サービスへの活用",
+            "7機体制への移行準備中"
+        ],
+        "imageUrl": "",
+        "officialUrl": "https://qzss.go.jp/",
+        "launchDate": "2010-09-11",
+        "agency": "Cabinet Office / JAXA",
+        "rocket": "H-IIA Launch Vehicle No. 18"
+    },
+    {
+        "id": "daichi4",
+        "name": "だいち4号",
+        "englishName": "ALOS-4",
+        "officialName": "先進レーダ衛星「だいち4号」",
+        "missionName": "地球環境・災害の広域・高詳細観測",
+        "status": "Operational",
+        "type": "Observation",
+        "description": "「だいち2号」の後継機として、Lバンド合成開口レーダ（PALSAR-3）を搭載した地球観測衛星。夜間や悪天候でも地表を観測でき、災害状況の把握や森林・海洋の監視、地殻変動の観測などを行う。観測幅を従来より大幅に広げつつ、高分解能を維持している。",
+        "achievements": [
+            "フェーズドアレイアンテナ展開成功",
+            "初期機能確認中"
+        ],
+        "imageUrl": "",
+        "officialUrl": "https://www.jaxa.jp/projects/sat/alos4/index_j.html",
+        "launchDate": "2024-07-01",
+        "agency": "JAXA",
+        "rocket": "H3 Launch Vehicle No. 3"
+    }
+]
