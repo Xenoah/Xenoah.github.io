@@ -332,6 +332,141 @@
         .markdown-body p {
             margin-bottom: 10px;
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            h1 {
+                font-size: 2rem !important;
+            }
+
+            h2 {
+                font-size: 1.5rem !important;
+            }
+
+            h3 {
+                font-size: 1.25rem !important;
+            }
+
+            /* Navbar */
+            .navbar {
+                padding: 16px 0;
+                margin-bottom: 24px;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .nav-link {
+                padding: 8px 0;
+            }
+
+            /* Search & Filters */
+            .controls-container {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 16px !important;
+            }
+
+            .controls-container>div[style*="min-width: 200px"] {
+                width: 100%;
+            }
+
+            .controls-container>div:last-child {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            select.btn {
+                flex: 1;
+            }
+
+            /* Type Filter Buttons */
+            .glass>div[style*="overflowX: auto"] {
+                padding-bottom: 12px;
+            }
+
+            /* Grid */
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            /* Cards */
+            .card {
+                margin-bottom: 0;
+            }
+
+            /* Detail View */
+            .glass[style*="padding: 32px"] {
+                padding: 20px !important;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+
+            .badge {
+                align-self: flex-start;
+                margin-top: 4px;
+            }
+
+            .glass[style*="height: 300px"] {
+                height: 200px !important;
+            }
+
+            /* Modal */
+            .modal-content {
+                width: 90%;
+                padding: 24px;
+                margin: 20px;
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+
+            /* Stats */
+            .glass[style*="padding: 40px"] {
+                padding: 24px !important;
+            }
+
+            /* Footer */
+            footer {
+                padding: 30px 16px;
+            }
+
+            /* List View */
+            .list-item {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            .list-item>div:first-child {
+                width: 100% !important;
+                height: 150px !important;
+            }
+
+            .list-item>div:last-child {
+                align-items: flex-start !important;
+                flex-direction: row !important;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
     </style>
 </head>
 
@@ -670,7 +805,7 @@
                     </header>
 
                     <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>
-                        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
+                        <div className="controls-container" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
                             <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
                                 <Icons.Search />
                                 <input
@@ -734,11 +869,11 @@
                             viewMode === 'grid' ? (
                                 <div key={sat.id} className="glass card" style={{ overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => onSelect(sat.id)}>
                                     <div style={{ height: '200px', background: '#000', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {sat.imageUrl ? (
-                                            <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} alt={sat.name} />
-                                        ) : (
-                                            <div style={{ fontSize: '4rem', color: '#333', fontWeight: 'bold' }}>{sat.englishName[0]}</div>
-                                        )}
+                                        <img
+                                            src={sat.imageUrl || './no_image.png'}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: sat.imageUrl ? 0.8 : 0.5 }}
+                                            alt={sat.name}
+                                        />
                                         <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
                                             <span className={`badge status-${sat.status}`}>{sat.status}</span>
                                         </div>
@@ -760,13 +895,13 @@
                                     </div>
                                 </div>
                             ) : (
-                                <div key={sat.id} className="glass" style={{ display: 'flex', padding: '16px', cursor: 'pointer', alignItems: 'center', gap: '20px', transition: 'background 0.2s' }} onClick={() => onSelect(sat.id)}>
+                                <div key={sat.id} className="glass list-item" style={{ display: 'flex', padding: '16px', cursor: 'pointer', alignItems: 'center', gap: '20px', transition: 'background 0.2s' }} onClick={() => onSelect(sat.id)}>
                                     <div style={{ width: '80px', height: '80px', borderRadius: '8px', background: '#000', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {sat.imageUrl ? (
-                                            <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={sat.name} />
-                                        ) : (
-                                            <div style={{ fontSize: '2rem', color: '#333', fontWeight: 'bold' }}>{sat.englishName[0]}</div>
-                                        )}
+                                        <img
+                                            src={sat.imageUrl || './no_image.png'}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: sat.imageUrl ? 1 : 0.6 }}
+                                            alt={sat.name}
+                                        />
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -963,7 +1098,7 @@
                     </button>
 
                     <div className="glass" style={{ padding: '32px', marginBottom: '32px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '24px' }}>
+                        <div className="detail-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '24px' }}>
                             <div>
                                 <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
                                     {lang === 'ja' ? satellite.name : satellite.englishName}
