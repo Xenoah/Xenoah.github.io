@@ -4,99 +4,568 @@
         "name": "はやぶさ2",
         "englishName": "Hayabusa2",
         "officialName": "小惑星探査機「はやぶさ2」",
-        "missionName": "小惑星リュウグウ サンプルリターン",
+        "officialNameEn": "Asteroid Explorer Hayabusa2",
+        "abbreviation": "HY2",
         "status": "Operational",
-        "type": "Science",
+        "type": "Explorer",
+        "missionType": "Science / Sample Return",
+        "objective": "C型小惑星リュウグウからのサンプルリターンおよび太陽系起源・進化の解明",
+        "target": "Asteroid Ryugu, 1998 KY26",
         "description": "「はやぶさ」の後継機として、C型小惑星「リュウグウ」からのサンプルリターン・および以前の技術の実証・深化を目的として開発された小惑星探査機。2014年に打ち上げられ、2020年に地球への帰還カプセル投下に成功。現在は拡張ミッションとして小惑星1998 KY26へ向かっている。",
+        "descriptionEn": "Successor to Hayabusa, developed to return samples from C-type asteroid Ryugu and verify/deepen space exploration technologies. Launched in 2014, successfully returned the capsule to Earth in 2020. Currently on an extended mission to asteroid 1998 KY26.",
         "achievements": [
             "小惑星リュウグウ到着",
             "人工クレーター生成実験成功",
             "2回のタッチダウン成功",
             "地球へのサンプルリターン成功"
         ],
-        "imageUrl": "",
-        "officialUrl": "https://www.jaxa.jp/projects/sas/hayabusa2/index_j.html",
-        "launchDate": "2014-12-03",
-        "agency": "JAXA",
-        "rocket": "H-IIA Launch Vehicle No. 26"
+        "achievementsEn": [
+            "Arrival at Asteroid Ryugu",
+            "Successful creation of artificial crater",
+            "Two successful touchdowns",
+            "Successful sample return to Earth"
+        ],
+        "timeline": {
+            "launchDate": "2014-12-03",
+            "keyEvents": [
+                {
+                    "date": "2014-12-03",
+                    "event": "Launch",
+                    "eventEn": "Launch"
+                },
+                {
+                    "date": "2018-06-27",
+                    "event": "リュウグウ到着",
+                    "eventEn": "Arrival at Ryugu"
+                },
+                {
+                    "date": "2019-02-22",
+                    "event": "第1回タッチダウン成功",
+                    "eventEn": "1st Touchdown"
+                },
+                {
+                    "date": "2019-07-11",
+                    "event": "第2回タッチダウン成功",
+                    "eventEn": "2nd Touchdown"
+                },
+                {
+                    "date": "2020-12-06",
+                    "event": "地球帰還（カプセル分離）",
+                    "eventEn": "Earth Return (Capsule Re-entry)"
+                },
+                {
+                    "date": "2031-07",
+                    "event": "1998 KY26到着予定",
+                    "eventEn": "Arrival at 1998 KY26 (Planned)"
+                }
+            ],
+            "lastSignal": null,
+            "endDate": null
+        },
+        "launchDetails": {
+            "rocket": "H-IIA Launch Vehicle No. 26",
+            "site": "Tanegashima Space Center (TNSC)",
+            "provider": "Mitsubishi Heavy Industries (MHI)",
+            "payloads": [
+                "PROCYON",
+                "ARTSAT2-DESPATCH",
+                "Shin'en 2"
+            ]
+        },
+        "organizations": {
+            "lead": "JAXA / ISAS",
+            "developer": "NEC Corporation",
+            "operator": "JAXA",
+            "partners": [
+                "DLR",
+                "CNES",
+                "NASA"
+            ]
+        },
+        "instruments": [
+            {
+                "name": "光学航法カメラ",
+                "nameEn": "Optical Navigation Camera",
+                "abbreviation": "ONC",
+                "type": "Camera",
+                "description": "望遠(ONC-T)と広角(ONC-W1, W2)の3台のカメラで構成。航法誘導と科学観測に使用。"
+            },
+            {
+                "name": "近赤外分光計",
+                "nameEn": "Near Infrared Spectrometer",
+                "abbreviation": "NIRS3",
+                "type": "Spectrometer",
+                "description": "小惑星表面の鉱物分布や水・有機物の有無を観測。"
+            },
+            {
+                "name": "熱中間赤外カメラ",
+                "nameEn": "Thermal Infrared Imager",
+                "abbreviation": "TIR",
+                "type": "thermography",
+                "description": "小惑星表面の温度を測定し、熱物性を調査。"
+            },
+            {
+                "name": "レーザ高度計",
+                "nameEn": "Light Detection And Ranging",
+                "abbreviation": "LIDAR",
+                "type": "Altimeter",
+                "description": "レーザーを用いて探査機と小惑星表面との距離を測定。"
+            }
+        ],
+        "specs": {
+            "mass": "609 kg (Wet)",
+            "dimensions": "1.0m x 1.6m x 1.25m (Body)",
+            "power": "Solar Panels",
+            "communication": "X-band, Ka-band"
+        },
+        "propulsion": {
+            "type": "Electric (Ion) + Chemical (Bipropellant)",
+            "engineType": "Ion Engine",
+            "engineName": "μ10",
+            "role": "Main Propulsion"
+        },
+        "orbit": {
+            "type": "Heliocentric",
+            "altitude": null,
+            "landingSite": null
+        },
+        "ids": {
+            "cosparId": "2014-076A",
+            "noradId": "40319"
+        },
+        "links": {
+            "official": "https://www.jaxa.jp/projects/sas/hayabusa2/index_j.html",
+            "data": "https://darts.isas.jaxa.jp/planet/project/hayabusa2/"
+        },
+        "imageUrl": "https://www.isas.jaxa.jp/gallery/feature/hayabusa2/H2_SC_3.jpg"
     },
     {
         "id": "kaguya",
         "name": "かぐや",
         "englishName": "KAGUYA (SELENE)",
         "officialName": "月周回衛星「かぐや」",
-        "missionName": "月の起源と進化の解明",
+        "officialNameEn": "Selenological and Engineering Explorer",
+        "abbreviation": "SELENE",
         "status": "Retired",
-        "type": "Science",
+        "type": "Orbiter",
+        "missionType": "Science / Lunar Observation",
+        "objective": "月の起源と進化の解明のための月全土の観測",
+        "target": "Moon",
         "description": "アポロ計画以来最大規模の月探査計画として、月の起源と進化の研究のために開発された月周回衛星。主衛星と2つの副衛星（「おきな」「おうな」）で構成され、月全土の重力場測定や地形観測を行った。2009年に月面に制御落下しミッションを終了した。",
+        "descriptionEn": "The largest lunar exploration project since Apollo, developed to study the moon's origin and evolution. Consisted of a main orbiter and two sub-satellites (Okina, Ouna). Conducted gravity field measurements and topographical observations. Controlled impact on moon in 2009.",
         "achievements": [
             "詳細な月面地形図の作成",
             "月重力場の精密測定",
             "ハイビジョンカメラによる「地球の出」撮影"
         ],
-        "imageUrl": "",
-        "officialUrl": "https://www.jaxa.jp/projects/sas/selene/index_j.html",
-        "launchDate": "2007-09-14",
-        "agency": "JAXA",
-        "rocket": "H-IIA Launch Vehicle No. 13"
+        "achievementsEn": [
+            "Creation of detailed lunar topographic map",
+            "Precise measurement of lunar gravity field",
+            "High-definition 'Earthrise' capture"
+        ],
+        "timeline": {
+            "launchDate": "2007-09-14",
+            "keyEvents": [
+                {
+                    "date": "2007-09-14",
+                    "event": "Launch",
+                    "eventEn": "Launch"
+                },
+                {
+                    "date": "2007-10-04",
+                    "event": "月周回軌道投入",
+                    "eventEn": "Lunar Orbit Insertion"
+                },
+                {
+                    "date": "2009-02-12",
+                    "event": "「おきな」月面落下",
+                    "eventEn": "Okina Impact"
+                },
+                {
+                    "date": "2009-06-11",
+                    "event": "主衛星 月面落下（運用終了）",
+                    "eventEn": "Main Orbiter Impact (Mission End)"
+                }
+            ],
+            "lastSignal": "2009-06-11",
+            "endDate": "2009-06-11"
+        },
+        "launchDetails": {
+            "rocket": "H-IIA Launch Vehicle No. 13",
+            "site": "Tanegashima Space Center (TNSC)",
+            "provider": "Mitsubishi Heavy Industries (MHI)",
+            "payloads": [
+                "Okina (Rstar)",
+                "Ouna (Vstar)"
+            ]
+        },
+        "organizations": {
+            "lead": "JAXA / ISAS / NASDA",
+            "developer": "NEC Corporation",
+            "operator": "JAXA",
+            "partners": []
+        },
+        "instruments": [
+            {
+                "name": "地形カメラ",
+                "nameEn": "Terrain Camera",
+                "abbreviation": "TC",
+                "type": "Camera",
+                "description": "月面全体の立体地図を作成するためのステレオカメラ。"
+            },
+            {
+                "name": "マルチバンドイメージャ",
+                "nameEn": "Multi-band Imager",
+                "abbreviation": "MI",
+                "type": "Imager",
+                "description": "9つの波長帯で月面の鉱物分布を観測。"
+            },
+            {
+                "name": "レーザ高度計",
+                "nameEn": "Laser Altimeter",
+                "abbreviation": "LALT",
+                "type": "Altimeter",
+                "description": "月面の標高を精密に測定。"
+            },
+            {
+                "name": "ハイビジョンカメラ",
+                "nameEn": "High Definition Television",
+                "abbreviation": "HDTV",
+                "type": "Camera",
+                "description": "NHKが開発。月面からの鮮明な映像を撮影。"
+            }
+        ],
+        "specs": {
+            "mass": "2914 kg (Launch mass)",
+            "dimensions": "2.1m x 2.1m x 4.8m",
+            "power": "Solar Panels (3.5 kW)",
+            "communication": "S-band, X-band"
+        },
+        "propulsion": {
+            "type": "Chemical (Bipropellant)",
+            "engineType": "OME (Orbit Maneuvering Engine)",
+            "engineName": "500N Thruster",
+            "role": "Orbit Insertion / Control"
+        },
+        "orbit": {
+            "type": "Lunar Polar Orbit",
+            "altitude": "100 km",
+            "landingSite": "Gill Crater vicinity (Impact site)"
+        },
+        "ids": {
+            "cosparId": "2007-039A",
+            "noradId": "32054"
+        },
+        "links": {
+            "official": "https://www.jaxa.jp/projects/sas/selene/index_j.html",
+            "data": "https://darts.isas.jaxa.jp/planet/project/selene/"
+        },
+        "imageUrl": "https://www.satnavi.jaxa.jp/files/project/selene/selene_1.jpg"
     },
     {
         "id": "slim",
         "name": "SLIM",
         "englishName": "SLIM",
         "officialName": "小型月着陸実証機",
-        "missionName": "高精度月面着陸技術の実証",
-        "status": "Operational",
-        "type": "Technology",
+        "officialNameEn": "Smart Lander for Investigating Moon",
+        "abbreviation": "SLIM",
+        "status": "Occupied",
+        "type": "Lander",
+        "missionType": "Technology Demonstration",
+        "objective": "高精度月面着陸技術の実証（ピンポイント着陸）",
+        "target": "Moon",
         "description": "「降りたいところに降りる」ピンポイント着陸技術を実証するための小型月着陸機。2024年1月20日、日本初となる月面着陸に成功（世界で5カ国目）。着陸時の姿勢異常により太陽電池が働かなかったが、その後日照条件の回復により復活し、越夜にも成功した。",
+        "descriptionEn": "Small lunar lander to demonstrate 'pinpoint landing' technology. On Jan 20, 2024, achieved Japan's first lunar landing (5th country in history). Despite attitude anomaly affecting solar power, it revived and survived the lunar night.",
         "achievements": [
             "日本初の月面着陸成功",
             "目標地点へのピンポイント着陸成功（誤差100m以内達成）",
             "マルチバンド分光カメラによる岩石観測"
         ],
-        "imageUrl": "",
-        "officialUrl": "https://www.jaxa.jp/projects/sas/slim/index_j.html",
-        "launchDate": "2023-09-07",
-        "agency": "JAXA",
-        "rocket": "H-IIA Launch Vehicle No. 47"
+        "achievementsEn": [
+            "First successful Japanese lunar landing",
+            "Successful pinpoint landing within 100m target",
+            "Rock observation via multi-band camera"
+        ],
+        "timeline": {
+            "launchDate": "2023-09-07",
+            "keyEvents": [
+                {
+                    "date": "2023-09-07",
+                    "event": "Launch",
+                    "eventEn": "Launch"
+                },
+                {
+                    "date": "2023-12-25",
+                    "event": "月周回軌道投入",
+                    "eventEn": "Lunar Orbit Insertion"
+                },
+                {
+                    "date": "2024-01-20",
+                    "event": "月面着陸成功",
+                    "eventEn": "Lunar Landing"
+                },
+                {
+                    "date": "2024-01-29",
+                    "event": "運用再開（電力回復）",
+                    "eventEn": "Operations Resumed"
+                },
+                {
+                    "date": "2024-02-26",
+                    "event": "越夜成功確認",
+                    "eventEn": "Survived Lunar Night"
+                },
+                {
+                    "date": "2024-03-28",
+                    "event": "2回目の越夜成功",
+                    "eventEn": "Survived 2nd Lunar Night"
+                }
+            ],
+            "lastSignal": "2024-04-29",
+            "endDate": null
+        },
+        "launchDetails": {
+            "rocket": "H-IIA Launch Vehicle No. 47",
+            "site": "Tanegashima Space Center (TNSC)",
+            "provider": "Mitsubishi Heavy Industries (MHI)",
+            "payloads": [
+                "XRISM",
+                "LEV-1",
+                "LEV-2 (SORA-Q)"
+            ]
+        },
+        "organizations": {
+            "lead": "JAXA / ISAS",
+            "developer": "Mitsubishi Electric",
+            "operator": "JAXA",
+            "partners": []
+        },
+        "instruments": [
+            {
+                "name": "マルチバンド分光カメラ",
+                "nameEn": "Multi-Band Camera",
+                "abbreviation": "MBC",
+                "type": "Camera/Spectrometer",
+                "description": "月面の岩石（カンラン石）の組成を分析するために使用。"
+            }
+        ],
+        "specs": {
+            "mass": "200 kg (Dry), 700-730 kg (Wet)",
+            "dimensions": "2.4m x 1.7m x 2.7m",
+            "power": "Thin-film Solar Cells",
+            "communication": "S-band"
+        },
+        "propulsion": {
+            "type": "Chemical (Bipropellant)",
+            "engineType": "Ceramic Thruster (500N)",
+            "engineName": "OME",
+            "role": "Main Propulsion"
+        },
+        "orbit": {
+            "type": "Lunar Surface",
+            "altitude": "0 km",
+            "landingSite": "Shioli Crater (13.3°S, 25.2°E)"
+        },
+        "ids": {
+            "cosparId": "2023-137A",
+            "noradId": "57800"
+        },
+        "links": {
+            "official": "https://www.jaxa.jp/projects/sas/slim/index_j.html",
+            "data": "https://zenodo.org/records/10846200"
+        },
+        "imageUrl": "https://www.satnavi.jaxa.jp/files/project/slim/slim_1.jpg"
     },
     {
         "id": "michibiki",
         "name": "みちびき",
         "englishName": "MICHIBIKI (QZS)",
         "officialName": "準天頂衛星システム",
-        "missionName": "高精度測位サービスの提供",
+        "officialNameEn": "Quasi-Zenith Satellite System",
+        "abbreviation": "QZSS",
         "status": "Operational",
         "type": "Navigation",
+        "missionType": "Navigation / Positioning",
+        "objective": "日本およびアジア太平洋地域における高精度測位サービスの提供",
+        "target": "Earth (Japan/Asia-Pacific)",
         "description": "日本のほぼ天頂（真上）を通る軌道を持つ衛星システム。GPSと互換性を持ち、山間部やビル街でも測位信号を受信しやすくすることで、安定した高精度測位サービスを提供する。現在は4機体制で運用中。",
+        "descriptionEn": "Satellite system with an orbit passing near the zenith over Japan. Compatible with GPS, it improves reception in mountainous and urban areas to provide stable high-precision positioning. Currently operational with 4 satellites.",
         "achievements": [
             "センチメータ級測位補強サービスの提供",
             "災害・危機管理通報サービスへの活用",
             "7機体制への移行準備中"
         ],
-        "imageUrl": "",
-        "officialUrl": "https://qzss.go.jp/",
-        "launchDate": "2010-09-11",
-        "agency": "Cabinet Office / JAXA",
-        "rocket": "H-IIA Launch Vehicle No. 18"
+        "achievementsEn": [
+            "Provision of cm-level augmentation service",
+            "Utilization for disaster/crisis management reports",
+            "Preparation for 7-satellite constellation"
+        ],
+        "timeline": {
+            "launchDate": "2010-09-11",
+            "keyEvents": [
+                {
+                    "date": "2010-09-11",
+                    "event": "初号機打ち上げ",
+                    "eventEn": "First Satellite Launch"
+                },
+                {
+                    "date": "2017",
+                    "event": "2, 3, 4号機打ち上げ",
+                    "eventEn": "Launch of Satellites 2, 3, 4"
+                },
+                {
+                    "date": "2018-11-01",
+                    "event": "4機体制でのサービス開始",
+                    "eventEn": "Start of 4-satellite Service"
+                }
+            ],
+            "lastSignal": null,
+            "endDate": null
+        },
+        "launchDetails": {
+            "rocket": "H-IIA Launch Vehicle",
+            "site": "Tanegashima Space Center (TNSC)",
+            "provider": "Mitsubishi Heavy Industries (MHI)",
+            "payloads": []
+        },
+        "organizations": {
+            "lead": "Cabinet Office (CAO)",
+            "developer": "Mitsubishi Electric",
+            "operator": "QZS System Service Inc.",
+            "partners": []
+        },
+        "instruments": [
+            {
+                "name": "Lバンドアンテナ",
+                "nameEn": "L-band Antenna",
+                "abbreviation": "",
+                "type": "Antenna",
+                "description": "測位信号を送信するためのアンテナ。"
+            }
+        ],
+        "specs": {
+            "mass": "Approx. 4000 kg (Launch)",
+            "dimensions": "Varies by satellite",
+            "power": "Solar Panels",
+            "communication": "L-band, S-band, Ku-band"
+        },
+        "propulsion": {
+            "type": "Chemical",
+            "engineType": "Apogee Engine",
+            "engineName": "",
+            "role": "Orbit Insertion / Station Keeping"
+        },
+        "orbit": {
+            "type": "Quasi-Zenith Orbit (QZO) / GEO",
+            "altitude": "32000 - 40000 km",
+            "landingSite": null
+        },
+        "ids": {
+            "cosparId": "2010-045A",
+            "noradId": "37158"
+        },
+        "links": {
+            "official": "https://qzss.go.jp/",
+            "data": "https://qzss.go.jp/technical/index.html"
+        },
+        "imageUrl": "https://qzss.go.jp/en/overview/services/sv12.html"
     },
     {
         "id": "daichi4",
         "name": "だいち4号",
         "englishName": "ALOS-4",
         "officialName": "先進レーダ衛星「だいち4号」",
-        "missionName": "地球環境・災害の広域・高詳細観測",
+        "officialNameEn": "Advanced Land Observing Satellite-4",
+        "abbreviation": "ALOS-4",
         "status": "Operational",
         "type": "Observation",
+        "missionType": "Earth Observation",
+        "objective": "地球環境・災害の広域・高詳細観測、地殻変動監視",
+        "target": "Earth",
         "description": "「だいち2号」の後継機として、Lバンド合成開口レーダ（PALSAR-3）を搭載した地球観測衛星。夜間や悪天候でも地表を観測でき、災害状況の把握や森林・海洋の監視、地殻変動の観測などを行う。観測幅を従来より大幅に広げつつ、高分解能を維持している。",
+        "descriptionEn": "Successor to Daichi-2, equipped with L-band SAR (PALSAR-3). Observes earth surface day/night and in bad weather for disaster monitoring, forest/ocean surveillance, and crustal deformation. Achieves high resolution with significantly wider observation swath.",
         "achievements": [
             "フェーズドアレイアンテナ展開成功",
             "初期機能確認中"
         ],
-        "imageUrl": "",
-        "officialUrl": "https://www.jaxa.jp/projects/sat/alos4/index_j.html",
-        "launchDate": "2024-07-01",
-        "agency": "JAXA",
-        "rocket": "H3 Launch Vehicle No. 3"
+        "achievementsEn": [
+            "Successful deployment of phased array antenna",
+            "Initial functional verification in progress"
+        ],
+        "timeline": {
+            "launchDate": "2024-07-01",
+            "keyEvents": [
+                {
+                    "date": "2024-07-01",
+                    "event": "Launch",
+                    "eventEn": "Launch"
+                },
+                {
+                    "date": "2024-07-02",
+                    "event": "アンテナ展開完了",
+                    "eventEn": "Antenna Deployment Complete"
+                },
+                {
+                    "date": "2024-07-15",
+                    "event": "初画像取得",
+                    "eventEn": "First Image Acquisition"
+                }
+            ],
+            "lastSignal": null,
+            "endDate": null
+        },
+        "launchDetails": {
+            "rocket": "H3 Launch Vehicle No. 3",
+            "site": "Tanegashima Space Center (TNSC)",
+            "provider": "Mitsubishi Heavy Industries (MHI)",
+            "payloads": []
+        },
+        "organizations": {
+            "lead": "JAXA",
+            "developer": "Mitsubishi Electric",
+            "operator": "JAXA",
+            "partners": []
+        },
+        "instruments": [
+            {
+                "name": "フェーズドアレイ方式Lバンド合成開口レーダ",
+                "nameEn": "Phased Array type L-band Synthetic Aperture Radar 3",
+                "abbreviation": "PALSAR-3",
+                "type": "Radar",
+                "description": "広域かつ高分解能で地表を観測するLバンドレーダ。"
+            },
+            {
+                "name": "船舶自動識別信号受信器",
+                "nameEn": "Space-based AIS Experiment 2",
+                "abbreviation": "SPAISE3",
+                "type": "Receiver",
+                "description": "船舶からのAIS信号を受信し、海洋監視に貢献。"
+            }
+        ],
+        "specs": {
+            "mass": "Approx. 3000 kg",
+            "dimensions": "10m x 20m (Deployed)",
+            "power": "Solar Paddles",
+            "communication": "Ka-band (Optical via LUCAS)"
+        },
+        "propulsion": {
+            "type": "Chemical",
+            "engineType": "Monopropellant / Bipropellant",
+            "engineName": "",
+            "role": "Attitude Control / Orbit Maintenance"
+        },
+        "orbit": {
+            "type": "Sun-Synchronous Sub-Recurrent Orbit",
+            "altitude": "628 km",
+            "landingSite": null
+        },
+        "ids": {
+            "cosparId": "2024-123A",
+            "noradId": "60134"
+        },
+        "links": {
+            "official": "https://www.jaxa.jp/projects/sat/alos4/index_j.html",
+            "data": "https://www.eorc.jaxa.jp/ALOS-4/"
+        },
+        "imageUrl": "https://www.satnavi.jaxa.jp/files/project/alos4/alos4_1.jpg"
     }
 ]

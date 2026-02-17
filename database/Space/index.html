@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAXA Spacecraft Database</title>
+    <title>Spacecraft Database</title>
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -107,12 +107,14 @@
 
         .text-gradient {
             background: linear-gradient(135deg, #FFF, #AAA);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .text-accent {
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -347,6 +349,7 @@
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
             const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
+            const [lang, setLang] = useState('ja'); // 'ja' | 'en'
 
             useEffect(() => {
                 const fetchData = async () => {
@@ -361,25 +364,167 @@
                         console.error("Fetch error:", e);
                         setError(e.message);
                         if (window.location.protocol === 'file:') {
-                            setError("ローカルファイル(file://)からはデータを読み込めません。ローカルサーバーを起動するか、GitHub Pages等にアップロードしてください。");
+                            setError(lang === 'ja'
+                                ? "ローカルファイル(file://)からはデータを読み込めません。ローカルサーバーを起動するか、GitHub Pages等にアップロードしてください。"
+                                : "Cannot load data from local file(file://). Please use a local server or upload to GitHub Pages etc.");
                         }
                     } finally {
                         setLoading(false);
                     }
                 };
                 fetchData();
-            }, []);
+            }, [lang]);
 
             const saveApiKey = (key) => {
                 setApiKey(key);
                 localStorage.setItem('gemini_api_key', key);
             };
 
+            const toggleLang = () => {
+                setLang(prev => prev === 'ja' ? 'en' : 'ja');
+            };
+
             return (
-                <SatelliteContext.Provider value={{ satellites, loading, error, apiKey, saveApiKey }}>
+                <SatelliteContext.Provider value={{ satellites, loading, error, apiKey, saveApiKey, lang, toggleLang }}>
                     {children}
                 </SatelliteContext.Provider>
             );
+        };
+
+        // --- Translations ---
+        const t = {
+            ja: {
+                appTitle: "宇宙機データベース",
+                appSubtitle: "日本の人工衛星・探査機アーカイブ（非公式）",
+                home: "一覧",
+                stats: "統計",
+                settings: "API設定",
+                searchPlaceholder: "衛星名、ミッション名で検索...",
+                sortLaunchNew: "打ち上げ日 (新しい順)",
+                sortLaunchOld: "打ち上げ日 (古い順)",
+                sortName: "名前順",
+                all: "すべて",
+                noResults: "該当する衛星が見つかりません",
+                details: "詳細",
+                back: "一覧に戻る",
+                officialSite: "公式サイト",
+                dataSite: "データ公開サイト",
+                missionOverview: "ミッション概要",
+                launchDate: "打ち上げ日",
+                agency: "運用機関",
+                rocket: "ロケット",
+                type: "種別",
+                achievements: "主な成果・マイルストーン",
+                aiChat: "AI解説員",
+                thinking: "考え中...",
+                questionPlaceholder: "質問を入力...",
+                apiKeyPlaceholder: "APIキーを設定してください",
+                statsTitle: "統計データ",
+                statsSubtitle: "データベースの統計情報",
+                registeredSatellites: "登録衛星数",
+                units: "機",
+                settingsTitle: "Gemini API設定",
+                settingsDesc: "AI解説機能を使用するには、Google Gemini APIキーが必要です。キーはブラウザのlocalStorageにのみ保存されます。",
+                cancel: "キャンセル",
+                save: "保存",
+                footerDisclaimer: "※本サイトは非公式ファンサイトです。掲載されている情報の正確性・信憑性については保証いたしかねます。公式な情報については各機関の公式サイトをご確認ください。",
+                loading: "データベース読み込み中...",
+
+                // New Fields
+                basicInfo: "基本情報",
+                officialName: "正式名称",
+                missionType: "ミッション区分",
+                objective: "目的",
+                target: "対象",
+                timeline: "タイムライン",
+                keyEvents: "主要イベント",
+                launchInfo: "打ち上げ情報",
+                launchSite: "射場",
+                provider: "打ち上げ事業者",
+                organizations: "関係団体",
+                leadAgency: "主導機関",
+                developer: "開発",
+                operator: "運用",
+                specifications: "機体スペック",
+                mass: "質量",
+                dimensions: "寸法",
+                power: "電力",
+                communication: "通信",
+                propulsion: "推進系",
+                orbit: "軌道",
+                altitude: "高度",
+                landingSite: "着陸地点",
+                instruments: "搭載機器",
+                instrumentName: "機器名",
+                identifiers: "識別子",
+                links: "関連リンク"
+            },
+            en: {
+                appTitle: "Spacecraft Database",
+                appSubtitle: "Japanese Spacecraft Archive (Unofficial)",
+                home: "Home",
+                stats: "Stats",
+                settings: "API Settings",
+                searchPlaceholder: "Search by name, mission...",
+                sortLaunchNew: "Launch Date (Newest)",
+                sortLaunchOld: "Launch Date (Oldest)",
+                sortName: "Name",
+                all: "All",
+                noResults: "No spacecraft found",
+                details: "Details",
+                back: "Back",
+                officialSite: "Official Site",
+                dataSite: "Data Site",
+                missionOverview: "Mission Overview",
+                launchDate: "Launch Date",
+                agency: "Agency",
+                rocket: "Rocket",
+                type: "Type",
+                achievements: "Key Achievements",
+                aiChat: "AI Guide",
+                thinking: "Thinking...",
+                questionPlaceholder: "Ask a question...",
+                apiKeyPlaceholder: "Please set API Key",
+                statsTitle: "Statistics",
+                statsSubtitle: "Database Statistics",
+                registeredSatellites: "Registered Satellites",
+                units: "",
+                settingsTitle: "Gemini API Settings",
+                settingsDesc: "Google Gemini API Key is required for the AI guide feature. The key is saved only in your browser's localStorage.",
+                cancel: "Cancel",
+                save: "Save",
+                footerDisclaimer: "* This is an unofficial fan site. Accuracy of information is not guaranteed. Please check official websites for official information.",
+                loading: "Loading database...",
+
+                // New Fields
+                basicInfo: "Basic Info",
+                officialName: "Official Name",
+                missionType: "Mission Type",
+                objective: "Objective",
+                target: "Target",
+                timeline: "Timeline",
+                keyEvents: "Key Events",
+                launchInfo: "Launch Info",
+                launchSite: "Launch Site",
+                provider: "Provider",
+                organizations: "Organizations",
+                leadAgency: "Lead Agency",
+                developer: "Developer",
+                operator: "Operator",
+                specifications: "Specifications",
+                mass: "Mass",
+                dimensions: "Dimensions",
+                power: "Power",
+                communication: "Comms",
+                propulsion: "Propulsion",
+                orbit: "Orbit",
+                altitude: "Altitude",
+                landingSite: "Landing Site",
+                instruments: "Instruments",
+                instrumentName: "Instrument",
+                identifiers: "Identifiers",
+                links: "Links"
+            }
         };
 
         // --- Icons ---
@@ -394,15 +539,27 @@
             Send: () => <i data-lucide="send"></i>,
             Cpu: () => <i data-lucide="cpu"></i>,
             Satellite: () => <i data-lucide="satellite"></i>,
-            Globe: () => <i data-lucide="globe"></i>
+            Globe: () => <i data-lucide="globe"></i>,
+            LayoutGrid: () => <i data-lucide="layout-grid"></i>,
+            List: () => <i data-lucide="list"></i>,
+            ArrowUpDown: () => <i data-lucide="arrow-up-down"></i>,
+            Languages: () => <i data-lucide="languages"></i>,
+            Calendar: () => <i data-lucide="calendar"></i>,
+            MapPin: () => <i data-lucide="map-pin"></i>,
+            Building: () => <i data-lucide="building-2"></i>,
+            Activity: () => <i data-lucide="activity"></i>,
+            Link: () => <i data-lucide="link"></i>,
+            Info: () => <i data-lucide="info"></i>
         };
 
         // --- Components ---
 
         const Navbar = ({ currentPage, setPage, setShowSettings }) => {
+            const { lang, toggleLang } = useContext(SatelliteContext);
+
             useEffect(() => {
                 lucide.createIcons();
-            }, []);
+            }, [lang]); // Re-render icons on lang change if needed, mostly for safety
 
             return (
                 <nav className="navbar glass">
@@ -413,13 +570,16 @@
                         </a>
                         <div className="nav-links">
                             <a href="#" className={`nav-link ${currentPage === 'home' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('home'); }}>
-                                一覧
+                                {t[lang].home}
                             </a>
                             <a href="#" className={`nav-link ${currentPage === 'stats' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('stats'); }}>
-                                統計
+                                {t[lang].stats}
                             </a>
+                            <button className="btn" onClick={toggleLang}>
+                                <Icons.Languages /> {lang === 'ja' ? 'EN' : 'JP'}
+                            </button>
                             <button className="btn" onClick={() => setShowSettings(true)}>
-                                <Icons.Settings /> API設定
+                                <Icons.Settings /> {t[lang].settings}
                             </button>
                         </div>
                     </div>
@@ -427,12 +587,15 @@
             );
         };
 
-        const LoadingSpinner = () => (
-            <div className="loading-container">
-                <div className="text-accent spin" style={{ fontSize: '48px' }}><Icons.Rocket /></div>
-                <p>Loading database...</p>
-            </div>
-        );
+        const LoadingSpinner = () => {
+            const { lang } = useContext(SatelliteContext);
+            return (
+                <div className="loading-container">
+                    <div className="text-accent spin" style={{ fontSize: '48px' }}><Icons.Rocket /></div>
+                    <p>{t[lang].loading}</p>
+                </div>
+            );
+        };
 
         const ErrorDisplay = ({ message }) => (
             <div className="container" style={{ textAlign: 'center', padding: '40px', color: 'var(--danger)' }}>
@@ -442,6 +605,7 @@
         );
 
         const SettingsModal = ({ show, onClose, currentKey, onSave }) => {
+            const { lang } = useContext(SatelliteContext);
             const [key, setKey] = useState(currentKey);
 
             if (!show) return null;
@@ -449,10 +613,9 @@
             return (
                 <div className="modal-overlay" onClick={onClose}>
                     <div className="modal-content glass" onClick={e => e.stopPropagation()}>
-                        <h2 style={{ marginBottom: '20px' }}>Gemini API設定</h2>
+                        <h2 style={{ marginBottom: '20px' }}>{t[lang].settingsTitle}</h2>
                         <p style={{ marginBottom: '16px', color: '#A0A0A0', fontSize: '0.9rem' }}>
-                            AI解説機能を使用するには、Google Gemini APIキーが必要です。
-                            キーはブラウザのlocalStorageにのみ保存されます。
+                            {t[lang].settingsDesc}
                         </p>
                         <input
                             type="password"
@@ -463,8 +626,8 @@
                             onChange={(e) => setKey(e.target.value)}
                         />
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                            <button className="btn" onClick={onClose}>キャンセル</button>
-                            <button className="btn btn-primary" onClick={() => { onSave(key); onClose(); }}>保存</button>
+                            <button className="btn" onClick={onClose}>{t[lang].cancel}</button>
+                            <button className="btn btn-primary" onClick={() => { onSave(key); onClose(); }}>{t[lang].save}</button>
                         </div>
                     </div>
                 </div>
@@ -474,80 +637,158 @@
         // --- Pages ---
 
         const Home = ({ satellites, onSelect }) => {
+            const { lang } = useContext(SatelliteContext);
             const [search, setSearch] = useState('');
             const [filterType, setFilterType] = useState('All');
+            const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+            const [sortKey, setSortKey] = useState('launchDateDesc'); // 'launchDateDesc' | 'launchDateAsc' | 'name'
 
-            const types = ['All', ...new Set(satellites.map(s => s.type))];
+            const types = useMemo(() => ['All', ...new Set(satellites.map(s => s.type))], [satellites]);
 
-            const filtered = satellites.filter(s => {
-                const matchesSearch = s.name.includes(search) ||
-                    s.englishName.toLowerCase().includes(search.toLowerCase()) ||
-                    s.missionName.includes(search);
-                const matchesType = filterType === 'All' || s.type === filterType;
-                return matchesSearch && matchesType;
-            });
+            const filteredAndSorted = useMemo(() => {
+                let result = satellites.filter(s => {
+                    const matchesSearch = s.name.includes(search) ||
+                        s.englishName.toLowerCase().includes(search.toLowerCase()) ||
+                        s.missionName.includes(search);
+                    const matchesType = filterType === 'All' || s.type === filterType;
+                    return matchesSearch && matchesType;
+                });
+
+                return result.sort((a, b) => {
+                    if (sortKey === 'launchDateDesc') return new Date(b.launchDate || 0) - new Date(a.launchDate || 0);
+                    if (sortKey === 'launchDateAsc') return new Date(a.launchDate || 0) - new Date(b.launchDate || 0);
+                    if (sortKey === 'name') return a.name.localeCompare(b.name, 'ja');
+                    return 0;
+                });
+            }, [satellites, search, filterType, sortKey]);
 
             return (
                 <div className="container fade-in">
                     <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-                        <h1 style={{ fontSize: '3rem', marginBottom: '16px' }}>日本の宇宙機データベース</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>JAXAの人工衛星・探査機アーカイブ</p>
+                        <h1 style={{ fontSize: '3rem', marginBottom: '16px' }}>{t[lang].appTitle}</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>{t[lang].appSubtitle}</p>
                     </header>
 
-                    <div className="glass" style={{ padding: '24px', marginBottom: '40px', display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px 16px', borderRadius: '8px' }}>
-                            <Icons.Search />
-                            <input
-                                type="text"
-                                placeholder="衛星名、ミッション名で検索..."
-                                style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none' }}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+                    <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>
+                        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
+                            <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                                <Icons.Search />
+                                <input
+                                    type="text"
+                                    placeholder={t[lang].searchPlaceholder}
+                                    style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none' }}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <select
+                                    value={sortKey}
+                                    onChange={(e) => setSortKey(e.target.value)}
+                                    className="btn"
+                                    style={{ appearance: 'none', paddingRight: '32px', position: 'relative', backgroundImage: 'none' }}
+                                >
+                                    <option value="launchDateDesc">{t[lang].sortLaunchNew}</option>
+                                    <option value="launchDateAsc">{t[lang].sortLaunchOld}</option>
+                                    <option value="name">{t[lang].sortName}</option>
+                                </select>
+
+                                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '4px' }}>
+                                    <button
+                                        onClick={() => setViewMode('grid')}
+                                        className={`btn ${viewMode === 'grid' ? 'btn-primary' : ''}`}
+                                        style={{ padding: '8px', borderRadius: '6px', border: 'none' }}
+                                        title="Grid View"
+                                    >
+                                        <Icons.LayoutGrid />
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('list')}
+                                        className={`btn ${viewMode === 'list' ? 'btn-primary' : ''}`}
+                                        style={{ padding: '8px', borderRadius: '6px', border: 'none' }}
+                                        title="List View"
+                                    >
+                                        <Icons.List />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
                         <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
                             {types.map(type => (
                                 <button
                                     key={type}
                                     className={`btn ${filterType === type ? 'btn-primary' : ''}`}
                                     onClick={() => setFilterType(type)}
+                                    style={{ whiteSpace: 'nowrap' }}
                                 >
-                                    {type}
+                                    {type === 'All' ? t[lang].all : type}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <div className="grid">
-                        {filtered.map(sat => (
-                            <div key={sat.id} className="glass card" style={{ overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => onSelect(sat.id)}>
-                                <div style={{ height: '200px', background: '#000', position: 'relative', overflow: 'hidden' }}>
-                                    {sat.imageUrl ? (
-                                        <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} alt={sat.name} />
-                                    ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', color: '#333' }}>
-                                            {sat.englishName[0]}
+                    <div className={viewMode === 'grid' ? 'grid' : ''} style={viewMode === 'list' ? { display: 'flex', flexDirection: 'column', gap: '16px' } : {}}>
+                        {filteredAndSorted.map(sat => (
+                            viewMode === 'grid' ? (
+                                <div key={sat.id} className="glass card" style={{ overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => onSelect(sat.id)}>
+                                    <div style={{ height: '200px', background: '#000', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {sat.imageUrl ? (
+                                            <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} alt={sat.name} />
+                                        ) : (
+                                            <div style={{ fontSize: '4rem', color: '#333', fontWeight: 'bold' }}>{sat.englishName[0]}</div>
+                                        )}
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                                            <span className={`badge status-${sat.status}`}>{sat.status}</span>
                                         </div>
-                                    )}
-                                    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                                        <span className={`badge status-${sat.status}`}>{sat.status}</span>
+                                    </div>
+                                    <div style={{ padding: '20px' }}>
+                                        <h3 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>
+                                            {lang === 'ja' ? sat.name : sat.englishName}
+                                        </h3>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '12px' }}>
+                                            {lang === 'ja' ? sat.englishName : sat.name}
+                                        </p>
+                                        <p style={{ fontSize: '0.9rem', lineHeight: '1.5', height: '3em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                            {lang === 'ja' ? sat.missionName : (sat.missionNameEn || sat.missionName)}
+                                        </p>
+                                        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>{sat.type}</span>
+                                            <span className="btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>{t[lang].details} <Icons.Rocket /></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ padding: '20px' }}>
-                                    <h3 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>{sat.name}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '12px' }}>{sat.englishName}</p>
-                                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', height: '3em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{sat.missionName}</p>
-                                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            ) : (
+                                <div key={sat.id} className="glass" style={{ display: 'flex', padding: '16px', cursor: 'pointer', alignItems: 'center', gap: '20px', transition: 'background 0.2s' }} onClick={() => onSelect(sat.id)}>
+                                    <div style={{ width: '80px', height: '80px', borderRadius: '8px', background: '#000', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {sat.imageUrl ? (
+                                            <img src={sat.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={sat.name} />
+                                        ) : (
+                                            <div style={{ fontSize: '2rem', color: '#333', fontWeight: 'bold' }}>{sat.englishName[0]}</div>
+                                        )}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                            <h3 style={{ fontSize: '1.2rem' }}>{lang === 'ja' ? sat.name : sat.englishName}</h3>
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>
+                                                {lang === 'ja' ? sat.englishName : sat.name} | {sat.launchDate}
+                                            </p>
+                                            <span className={`badge status-${sat.status}`} style={{ alignSelf: 'flex-start' }}>{sat.status}</span>
+                                        </div>
+                                        <p style={{ fontSize: '0.9rem' }}>{lang === 'ja' ? sat.missionName : (sat.missionNameEn || sat.missionName)}</p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', minWidth: '100px' }}>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>{sat.type}</span>
-                                        <span className="btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>詳細 <Icons.Rocket /></span>
+                                        <span className="btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>{t[lang].details} &gt;</span>
                                     </div>
                                 </div>
-                            </div>
+                            )
                         ))}
                     </div>
-                    {filtered.length === 0 && (
+                    {filteredAndSorted.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                            該当する衛星が見つかりません
+                            {t[lang].noResults}
                         </div>
                     )}
                 </div>
@@ -555,8 +796,13 @@
         };
 
         const SatelliteDetail = ({ satellite, onBack, apiKey, onOpenSettings }) => {
+            const { lang } = useContext(SatelliteContext);
             const [chatMessages, setChatMessages] = useState([
-                { role: 'model', text: `こんにちは！私は${satellite.name}の専門AI解説員です。${satellite.name}について、なんでも聞いてください。` }
+                {
+                    role: 'model', text: lang === 'ja'
+                        ? `わからないこと、Geminiがお答えします!`
+                        : `Ask Gemini`
+                }
             ]);
             const [input, setInput] = useState('');
             const [isGenerating, setIsGenerating] = useState(false);
@@ -579,21 +825,90 @@
                 setIsGenerating(true);
 
                 try {
-                    const systemPrompt = `
+                    const systemPrompt = lang === 'ja' ? `
                         あなたは日本の人工衛星・探査機「${satellite.name}」の専門家です。
-                        以下の情報を元に、ユーザーの質問に日本語でわかりやすく、少し興奮気味に答えてください。
+                        以下の詳細な情報を元に、ユーザーの質問に日本語でわかりやすく、少し興奮気味に答えてください。
                         宇宙への情熱を持って、教育的な観点も含めてください。
 
                         基本情報:
-                        正式名称: ${satellite.officialName}
-                        英語名: ${satellite.englishName}
-                        ミッション: ${satellite.missionName}
-                        概要: ${satellite.description}
-                        成果: ${satellite.achievements.join(', ')}
-                        打ち上げ日: ${satellite.launchDate}
-                        機関: ${satellite.agency}
-                        ロケット: ${satellite.rocket}
+                        正式名称: ${satellite.officialName} (${satellite.officialNameEn})
+                        通称: ${satellite.name} (${satellite.englishName})
+                        ミッション区分: ${satellite.missionType}
+                        目的: ${satellite.objective}
+                        対象: ${satellite.target}
                         状態: ${satellite.status}
+
+                        概要: ${satellite.description}
+
+                        タイムライン:
+                        打ち上げ: ${satellite.timeline?.launchDate}
+                        主要イベント: ${satellite.timeline?.keyEvents?.map(e => `${e.date}: ${e.event}`).join(', ')}
+                        終了: ${satellite.timeline?.endDate || '運用中/不明'}
+
+                        打ち上げ情報:
+                        ロケット: ${satellite.launchDetails?.rocket}
+                        射場: ${satellite.launchDetails?.site}
+                        事業者: ${satellite.launchDetails?.provider}
+
+                        機関:
+                        主導: ${satellite.organizations?.lead}
+                        開発: ${satellite.organizations?.developer}
+                        運用: ${satellite.organizations?.operator}
+
+                        搭載機器: ${satellite.instruments?.map(i => `${i.name} (${i.description})`).join(', ')}
+
+                        スペック:
+                        質量: ${satellite.specs?.mass}
+                        寸法: ${satellite.specs?.dimensions}
+                        電力: ${satellite.specs?.power}
+                        通信: ${satellite.specs?.communication}
+                        推進・軌道: ${satellite.propulsion?.type}, ${satellite.orbit?.type} (${satellite.orbit?.altitude})
+
+                        成果: ${satellite.achievements.join(', ')}
+                        
+                        ユーザーの質問: ${userMsg}
+                    ` : `
+                        You are an expert on the Japanese spacecraft "${satellite.englishName}" (${satellite.name}).
+                        
+                        Context:
+                        Official Name: ${satellite.officialNameEn} (${satellite.officialName})
+                        Name: ${satellite.englishName}
+                        Mission Type: ${satellite.missionType}
+                        Objective: ${satellite.objective}
+                        Target: ${satellite.target}
+                        Status: ${satellite.status}
+
+                        Overview: ${satellite.descriptionEn}
+
+                        Timeline:
+                        Launch: ${satellite.timeline?.launchDate}
+                        Key Events: ${satellite.timeline?.keyEvents?.map(e => `${e.date}: ${e.eventEn}`).join(', ')}
+                        End: ${satellite.timeline?.endDate || 'Ongoing/Unknown'}
+
+                        Launch Info:
+                        Rocket: ${satellite.launchDetails?.rocket}
+                        Site: ${satellite.launchDetails?.site}
+                        Provider: ${satellite.launchDetails?.provider}
+
+                        Organizations:
+                        Lead: ${satellite.organizations?.lead}
+                        Developer: ${satellite.organizations?.developer}
+                        Operator: ${satellite.organizations?.operator}
+
+                        Instruments: ${satellite.instruments?.map(i => `${i.nameEn} (${i.description})`).join(', ')}
+
+                        Specs:
+                        Mass: ${satellite.specs?.mass}
+                        Dimensions: ${satellite.specs?.dimensions}
+                        Power: ${satellite.specs?.power}
+                        Comms: ${satellite.specs?.communication}
+                        Propulsion/Orbit: ${satellite.propulsion?.type}, ${satellite.orbit?.type}
+
+                        Achievements: ${(satellite.achievementsEn || satellite.achievements).join(', ')}
+
+                        Answer users' questions accurately and enthusiastically.
+                        Respond in the same language as the user (Japanese or English).
+                        User Question: ${userMsg}
                     `;
 
                     // Simple implementation using REST API for Gemini
@@ -602,7 +917,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: [
-                                { role: 'user', parts: [{ text: systemPrompt + "\n\nユーザーの質問: " + userMsg }] }
+                                { part: { text: systemPrompt } }
                             ]
                         })
                     });
@@ -613,116 +928,182 @@
                         throw new Error(data.error.message);
                     }
 
-                    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "すみません、うまく答えられませんでした。";
-                    setChatMessages(prev => [...prev, { role: 'model', text: aiResponse }]);
+                    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response.";
 
+                    setChatMessages(prev => [...prev, { role: 'model', text: aiResponse }]);
                 } catch (error) {
-                    console.error(error);
-                    setChatMessages(prev => [...prev, { role: 'model', text: `エラーが発生しました: ${error.message}` }]);
+                    console.error("Gemini Error:", error);
+                    setChatMessages(prev => [...prev, { role: 'model', text: lang === 'ja' ? "エラーが発生しました。APIキーを確認してください。" : "Error occurred. Please check your API Key." }]);
                 } finally {
                     setIsGenerating(false);
                 }
             };
 
+            const InfoRow = ({ label, value, icon: Icon }) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        {Icon && <Icon size={14} />}
+                        {label}
+                    </div>
+                    <div style={{ fontSize: '1rem' }}>{value || '-'}</div>
+                </div>
+            );
+
+            const SectionTitle = ({ title, icon: Icon }) => (
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', marginTop: '32px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px' }}>
+                    {Icon && <Icon size={20} className="text-accent" />}
+                    {title}
+                </h3>
+            );
+
             return (
                 <div className="container fade-in">
-                    <button onClick={onBack} className="btn" style={{ marginBottom: '20px' }}>
-                        ← 一覧に戻る
+                    <button className="btn" onClick={onBack} style={{ marginBottom: '20px' }}>
+                        <Icons.ArrowUpDown style={{ transform: 'rotate(90deg)' }} /> {t[lang].back}
                     </button>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '32px', alignItems: 'start' }}>
-                        {/* Main Content */}
-                        <div className="glass" style={{ padding: '32px' }}>
-                            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                        <h1 style={{ fontSize: '2.5rem', color: 'var(--accent-cyan)' }}>{satellite.name}</h1>
-                                        <span className={`badge status-${satellite.status}`}>{satellite.status}</span>
-                                    </div>
-                                    <h2 style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: '400' }}>{satellite.officialName}</h2>
-                                </div>
-                                {satellite.officialUrl && (
-                                    <a href={satellite.officialUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                                        公式サイト <Icons.ExternalLink />
-                                    </a>
-                                )}
+                    <div className="glass" style={{ padding: '32px', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '24px' }}>
+                            <div>
+                                <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+                                    {lang === 'ja' ? satellite.name : satellite.englishName}
+                                </h1>
+                                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>
+                                    {lang === 'ja' ? satellite.englishName : satellite.name}
+                                </p>
                             </div>
-
-                            <div style={{ aspectRatio: '16/9', overflow: 'hidden', borderRadius: '12px', marginBottom: '32px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {satellite.imageUrl ? (
-                                    <img src={satellite.imageUrl} alt={satellite.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    <div style={{ fontSize: '6rem', color: '#333', fontWeight: 'bold' }}>{satellite.englishName[0]}</div>
-                                )}
-                            </div>
-
-                            <section style={{ marginBottom: '32px' }}>
-                                <h3 style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--accent-purple)' }}>ミッション概要</h3>
-                                <p style={{ lineHeight: '1.8', fontSize: '1.05rem' }}>{satellite.description}</p>
-                            </section>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>打ち上げ日</h4>
-                                    <p style={{ fontSize: '1.1rem' }}>{satellite.launchDate}</p>
-                                </div>
-                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>運用機関</h4>
-                                    <p style={{ fontSize: '1.1rem' }}>{satellite.agency}</p>
-                                </div>
-                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>ロケット</h4>
-                                    <p style={{ fontSize: '1.1rem' }}>{satellite.rocket}</p>
-                                </div>
-                                <div className="glass" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                                    <h4 style={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '0.9rem' }}>種別</h4>
-                                    <p style={{ fontSize: '1.1rem' }}>{satellite.type}</p>
-                                </div>
-                            </div>
-
-                            <section>
-                                <h3 style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--accent-purple)' }}>主な成果・マイルストーン</h3>
-                                <ul style={{ listStyle: 'none' }}>
-                                    {satellite.achievements.map((item, idx) => (
-                                        <li key={idx} style={{ marginBottom: '12px', display: 'flex', alignItems: 'start', gap: '10px' }}>
-                                            <span style={{ color: 'var(--success)' }}>✓</span> {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
+                            <span className={`badge status-${satellite.status}`} style={{ fontSize: '1rem', padding: '8px 16px' }}>
+                                {satellite.status}
+                            </span>
                         </div>
 
-                        {/* Chat Side */}
-                        <div className="glass chat-container" style={{ position: 'sticky', top: '20px' }}>
-                            <div style={{ padding: '16px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
-                                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Icons.MessageSquare /> AI解説員
-                                </h3>
+                        {satellite.imageUrl && (
+                            <div style={{ width: '100%', height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--glass-border)' }}>
+                                <img src={satellite.imageUrl} alt={satellite.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
+                        )}
+
+                        <div className="grid">
+                            <div>
+                                <SectionTitle title={t[lang].basicInfo} icon={Icons.Info} />
+                                <InfoRow label={t[lang].officialName} value={lang === 'ja' ? satellite.officialName : satellite.officialNameEn} />
+                                <InfoRow label="ID (COSPAR / NORAD)" value={`${satellite.ids?.cosparId || '-'} / ${satellite.ids?.noradId || '-'}`} />
+                                <InfoRow label={t[lang].missionType} value={satellite.missionType} />
+                                <InfoRow label={t[lang].objective} value={satellite.objective} />
+                                <InfoRow label={t[lang].target} value={satellite.target} />
+                            </div>
+                            <div>
+                                <SectionTitle title={t[lang].launchInfo} icon={Icons.Rocket} />
+                                <InfoRow label={t[lang].launchDate} value={satellite.timeline?.launchDate} icon={Icons.Calendar} />
+                                <InfoRow label={t[lang].rocket} value={satellite.launchDetails?.rocket} />
+                                <InfoRow label={t[lang].launchSite} value={satellite.launchDetails?.site} icon={Icons.MapPin} />
+                                <InfoRow label={t[lang].provider} value={satellite.launchDetails?.provider} />
+                            </div>
+                        </div>
+
+                        <SectionTitle title={t[lang].missionOverview} icon={Icons.Globe} />
+                        <p style={{ lineHeight: '1.8', fontSize: '1.05rem', marginBottom: '24px' }}>
+                            {lang === 'ja' ? satellite.description : (satellite.descriptionEn || satellite.description)}
+                        </p>
+
+                        <div className="grid">
+                            <div>
+                                <SectionTitle title={t[lang].timeline} icon={Icons.Calendar} />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {satellite.timeline?.keyEvents?.map((event, index) => (
+                                        <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'baseline' }}>
+                                            <span style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', minWidth: '100px' }}>{event.date}</span>
+                                            <span>{lang === 'ja' ? event.event : event.eventEn}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <SectionTitle title={t[lang].organizations} icon={Icons.Building} />
+                                <InfoRow label={t[lang].leadAgency} value={satellite.organizations?.lead} />
+                                <InfoRow label={t[lang].developer} value={satellite.organizations?.developer} />
+                                <InfoRow label={t[lang].operator} value={satellite.organizations?.operator} />
+                            </div>
+                        </div>
+
+
+                        <SectionTitle title={t[lang].instruments} icon={Icons.Cpu} />
+                        <div className="grid">
+                            {satellite.instruments?.map((inst, index) => (
+                                <div key={index} style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '4px', color: 'var(--accent-cyan)' }}>
+                                        {lang === 'ja' ? inst.name : inst.nameEn} ({inst.abbreviation})
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>{inst.type}</div>
+                                    <div style={{ fontSize: '0.9rem' }}>{inst.description}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <SectionTitle title={t[lang].specifications} icon={Icons.Activity} />
+                        <div className="grid">
+                            <InfoRow label={t[lang].mass} value={satellite.specs?.mass} />
+                            <InfoRow label={t[lang].dimensions} value={satellite.specs?.dimensions} />
+                            <InfoRow label={t[lang].power} value={satellite.specs?.power} />
+                            <InfoRow label={t[lang].communication} value={satellite.specs?.communication} />
+                            <InfoRow label={t[lang].propulsion} value={`${satellite.propulsion?.type} (${satellite.propulsion?.engineType})`} />
+                            <InfoRow label={t[lang].orbit} value={`${satellite.orbit?.type} - ${satellite.orbit?.altitude}`} />
+                        </div>
+
+                        <SectionTitle title={t[lang].achievements} icon={Icons.BarChart} />
+                        <ul>
+                            {(lang === 'ja' ? satellite.achievements : (satellite.achievementsEn || satellite.achievements)).map((item, index) => (
+                                <li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>{item}</li>
+                            ))}
+                        </ul>
+
+                        <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+                            {satellite.links?.official && (
+                                <a href={satellite.links.official} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                    {t[lang].officialSite} <Icons.ExternalLink size={16} />
+                                </a>
+                            )}
+                            {satellite.links?.data && (
+                                <a href={satellite.links.data} target="_blank" rel="noopener noreferrer" className="btn">
+                                    {t[lang].dataSite} <Icons.Link size={16} />
+                                </a>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>
+                        <h3 style={{ fontSize: '1.5rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Icons.MessageSquare className="text-accent" />
+                            {t[lang].aiChat}
+                        </h3>
+
+                        <div className="chat-container glass" style={{ background: 'rgba(0,0,0,0.3)', height: '500px' }}>
                             <div className="chat-messages">
-                                {chatMessages.map((msg, idx) => (
-                                    <div key={idx} className={`message ${msg.role === 'user' ? 'user' : 'ai'}`}>
-                                        {msg.text}
+                                {chatMessages.map((msg, index) => (
+                                    <div key={index} className={`message ${msg.role === 'user' ? 'user' : 'ai'}`}>
+                                        {msg.text.split('\n').map((line, i) => <div key={i}>{line}</div>)}
                                     </div>
                                 ))}
                                 {isGenerating && (
                                     <div className="message ai">
-                                        <span className="spin" style={{ display: 'inline-block', marginRight: '5px' }}>⏳</span> 考え中...
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Icons.Rocket className="spin" size={16} /> {t[lang].thinking}
+                                        </div>
                                     </div>
                                 )}
-                                <div ref={chatEndRef}></div>
+                                <div ref={chatEndRef} />
                             </div>
                             <div className="chat-input-area">
                                 <input
                                     type="text"
                                     className="chat-input"
-                                    placeholder={apiKey ? "質問を入力..." : "APIキーを設定してください"}
+                                    placeholder={t[lang].questionPlaceholder}
                                     value={input}
-                                    onChange={e => setInput(e.target.value)}
-                                    onKeyPress={e => e.key === 'Enter' && handleSend()}
-                                    disabled={!apiKey || isGenerating}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                    disabled={isGenerating}
                                 />
-                                <button className="btn btn-primary" onClick={handleSend} disabled={!apiKey || isGenerating}>
+                                <button className="btn btn-primary" onClick={handleSend} disabled={isGenerating}>
                                     <Icons.Send />
                                 </button>
                             </div>
@@ -733,6 +1114,7 @@
         };
 
         const Stats = ({ satellites }) => {
+            const { lang } = useContext(SatelliteContext);
             const chartRef = React.useRef(null);
             const canvasRef = React.useRef(null);
 
@@ -779,7 +1161,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'ミッション種別分布',
+                                text: t[lang].statsTitle,
                                 color: '#FFF',
                                 font: { size: 16, family: 'Space Grotesk' }
                             }
@@ -790,13 +1172,13 @@
                 return () => {
                     if (chartRef.current) chartRef.current.destroy();
                 };
-            }, [satellites]);
+            }, [satellites, lang]); // Add lang dependency
 
             return (
                 <div className="container fade-in">
                     <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-                        <h1 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>統計データ</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>データベースの統計情報</p>
+                        <h1 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t[lang].statsTitle}</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>{t[lang].statsSubtitle}</p>
                     </header>
 
                     <div className="glass" style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
@@ -804,7 +1186,7 @@
                             <canvas ref={canvasRef}></canvas>
                         </div>
                         <div style={{ marginTop: '40px', textAlign: 'center' }}>
-                            <h3>登録衛星数: <span style={{ fontSize: '2rem', color: 'var(--accent-cyan)' }}>{satellites.length}</span> 機</h3>
+                            <h3>{t[lang].registeredSatellites}: <span style={{ fontSize: '2rem', color: 'var(--accent-cyan)' }}>{satellites.length}</span> {t[lang].units}</h3>
                         </div>
                     </div>
                 </div>
@@ -814,7 +1196,7 @@
         // --- App ---
 
         const App = () => {
-            const { satellites, loading, error, apiKey, saveApiKey } = useContext(SatelliteContext);
+            const { satellites, loading, error, apiKey, saveApiKey, lang, toggleLang } = useContext(SatelliteContext);
             const [currentPage, setCurrentPage] = useState('home');
             const [selectedSatelliteId, setSelectedSatelliteId] = useState(null);
             const [showSettings, setShowSettings] = useState(false);
@@ -878,7 +1260,10 @@
                     />
 
                     <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', borderTop: '1px solid var(--glass-border)' }}>
-                        <p>© 2026 JAXA Spacecraft Database (Unofficial Fan App)</p>
+                        <p style={{ marginBottom: '10px' }}>© 2026 {t[lang].appTitle}</p>
+                        <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                            {t[lang].footerDisclaimer}
+                        </p>
                     </footer>
                 </div>
             );
