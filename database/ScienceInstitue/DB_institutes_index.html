@@ -404,8 +404,8 @@
 
             /* List View adjustments */
             .list-item {
-                flexDirection: column !important;
-                alignItems: flex-start !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
             }
 
             .list-item>div:first-child {
@@ -718,8 +718,20 @@
             const [viewMode, setViewMode] = useState('grid');
             const [sortKey, setSortKey] = useState('establishedOld');
 
-            const categories = useMemo(() => ['All', 'NRA', 'InterUniversity', 'UnivAttached', 'MinistryLab', 'Other'], []);
-            const domains = useMemo(() => ['All', 'space', 'particle', 'nuclear', 'ocean', 'earth', 'environment', 'materials', 'energy', 'ict', 'metrology', 'life'], []);
+            const categories = useMemo(() => {
+                const uniqueCats = new Set(institutes.map(i => i.category).filter(Boolean));
+                return ['All', ...Array.from(uniqueCats)];
+            }, [institutes]);
+
+            const domains = useMemo(() => {
+                const uniqueDoms = new Set();
+                institutes.forEach(inst => {
+                    inst.domainProfile?.forEach(d => {
+                        if (d.domain) uniqueDoms.add(d.domain);
+                    });
+                });
+                return ['All', ...Array.from(uniqueDoms)];
+            }, [institutes]);
 
             const filteredAndSorted = useMemo(() => {
                 let result = institutes.filter(inst => {
@@ -928,7 +940,9 @@
             const chatEndRef = useRef(null);
 
             useEffect(() => {
-                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                if (chatMessages.length > 1) {
+                    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }
             }, [chatMessages]);
 
             const handleSend = async () => {
@@ -1069,11 +1083,13 @@
                             </div>
                         </div>
 
-                        {inst.imageUrl && (
-                            <div style={{ width: '100%', height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--glass-border)' }}>
-                                <img src={inst.imageUrl} alt={inst.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                        )}
+                        <div style={{ width: '100%', height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--glass-border)' }}>
+                            <img
+                                src={inst.imageUrl || './no_image.png'}
+                                alt={inst.name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: inst.imageUrl ? 1 : 0.6 }}
+                            />
+                        </div>
 
                         <SectionTitle title={t[lang].overview} icon={Icons.Info} />
                         <p style={{ lineHeight: '1.8', fontSize: '1.05rem', marginBottom: '16px' }}>

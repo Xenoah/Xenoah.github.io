@@ -439,5 +439,3439 @@
         "publicUrl": "https://abci.ai/"
       }
     ]
+  },
+  {
+    "id": "amed",
+    "name": "日本医療研究開発機構",
+    "englishName": "Japan Agency for Medical Research and Development",
+    "abbreviation": "AMED",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.amed.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nims",
+    "name": "物質・材料研究機構",
+    "englishName": "National Institute for Materials Science",
+    "abbreviation": "NIMS",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 文部科学省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nims.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nied",
+    "name": "防災科学技術研究所",
+    "englishName": "National Research Institute for Earth Science and Disaster Resilience",
+    "abbreviation": "NIED",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 文部科学省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.bosai.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "qst",
+    "name": "量子科学技術研究開発機構",
+    "englishName": "National Institutes for Quantum Science and Technology",
+    "abbreviation": "QST",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 文部科学省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.qst.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "jst",
+    "name": "科学技術振興機構",
+    "englishName": "Japan Science and Technology Agency",
+    "abbreviation": "JST",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 文部科学省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.jst.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "riken",
+    "name": "理化学研究所",
+    "englishName": "RIKEN",
+    "abbreviation": "RIKEN",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 文部科学省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.riken.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nibiohn",
+    "name": "医薬基盤・健康・栄養研究所",
+    "englishName": "National Institutes of Biomedical Innovation, Health and Nutrition",
+    "abbreviation": "NIBIOHN",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nibiohn.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ncc",
+    "name": "国立がん研究センター",
+    "englishName": "National Cancer Center",
+    "abbreviation": "NCC",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ncc.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ncvc",
+    "name": "国立循環器病研究センター",
+    "englishName": "National Cerebral and Cardiovascular Center",
+    "abbreviation": "NCVC",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ncvc.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ncnp",
+    "name": "国立精神・神経医療研究センター",
+    "englishName": "National Center of Neurology and Psychiatry",
+    "abbreviation": "NCNP",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ncnp.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ncchd",
+    "name": "国立成育医療研究センター",
+    "englishName": "National Center for Child Health and Development",
+    "abbreviation": "NCCHD",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ncchd.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ncgg",
+    "name": "国立長寿医療研究センター",
+    "englishName": "National Center for Geriatrics and Gerontology",
+    "abbreviation": "NCGG",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ncgg.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "naro",
+    "name": "農業・食品産業技術総合研究機構",
+    "englishName": "National Agriculture and Food Research Organization",
+    "abbreviation": "NARO",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "農林水産省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 農林水産省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.naro.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "jircas",
+    "name": "国際農林水産業研究センター",
+    "englishName": "Japan International Research Center for Agricultural Sciences",
+    "abbreviation": "JIRCAS",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "農林水産省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 農林水産省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.jircas.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "frmo",
+    "name": "森林研究・整備機構",
+    "englishName": "Forest Research and Management Organization",
+    "abbreviation": "FRMO",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "農林水産省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 農林水産省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.green.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "fra",
+    "name": "水産研究・教育機構",
+    "englishName": "Fisheries Research and Education Agency",
+    "abbreviation": "FRA",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "農林水産省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 農林水産省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.fra.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nedo",
+    "name": "新エネルギー・産業技術総合開発機構",
+    "englishName": "New Energy and Industrial Technology Development Organization",
+    "abbreviation": "NEDO",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "経済産業省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 経済産業省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nedo.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "pwri",
+    "name": "土木研究所",
+    "englishName": "Public Works Research Institute",
+    "abbreviation": "PWRI",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "国土交通省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 国土交通省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.pwri.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "bri",
+    "name": "建築研究所",
+    "englishName": "Building Research Institute",
+    "abbreviation": "BRI",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "国土交通省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 国土交通省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.kenken.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "mpat",
+    "name": "海上・港湾・航空技術研究所",
+    "englishName": "National Institute of Maritime, Port and Aviation Technology",
+    "abbreviation": "MPAT",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "国土交通省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 国土交通省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.mpat.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nies",
+    "name": "国立環境研究所",
+    "englishName": "National Institute for Environmental Studies",
+    "abbreviation": "NIES",
+    "category": "NRA",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "環境省",
+      "related": [
+        "内閣府（国立研究開発法人制度）"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "国立研究開発法人（所管: 環境省）。出典: 内閣府『国立研究開発法人一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nies.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nins",
+    "name": "自然科学研究機構",
+    "englishName": "National Institutes of Natural Sciences",
+    "abbreviation": "NINS",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関法人。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nins.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "rois",
+    "name": "情報・システム研究機構",
+    "englishName": "Research Organization of Information and Systems",
+    "abbreviation": "ROIS",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関法人。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.rois.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nihu",
+    "name": "人間文化研究機構",
+    "englishName": "National Institutes for the Humanities",
+    "abbreviation": "NIHU",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "文部科学省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関法人。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nihu.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "naoj",
+    "name": "国立天文台",
+    "englishName": "National Astronomical Observatory of Japan",
+    "abbreviation": "NAOJ",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "自然科学研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nao.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nifs",
+    "name": "核融合科学研究所",
+    "englishName": "National Institute for Fusion Science",
+    "abbreviation": "NIFS",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "自然科学研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nifs.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ims",
+    "name": "分子科学研究所",
+    "englishName": "Institute for Molecular Science",
+    "abbreviation": "IMS",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "自然科学研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ims.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nibb",
+    "name": "基礎生物学研究所",
+    "englishName": "National Institute for Basic Biology",
+    "abbreviation": "NIBB",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "自然科学研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nibb.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nips",
+    "name": "生理学研究所",
+    "englishName": "National Institute for Physiological Sciences",
+    "abbreviation": "NIPS",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "自然科学研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nips.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nii",
+    "name": "国立情報学研究所",
+    "englishName": "National Institute of Informatics",
+    "abbreviation": "NII",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "情報・システム研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nii.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nig",
+    "name": "国立遺伝学研究所",
+    "englishName": "National Institute of Genetics",
+    "abbreviation": "NIG",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "情報・システム研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nig.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ism",
+    "name": "統計数理研究所",
+    "englishName": "The Institute of Statistical Mathematics",
+    "abbreviation": "ISM",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "情報・システム研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ism.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nipr",
+    "name": "国立極地研究所",
+    "englishName": "National Institute of Polar Research",
+    "abbreviation": "NIPR",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "情報・システム研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nipr.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "rekihaku",
+    "name": "国立歴史民俗博物館",
+    "englishName": "National Museum of Japanese History",
+    "abbreviation": "Rekihaku",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.rekihaku.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nijl",
+    "name": "国文学研究資料館",
+    "englishName": "National Institute of Japanese Literature",
+    "abbreviation": "NIJL",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nijl.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "minpaku",
+    "name": "国立民族学博物館",
+    "englishName": "National Museum of Ethnology",
+    "abbreviation": "Minpaku",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.minpaku.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nichibunken",
+    "name": "国際日本文化研究センター",
+    "englishName": "International Research Center for Japanese Studies",
+    "abbreviation": "Nichibunken",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nichibun.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "rihn",
+    "name": "総合地球環境学研究所",
+    "englishName": "Research Institute for Humanity and Nature",
+    "abbreviation": "RIHN",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.chikyu.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "ninjal",
+    "name": "国立国語研究所",
+    "englishName": "National Institute for Japanese Language and Linguistics",
+    "abbreviation": "NINJAL",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "人間文化研究機構",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "大学共同利用機関。出典: 文部科学省『大学共同利用機関法人及び大学共同利用機関一覧』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.ninjal.ac.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "mri-jma",
+    "name": "気象研究所",
+    "englishName": "Meteorological Research Institute",
+    "abbreviation": "MRI",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "気象庁",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.mri-jma.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "kmo-jma",
+    "name": "柿岡地磁気観測所",
+    "englishName": "Kakioka Magnetic Observatory",
+    "abbreviation": "KMO",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "気象庁",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.kakioka-jma.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nrifd",
+    "name": "消防研究センター",
+    "englishName": "National Research Institute of Fire and Disaster (Fire Research Center)",
+    "abbreviation": "NRIFD",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "消防庁",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://nrifd.fdma.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nrips",
+    "name": "科学警察研究所",
+    "englishName": "National Research Institute of Police Science",
+    "abbreviation": "NRIPS",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "警察庁",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.npa.go.jp/nrips/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nihs",
+    "name": "国立医薬品食品衛生研究所",
+    "englishName": "National Institute of Health Sciences",
+    "abbreviation": "NIHS",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nihs.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "gsi",
+    "name": "国土地理院",
+    "englishName": "Geospatial Information Authority of Japan",
+    "abbreviation": "GSI",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "国土交通省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.gsi.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "nilim",
+    "name": "国土技術政策総合研究所",
+    "englishName": "National Institute for Land and Infrastructure Management",
+    "abbreviation": "NILIM",
+    "category": "MinistryLab",
+    "status": "Active",
+    "established": null,
+    "supervising": {
+      "primary": "国土交通省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
+    "mission": "",
+    "links": {
+      "official": "https://www.nilim.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "jihs",
+    "name": "国立健康危機管理研究機構",
+    "englishName": "Japan Institute for Health Security",
+    "abbreviation": "JIHS",
+    "category": "Other",
+    "status": "Active",
+    "established": "2025-04-01",
+    "supervising": {
+      "primary": "厚生労働省",
+      "related": []
+    },
+    "locations": [],
+    "domainProfile": [],
+    "overview": "厚生労働省所管の国立機関。出典: 厚生労働省『国立健康危機管理研究機構（JIHS）の設立』。",
+    "mission": "",
+    "links": {
+      "official": "https://www.jihs.go.jp/",
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_323ace6917",
+    "name": "国立大学法人 北海道大学 低温科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 北海道大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "北海道",
+        "city": "札幌市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "寒冷圏及び低温条件の下における科学的現象に関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成7年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "寒冷圏及び低温条件の下における科学的現象に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_d6aa3ef14c",
+    "name": "国立大学法人 北海道大学 電子科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 北海道大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "北海道",
+        "city": "札幌市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "電子科学に関する学理及びその応用の研究 / 設置年度: 昭和17年 ; 改組年度: 平成4年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "電子科学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_f3b90dad56",
+    "name": "国立大学法人 北海道大学 遺伝子病制御研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 北海道大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "北海道",
+        "city": "札幌市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "遺伝子病の制御に関する学理及びその応用の研究 / 設置年度: 昭和25年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "遺伝子病の制御に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_37eb1f3883",
+    "name": "国立大学法人 東北大学 金属材料研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東北大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "材料科学に関する学理及びその応用の研究 / 設置年度: 大正8年 ; 改組年度: 昭和62年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "材料科学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_a435f4e2e1",
+    "name": "国立大学法人 東北大学 加齢医学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東北大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "加齢医学に関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成5年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "加齢医学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_61d71c1c62",
+    "name": "国立大学法人 東北大学 流体科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東北大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "流動現象に関する学理及びその応用の研究 / 設置年度: 昭和18年 ; 改組年度: 平成10年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "流動現象に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_41600de96a",
+    "name": "国立大学法人 東北大学 電気通信研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東北大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "高密度及び高次の情報通信に関する学理並びにその応用の研究 / 設置年度: 昭和10年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "高密度及び高次の情報通信に関する学理並びにその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_718bbc5b7a",
+    "name": "国立大学法人 東北大学 多元物質科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東北大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "多元的な物質に関する学理及びその応用の研究 / 設置年度: 平成13年 ; 改組年度: 平成13年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "多元的な物質に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_8e7d331442",
+    "name": "国立大学法人 群馬大学 生体調節研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 群馬大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "群馬県",
+        "city": "前橋市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生体調節に関する医学及び薬学の学理並びにその応用の研究 / 設置年度: 昭和38年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生体調節に関する医学及び薬学の学理並びにその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_468ba4635b",
+    "name": "国立大学法人 東京大学 医科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "港区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "感染症、がんその他の特定疾患に関する学理及びその応用の研究 / 設置年度: 明治25年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "感染症、がんその他の特定疾患に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_40797c8448",
+    "name": "国立大学法人 東京大学 地震研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "文京区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "地震及び火山噴火の現象の解明及び予知並びにこれらによる災害の防止及び軽減に関する研究 / 設置年度: 大正14年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "地震及び火山噴火の現象の解明及び予知並びにこれらによる災害の防止及び軽減に関する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_5a961a953e",
+    "name": "国立大学法人 東京大学 東洋文化研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "文京区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "東洋文化に関する総合研究 / 設置年度: 昭和16年 ; 改組年度: 昭和56年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "東洋文化に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_8c7511454e",
+    "name": "国立大学法人 東京大学 社会科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "文京区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "社会科学に関する総合研究 / 設置年度: 昭和21年 ; 改組年度: 昭和60年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "社会科学に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_ebc4827eb1",
+    "name": "国立大学法人 東京大学 生産技術研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "目黒区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生産に関する技術的問題の科学的総合研究並びに研究成果の実用化試験 / 設置年度: 昭和24年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生産に関する技術的問題の科学的総合研究並びに研究成果の実用化試験",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_5ee02117c0",
+    "name": "国立大学法人 東京大学 史料編纂所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "文京区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "日本に関する史料及びその編纂の研究、並びに研究成果による史料集出版を行う / 設置年度: 明治28年 ; 改組年度: 昭和54年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "日本に関する史料及びその編纂の研究、並びに研究成果による史料集出版を行う",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_475d82c5fe",
+    "name": "国立大学法人 東京大学 分子細胞生物学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "文京区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "分子細胞生物学に関する学理及びその応用の研究 / 設置年度: 昭和28年 ; 改組年度: 平成13年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "分子細胞生物学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_3df7270ec4",
+    "name": "国立大学法人 東京大学 宇宙線研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "千葉県",
+        "city": "柏市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "宇宙線の観測及び研究 / 設置年度: 昭和28年 ; 改組年度: 昭和51年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "宇宙線の観測及び研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_525169c5e9",
+    "name": "国立大学法人 東京大学 物性研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "千葉県",
+        "city": "柏市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "物性に関する実験的研究及びこれに関連する理論的研究 / 設置年度: 昭和32年 ; 改組年度: 平成8年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "物性に関する実験的研究及びこれに関連する理論的研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_07061cb81e",
+    "name": "国立大学法人 東京大学 海洋研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "中野区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "海洋に関する基礎的研究 / 設置年度: 昭和37年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "海洋に関する基礎的研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_7e7621a388",
+    "name": "国立大学法人 東京大学 先端科学技術研究センター",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "目黒区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "学術の進展と社会の変化から生じる新たな課題へ機動的に挑戦し、人間と社会に向かう先端科学技術の新領域を開拓することによって科学技術の発展に貢献 / 設置年度: 平成16年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "学術の進展と社会の変化から生じる新たな課題へ機動的に挑戦し、人間と社会に向かう先端科学技術の新領域を開拓することによって科学技術の発展に貢献",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_798fc1829c",
+    "name": "国立大学法人 東京医科歯科大学 生体材料工学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京医科歯科大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "千代田区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生体に用いられる物質及び材料並びに生体工学に関する学理及びその応用の研究 / 設置年度: 昭和26年 ; 改組年度: 平成11年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生体に用いられる物質及び材料並びに生体工学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_490e9564a3",
+    "name": "国立大学法人 東京医科歯科大学 難治疾患研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京医科歯科大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "千代田区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "膠原病その他の難治疾患に関する学理及びその応用の研究 / 設置年度: 昭和48年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "膠原病その他の難治疾患に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_5fccf7aaac",
+    "name": "国立大学法人 東京外国語大学 アジア・アフリカ言語文化研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京外国語大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "府中市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "アジア及びアフリカの言語文化に関する総合研究並びにこれらの地域の言語に関する辞典の編製及び教育訓練 / 設置年度: 昭和39年 ; 改組年度: 平成3年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "アジア及びアフリカの言語文化に関する総合研究並びにこれらの地域の言語に関する辞典の編製及び教育訓練",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_434eba3b9c",
+    "name": "国立大学法人 東京工業大学 資源化学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京工業大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "神奈川県",
+        "city": "横浜市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "資源の化学的利用に関する学理及びその応用の研究 / 設置年度: 昭和13年 ; 改組年度: 昭和29年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "資源の化学的利用に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_4b87acc83f",
+    "name": "国立大学法人 東京工業大学 精密工学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京工業大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "神奈川県",
+        "city": "横浜市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "精密工学に関する学理及びその応用の研究 / 設置年度: 昭和29年 ; 改組年度: 平成5年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "精密工学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_4f83e6689a",
+    "name": "国立大学法人 東京工業大学 応用セラミックス研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京工業大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "神奈川県",
+        "city": "横浜市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "セラミックスに関する学理及びその応用の研究 / 設置年度: 昭和33年 ; 改組年度: 平成8年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "セラミックスに関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_c00732d8dc",
+    "name": "国立大学法人 東京工業大学 原子炉工学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 東京工業大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "目黒区",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "原子炉工学に関する学理及びその応用の研究 / 設置年度: 昭和39年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "原子炉工学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_b333ef8233",
+    "name": "国立大学法人 一橋大学 経済研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 一橋大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "東京都",
+        "city": "国立市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "日本及び世界の経済の総合研究 / 設置年度: 昭和16年 ; 改組年度: 昭和54年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "日本及び世界の経済の総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_694c63551e",
+    "name": "国立大学法人 新潟大学 脳研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 新潟大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "新潟県",
+        "city": "新潟市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "脳及び脳疾患に関する学理及びその応用の研究 / 設置年度: 昭和42年 ; 改組年度: 平成7年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "脳及び脳疾患に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_948b1b9ec4",
+    "name": "国立大学法人 富山大学 和漢医薬学総合研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 富山大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "富山県",
+        "city": "富山市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "和漢薬に関する学理及びその応用の研究 / 設置年度: 昭和49年 ; 改組年度: 平成17年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "和漢薬に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_96421e2ef9",
+    "name": "国立大学法人 金沢大学 がん研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 金沢大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "石川県",
+        "city": "金沢市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "がんに関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成9年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "がんに関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_f65c238a41",
+    "name": "国立大学法人 静岡大学 電子工学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 静岡大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "静岡県",
+        "city": "浜松市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "電子工学に関する学理及びその応用の研究 / 設置年度: 昭和40年 ; 改組年度: 平成元年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "電子工学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_d41365c5fb",
+    "name": "国立大学法人 名古屋大学 環境医学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 名古屋大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "愛知県",
+        "city": "名古屋市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "環境医学に関する学理及びその応用の研究 / 設置年度: 昭和20年 ; 改組年度: 平成3年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "環境医学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_27204ae2ef",
+    "name": "国立大学法人 名古屋大学 太陽地球環境研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 名古屋大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "愛知県",
+        "city": "名古屋市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "太陽地球環境の構造と動態に関する総合研究 / 設置年度: 昭和24年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "太陽地球環境の構造と動態に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_4bb53c95c2",
+    "name": "国立大学法人 名古屋大学 エコトピア科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 名古屋大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "愛知県",
+        "city": "名古屋市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "エコトピア科学に関する研究 / 設置年度: 平成18年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "エコトピア科学に関する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_a030c2f919",
+    "name": "国立大学法人 京都大学 化学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "宇治市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "化学に関する特殊事項の学理及びその応用の研究 / 設置年度: 大正15年 ; 改組年度: 平成4年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "化学に関する特殊事項の学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_fb7c1ac2c0",
+    "name": "国立大学法人 京都大学 人文科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "世界文化に関する人文科学の総合研究 / 設置年度: 昭和14年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "世界文化に関する人文科学の総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_2ff67bc2dc",
+    "name": "国立大学法人 京都大学 再生医科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生体組織及び臓器の再生に関する学理及びその応用の研究 / 設置年度: 昭和15年 ; 改組年度: 平成10年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生体組織及び臓器の再生に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_f894d33310",
+    "name": "国立大学法人 京都大学 エネルギー理工学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "宇治市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "エネルギーの生成、変換及び利用の高度化に関する研究 / 設置年度: 昭和16年 ; 改組年度: 平成8年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "エネルギーの生成、変換及び利用の高度化に関する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_ad80ecfe8a",
+    "name": "国立大学法人 京都大学 生存圏研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "宇治市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生存圏科学に関する研究 / 設置年度: 平成17年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生存圏科学に関する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_0a03deb79e",
+    "name": "国立大学法人 京都大学 防災研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "宇治市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "災害に関する学理の研究及び防災に関する総合研究 / 設置年度: 昭和26年 ; 改組年度: 平成8年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "災害に関する学理の研究及び防災に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_2d2e138a3d",
+    "name": "国立大学法人 京都大学 基礎物理学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "素粒子理論その他の基礎物理学に関する研究 / 設置年度: 昭和28年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "素粒子理論その他の基礎物理学に関する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_57626ef457",
+    "name": "国立大学法人 京都大学 ウイルス研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "ウイルスの探究並びにウイルス病の予防及び治療に関する学理及びその応用の研究 / 設置年度: 昭和31年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "ウイルスの探究並びにウイルス病の予防及び治療に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_135103a6ad",
+    "name": "国立大学法人 京都大学 経済研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "産業経済に関する総合研究 / 設置年度: 昭和37年 ; 改組年度: 昭和61年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "産業経済に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_cb45903336",
+    "name": "国立大学法人 京都大学 数理解析研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "数理解析に関する総合研究 / 設置年度: 昭和38年 ; 改組年度: 平成11年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "数理解析に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_44dee455bd",
+    "name": "国立大学法人 京都大学 原子炉実験所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "泉南郡",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "原子炉による実験及びこれに関連する研究 / 設置年度: 昭和38年 ; 改組年度: 平成7年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "原子炉による実験及びこれに関連する研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_f880e79d5d",
+    "name": "国立大学法人 京都大学 霊長類研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "愛知県",
+        "city": "犬山市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "霊長類に関する総合研究 / 設置年度: 昭和42年 ; 改組年度: 平成5年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "霊長類に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_a5496447d1",
+    "name": "国立大学法人 京都大学 東南アジア研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 京都大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "京都府",
+        "city": "京都市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "東南アジア地域に関する総合研究 / 設置年度: 平成16年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "東南アジア地域に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_dd1d753380",
+    "name": "国立大学法人 大阪大学 微生物病研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 大阪大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "吹田市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "微生物病及びがんその他の特定の難治疾患に関する学理並びにその応用の研究 / 設置年度: 昭和9年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "微生物病及びがんその他の特定の難治疾患に関する学理並びにその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_1409fc37f5",
+    "name": "国立大学法人 大阪大学 産業科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 大阪大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "茨木市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "産業に必要となる先端的な事項で、材料、情報及び生体に関するものの総合研究 / 設置年度: 昭和14年 ; 改組年度: 平成7年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "産業に必要となる先端的な事項で、材料、情報及び生体に関するものの総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_8119b7d9fa",
+    "name": "国立大学法人 大阪大学 たんぱく質研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 大阪大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "吹田市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "たんぱく質に関する基礎的研究 / 設置年度: 昭和33年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "たんぱく質に関する基礎的研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_c51fa02441",
+    "name": "国立大学法人 大阪大学 社会経済研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 大阪大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "茨木市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "社会経済に関する総合研究 / 設置年度: 昭和41年 ; 改組年度: 昭和61年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "社会経済に関する総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_3dff172bd6",
+    "name": "国立大学法人 大阪大学 接合科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 大阪大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "大阪府",
+        "city": "茨木市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "接合科学に関する学理及びその応用の研究 / 設置年度: 昭和47年 ; 改組年度: 平成8年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "接合科学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_4e3dbf5d3b",
+    "name": "国立大学法人 神戸大学 経済経営研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 神戸大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "兵庫県",
+        "city": "神戸市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "経済並びに経営に関する学理及びその技術の研究 / 設置年度: 大正8年 ; 改組年度: 平成14年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "経済並びに経営に関する学理及びその技術の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_ac3a3b6e0a",
+    "name": "国立大学法人 岡山大学 資源生物科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 岡山大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "岡山県",
+        "city": "倉敷市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "資源生物に関する学理及びその応用の研究 / 設置年度: 昭和28年 ; 改組年度: 昭和63年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "資源生物に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_437d941f02",
+    "name": "国立大学法人 広島大学 原爆放射線医科学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 広島大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "広島県",
+        "city": "広島市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "原子爆弾その他の放射線による障害の治療及び予防に関する学理並びにその応用の研究 / 設置年度: 昭和36年 ; 改組年度: 平成14年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "原子爆弾その他の放射線による障害の治療及び予防に関する学理並びにその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_86c67e58fb",
+    "name": "国立大学法人 九州大学 生体防御医学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 九州大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "福岡県",
+        "city": "福岡市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "生体防御医学に関する学理及びその応用の研究 / 設置年度: 昭和6年 ; 改組年度: 平成13年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "生体防御医学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_1471a4e8bd",
+    "name": "国立大学法人 九州大学 応用力学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 九州大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "福岡県",
+        "city": "春日市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "力学に関する学理及びその応用の研究 / 設置年度: 昭和26年 ; 改組年度: 平成9年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "力学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
+  },
+  {
+    "id": "univ_66730143eb",
+    "name": "国立大学法人 九州大学 先導物質化学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 九州大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "福岡県",
+        "city": "春日市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "物質化学に関する先導的な総合研究 / 設置年度: 平成15年 ; 改組年度: 平成15年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "物質化学に関する先導的な総合研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [],
+    "facilities": []
+  },
+  {
+    "id": "univ_4b7014fb9b",
+    "name": "国立大学法人 長崎大学 熱帯医学研究所",
+    "englishName": null,
+    "abbreviation": null,
+    "category": "UnivAttached",
+    "status": "Listed",
+    "established": null,
+    "supervising": {
+      "primary": "国立大学法人 長崎大学",
+      "related": [
+        "文部科学省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "長崎県",
+        "city": "長崎市",
+        "site": "本部",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [],
+    "overview": "熱帯医学に関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
+    "mission": "熱帯医学に関する学理及びその応用の研究",
+    "links": {
+      "official": null,
+      "openData": null,
+      "annualReport": null
+    },
+    "imageUrl": null,
+    "platforms": [],
+    "capabilities": [
+      "全国共同利用（注）"
+    ],
+    "facilities": []
   }
 ]
