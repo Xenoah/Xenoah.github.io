@@ -944,7 +944,9 @@
             const chatEndRef = React.useRef(null);
 
             useEffect(() => {
-                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                if (chatMessages.length > 1) {
+                    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }
             }, [chatMessages]);
 
             const handleSend = async () => {
