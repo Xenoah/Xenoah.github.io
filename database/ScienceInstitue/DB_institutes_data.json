@@ -38,29 +38,19 @@
       {
         "domain": "space",
         "role": "primary"
-      },
-      {
-        "domain": "earth",
-        "role": "secondary"
-      },
-      {
-        "domain": "environment",
-        "role": "secondary"
       }
     ],
     "overview": "政府全体の宇宙開発利用を技術で支える中核的実施機関として、2003年に宇宙科学研究所(ISAS)、航空宇宙技術研究所(NAL)、宇宙開発事業団(NASDA)の3機関が統合して発足。",
     "mission": "宇宙と空を拓き、安全で豊な社会を実現する。",
     "links": {
-      "official": "https://www.jaxa.jp/",
+      "official": "https://global.jaxa.jp/",
       "openData": "https://data.jaxa.jp/",
       "annualReport": "https://www.jaxa.jp/about/disclosure/report_j.html"
     },
     "imageUrl": "https://global.jaxa.jp/projects/sas/hayabusa2/images/H2_SC_3.jpg",
     "platforms": [
       "satellite",
-      "launch_vehicle",
-      "iss_module",
-      "deep_space_probe"
+      "launch_vehicle"
     ],
     "capabilities": [
       "launch_services",
@@ -112,29 +102,20 @@
         "role": "primary"
       },
       {
-        "domain": "nuclear",
-        "role": "primary"
-      },
-      {
         "domain": "materials",
-        "role": "secondary"
-      },
-      {
-        "domain": "life",
         "role": "secondary"
       }
     ],
     "overview": "加速器と呼ばれる装置を使って基礎科学を推進する研究所。電子や陽子などの粒子を光の速度近くまで加速し、物質の根源や宇宙の起源などの謎に迫る。",
     "mission": "自然界の法則や物質の究極の構造、生命の源などを探求する。",
     "links": {
-      "official": "https://www.kek.jp/ja/",
+      "official": "https://www.kek.jp/en/",
       "openData": null,
       "annualReport": "https://www.kek.jp/ja/archived/annual-report/"
     },
     "imageUrl": "https://www.kek.jp/wp-content/uploads/2021/04/SuperKEKB_aerial.jpg",
     "platforms": [
-      "accelerator",
-      "synchrotron_radiation"
+      "accelerator"
     ],
     "capabilities": [
       "particle_physics",
@@ -183,16 +164,12 @@
       {
         "domain": "energy",
         "role": "secondary"
-      },
-      {
-        "domain": "materials",
-        "role": "secondary"
       }
     ],
     "overview": "日本唯一の原子力の総合的な研究開発機関。原子力の平和利用と安全確保のための研究開発、高レベル放射性廃棄物の地層処分技術の研究開発などを進めている。",
     "mission": "原子力の科学技術で、人類社会の福祉と繁栄に貢献する。",
     "links": {
-      "official": "https://www.jaea.go.jp/",
+      "official": "https://www.jaea.go.jp/english/",
       "openData": null,
       "annualReport": "https://www.jaea.go.jp/02/0201/020104/"
     },
@@ -256,10 +233,6 @@
         "role": "primary"
       },
       {
-        "domain": "life",
-        "role": "secondary"
-      },
-      {
         "domain": "environment",
         "role": "secondary"
       }
@@ -267,15 +240,13 @@
     "overview": "海洋・地球・生命を統合的に理解するための研究開発を行う国立研究開発法人。有人潜水調査船「しんかい6500」や地球深部探査船「ちきゅう」などを保有。",
     "mission": "新たな科学技術で、海洋・地球・生命の謎に挑み、人類と地球の持続可能な未来を拓く。",
     "links": {
-      "official": "https://www.jamstec.go.jp/j/",
+      "official": "https://www.jamstec.go.jp/e/",
       "openData": "https://www.jamstec.go.jp/j/database/",
       "annualReport": null
     },
     "imageUrl": "https://www.jamstec.go.jp/j/about/equipment/ships/img/chikyu.jpg",
     "platforms": [
       "research_vessel",
-      "submersible",
-      "supercomputer",
       "observation_network"
     ],
     "capabilities": [
@@ -321,10 +292,6 @@
         "role": "primary"
       },
       {
-        "domain": "space",
-        "role": "secondary"
-      },
-      {
         "domain": "metrology",
         "role": "secondary"
       }
@@ -332,7 +299,7 @@
     "overview": "情報通信分野を専門とする唯一の国立研究開発法人。次世代通信ネットワーク、ユニバーサルコミュニケーション基盤、サイバーセキュリティなどの研究を行う。",
     "mission": "情報通信技術の研究開発を推進し、日本標準時の決定・維持を行う。",
     "links": {
-      "official": "https://www.nict.go.jp/",
+      "official": "https://www.nict.go.jp/en/",
       "openData": "https://testbed.nict.go.jp/",
       "annualReport": "https://www.nict.go.jp/publicity/report.html"
     },
@@ -387,11 +354,11 @@
     ],
     "domainProfile": [
       {
-        "domain": "materials",
+        "domain": "energy",
         "role": "primary"
       },
       {
-        "domain": "energy",
+        "domain": "environment",
         "role": "primary"
       },
       {
@@ -403,18 +370,22 @@
         "role": "primary"
       },
       {
-        "domain": "metrology",
+        "domain": "materials",
         "role": "primary"
       },
       {
-        "domain": "environment",
+        "domain": "earth",
+        "role": "primary"
+      },
+      {
+        "domain": "metrology",
         "role": "primary"
       }
     ],
     "overview": "わが国最大級の公的研究機関。産業技術の創出とその実用化、社会実装を通じて、持続可能な社会の構築と産業競争力の強化に貢献する。",
     "mission": "技術を社会へ。",
     "links": {
-      "official": "https://www.aist.go.jp/",
+      "official": "https://www.aist.go.jp/index_en.html",
       "openData": "https://www.aist.go.jp/aist_j/database/index.html",
       "annualReport": "https://www.aist.go.jp/aist_j/aistinfo/report/index.html"
     },
@@ -455,11 +426,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.amed.go.jp/",
+      "official": "https://www.amed.go.jp/en/",
       "openData": null,
       "annualReport": null
     },
@@ -623,11 +599,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.nibiohn.go.jp/",
+      "official": "https://www.nibn.go.jp/en/",
       "openData": null,
       "annualReport": null
     },
@@ -651,11 +632,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.ncc.go.jp/",
+      "official": "https://www.ncc.go.jp/en/",
       "openData": null,
       "annualReport": null
     },
@@ -679,11 +665,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.ncvc.go.jp/",
+      "official": "https://www.ncvc.go.jp/english/",
       "openData": null,
       "annualReport": null
     },
@@ -707,11 +698,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.ncnp.go.jp/",
+      "official": "https://www.ncnp.go.jp/en/",
       "openData": null,
       "annualReport": null
     },
@@ -735,11 +731,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.ncchd.go.jp/",
+      "official": "https://www.ncchd.go.jp/en/",
       "openData": null,
       "annualReport": null
     },
@@ -763,11 +764,16 @@
       ]
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "国立研究開発法人（所管: 厚生労働省）。出典: 内閣府『国立研究開発法人一覧』。",
     "mission": "",
     "links": {
-      "official": "https://www.ncgg.go.jp/",
+      "official": "https://www.ncgg.go.jp/english/",
       "openData": null,
       "annualReport": null
     },
@@ -1643,7 +1649,12 @@
       "related": []
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "省庁の試験研究機関/研究所。出典: JST『試験研究機関・研究所リンク集』等。",
     "mission": "",
     "links": {
@@ -1721,11 +1732,16 @@
       "related": []
     },
     "locations": [],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "厚生労働省所管の国立機関。出典: 厚生労働省『国立健康危機管理研究機構（JIHS）の設立』。",
     "mission": "",
     "links": {
-      "official": "https://www.jihs.go.jp/",
+      "official": "https://www.jihs.go.jp/index.en.html",
       "openData": null,
       "annualReport": null
     },
@@ -1828,7 +1844,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "遺伝子病の制御に関する学理及びその応用の研究 / 設置年度: 昭和25年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "遺伝子病の制御に関する学理及びその応用の研究",
     "links": {
@@ -1900,7 +1921,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "加齢医学に関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成5年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "加齢医学に関する学理及びその応用の研究",
     "links": {
@@ -2077,7 +2103,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "感染症、がんその他の特定疾患に関する学理及びその応用の研究 / 設置年度: 明治25年 ; 改組年度: 平成12年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "感染症、がんその他の特定疾患に関する学理及びその応用の研究",
     "links": {
@@ -2470,7 +2501,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "生体に用いられる物質及び材料並びに生体工学に関する学理及びその応用の研究 / 設置年度: 昭和26年 ; 改組年度: 平成11年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "生体に用いられる物質及び材料並びに生体工学に関する学理及びその応用の研究",
     "links": {
@@ -2505,7 +2541,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "膠原病その他の難治疾患に関する学理及びその応用の研究 / 設置年度: 昭和48年 ; 改組年度: 平成2年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "膠原病その他の難治疾患に関する学理及びその応用の研究",
     "links": {
@@ -2789,7 +2830,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "和漢薬に関する学理及びその応用の研究 / 設置年度: 昭和49年 ; 改組年度: 平成17年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "和漢薬に関する学理及びその応用の研究",
     "links": {
@@ -2824,7 +2870,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "がんに関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成9年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "がんに関する学理及びその応用の研究",
     "links": {
@@ -2894,7 +2945,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "環境医学に関する学理及びその応用の研究 / 設置年度: 昭和20年 ; 改組年度: 平成3年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "環境医学に関する学理及びその応用の研究",
     "links": {
@@ -3071,7 +3127,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "生体組織及び臓器の再生に関する学理及びその応用の研究 / 設置年度: 昭和15年 ; 改組年度: 平成10年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "生体組織及び臓器の再生に関する学理及びその応用の研究",
     "links": {
@@ -3468,7 +3529,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "微生物病及びがんその他の特定の難治疾患に関する学理並びにその応用の研究 / 設置年度: 昭和9年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "微生物病及びがんその他の特定の難治疾患に関する学理並びにその応用の研究",
     "links": {
@@ -3717,7 +3783,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "原子爆弾その他の放射線による障害の治療及び予防に関する学理並びにその応用の研究 / 設置年度: 昭和36年 ; 改組年度: 平成14年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "原子爆弾その他の放射線による障害の治療及び予防に関する学理並びにその応用の研究",
     "links": {
@@ -3752,7 +3823,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "生体防御医学に関する学理及びその応用の研究 / 設置年度: 昭和6年 ; 改組年度: 平成13年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "生体防御医学に関する学理及びその応用の研究",
     "links": {
@@ -3859,7 +3935,12 @@
         "isHq": true
       }
     ],
-    "domainProfile": [],
+    "domainProfile": [
+      {
+        "domain": "health",
+        "role": "primary"
+      }
+    ],
     "overview": "熱帯医学に関する学理及びその応用の研究 / 設置年度: 昭和16年 ; 改組年度: 平成6年 ; 出典: 文部科学省『国立大学法人の附置研究所一覧』（2008-04-01現在）",
     "mission": "熱帯医学に関する学理及びその応用の研究",
     "links": {
