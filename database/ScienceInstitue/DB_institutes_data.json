@@ -1,0 +1,428 @@
+[
+  {
+    "id": "jaxa",
+    "name": "宇宙航空研究開発機構",
+    "englishName": "Japan Aerospace Exploration Agency",
+    "abbreviation": "JAXA",
+    "category": "NRA",
+    "status": "Active",
+    "established": "2003-10-01",
+    "supervising": {
+      "primary": "文部科学省",
+      "related": [
+        "総務省",
+        "経済産業省"
+      ]
+    },
+    "locations": [
+      {
+        "prefecture": "Tokyo",
+        "city": "Chofu",
+        "site": "Chofu Aerospace Center (HQ)",
+        "isHq": true
+      },
+      {
+        "prefecture": "Ibaraki",
+        "city": "Tsukuba",
+        "site": "Tsukuba Space Center",
+        "isHq": false
+      },
+      {
+        "prefecture": "Kagoshima",
+        "city": "Tanegashima",
+        "site": "Tanegashima Space Center",
+        "isHq": false
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "space",
+        "role": "primary"
+      },
+      {
+        "domain": "earth",
+        "role": "secondary"
+      },
+      {
+        "domain": "environment",
+        "role": "secondary"
+      }
+    ],
+    "overview": "政府全体の宇宙開発利用を技術で支える中核的実施機関として、2003年に宇宙科学研究所(ISAS)、航空宇宙技術研究所(NAL)、宇宙開発事業団(NASDA)の3機関が統合して発足。",
+    "mission": "宇宙と空を拓き、安全で豊な社会を実現する。",
+    "links": {
+      "official": "https://www.jaxa.jp/",
+      "openData": "https://data.jaxa.jp/",
+      "annualReport": "https://www.jaxa.jp/about/disclosure/report_j.html"
+    },
+    "imageUrl": "https://global.jaxa.jp/projects/sas/hayabusa2/images/H2_SC_3.jpg",
+    "platforms": [
+      "satellite",
+      "launch_vehicle",
+      "iss_module",
+      "deep_space_probe"
+    ],
+    "capabilities": [
+      "launch_services",
+      "human_spaceflight",
+      "remote_sensing",
+      "space_science"
+    ],
+    "facilities": [
+      {
+        "name": "筑波宇宙センター",
+        "type": "R&D/Operations",
+        "location": "Tsukuba",
+        "operators": ["JAXA"],
+        "publicUrl": "https://visit-tsukuba.jaxa.jp/"
+      }
+    ]
+  },
+  {
+    "id": "kek",
+    "name": "高エネルギー加速器研究機構",
+    "englishName": "High Energy Accelerator Research Organization",
+    "abbreviation": "KEK",
+    "category": "InterUniversity",
+    "status": "Active",
+    "established": "1997-04-01",
+    "supervising": {
+      "primary": "文部科学省",
+      "related": []
+    },
+    "locations": [
+      {
+        "prefecture": "Ibaraki",
+        "city": "Tsukuba",
+        "site": "Tsukuba Campus",
+        "isHq": true
+      },
+      {
+        "prefecture": "Ibaraki",
+        "city": "Tokai",
+        "site": "Tokai Campus (J-PARC)",
+        "isHq": false
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "particle",
+        "role": "primary"
+      },
+      {
+        "domain": "nuclear",
+        "role": "primary"
+      },
+      {
+        "domain": "materials",
+        "role": "secondary"
+      },
+      {
+        "domain": "life",
+        "role": "secondary"
+      }
+    ],
+    "overview": "加速器と呼ばれる装置を使って基礎科学を推進する研究所。電子や陽子などの粒子を光の速度近くまで加速し、物質の根源や宇宙の起源などの謎に迫る。",
+    "mission": "自然界の法則や物質の究極の構造、生命の源などを探求する。",
+    "links": {
+      "official": "https://www.kek.jp/ja/",
+      "openData": null,
+      "annualReport": "https://www.kek.jp/ja/archived/annual-report/"
+    },
+    "imageUrl": "https://www.kek.jp/wp-content/uploads/2021/04/SuperKEKB_aerial.jpg",
+    "platforms": [
+      "accelerator",
+      "synchrotron_radiation"
+    ],
+    "capabilities": [
+      "particle_physics",
+      "material_structure_analysis",
+      "structural_biology"
+    ],
+    "facilities": [
+      {
+        "name": "SuperKEKB",
+        "type": "Accelerator",
+        "location": "Tsukuba",
+        "operators": ["KEK"],
+        "publicUrl": "https://www-sk.icrr.u-tokyo.ac.jp/"
+      }
+    ]
+  },
+  {
+    "id": "jaea",
+    "name": "日本原子力研究開発機構",
+    "englishName": "Japan Atomic Energy Agency",
+    "abbreviation": "JAEA",
+    "category": "NRA",
+    "status": "Active",
+    "established": "2005-10-01",
+    "supervising": {
+      "primary": "文部科学省",
+      "related": ["経済産業省"]
+    },
+    "locations": [
+      {
+        "prefecture": "Ibaraki",
+        "city": "Tokai",
+        "site": "Tokai-mura",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "nuclear",
+        "role": "primary"
+      },
+      {
+        "domain": "energy",
+        "role": "secondary"
+      },
+      {
+        "domain": "materials",
+        "role": "secondary"
+      }
+    ],
+    "overview": "日本唯一の原子力の総合的な研究開発機関。原子力の平和利用と安全確保のための研究開発、高レベル放射性廃棄物の地層処分技術の研究開発などを進めている。",
+    "mission": "原子力の科学技術で、人類社会の福祉と繁栄に貢献する。",
+    "links": {
+      "official": "https://www.jaea.go.jp/",
+      "openData": null,
+      "annualReport": "https://www.jaea.go.jp/02/0201/020104/"
+    },
+    "imageUrl": null,
+    "platforms": [
+      "reactor",
+      "accelerator",
+      "supercomputer"
+    ],
+    "capabilities": [
+      "nuclear_safety",
+      "waste_management",
+      "fusion_energy_research"
+    ],
+    "facilities": [
+      {
+        "name": "J-PARC",
+        "type": "Accelerator Complex",
+        "location": "Tokai",
+        "operators": ["JAEA", "KEK"],
+        "publicUrl": "https://j-parc.jp/"
+      }
+    ]
+  },
+  {
+    "id": "jamstec",
+    "name": "海洋研究開発機構",
+    "englishName": "Japan Agency for Marine-Earth Science and Technology",
+    "abbreviation": "JAMSTEC",
+    "category": "NRA",
+    "status": "Active",
+    "established": "2004-04-01",
+    "supervising": {
+      "primary": "文部科学省",
+      "related": []
+    },
+    "locations": [
+      {
+        "prefecture": "Kanagawa",
+        "city": "Yokosuka",
+        "site": "Yokosuka Headquarters",
+        "isHq": true
+      },
+      {
+        "prefecture": "Kanagawa",
+        "city": "Yokohama",
+        "site": "Yokohama Institute",
+        "isHq": false
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "ocean",
+        "role": "primary"
+      },
+      {
+        "domain": "earth",
+        "role": "primary"
+      },
+      {
+        "domain": "life",
+        "role": "secondary"
+      },
+      {
+        "domain": "environment",
+        "role": "secondary"
+      }
+    ],
+    "overview": "海洋・地球・生命を統合的に理解するための研究開発を行う国立研究開発法人。有人潜水調査船「しんかい6500」や地球深部探査船「ちきゅう」などを保有。",
+    "mission": "新たな科学技術で、海洋・地球・生命の謎に挑み、人類と地球の持続可能な未来を拓く。",
+    "links": {
+      "official": "https://www.jamstec.go.jp/j/",
+      "openData": "https://www.jamstec.go.jp/j/database/",
+      "annualReport": null
+    },
+    "imageUrl": "https://www.jamstec.go.jp/j/about/equipment/ships/img/chikyu.jpg",
+    "platforms": [
+      "research_vessel",
+      "submersible",
+      "supercomputer",
+      "observation_network"
+    ],
+    "capabilities": [
+      "deep_sea_exploration",
+      "earth_system_simulation",
+      "seafloor_drilling"
+    ],
+    "facilities": [
+      {
+        "name": "Earth Simulator",
+        "type": "Supercomputer",
+        "location": "Yokohama",
+        "operators": ["JAMSTEC"],
+        "publicUrl": "https://www.jamstec.go.jp/es/"
+      }
+    ]
+  },
+  {
+    "id": "nict",
+    "name": "情報通信研究機構",
+    "englishName": "National Institute of Information and Communications Technology",
+    "abbreviation": "NICT",
+    "category": "NRA",
+    "status": "Active",
+    "established": "2004-04-01",
+    "supervising": {
+      "primary": "総務省",
+      "related": []
+    },
+    "locations": [
+      {
+        "prefecture": "Tokyo",
+        "city": "Koganei",
+        "site": "Headquarters",
+        "isHq": true
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "ict",
+        "role": "primary"
+      },
+      {
+        "domain": "space",
+        "role": "secondary"
+      },
+      {
+        "domain": "metrology",
+        "role": "secondary"
+      }
+    ],
+    "overview": "情報通信分野を専門とする唯一の国立研究開発法人。次世代通信ネットワーク、ユニバーサルコミュニケーション基盤、サイバーセキュリティなどの研究を行う。",
+    "mission": "情報通信技術の研究開発を推進し、日本標準時の決定・維持を行う。",
+    "links": {
+      "official": "https://www.nict.go.jp/",
+      "openData": "https://testbed.nict.go.jp/",
+      "annualReport": "https://www.nict.go.jp/publicity/report.html"
+    },
+    "imageUrl": null,
+    "platforms": [
+      "testbed",
+      "antenna"
+    ],
+    "capabilities": [
+      "standard_time_generation",
+      "space_weather_forecast",
+      "cyber_security",
+      "quantum_communication"
+    ],
+    "facilities": [
+      {
+        "name": "Japan Standard Time Group",
+        "type": "Metrology",
+        "location": "Koganei",
+        "operators": ["NICT"],
+        "publicUrl": "https://jjy.nict.go.jp/"
+      }
+    ]
+  },
+  {
+    "id": "aist",
+    "name": "産業技術総合研究所",
+    "englishName": "National Institute of Advanced Industrial Science and Technology",
+    "abbreviation": "AIST",
+    "category": "NRA",
+    "status": "Active",
+    "established": "2001-04-01",
+    "supervising": {
+      "primary": "経済産業省",
+      "related": []
+    },
+    "locations": [
+      {
+        "prefecture": "Tokyo",
+        "city": "Chiyoda",
+        "site": "Tokyo Headquarters",
+        "isHq": true
+      },
+      {
+        "prefecture": "Ibaraki",
+        "city": "Tsukuba",
+        "site": "Tsukuba Center",
+        "isHq": false
+      }
+    ],
+    "domainProfile": [
+      {
+        "domain": "materials",
+        "role": "primary"
+      },
+      {
+        "domain": "energy",
+        "role": "primary"
+      },
+      {
+        "domain": "life",
+        "role": "primary"
+      },
+      {
+        "domain": "ict",
+        "role": "primary"
+      },
+      {
+        "domain": "metrology",
+        "role": "primary"
+      },
+      {
+        "domain": "environment",
+        "role": "primary"
+      }
+    ],
+    "overview": "わが国最大級の公的研究機関。産業技術の創出とその実用化、社会実装を通じて、持続可能な社会の構築と産業競争力の強化に貢献する。",
+    "mission": "技術を社会へ。",
+    "links": {
+      "official": "https://www.aist.go.jp/",
+      "openData": "https://www.aist.go.jp/aist_j/database/index.html",
+      "annualReport": "https://www.aist.go.jp/aist_j/aistinfo/report/index.html"
+    },
+    "imageUrl": "https://www.aist.go.jp/aist_j/guidemap/tsukuba/center/img/tsukuba_map_photo.jpg",
+    "platforms": [
+      "supercomputer",
+      "clean_room"
+    ],
+    "capabilities": [
+      "standardization",
+      "technology_transfer",
+      "geological_survey"
+    ],
+    "facilities": [
+      {
+        "name": "ABCI (AI Bridging Cloud Infrastructure)",
+        "type": "Supercomputer",
+        "location": "Kashiwa",
+        "operators": ["AIST"],
+        "publicUrl": "https://abci.ai/"
+      }
+    ]
+  }
+]

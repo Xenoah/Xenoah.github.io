@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Institutes Database</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0B0D17;
+            --accent-cyan: #00D4FF;
+            --accent-purple: #7000FF;
+            --text-main: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-hover: rgba(255, 255, 255, 0.1);
+            --danger: #FF4444;
+            --success: #00CC88;
+            --warning: #FFBB33;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 40%);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Utility Classes */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            opacity: 0.9;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #FFF, #AAA);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Status badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+        }
+
+        .status-Active {
+            background: rgba(0, 204, 136, 0.2);
+            color: #00CC88;
+            border: 1px solid rgba(0, 204, 136, 0.3);
+        }
+
+        .status-Merged,
+        .status-Renamed {
+            background: rgba(255, 187, 51, 0.2);
+            color: #FFBB33;
+            border: 1px solid rgba(255, 187, 51, 0.3);
+        }
+
+        .status-Closed {
+            background: rgba(255, 68, 68, 0.2);
+            color: #FF4444;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+        }
+
+        .status-Unknown {
+            background: rgba(100, 100, 100, 0.2);
+            color: #A0A0A0;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+        }
+
+        /* Category Badge */
+        .cat-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            margin-right: 6px;
+        }
+
+        /* Domain Chips */
+        .chip {
+            display: inline-flex;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent-cyan);
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Chart Canvas */
+        #chart-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Chat UI */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+        }
+
+        /* Navbar */
+        .navbar {
+            padding: 20px 0;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-cyan);
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            h1 {
+                font-size: 2rem !important;
+            }
+
+            .navbar {
+                padding: 16px 0;
+                margin-bottom: 24px;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .controls-container {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 16px !important;
+            }
+
+            .controls-container>div {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+
+            /* List View adjustments */
+            .list-item {
+                flexDirection: column !important;
+                alignItems: flex-start !important;
+            }
+
+            .list-item>div:first-child {
+                width: 100% !important;
+                height: 150px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useContext, createContext, useMemo, useRef } = React;
+
+        // --- Context ---
+        const InstituteContext = createContext();
+
+        const InstituteProvider = ({ children }) => {
+            const [institutes, setInstitutes] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
+            const [lang, setLang] = useState('ja'); // 'ja' | 'en'
+
+            useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        const response = await fetch('./DB_institutes_data.json');
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        setInstitutes(data);
+                    } catch (e) {
+                        console.error("Fetch error:", e);
+                        setError(e.message);
+                        if (window.location.protocol === 'file:') {
+                            setError(lang === 'ja'
+                                ? "ローカルファイル(file://)からはデータを読み込めません。ローカルサーバーを起動するか、GitHub Pages等にアップロードしてください。"
+                                : "Cannot load data from local file(file://). Please use a local server or upload to GitHub Pages etc.");
+                        }
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                fetchData();
+            }, [lang]);
+
+            const saveApiKey = (key) => {
+                setApiKey(key);
+                localStorage.setItem('gemini_api_key', key);
+            };
+
+            const toggleLang = () => {
+                setLang(prev => prev === 'ja' ? 'en' : 'ja');
+            };
+
+            return (
+                <InstituteContext.Provider value={{ institutes, loading, error, apiKey, saveApiKey, lang, toggleLang }}>
+                    {children}
+                </InstituteContext.Provider>
+            );
+        };
+
+        // --- Translations ---
+        const t = {
+            ja: {
+                appTitle: "日本の科学研究機関DB",
+                appSubtitle: "日本の主要な研究機関・研究所アーカイブ（非公式）",
+                home: "一覧",
+                stats: "統計",
+                settings: "API設定",
+                searchPlaceholder: "機関名、英語名、略称、キーワード...",
+                sortEstablishedNew: "設立日 (新しい順)",
+                sortEstablishedOld: "設立日 (古い順)",
+                sortName: "名前順",
+                all: "すべて",
+                noResults: "該当する研究機関が見つかりません",
+                details: "詳細",
+                back: "一覧に戻る",
+                officialSite: "公式サイト",
+                dataSite: "公開データ",
+                annualReport: "年次報告書",
+                overview: "概要",
+                mission: "ミッション",
+                established: "設立",
+                category: "区分",
+                supervising: "所管",
+                location: "所在地",
+                domains: "研究分野",
+                platforms: "プラットフォーム",
+                capabilities: "能力・技術",
+                facilities: "主要施設",
+                links: "関連リンク",
+                aiChat: "AI解説員",
+                thinking: "考え中...",
+                questionPlaceholder: "この機関について質問...",
+                apiKeyPlaceholder: "APIキーを設定してください",
+                statsTitle: "統計データ",
+                statsSubtitle: "データベースの登録状況",
+                registeredCount: "登録機関数",
+                units: "機関",
+                settingsTitle: "Gemini API設定",
+                settingsDesc: "AI解説機能を使用するには、Google Gemini APIキーが必要です。",
+                cancel: "キャンセル",
+                save: "保存",
+                footerDisclaimer: "※本サイトは非公式ファンサイト・データベースです。正確な情報は各機関の公式サイトをご確認ください。",
+                loading: "データベース読み込み中...",
+                unknown: "不明",
+                // Categories
+                cat_NRA: "国立研究開発法人",
+                cat_InterUniversity: "大学共同利用機関法人",
+                cat_UnivAttached: "国立大学法人 附置研究所",
+                cat_MinistryLab: "省庁系 試験研究機関",
+                cat_Other: "その他",
+                // Domains (Parent tags)
+                dom_space: "宇宙",
+                dom_particle: "素粒子",
+                dom_nuclear: "原子力",
+                dom_ocean: "海洋",
+                dom_earth: "地球科学",
+                dom_environment: "環境",
+                dom_materials: "物質・材料",
+                dom_energy: "エネルギー",
+                dom_ict: "情報通信",
+                dom_metrology: "計量標準",
+                dom_life: "生命科学",
+            },
+            en: {
+                appTitle: "Japan Research Institutes DB",
+                appSubtitle: "Archive of Major Japanese Research Institutes (Unofficial)",
+                home: "Home",
+                stats: "Stats",
+                settings: "Settings",
+                searchPlaceholder: "Search by name, abbr, keywords...",
+                sortEstablishedNew: "Established (Newest)",
+                sortEstablishedOld: "Established (Oldest)",
+                sortName: "Name",
+                all: "All",
+                noResults: "No institutes found",
+                details: "Details",
+                back: "Back",
+                officialSite: "Official Site",
+                dataSite: "Open Data",
+                annualReport: "Annual Report",
+                overview: "Overview",
+                mission: "Mission",
+                established: "Established",
+                category: "Category",
+                supervising: "Supervision",
+                location: "Location",
+                domains: "Research Domains",
+                platforms: "Platforms",
+                capabilities: "Capabilities",
+                facilities: "Key Facilities",
+                links: "Links",
+                aiChat: "AI Guide",
+                thinking: "Thinking...",
+                questionPlaceholder: "Ask about this institute...",
+                apiKeyPlaceholder: "Please set API Key",
+                statsTitle: "Statistics",
+                statsSubtitle: "Database Statistics",
+                registeredCount: "Registered Institutes",
+                units: "",
+                settingsTitle: "Gemini API Settings",
+                settingsDesc: "Google Gemini API Key is required for the AI guide feature.",
+                cancel: "Cancel",
+                save: "Save",
+                footerDisclaimer: "* Unofficial database. Please verify with official sources.",
+                loading: "Loading database...",
+                unknown: "Unknown",
+                // Categories
+                cat_NRA: "National R&D Agency",
+                cat_InterUniversity: "Inter-University Research Inst.",
+                cat_UnivAttached: "University Attached Inst.",
+                cat_MinistryLab: "Ministry Laboratory",
+                cat_Other: "Other",
+                // Domains
+                dom_space: "Space",
+                dom_particle: "Particle Physics",
+                dom_nuclear: "Nuclear",
+                dom_ocean: "Ocean",
+                dom_earth: "Earth Science",
+                dom_environment: "Environment",
+                dom_materials: "Materials",
+                dom_energy: "Energy",
+                dom_ict: "ICT",
+                dom_metrology: "Metrology",
+                dom_life: "Life Science",
+            }
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Search: () => <i data-lucide="search"></i>,
+            Settings: () => <i data-lucide="settings"></i>,
+            ExternalLink: () => <i data-lucide="external-link"></i>,
+            MessageSquare: () => <i data-lucide="message-square"></i>,
+            BarChart: () => <i data-lucide="bar-chart-2"></i>,
+            Home: () => <i data-lucide="home"></i>,
+            Send: () => <i data-lucide="send"></i>,
+            Building: () => <i data-lucide="building-2"></i>,
+            MapPin: () => <i data-lucide="map-pin"></i>,
+            Globe: () => <i data-lucide="globe"></i>,
+            LayoutGrid: () => <i data-lucide="layout-grid"></i>,
+            List: () => <i data-lucide="list"></i>,
+            ArrowUpDown: () => <i data-lucide="arrow-up-down"></i>,
+            Languages: () => <i data-lucide="languages"></i>,
+            Calendar: () => <i data-lucide="calendar"></i>,
+            Activity: () => <i data-lucide="activity"></i>,
+            Link: () => <i data-lucide="link"></i>,
+            Info: () => <i data-lucide="info"></i>,
+            Microscope: () => <i data-lucide="microscope"></i>,
+            Cpu: () => <i data-lucide="cpu"></i>
+        };
+
+        // --- Components ---
+
+        const Navbar = ({ currentPage, setPage, setShowSettings }) => {
+            const { lang, toggleLang } = useContext(InstituteContext);
+
+            useEffect(() => {
+                lucide.createIcons();
+            }, [lang]);
+
+            return (
+                <nav className="navbar glass">
+                    <div className="container nav-content">
+                        <a href="#" className="logo" onClick={(e) => { e.preventDefault(); setPage('home'); }}>
+                            <span className="text-accent"><Icons.Building /></span>
+                            ScienceDB
+                        </a>
+                        <div className="nav-links">
+                            <a href="#" className={`nav-link ${currentPage === 'home' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('home'); }}>
+                                {t[lang].home}
+                            </a>
+                            <a href="#" className={`nav-link ${currentPage === 'stats' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setPage('stats'); }}>
+                                {t[lang].stats}
+                            </a>
+                            <button className="btn" onClick={toggleLang}>
+                                <Icons.Languages /> {lang === 'ja' ? 'EN' : 'JP'}
+                            </button>
+                            <button className="btn" onClick={() => setShowSettings(true)}>
+                                <Icons.Settings /> {t[lang].settings}
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+
+        const LoadingSpinner = () => {
+            const { lang } = useContext(InstituteContext);
+            return (
+                <div className="loading-container">
+                    <div className="text-accent spin" style={{ fontSize: '48px' }}><Icons.Microscope /></div>
+                    <p>{t[lang].loading}</p>
+                </div>
+            );
+        };
+
+        const ErrorDisplay = ({ message }) => (
+            <div className="container" style={{ textAlign: 'center', padding: '40px', color: 'var(--danger)' }}>
+                <h2>Error Loading Data</h2>
+                <p style={{ marginTop: '20px', color: 'var(--text-main)' }}>{message}</p>
+            </div>
+        );
+
+        const SettingsModal = ({ show, onClose, currentKey, onSave }) => {
+            const { lang } = useContext(InstituteContext);
+            const [key, setKey] = useState(currentKey);
+
+            if (!show) return null;
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content glass" onClick={e => e.stopPropagation()}>
+                        <h2 style={{ marginBottom: '20px' }}>{t[lang].settingsTitle}</h2>
+                        <p style={{ marginBottom: '16px', color: '#A0A0A0', fontSize: '0.9rem' }}>
+                            {t[lang].settingsDesc}
+                        </p>
+                        <input
+                            type="password"
+                            className="chat-input"
+                            style={{ width: '100%', marginBottom: '20px' }}
+                            placeholder="API Key (AIza...)"
+                            value={key}
+                            onChange={(e) => setKey(e.target.value)}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                            <button className="btn" onClick={onClose}>{t[lang].cancel}</button>
+                            <button className="btn btn-primary" onClick={() => { onSave(key); onClose(); }}>{t[lang].save}</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Pages ---
+
+        const Home = ({ institutes, onSelect }) => {
+            const { lang } = useContext(InstituteContext);
+            const [search, setSearch] = useState('');
+            const [catFilter, setCatFilter] = useState('All');
+            const [domFilter, setDomFilter] = useState('All');
+            // Prefecture filtering could be lengthy, opting for simple text match or specific filter if needed. 
+            // For now, let's stick to Category and Domain as primary filters for UI clarity.
+            const [viewMode, setViewMode] = useState('grid');
+            const [sortKey, setSortKey] = useState('establishedOld');
+
+            const categories = useMemo(() => ['All', 'NRA', 'InterUniversity', 'UnivAttached', 'MinistryLab', 'Other'], []);
+            const domains = useMemo(() => ['All', 'space', 'particle', 'nuclear', 'ocean', 'earth', 'environment', 'materials', 'energy', 'ict', 'metrology', 'life'], []);
+
+            const filteredAndSorted = useMemo(() => {
+                let result = institutes.filter(inst => {
+                    const term = search.toLowerCase();
+                    const matchesSearch = inst.name.includes(term) ||
+                        (inst.englishName && inst.englishName.toLowerCase().includes(term)) ||
+                        (inst.abbreviation && inst.abbreviation.toLowerCase().includes(term)) ||
+                        (inst.keywords && inst.keywords.some(k => k.toLowerCase().includes(term)));
+
+                    const matchesCat = catFilter === 'All' || inst.category === catFilter;
+
+                    const matchesDom = domFilter === 'All' || inst.domainProfile.some(d => d.role === 'primary' && d.domain.startsWith(domFilter));
+
+                    return matchesSearch && matchesCat && matchesDom;
+                });
+
+                return result.sort((a, b) => {
+                    if (sortKey === 'establishedNew') return new Date(b.established || 0) - new Date(a.established || 0);
+                    if (sortKey === 'establishedOld') return new Date(a.established || 0) - new Date(b.established || 0);
+                    if (sortKey === 'name') return a.name.localeCompare(b.name, 'ja');
+                    return 0;
+                });
+            }, [institutes, search, catFilter, domFilter, sortKey]);
+
+            const getCatLabel = (cat) => t[lang][`cat_${cat}`] || cat;
+            const getDomLabel = (dom) => t[lang][`dom_${dom}`] || dom;
+
+            return (
+                <div className="container fade-in">
+                    <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+                        <h1 style={{ fontSize: '3rem', marginBottom: '16px' }}>{t[lang].appTitle}</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>{t[lang].appSubtitle}</p>
+                    </header>
+
+                    <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>
+                        <div className="controls-container" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
+                            <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                                <Icons.Search />
+                                <input
+                                    type="text"
+                                    placeholder={t[lang].searchPlaceholder}
+                                    style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none' }}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <select
+                                    value={sortKey}
+                                    onChange={(e) => setSortKey(e.target.value)}
+                                    className="btn"
+                                    style={{ appearance: 'none', paddingRight: '32px', backgroundImage: 'none', background: 'rgba(0,0,0,0.3)' }}
+                                >
+                                    <option value="establishedOld">{t[lang].sortEstablishedOld}</option>
+                                    <option value="establishedNew">{t[lang].sortEstablishedNew}</option>
+                                    <option value="name">{t[lang].sortName}</option>
+                                </select>
+
+                                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '4px' }}>
+                                    <button
+                                        onClick={() => setViewMode('grid')}
+                                        className={`btn ${viewMode === 'grid' ? 'btn-primary' : ''}`}
+                                        style={{ padding: '8px', borderRadius: '6px', border: 'none' }}
+                                        title="Grid View"
+                                    >
+                                        <Icons.LayoutGrid />
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('list')}
+                                        className={`btn ${viewMode === 'list' ? 'btn-primary' : ''}`}
+                                        style={{ padding: '8px', borderRadius: '6px', border: 'none' }}
+                                        title="List View"
+                                    >
+                                        <Icons.List />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Filters */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minWidth: '60px' }}>{t[lang].category}:</span>
+                                {categories.map(cat => (
+                                    <button
+                                        key={cat}
+                                        className={`btn ${catFilter === cat ? 'btn-primary' : ''}`}
+                                        onClick={() => setCatFilter(cat)}
+                                        style={{ whiteSpace: 'nowrap', padding: '4px 12px', fontSize: '0.85rem' }}
+                                    >
+                                        {cat === 'All' ? t[lang].all : getCatLabel(cat)}
+                                    </button>
+                                ))}
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minWidth: '60px' }}>{t[lang].domains}:</span>
+                                {domains.map(dom => (
+                                    <button
+                                        key={dom}
+                                        className={`btn ${domFilter === dom ? 'btn-primary' : ''}`}
+                                        onClick={() => setDomFilter(dom)}
+                                        style={{ whiteSpace: 'nowrap', padding: '4px 12px', fontSize: '0.85rem' }}
+                                    >
+                                        {dom === 'All' ? t[lang].all : getDomLabel(dom)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={viewMode === 'grid' ? 'grid' : ''} style={viewMode === 'list' ? { display: 'flex', flexDirection: 'column', gap: '16px' } : {}}>
+                        {filteredAndSorted.map(inst => {
+                            const hq = inst.locations.find(l => l.isHq) || inst.locations[0];
+                            const primaryDomains = inst.domainProfile.filter(d => d.role === 'primary').map(d => d.domain);
+
+                            return viewMode === 'grid' ? (
+                                <div key={inst.id} className="glass card" style={{ overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => onSelect(inst.id)}>
+                                    <div style={{ height: '160px', background: '#000', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img
+                                            src={inst.imageUrl || './no_image.png'}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: inst.imageUrl ? 0.9 : 0.5 }}
+                                            alt={inst.name}
+                                        />
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                                            <span className={`badge status-${inst.status}`}>{inst.status}</span>
+                                        </div>
+                                    </div>
+                                    <div style={{ padding: '20px' }}>
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <span className="cat-badge">{getCatLabel(inst.category)}</span>
+                                        </div>
+                                        <h3 style={{ fontSize: '1.25rem', marginBottom: '4px', lineHeight: '1.3' }}>
+                                            {inst.name}
+                                        </h3>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '12px' }}>
+                                            {inst.englishName || inst.abbreviation}
+                                        </p>
+
+                                        <div style={{ marginBottom: '12px', height: '24px', overflow: 'hidden' }}>
+                                            {primaryDomains.slice(0, 3).map(dom => (
+                                                <span key={dom} className="chip">{getDomLabel(dom)}</span>
+                                            ))}
+                                        </div>
+
+                                        <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--glass-border)', paddingTop: '12px' }}>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <Icons.MapPin size={14} /> {hq?.prefecture || t[lang].unknown}
+                                            </span>
+                                            <span style={{ fontSize: '0.85rem' }}>Est. {inst.established ? inst.established.split('-')[0] : '?'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div key={inst.id} className="glass list-item" style={{ display: 'flex', padding: '16px', cursor: 'pointer', alignItems: 'center', gap: '20px', transition: 'background 0.2s' }} onClick={() => onSelect(inst.id)}>
+                                    <div style={{ width: '100px', height: '100px', borderRadius: '8px', background: '#000', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img
+                                            src={inst.imageUrl || './no_image.png'}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: inst.imageUrl ? 1 : 0.6 }}
+                                            alt={inst.name}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                                            <span className="cat-badge">{getCatLabel(inst.category)}</span>
+                                            <span className={`badge status-${inst.status}`}>{inst.status}</span>
+                                        </div>
+                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{inst.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginLeft: '8px' }}>{inst.abbreviation}</span></h3>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '8px' }}>
+                                            {inst.englishName}
+                                        </p>
+                                        <div>
+                                            {primaryDomains.map(dom => (
+                                                <span key={dom} className="chip">{getDomLabel(dom)}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', minWidth: '120px' }}>
+                                        <span style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Icons.MapPin size={14} /> {hq?.prefecture}</span>
+                                        <span className="btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>{t[lang].details} &gt;</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {filteredAndSorted.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                            {t[lang].noResults}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const InstituteDetail = ({ institute: inst, onBack, apiKey, onOpenSettings }) => {
+            const { lang } = useContext(InstituteContext);
+            const [chatMessages, setChatMessages] = useState([
+                {
+                    role: 'model', text: lang === 'ja'
+                        ? `私は日本の科学研究機関の専門家AIです。${inst.name}について何でも聞いてください。`
+                        : `I am an expert on Japanese scientific research institutes. Ask me anything about ${inst.englishName || inst.name}.`
+                }
+            ]);
+            const [input, setInput] = useState('');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const chatEndRef = useRef(null);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [chatMessages]);
+
+            const handleSend = async () => {
+                if (!input.trim()) return;
+                if (!apiKey) {
+                    onOpenSettings();
+                    return;
+                }
+
+                const userMsg = input;
+                setInput('');
+                setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+                setIsGenerating(true);
+
+                try {
+                    const systemPrompt = lang === 'ja' ? `
+                        あなたは日本の科学研究機関「${inst.name}」(${inst.abbreviation})の専門家です。
+                        以下の詳細なコンテキスト情報を元に、ユーザーの質問に日本語で的確かつ親切に答えてください。
+                        コンテキストにない情報については断定せず、「不明です」または「情報がありません」と答えてください。
+
+                        [基本情報]
+                        名称: ${inst.name}
+                        英語名: ${inst.englishName}
+                        区分: ${inst.category}
+                        設立: ${inst.established}
+                        状態: ${inst.status}
+                        所管: ${inst.supervising?.primary} (関連: ${inst.supervising?.related?.join(', ') || '-'})
+
+                        [概要・ミッション]
+                        概要: ${inst.overview}
+                        ミッション: ${inst.mission}
+
+                        [研究体制]
+                        主要分野: ${inst.domainProfile?.filter(d => d.role === 'primary').map(d => d.domain).join(', ')}
+                        所在地: ${inst.locations?.map(l => `${l.site} (${l.prefecture})` + (l.isHq ? '[HQ]' : '')).join(', ')}
+                        
+                        [保有設備・能力]
+                        プラットフォーム: ${inst.platforms?.join(', ')}
+                        能力・技術: ${inst.capabilities?.join(', ')}
+                        主要施設: ${inst.facilities?.map(f => `${f.name} (${f.type})`).join(', ')}
+
+                        ユーザーの質問: ${userMsg}
+                    ` : `
+                        You are an expert on the Japanese research institute "${inst.englishName || inst.name}" (${inst.abbreviation}).
+                        Based on the context below, answer the user's question politely and accurately.
+                        If the info is missing, say "Unknown" or "I don't have that information".
+
+                        [Basic Info]
+                        Name: ${inst.englishName || inst.name} (${inst.name})
+                        Category: ${inst.category}
+                        Established: ${inst.established}
+                        Supervision: ${inst.supervising?.primary}
+
+                        [Overview]
+                        ${inst.overview}
+                        Mission: ${inst.mission}
+
+                        [Research Profile]
+                        Domains: ${inst.domainProfile?.filter(d => d.role === 'primary').map(d => d.domain).join(', ')}
+                        Locations: ${inst.locations?.map(l => `${l.site} (${l.prefecture})`).join(', ')}
+
+                        [Capabilities]
+                        platforms: ${inst.platforms?.join(', ')}
+                        Facilities: ${inst.facilities?.map(f => `${f.name} (${f.type})`).join(', ')}
+
+                        User Question: ${userMsg}
+                    `;
+
+                    // Quick implementation using Gemini API
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { part: { text: systemPrompt } }
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.error.message);
+                    }
+
+                    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response.";
+
+                    setChatMessages(prev => [...prev, { role: 'model', text: aiResponse }]);
+                } catch (error) {
+                    console.error("Gemini Error:", error);
+                    setChatMessages(prev => [...prev, { role: 'model', text: lang === 'ja' ? "エラーが発生しました。APIキーを確認してください。" : "Error occurred. Please check your API Key." }]);
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            const InfoRow = ({ label, value, icon: Icon }) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        {Icon && <Icon size={14} />}
+                        {label}
+                    </div>
+                    <div style={{ fontSize: '1rem' }}>{value || '-'}</div>
+                </div>
+            );
+
+            const SectionTitle = ({ title, icon: Icon }) => (
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', marginTop: '32px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px' }}>
+                    {Icon && <Icon size={20} className="text-accent" />}
+                    {title}
+                </h3>
+            );
+
+            const getCatLabel = (cat) => t[lang][`cat_${cat}`] || cat;
+            const getDomLabel = (dom) => t[lang][`dom_${dom}`] || dom;
+
+            return (
+                <div className="container fade-in">
+                    <button className="btn" onClick={onBack} style={{ marginBottom: '20px' }}>
+                        <Icons.ArrowUpDown style={{ transform: 'rotate(90deg)' }} /> {t[lang].back}
+                    </button>
+
+                    <div className="glass" style={{ padding: '32px', marginBottom: '32px' }}>
+                        <div className="detail-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '24px' }}>
+                            <div>
+                                <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+                                    {inst.name}
+                                </h1>
+                                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>
+                                    {inst.englishName} ({inst.abbreviation})
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+                                <span className={`badge status-${inst.status}`} style={{ fontSize: '1rem', padding: '8px 16px' }}>
+                                    {inst.status}
+                                </span>
+                                <span className="cat-badge name-cat" style={{ fontSize: '0.9rem' }}>{getCatLabel(inst.category)}</span>
+                            </div>
+                        </div>
+
+                        {inst.imageUrl && (
+                            <div style={{ width: '100%', height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--glass-border)' }}>
+                                <img src={inst.imageUrl} alt={inst.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                        )}
+
+                        <SectionTitle title={t[lang].overview} icon={Icons.Info} />
+                        <p style={{ lineHeight: '1.8', fontSize: '1.05rem', marginBottom: '16px' }}>
+                            {inst.overview}
+                        </p>
+                        {inst.mission && (
+                            <blockquote style={{ borderLeft: '4px solid var(--accent-cyan)', paddingLeft: '16px', fontStyle: 'italic', marginBottom: '24px', color: 'rgba(255,255,255,0.8)' }}>
+                                "{inst.mission}"
+                            </blockquote>
+                        )}
+
+                        <div className="grid">
+                            <div>
+                                <SectionTitle title={t[lang].established} icon={Icons.Calendar} />
+                                <div style={{ fontSize: '1.1rem' }}>{inst.established || t[lang].unknown}</div>
+
+                                <SectionTitle title={t[lang].supervising} icon={Icons.Building} />
+                                <div>
+                                    Primary: {inst.supervising?.primary || '-'}
+                                    {inst.supervising?.related?.length > 0 && (
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                            Related: {inst.supervising.related.join(', ')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div>
+                                <SectionTitle title={t[lang].location} icon={Icons.MapPin} />
+                                <ul style={{ listStyle: 'none' }}>
+                                    {inst.locations?.map((loc, i) => (
+                                        <li key={i} style={{ marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 'bold' }}>{loc.site}</span> <br />
+                                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{loc.city}, {loc.prefecture} {loc.isHq && '[HQ]'}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <SectionTitle title={t[lang].domains} icon={Icons.Globe} />
+                        <div style={{ marginBottom: '24px' }}>
+                            {inst.domainProfile?.map((dom, i) => (
+                                <span key={i} className="chip" style={{
+                                    background: dom.role === 'primary' ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255,255,255,0.1)',
+                                    color: dom.role === 'primary' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                                    padding: '6px 12px',
+                                    borderRadius: '16px',
+                                    marginRight: '8px',
+                                    marginBottom: '8px'
+                                }}>
+                                    {getDomLabel(dom.domain)}
+                                </span>
+                            ))}
+                        </div>
+
+                        {(inst.platforms || inst.capabilities) && (
+                            <div className="grid">
+                                <div>
+                                    <SectionTitle title={t[lang].platforms} icon={Icons.Cpu} />
+                                    <ul>
+                                        {inst.platforms?.map((p, i) => <li key={i}>{p}</li>) || '-'}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <SectionTitle title={t[lang].capabilities} icon={Icons.Activity} />
+                                    <ul>
+                                        {inst.capabilities?.map((c, i) => <li key={i}>{c}</li>) || '-'}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
+                        {inst.facilities && (
+                            <>
+                                <SectionTitle title={t[lang].facilities} icon={Icons.Building} />
+                                <div className="grid">
+                                    {inst.facilities.map((fac, index) => (
+                                        <div key={index} style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '4px', color: 'var(--accent-cyan)' }}>
+                                                {fac.name}
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>{fac.type} @ {fac.location || '-'}</div>
+                                            {fac.publicUrl && <a href={fac.publicUrl} target="_blank" style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>Web &gt;</a>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        <div style={{ marginTop: '32px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                            {inst.links?.official && (
+                                <a href={inst.links.official} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                    {t[lang].officialSite} <Icons.ExternalLink size={16} />
+                                </a>
+                            )}
+                            {inst.links?.openData && (
+                                <a href={inst.links.openData} target="_blank" rel="noopener noreferrer" className="btn">
+                                    {t[lang].dataSite} <Icons.Link size={16} />
+                                </a>
+                            )}
+                            {inst.links?.annualReport && (
+                                <a href={inst.links.annualReport} target="_blank" rel="noopener noreferrer" className="btn">
+                                    {t[lang].annualReport} <Icons.Link size={16} />
+                                </a>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>
+                        <h3 style={{ fontSize: '1.5rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Icons.MessageSquare className="text-accent" />
+                            {t[lang].aiChat}
+                        </h3>
+
+                        <div className="chat-container glass" style={{ background: 'rgba(0,0,0,0.3)', height: '500px' }}>
+                            <div className="chat-messages">
+                                {chatMessages.map((msg, index) => (
+                                    <div key={index} className={`message ${msg.role === 'user' ? 'user' : 'ai'}`}>
+                                        {msg.text.split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                                    </div>
+                                ))}
+                                {isGenerating && (
+                                    <div className="message ai">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Icons.Microscope className="spin" size={16} /> {t[lang].thinking}
+                                        </div>
+                                    </div>
+                                )}
+                                <div ref={chatEndRef} />
+                            </div>
+                            <div className="chat-input-area">
+                                <input
+                                    type="text"
+                                    className="chat-input"
+                                    placeholder={t[lang].questionPlaceholder}
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                    disabled={isGenerating}
+                                />
+                                <button className="btn btn-primary" onClick={handleSend} disabled={isGenerating}>
+                                    <Icons.Send />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Stats = ({ institutes }) => {
+            const { lang } = useContext(InstituteContext);
+            const chartRef = useRef(null);
+            const canvasRef = useRef(null);
+            const domainCanvasRef = useRef(null);
+            const domainChartRef = useRef(null);
+
+            const getCatLabel = (cat) => t[lang][`cat_${cat}`] || cat;
+
+            useEffect(() => {
+                if (!canvasRef.current || institutes.length === 0) return;
+
+                // Category Stats
+                const catCounts = {};
+                institutes.forEach(s => {
+                    const label = getCatLabel(s.category);
+                    catCounts[label] = (catCounts[label] || 0) + 1;
+                });
+
+                const ctx = canvasRef.current.getContext('2d');
+                if (chartRef.current) chartRef.current.destroy();
+
+                chartRef.current = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(catCounts),
+                        datasets: [{
+                            data: Object.values(catCounts),
+                            backgroundColor: ['#00D4FF', '#7000FF', '#00CC88', '#FF4444', '#FFBB33'],
+                            borderColor: '#0B0D17',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#FFF', font: { family: 'Space Grotesk' } }
+                            }
+                        }
+                    }
+                });
+
+                // Domain Stats
+                const domCounts = {};
+                institutes.forEach(s => {
+                    s.domainProfile?.forEach(d => {
+                        if (d.role === 'primary') {
+                            const parent = d.domain.split('.')[0];
+                            const label = t[lang][`dom_${parent}`] || parent;
+                            domCounts[label] = (domCounts[label] || 0) + 1;
+                        }
+                    });
+                });
+
+                // Sort domains by count
+                const sortedDomains = Object.entries(domCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+                if (domainCanvasRef.current) {
+                    const ctx2 = domainCanvasRef.current.getContext('2d');
+                    if (domainChartRef.current) domainChartRef.current.destroy();
+
+                    domainChartRef.current = new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: sortedDomains.map(d => d[0]),
+                            datasets: [{
+                                label: 'Primary Domains',
+                                data: sortedDomains.map(d => d[1]),
+                                backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                                borderColor: '#00D4FF',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: '#A0A0A0', stepSize: 1 }
+                                },
+                                x: {
+                                    ticks: { color: '#FFF' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                return () => {
+                    if (chartRef.current) chartRef.current.destroy();
+                    if (domainChartRef.current) domainChartRef.current.destroy();
+                };
+            }, [institutes, lang]);
+
+            return (
+                <div className="container fade-in">
+                    <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+                        <h1 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t[lang].statsTitle}</h1>
+                        <p style={{ color: 'var(--text-muted)' }}>{t[lang].statsSubtitle}</p>
+                    </header>
+
+                    <div className="grid">
+                        <div className="glass" style={{ padding: '40px' }}>
+                            <h3 style={{ marginBottom: '20px', textAlign: 'center' }}>Category Distribution</h3>
+                            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                                <canvas ref={canvasRef}></canvas>
+                            </div>
+                        </div>
+                        <div className="glass" style={{ padding: '40px' }}>
+                            <h3 style={{ marginBottom: '20px', textAlign: 'center' }}>Top Research Domains</h3>
+                            <div style={{ width: '100%' }}>
+                                <canvas ref={domainCanvasRef}></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="glass" style={{ padding: '24px', marginTop: '24px', textAlign: 'center' }}>
+                        <h3>{t[lang].registeredCount}: <span style={{ fontSize: '2rem', color: 'var(--accent-cyan)' }}>{institutes.length}</span> {t[lang].units}</h3>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const { institutes, loading, error, apiKey, saveApiKey, lang, toggleLang } = useContext(InstituteContext);
+            const [currentPage, setCurrentPage] = useState('home');
+            const [selectedId, setSelectedId] = useState(null);
+            const [showSettings, setShowSettings] = useState(false);
+
+            const handleSelect = (id) => {
+                setSelectedId(id);
+                setCurrentPage('detail');
+                window.scrollTo(0, 0);
+            };
+
+            const handlePageChange = (page) => {
+                setCurrentPage(page);
+                if (page !== 'detail') setSelectedId(null);
+                window.scrollTo(0, 0);
+            };
+
+            const selectedInst = useMemo(() =>
+                institutes.find(s => s.id === selectedId),
+                [institutes, selectedId]);
+
+            useEffect(() => {
+                lucide.createIcons();
+            });
+
+            if (loading) return <LoadingSpinner />;
+            if (error) return <ErrorDisplay message={error} />;
+
+            return (
+                <div>
+                    <Navbar
+                        currentPage={currentPage}
+                        setPage={handlePageChange}
+                        setShowSettings={setShowSettings}
+                    />
+
+                    <main style={{ paddingBottom: '60px' }}>
+                        {currentPage === 'home' && (
+                            <Home institutes={institutes} onSelect={handleSelect} />
+                        )}
+                        {currentPage === 'detail' && selectedInst && (
+                            <InstituteDetail
+                                institute={selectedInst}
+                                onBack={() => handlePageChange('home')}
+                                apiKey={apiKey}
+                                onOpenSettings={() => setShowSettings(true)}
+                            />
+                        )}
+                        {currentPage === 'stats' && (
+                            <Stats institutes={institutes} />
+                        )}
+                    </main>
+
+                    <SettingsModal
+                        show={showSettings}
+                        onClose={() => setShowSettings(false)}
+                        currentKey={apiKey}
+                        onSave={saveApiKey}
+                    />
+
+                    <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', borderTop: '1px solid var(--glass-border)' }}>
+                        <p style={{ marginBottom: '10px' }}>© 2026 {t[lang].appTitle}</p>
+                        <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                            {t[lang].footerDisclaimer}
+                        </p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <InstituteProvider>
+                <App />
+            </InstituteProvider>
+        );
+    </script>
+</body>
+
+</html>
