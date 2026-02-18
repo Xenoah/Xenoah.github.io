@@ -73,7 +73,9 @@
         "name": "筑波宇宙センター",
         "type": "R&D/Operations",
         "location": "Tsukuba",
-        "operators": ["JAXA"],
+        "operators": [
+          "JAXA"
+        ],
         "publicUrl": "https://visit-tsukuba.jaxa.jp/"
       }
     ]
@@ -144,7 +146,9 @@
         "name": "SuperKEKB",
         "type": "Accelerator",
         "location": "Tsukuba",
-        "operators": ["KEK"],
+        "operators": [
+          "KEK"
+        ],
         "publicUrl": "https://www-sk.icrr.u-tokyo.ac.jp/"
       }
     ]
@@ -159,7 +163,9 @@
     "established": "2005-10-01",
     "supervising": {
       "primary": "文部科学省",
-      "related": ["経済産業省"]
+      "related": [
+        "経済産業省"
+      ]
     },
     "locations": [
       {
@@ -206,7 +212,10 @@
         "name": "J-PARC",
         "type": "Accelerator Complex",
         "location": "Tokai",
-        "operators": ["JAEA", "KEK"],
+        "operators": [
+          "JAEA",
+          "KEK"
+        ],
         "publicUrl": "https://j-parc.jp/"
       }
     ]
@@ -279,7 +288,9 @@
         "name": "Earth Simulator",
         "type": "Supercomputer",
         "location": "Yokohama",
-        "operators": ["JAMSTEC"],
+        "operators": [
+          "JAMSTEC"
+        ],
         "publicUrl": "https://www.jamstec.go.jp/es/"
       }
     ]
@@ -341,7 +352,9 @@
         "name": "Japan Standard Time Group",
         "type": "Metrology",
         "location": "Koganei",
-        "operators": ["NICT"],
+        "operators": [
+          "NICT"
+        ],
         "publicUrl": "https://jjy.nict.go.jp/"
       }
     ]
@@ -420,7 +433,9 @@
         "name": "ABCI (AI Bridging Cloud Infrastructure)",
         "type": "Supercomputer",
         "location": "Kashiwa",
-        "operators": ["AIST"],
+        "operators": [
+          "AIST"
+        ],
         "publicUrl": "https://abci.ai/"
       }
     ]
