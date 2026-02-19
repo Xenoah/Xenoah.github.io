@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collatz - Math Learning</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar glass-panel">
+            <a href="../../index.html" class="nav-back" data-i18n="back">← Back to Menu</a>
+            <h1 data-i18n="title">Collatz</h1>
+            <p data-i18n="desc" style="color: var(--text-muted); font-size: 0.9rem;">
+                The 3n+1 Problem.
+            </p>
+            
+            <div id="controls-container"></div>
+            
+            <div class="control-group">
+                <h3 data-i18n="stats">Stats</h3>
+                <div id="stats-output" style="font-size: 0.9rem; color: var(--text-muted); font-family: monospace;">
+                    Steps: 0<br>
+                    Max: 0
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="share">Share</h3>
+                <button id="btn-share">Copy Link</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </div>
+    
+    <script type="module" src="./lesson.js"></script>
+</body>
+</html>

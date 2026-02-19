@@ -13,7 +13,6 @@
             gap: var(--spacing-lg);
             padding: var(--spacing-lg);
             width: 100%;
-            overflow-y: auto;
         }
 
         .lesson-card {
@@ -37,6 +36,12 @@
             background: var(--panel-bg);
             border-color: var(--accent-primary);
             box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+        }
+
+        .lesson-card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            border-style: dashed;
         }
 
         .lesson-card h2 {
@@ -72,6 +77,16 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
+
+        .section-header {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+            color: var(--accent-secondary);
+        }
     </style>
 </head>
 
@@ -80,71 +95,108 @@
         <!-- Sidebar placeholder for globals -->
         <div class="sidebar glass-panel">
             <h1 data-i18n="menu_title">Menu</h1>
-            <!-- Globals will inject here -->
+            <div id="sidebar-content"></div>
         </div>
 
-        <div style="flex: 1; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="flex: 1; display:flex; flex-direction:column; overflow-y:auto;">
             <div class="hero">
                 <h1 data-i18n="hero_title">Interactive Math Concepts</h1>
                 <p data-i18n="hero_subtitle" style="color: var(--text-muted);">Explore mathematical principles through
                     interactive visualizations</p>
             </div>
 
-            <div class="lesson-grid">
-                <a href="lessons/trig_unit_circle/index.html" class="lesson-card">
-                    <h2 data-i18n="l1_title">Trigonometry</h2>
-                    <p data-i18n="l1_desc">Unit Circle, Sine, Cosine, and waveform projection visualization.</p>
-                    <div class="card-icon">○</div>
-                </a>
-                <a href="lessons/factorization/index.html" class="lesson-card">
-                    <h2 data-i18n="l2_title">Factorization</h2>
-                    <p data-i18n="l2_desc">Quadratic polynomials, roots, and geometric interpretation.</p>
-                    <div class="card-icon">x²</div>
-                </a>
-                <a href="lessons/calculus/index.html" class="lesson-card">
-                    <h2 data-i18n="l3_title">Calculus</h2>
-                    <p data-i18n="l3_desc">Visualizing differentiation and integration methods.</p>
-                    <div class="card-icon">∫</div>
-                </a>
-                <a href="lessons/fourier/index.html" class="lesson-card">
-                    <h2 data-i18n="l4_title">Fourier Transform</h2>
-                    <p data-i18n="l4_desc">Decomposing signals into frequencies.</p>
-                    <div class="card-icon">∿</div>
-                </a>
-                <a href="lessons/nd_coords/index.html" class="lesson-card">
-                    <h2 data-i18n="l5_title">N-Dimensions</h2>
-                    <p data-i18n="l5_desc">High dimensional data projection and rotation.</p>
-                    <div class="card-icon">⊡</div>
-                </a>
+            <div class="lesson-grid" id="main-grid">
+                <!-- Injected via JS -->
             </div>
+
+            <footer style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+                Math Learning Project
+            </footer>
         </div>
     </div>
 
     <script type="module">
         import { Globals } from './shared/globals.js';
 
-        // Simple I18n Dictionary for Landing Page
-        const DICT = {
+        // Lesson Data
+        const CATEGORIES = [
+            { id: 'cat_elem', title_en: 'Origins (Elementary)', title_ja: '起源 (初等数学)' },
+            { id: 'cat_hs', title_en: 'Foundations (High School)', title_ja: '基礎 (高校数学)' },
+            { id: 'cat_univ', title_en: 'Advanced (University)', title_ja: '発展 (大学教養)' },
+            { id: 'cat_unsolved', title_en: 'The Frontier (Unsolved)', title_ja: '未解決問題' }
+        ];
+
+        const LESSONS = [
+            // Elementary
+            { cat: 'cat_elem', id: 'arithmetic', link: 'lessons/arithmetic/index.html', icon: '123', en: { t: 'Arithmetic', d: 'Number line, Blocks, Negatives' }, ja: { t: '算数', d: '数直線、ブロック、負の数' }, working: false },
+            { cat: 'cat_elem', id: 'primes', link: 'lessons/primes/index.html', icon: '#', en: { t: 'Prime Numbers', d: 'Sieve of Eratosthenes, Ulam Spiral' }, ja: { t: '素数', d: 'エラトステネスの篩、ウラムの螺旋' }, working: false },
+
+            // High School
+            { cat: 'cat_hs', id: 'trig', link: 'lessons/trig_unit_circle/index.html', icon: '○', en: { t: 'Trigonometry', d: 'Unit Circle, Sine, Cosine' }, ja: { t: '三角関数', d: '単位円、サイン、コサイン' }, working: true },
+            { cat: 'cat_hs', id: 'factor', link: 'lessons/factorization/index.html', icon: 'x²', en: { t: 'Factorization', d: 'Quadratic polynomials, roots' }, ja: { t: '因数分解', d: '二次多項式、根の配置' }, working: true },
+            { cat: 'cat_hs', id: 'calc', link: 'lessons/calculus/index.html', icon: '∫', en: { t: 'Calculus', d: 'Differentiation & Integration' }, ja: { t: '微分積分', d: '微分と積分の可視化' }, working: true },
+            { cat: 'cat_hs', id: 'fourier', link: 'lessons/fourier/index.html', icon: '∿', en: { t: 'Fourier Transform', d: 'Frequency decomposition' }, ja: { t: 'フーリエ変換', d: '周波数分解' }, working: true },
+            { cat: 'cat_hs', id: 'nd', link: 'lessons/nd_coords/index.html', icon: '⊡', en: { t: 'N-Dimensions', d: 'Projections & Rotations' }, ja: { t: '高次元', d: '射影と回転' }, working: true },
+
+            // University
+            { cat: 'cat_univ', id: 'linalg', link: 'lessons/linear_algebra/index.html', icon: '▦', en: { t: 'Linear Algebra', d: 'Matrix Transforms, Eigenvectors' }, ja: { t: '線形代数', d: '行列変換、固有ベクトル' }, working: true },
+            { cat: 'cat_univ', id: 'complex', link: 'lessons/complex_analysis/index.html', icon: 'ℂ', en: { t: 'Complex Analysis', d: 'Conformal Mappings' }, ja: { t: '複素解析', d: '等角写像' }, working: true },
+            { cat: 'cat_univ', id: 'chaos', link: 'lessons/chaos/index.html', icon: '∞', en: { t: 'Chaos Theory', d: 'Lorenz Attractor, Butterfly Effect' }, ja: { t: 'カオス理論', d: 'ローレンツ・アトラクタ' }, working: true },
+            { cat: 'cat_univ', id: 'fractal', link: 'lessons/fractals/index.html', icon: '❄', en: { t: 'Fractals', d: 'Mandelbrot & Julia Sets' }, ja: { t: 'フラクタル', d: 'マンデルブロ集合' }, working: true },
+            { cat: 'cat_univ', id: 'prob', link: 'lessons/probability/index.html', icon: '🎲', en: { t: 'Probability', d: 'Monte Carlo & CLT' }, ja: { t: '確率・統計', d: 'モンテカルロ法、中心極限定理' }, working: true },
+
+            // Unsolved
+            { cat: 'cat_unsolved', id: 'collatz', link: 'lessons/collatz/index.html', icon: '3n+1', en: { t: 'Collatz Conjecture', d: '3n+1 Problem visualization' }, ja: { t: 'コラッツ予想', d: '3n+1問題の可視化' }, working: false },
+            { cat: 'cat_unsolved', id: 'pnp', link: 'lessons/p_vs_np/index.html', icon: 'TSP', en: { t: 'P vs NP', d: 'Traveling Salesperson Problem' }, ja: { t: 'P vs NP問題', d: '巡回セールスマン問題' }, working: false },
+        ];
+
+        // Init UI
+        const grid = document.getElementById('main-grid');
+
+        CATEGORIES.forEach(cat => {
+            const header = document.createElement('h2');
+            header.className = 'section-header';
+            header.setAttribute('data-i18n', cat.id);
+            grid.appendChild(header);
+
+            const catLessons = LESSONS.filter(l => l.cat === cat.id);
+            catLessons.forEach(l => {
+                const card = document.createElement('a');
+                card.className = `lesson-card ${l.working ? '' : 'disabled'}`;
+                if (l.working) card.href = l.link;
+
+                card.innerHTML = `
+                    <h2 data-i18n="${l.id}_t">${l.en.t}</h2>
+                    <p data-i18n="${l.id}_d">${l.en.d}</p>
+                    <div class="card-icon">${l.icon}</div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+
+        // Dictionary Construction
+        const dict = {
             menu_title: { en: 'Menu', ja: 'メニュー' },
-            hero_title: { en: 'Interactive Math Concepts', ja: 'インタラクティブ数学' },
-            hero_subtitle: { en: 'Explore principles through visualizations', ja: '可視化で学ぶ数学の原理' },
-            l1_title: { en: 'Trigonometry', ja: '三角関数' },
-            l1_desc: { en: 'Unit Circle, Sine, Cosine, Waveform', ja: '単位円、サイン、コサイン、波形' },
-            l2_title: { en: 'Factorization', ja: '因数分解' },
-            l2_desc: { en: 'Quadratic polynomials, roots', ja: '二次多項式、根、幾何学的解釈' },
-            l3_title: { en: 'Calculus', ja: '微分積分' },
-            l3_desc: { en: 'Differentiation and Integration', ja: '微分係数と積分の可視化' },
-            l4_title: { en: 'Fourier Transform', ja: 'フーリエ変換' },
-            l4_desc: { en: 'Decomposing signals', ja: '時間領域と周波数領域' },
-            l5_title: { en: 'N-Dimensions', ja: '高次元' },
-            l5_desc: { en: 'High dimensional data projection', ja: '高次元データの投影と回転' }
+            hero_title: { en: 'Interactive Math', ja: 'インタラクティブ数学' },
+            hero_subtitle: { en: 'From Arithmetic to Unsolved Problems', ja: '算数から未解決問題まで' },
         };
+
+        // Add categories
+        CATEGORIES.forEach(c => {
+            dict[c.id] = { en: c.title_en, ja: c.title_ja };
+        });
+
+        // Add lessons
+        LESSONS.forEach(l => {
+            dict[`${l.id}_t`] = { en: l.en.t, ja: l.ja.t };
+            dict[`${l.id}_d`] = { en: l.en.d, ja: l.ja.d };
+        });
 
         Globals.subscribe(state => {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (DICT[key]) {
-                    el.textContent = Globals.getText(key, DICT[key].en, DICT[key].ja);
+                if (dict[key]) {
+                    el.textContent = Globals.getText(key, dict[key].en, dict[key].ja);
                 }
             });
         });
