@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Interactive Learning</title>
+    <link rel="stylesheet" href="shared/style.css">
+    <style>
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .lesson-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            background: var(--panel-bg);
+            border-color: var(--accent-primary);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+        }
+
+        .lesson-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-color);
+        }
+
+        .lesson-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: auto;
+            color: var(--accent-primary);
+            opacity: 0.8;
+            align-self: flex-end;
+            margin-top: auto;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--text-color), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar placeholder for globals -->
+        <div class="sidebar glass-panel">
+            <h1 data-i18n="menu_title">Menu</h1>
+            <!-- Globals will inject here -->
+        </div>
+
+        <div style="flex: 1; display:flex; flex-direction:column; overflow:hidden;">
+            <div class="hero">
+                <h1 data-i18n="hero_title">Interactive Math Concepts</h1>
+                <p data-i18n="hero_subtitle" style="color: var(--text-muted);">Explore mathematical principles through
+                    interactive visualizations</p>
+            </div>
+
+            <div class="lesson-grid">
+                <a href="lessons/trig_unit_circle/index.html" class="lesson-card">
+                    <h2 data-i18n="l1_title">Trigonometry</h2>
+                    <p data-i18n="l1_desc">Unit Circle, Sine, Cosine, and waveform projection visualization.</p>
+                    <div class="card-icon">○</div>
+                </a>
+                <a href="lessons/factorization/index.html" class="lesson-card">
+                    <h2 data-i18n="l2_title">Factorization</h2>
+                    <p data-i18n="l2_desc">Quadratic polynomials, roots, and geometric interpretation.</p>
+                    <div class="card-icon">x²</div>
+                </a>
+                <a href="lessons/calculus/index.html" class="lesson-card">
+                    <h2 data-i18n="l3_title">Calculus</h2>
+                    <p data-i18n="l3_desc">Visualizing differentiation and integration methods.</p>
+                    <div class="card-icon">∫</div>
+                </a>
+                <a href="lessons/fourier/index.html" class="lesson-card">
+                    <h2 data-i18n="l4_title">Fourier Transform</h2>
+                    <p data-i18n="l4_desc">Decomposing signals into frequencies.</p>
+                    <div class="card-icon">∿</div>
+                </a>
+                <a href="lessons/nd_coords/index.html" class="lesson-card">
+                    <h2 data-i18n="l5_title">N-Dimensions</h2>
+                    <p data-i18n="l5_desc">High dimensional data projection and rotation.</p>
+                    <div class="card-icon">⊡</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Globals } from './shared/globals.js';
+
+        // Simple I18n Dictionary for Landing Page
+        const DICT = {
+            menu_title: { en: 'Menu', ja: 'メニュー' },
+            hero_title: { en: 'Interactive Math Concepts', ja: 'インタラクティブ数学' },
+            hero_subtitle: { en: 'Explore principles through visualizations', ja: '可視化で学ぶ数学の原理' },
+            l1_title: { en: 'Trigonometry', ja: '三角関数' },
+            l1_desc: { en: 'Unit Circle, Sine, Cosine, Waveform', ja: '単位円、サイン、コサイン、波形' },
+            l2_title: { en: 'Factorization', ja: '因数分解' },
+            l2_desc: { en: 'Quadratic polynomials, roots', ja: '二次多項式、根、幾何学的解釈' },
+            l3_title: { en: 'Calculus', ja: '微分積分' },
+            l3_desc: { en: 'Differentiation and Integration', ja: '微分係数と積分の可視化' },
+            l4_title: { en: 'Fourier Transform', ja: 'フーリエ変換' },
+            l4_desc: { en: 'Decomposing signals', ja: '時間領域と周波数領域' },
+            l5_title: { en: 'N-Dimensions', ja: '高次元' },
+            l5_desc: { en: 'High dimensional data projection', ja: '高次元データの投影と回転' }
+        };
+
+        Globals.subscribe(state => {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (DICT[key]) {
+                    el.textContent = Globals.getText(key, DICT[key].en, DICT[key].ja);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factorization - Math Learning</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <div class="sidebar glass-panel">
+            <a href="../../index.html" class="nav-back" data-i18n="back">← Back to Menu</a>
+            <h1 data-i18n="title">Factorization</h1>
+            <p data-i18n="desc" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                Visualizing quadratic equations
+            </p>
+
+            <div id="controls-container"></div>
+
+            <div class="control-group">
+                <h3 data-i18n="presets">Presets</h3>
+                <div class="flex-row">
+                    <button class="small-btn" onclick="window.setPreset(1, 0, -1)" data-i18n="p_roots1">Roots
+                        ±1</button>
+                    <button class="small-btn" onclick="window.setPreset(1, -2, 1)" data-i18n="p_double">Double
+                        Root</button>
+                    <button class="small-btn" onclick="window.setPreset(1, 0, 1)" data-i18n="p_complex">Complex</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="playback">Playback</h3>
+                <div class="flex-row">
+                    <button id="btn-play" class="primary">Pause</button>
+                    <button id="btn-reset">Reset</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="share">Share</h3>
+                <button id="btn-share">Copy Link</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </div>
+
+    <script type="module" src="./lesson.js"></script>
+</body>
+
+</html>

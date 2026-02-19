@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Circle - Math Learning</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <div class="sidebar glass-panel">
+            <a href="../../index.html" class="nav-back" data-i18n="back">← Back to Menu</a>
+            <h1 data-i18n="title">Unit Circle</h1>
+
+            <div id="controls-container">
+                <!-- Params will be injected here -->
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="playback">Playback</h3>
+                <div class="flex-row">
+                    <button id="btn-play" class="primary">Pause</button>
+                    <button id="btn-reset">Reset</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="share">Share</h3>
+                <button id="btn-share">Copy Link</button>
+            </div>
+        </div>
+
+        <!-- Main Display -->
+        <div class="main-content">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Script loading -->
+    <script type="module" src="./lesson.js"></script>
+</body>
+
+</html>

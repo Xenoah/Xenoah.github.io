@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ND Coordinates - Math Learning</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar glass-panel">
+            <a href="../../index.html" class="nav-back" data-i18n="back">← Back to Menu</a>
+            <h1 data-i18n="title">High Dimensions</h1>
+            <p data-i18n="desc" style="color: var(--text-muted); font-size: 0.9rem;">
+                Projecting 3D and 4D objects onto 2D screen.
+            </p>
+
+            <div id="controls-container"></div>
+
+            <div class="control-group">
+                <h3 data-i18n="controls">Controls</h3>
+                <div class="flex-row">
+                    <button id="btn-play" class="primary">Pause</button>
+                    <button id="btn-reset">Reset</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3 data-i18n="share">Share</h3>
+                <button id="btn-share">Copy Link</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </div>
+
+    <script type="module" src="./lesson.js"></script>
+</body>
+
+</html>
