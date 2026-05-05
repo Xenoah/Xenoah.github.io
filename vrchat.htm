@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -77,21 +77,6 @@ h1 {
     line-height: 1.5;
     font-weight: 700;
     letter-spacing: 0;
-}
-
-.meta {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 44px;
-    color: var(--muted);
-    font-size: 0.875rem;
-}
-
-.meta img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
 }
 
 h2 {
@@ -216,26 +201,33 @@ figcaption {
     white-space: nowrap;
 }
 
-.list-like {
-    padding: 20px 24px;
-    background: var(--soft);
+.profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 40px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid var(--line);
     border-radius: 8px;
 }
 
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 48px;
-    padding-top: 24px;
-    border-top: 1px solid var(--line);
+.profile-link:hover {
+    border-color: var(--accent);
 }
 
-.tags a {
-    padding: 6px 10px;
-    font-size: 0.875rem;
-    text-decoration: none;
-    border: 1px solid var(--line);
+.profile-link img {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+}
+
+.list-like {
+    padding: 20px 24px;
+    background: var(--soft);
     border-radius: 8px;
 }
 
@@ -296,19 +288,18 @@ figcaption {
 
 <main class="article">
     <figure class="eyecatch">
-        <img src="https://assets.st-note.com/production/uploads/images/273016086/rectangle_large_type_2_3d84719b611df8c4aa030251d20f4347.png?width=1280" alt="見出し画像">
+        <img src="images_vrchat/rectangle_large_type_2_3d84719b611df8c4aa030251d20f4347.png" alt="見出し画像">
     </figure>
 
     <h1>VRChatは私をどう変えたか?振り返った</h1>
-    <div class="meta">
-        <img src="https://assets.st-note.com/production/uploads/images/182689545/profile_87ebbdfb7496cb475b72b377305e1d28.png?fit=bounds&amp;format=jpeg&amp;quality=85&amp;width=330" alt="Xenoah">
-        <span>Xenoah</span>
-        <span>2026年5月4日 21:30</span>
-    </div>
+    <a class="profile-link" href="https://vrchat.com/home/user/Noah-JP" target="_blank" rel="noopener noreferrer">
+        <img src="images_links/logo_vrchat_square.png" alt="">
+        VRChatプロフィールを開く
+    </a>
 
     <h2>私にとってのVRChat</h2>
     <figure>
-        <img src="https://assets.st-note.com/img/1777895113-R3V2gjTrL4SzWxOYMckXyDGi.png?width=1200" alt="">
+        <img src="images_vrchat/1777895113-R3V2gjTrL4SzWxOYMckXyDGi.png" alt="">
         <figcaption>2024/06/23@日本人向け 1対1お話しワールド NAGiSA ［JP］ アバター：2A-7カスタム</figcaption>
     </figure>
 
@@ -323,7 +314,7 @@ figcaption {
     <h3>始めまして。Xenoahです。</h3>
     <p>読み方は「ぜのあ」です。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777892356-VjDsKrOPY7JEQabGo12ZfgHX.png?width=1200" alt="">
+        <img src="images_vrchat/1777892356-VjDsKrOPY7JEQabGo12ZfgHX.png" alt="">
         <figcaption>2025/12/14作成</figcaption>
     </figure>
     <p>名前でよく間違われるがわたしゃ日本人だよ。<br>この名前になる前は「Noah-JP」。しかし<br>ノアさんがたくさんおり、間違われる為に2025年初頭改名、今に至る。</p>
@@ -331,23 +322,23 @@ figcaption {
     <h2>VRChat歴</h2>
     <h3>それまでのVRゲーム歴</h3>
     <figure>
-        <img src="https://assets.st-note.com/img/1777886385-ENk9qbIK6nht3TwFHa2UvoPi.png?width=1200" alt="">
+        <img src="images_vrchat/1777886385-ENk9qbIK6nht3TwFHa2UvoPi.png" alt="">
     </figure>
     <p>もともと、BeatSaberを遊びたくてQuest2を買った。<br>それからいくつかVRゲームをやっていた中に<br><strong>VRChatが居た</strong>だけだったのだ。</p>
     <figure class="small-media">
-        <img src="https://assets.st-note.com/production/uploads/images/272988506/picture_pc_d477bc61dd7990284ff5a954680cd317.gif" alt="">
+        <img src="images_vrchat/picture_pc_d477bc61dd7990284ff5a954680cd317.gif" alt="">
         <figcaption>Beat Saber(撮影日:2020/12/19)</figcaption>
     </figure>
     <figure class="small-media">
-        <img src="https://assets.st-note.com/production/uploads/images/272988841/picture_pc_e1fe146d23ff441cc01ffa7d5942e320.gif" alt="">
+        <img src="images_vrchat/picture_pc_e1fe146d23ff441cc01ffa7d5942e320.gif" alt="">
         <figcaption>Echo VR(撮影日:2021/01/03)</figcaption>
     </figure>
     <figure class="small-media">
-        <img src="https://assets.st-note.com/production/uploads/images/272989188/picture_pc_5e2feb0f2afae4380c80d1b95dd0c493.gif" alt="">
+        <img src="images_vrchat/picture_pc_5e2feb0f2afae4380c80d1b95dd0c493.gif" alt="">
         <figcaption>Eleven Table Tennis(撮影日:2022/06/08)</figcaption>
     </figure>
     <figure class="small-media">
-        <img src="https://assets.st-note.com/production/uploads/images/272989137/picture_pc_41d558c542f75496f04f2d4e1c627572.gif" alt="">
+        <img src="images_vrchat/picture_pc_41d558c542f75496f04f2d4e1c627572.gif" alt="">
         <figcaption>Premium Bowling (撮影日:2022/08/23)</figcaption>
     </figure>
 
@@ -355,7 +346,7 @@ figcaption {
     <p>当時のVRChatプレイ動画が見つからなかったので省略</p>
     <p>VRChat歴だけでいうと、もう5年になる。初回起動は2020年12月(だったと思う)。<br><s>別にマウント取ろうとしているわけじゃない。</s><br>観測した限りSteamリリースした2017年から遊んでいる猛者もいるので古参ではない。とだけ言っておく。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777883360-EYpGCZzvQoU2PjkR36qM14yT.png?width=1200" alt="">
+        <img src="images_vrchat/1777883360-EYpGCZzvQoU2PjkR36qM14yT.png" alt="">
         <figcaption>2026/05/04現在少なくとも5年以上は遊んでいる証拠</figcaption>
     </figure>
     <p>VRChatを始めたきっかけは単純だった。Quest 2を買い、ストアで適当に遊べそうなゲームを探していたら、たまたまVRChatにたどり着いた。</p>
@@ -386,16 +377,16 @@ figcaption {
     <p>そこで、もう一度入ってみることにした。再開時はQuest単騎。まずは英語圏のワールドに入り、カタコトでも会話を試みた。最初は当然うまくいかない。それでも、少しずつ楽しくなっていった。</p>
     <p>そして、Japan Shrineにカタコトで挑んでいたとき、初めて日本人ユーザーと出会った。</p>
     <figure class="small-media">
-        <img src="https://assets.st-note.com/production/uploads/images/272991748/picture_pc_957ae593a2e5557310015c69b9577c2f.gif" alt="">
+        <img src="images_vrchat/picture_pc_957ae593a2e5557310015c69b9577c2f.gif" alt="">
         <figcaption>2024/03/02@Japan Shrine</figcaption>
     </figure>
     <p>そのとき、その人たちに日本人ワールドへ連れて行ってもらった。そこから<strong>一気にフレンドが増えた</strong>。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777887495-DJtIoYNv2lfGUTEFPg9CKm5d.png?width=1200" alt="">
+        <img src="images_vrchat/1777887495-DJtIoYNv2lfGUTEFPg9CKm5d.png" alt="">
         <figcaption>2026/03/04 FUJIYAMAにて日本ユーザーと交流している。</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777887351-qLXbU5Z62ui9BPxK7EAJCNDR.png?width=1200" alt="">
+        <img src="images_vrchat/1777887351-qLXbU5Z62ui9BPxK7EAJCNDR.png" alt="">
         <figcaption>2024/03/04 FUJIYAMAにてカメラの使い方を習う</figcaption>
     </figure>
     <p>出会ったフレンドのフレンドとフレンドになり、野良プレイヤーと乾杯し、<strong>さらにフレンドが増えていった</strong>。</p>
@@ -407,19 +398,19 @@ figcaption {
     <p>ポータルに半ば流れで入った。</p>
     <p>目の前のアバター数に驚愕した。<br>アバターローディングが追い付かないのだ。<br>先ほどのFUJIYAMAと、うって変わってボイスの大きさに圧倒された。<br>最初に受けたのは、「カオス」という印象。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777888104-LeQ5PtlpfBI0rYyX6M2wWkgj.png?width=1200" alt="">
+        <img src="images_vrchat/1777888104-LeQ5PtlpfBI0rYyX6M2wWkgj.png" alt="">
         <figcaption>2024/03/10@ポピー横丁　そこは賑やかな飲み屋ワールドだった</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777888513-Ji2pBNs3DjF5vWaw6Sf7z9Kh.png?width=1200" alt="">
+        <img src="images_vrchat/1777888513-Ji2pBNs3DjF5vWaw6Sf7z9Kh.png" alt="">
         <figcaption>2024/03/16@ポピー横丁　この世界は自由なんだと気づいた時。この時ロシア語に出逢う</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777891878-j8cMhvpo0lxs6Nt7Ke5mrT4a.png?width=1200" alt="">
+        <img src="images_vrchat/1777891878-j8cMhvpo0lxs6Nt7Ke5mrT4a.png" alt="">
         <figcaption>2024/05/31@ポピー横丁　パリピ砲との出逢い。これがのちに私を変えた</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777888776-GbqmRCDtrSIxQwaVo4PpcvuL.png?width=1200" alt="">
+        <img src="images_vrchat/1777888776-GbqmRCDtrSIxQwaVo4PpcvuL.png" alt="">
         <figcaption>2024/03/25@ぶいあ～る横丁　クリエィティブの場として可能性を見出した瞬間</figcaption>
     </figure>
 
@@ -427,16 +418,16 @@ figcaption {
     <p>VRChat参加日を誕生日、あるいは入学日と例えられ「同期会」というシステムがある。<br>VRChatのグループ機能やDiscordでの活動が主で、定期的に集まるのだ。</p>
     <p>2024年2月、同じ時期にVRChatを始めた人たちが集まる場があった。</p>
     <figure class="medium-media">
-        <img src="https://assets.st-note.com/img/1777891558-ea9NDJr8GXYiu7W130VLPj42.png?width=1200" alt="">
+        <img src="images_vrchat/1777891558-ea9NDJr8GXYiu7W130VLPj42.png" alt="">
         <figcaption>所属してる「2024年2月VRC同期会」</figcaption>
     </figure>
     <p>2021年初めにVRChat始めたとは言えまともに活動してないので<br>私の<strong>活動開始を2024年2月とした</strong>。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777891386-5dAQG8ZXPzM7YBmFcRvD1a4y.png?width=1200" alt="">
+        <img src="images_vrchat/1777891386-5dAQG8ZXPzM7YBmFcRvD1a4y.png" alt="">
         <figcaption>2024/04/06@同期会</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777891463-FSjgxYV8T7K1poLGfuANh3O2.png?width=1200" alt="">
+        <img src="images_vrchat/1777891463-FSjgxYV8T7K1poLGfuANh3O2.png" alt="">
         <figcaption>2024/04/06@同期会</figcaption>
     </figure>
     <p>※こちらの設定でほとんどのアバターはフォールバックアバターになってることに留意</p>
@@ -448,7 +439,7 @@ figcaption {
     <h3>2024/05 BlenderとUnityで改変に挑戦</h3>
     <p>VRChatは、人と話す場所であると同時に、自分の手を動かす場所でもある。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777893089-98EPdUW01Z2FoHGnjNmwC7bz.png?width=1200" alt="">
+        <img src="images_vrchat/1777893089-98EPdUW01Z2FoHGnjNmwC7bz.png" alt="">
         <figcaption>https://hello.vrchat.com/より</figcaption>
     </figure>
     <p>VRChatのスローガンをご存じだろうか?<br>「フレンドを集い、ワールドを散策し、<strong>何かを創造</strong>しよう。」</p>
@@ -456,7 +447,7 @@ figcaption {
     <p><strong>現在、私のアバターは基本的に自作している。</strong></p>
     <p>とはいえ最初はハードルが高すぎたので改変から入った。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777893432-RaC2JwOZLeWxFVuhiY3gDt8N.png?width=1200" alt="">
+        <img src="images_vrchat/1777893432-RaC2JwOZLeWxFVuhiY3gDt8N.png" alt="">
         <figcaption>2024/05/21@ポピー横丁　初期は2A-7/LCの改変だった。</figcaption>
     </figure>
     <a class="link-card" href="https://booth.pm/ja/items/1381874" target="_blank" rel="noopener nofollow">
@@ -465,11 +456,11 @@ figcaption {
             <span class="link-card-desc">■■オキュラスクエストを想定した2A-7の軽量化版です■■</span>
             <span class="link-card-url">booth.pm</span>
         </span>
-        <span class="link-card-image" style="background-image: url('https://assets.st-note.com/production/uploads/ext/aba9a7ce2c851a9dbd4b24df9d46ec312a7c3a5c55adbfc6abf89d6f47ba.jpeg?x-type=ogp');"></span>
+        <span class="link-card-image" style="background-image: url('images_vrchat/aba9a7ce2c851a9dbd4b24df9d46ec312a7c3a5c55adbfc6abf89d6f47ba.jpeg');"></span>
     </a>
     <p>私のプライドというかなんというか、モットーがある。<br>できるかぎりModular AvatarやlilToonといった外部ツールに頼りすぎないようにしている。<br>便利な道具を否定したいわけではない。ただ、自分で構造を理解しながら作りたかった。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777893806-WNwnZrUqSy6m5LdCTxMz0Ds7.png?width=1200" alt="">
+        <img src="images_vrchat/1777893806-WNwnZrUqSy6m5LdCTxMz0Ds7.png" alt="">
         <figcaption>2024/05/05 自作アバターが猛威を振るっているところ。以下ダウンロードは自己責任で</figcaption>
     </figure>
     <a class="file-card" href="https://note.com/api/v2/attachments/download/7297d7ed70746350350c9da95111a9e5" target="_blank" rel="noopener nofollow">
@@ -481,15 +472,15 @@ figcaption {
     </a>
     <p>そのおかげで、BlenderやUnityの操作を少し深めることができた。アバターを直す。調整する。見た目を詰める。構造を理解する。その過程で、3D制作やUnityの知識が少しずつ身についた。</p>
     <figure class="medium-media">
-        <img src="https://assets.st-note.com/img/1777897304-nUw0M5ZecOE79vlDPu8K4HfY.png?width=1200" alt="">
+        <img src="images_vrchat/1777897304-nUw0M5ZecOE79vlDPu8K4HfY.png" alt="">
         <figcaption>2024/06/08@FUJIYAMA　アバターを作っているところ。この頃にUV展開を覚えた</figcaption>
     </figure>
     <figure class="medium-media">
-        <img src="https://assets.st-note.com/img/1777896932-PwCeQukXTUGERjBbW340DcVs.png?width=1200" alt="">
+        <img src="images_vrchat/1777896932-PwCeQukXTUGERjBbW340DcVs.png" alt="">
         <figcaption>2024/06/11@ぶいあ～る横丁　自作アバターに味を占めた頃に作ったネタアバター</figcaption>
     </figure>
     <figure class="medium-media">
-        <img src="https://assets.st-note.com/img/1777897110-HnSwqRcv4u7WPxJoyIKfd3EU.png?width=1200" alt="">
+        <img src="images_vrchat/1777897110-HnSwqRcv4u7WPxJoyIKfd3EU.png" alt="">
         <figcaption>2024/06/16@ポピー横丁　同上</figcaption>
     </figure>
     <p><strong>VRChatは遊び場</strong>であると同時に、かなり<strong>実践的な制作環境</strong>でもあると確信。</p>
@@ -521,11 +512,11 @@ figcaption {
     <p>VRChatで変わったのは、学びや制作だけではない。音楽や映像演出への感覚も変わった。<br>ここは「ポピー横丁」。</p>
     <p>先述した通り一時期、視界ジャックやパリピ砲にハマっていた。鑑賞するだけでなく、自分でも作成していた。</p>
     <figure>
-        <img src="https://assets.st-note.com/img/1777892813-avdtZKbiRSg6ypF8VXefDCwW.png?width=1200" alt="">
+        <img src="images_vrchat/1777892813-avdtZKbiRSg6ypF8VXefDCwW.png" alt="">
         <figcaption>2024/05/25　自作パリピ砲テスト</figcaption>
     </figure>
     <figure>
-        <img src="https://assets.st-note.com/img/1777881854-VsncSdhuMIXKJ6Nwe3y27Rqb.png?width=1200" alt="">
+        <img src="images_vrchat/1777881854-VsncSdhuMIXKJ6Nwe3y27Rqb.png" alt="">
         <figcaption>そして飛ばされるのだった。</figcaption>
     </figure>
     <p>ここだけの話、当時はあの過剰な光、音、動きが一気に押し寄せる感覚にかなりやられていた。</p>
@@ -570,17 +561,8 @@ figcaption {
     <p>私とVRChatの関係を一言で表すなら、やはりこれだ。</p>
     <p><strong>VRChatは、使い手次第の認識拡大ツールである。</strong></p>
 
-    <div class="tags">
-        <a href="https://note.com/hashtag/創作大賞2026" target="_blank" rel="noopener">#創作大賞2026</a>
-        <a href="https://note.com/hashtag/オールカテゴリ部門" target="_blank" rel="noopener">#オールカテゴリ部門</a>
-        <a href="https://note.com/hashtag/VRChat" target="_blank" rel="noopener">#VRChat</a>
-        <a href="https://note.com/hashtag/Blender" target="_blank" rel="noopener">#Blender</a>
-        <a href="https://note.com/hashtag/Unity" target="_blank" rel="noopener">#Unity</a>
-        <a href="https://note.com/hashtag/VRC" target="_blank" rel="noopener">#VRC</a>
-        <a href="https://note.com/hashtag/VRChat日記" target="_blank" rel="noopener">#VRChat日記</a>
-    </div>
-
     <p class="back-link"><a href="top.htm">トップへ戻る</a></p>
 </main>
 </body>
 </html>
+
