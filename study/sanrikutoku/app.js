@@ -28,8 +28,18 @@ const dom = {
     resultLaw: document.getElementById("result-law"),
     resultEngineering: document.getElementById("result-engineering"),
     resultTotal: document.getElementById("result-total"),
+    resultTime: document.getElementById("result-time"),
     resultMissedList: document.getElementById("result-missed-list"),
+    resultHistoryList: document.getElementById("result-history-list"),
     resultReview: document.getElementById("result-review-button"),
+    resultRetry: document.getElementById("result-retry-button"),
+    finish: document.getElementById("finish-button"),
+    progressFill: document.getElementById("progress-fill"),
+    palette: document.getElementById("question-palette"),
+    timer: document.getElementById("timer-display"),
+    examMode: document.getElementById("exam-mode-toggle"),
+    autoNext: document.getElementById("auto-next-toggle"),
+    timerBox: document.querySelector(".timer-box"),
     resultClose: document.getElementById("result-close-button")
 };
 
@@ -47,8 +57,16 @@ let state = {
     mastered: {},
     bookmarked: {},
     revealed: {},
-    resultAnnounced: false
+    resultAnnounced: false,
+    resultRecorded: false,
+    resultHistory: [],
+    examMode: false,
+    autoNext: false,
+    startedAt: null,
+    finishedAt: null
 };
+
+let timerInterval = null;
 
 function loadState() {
     try {
@@ -59,6 +77,14 @@ function loadState() {
     } catch {
         localStorage.removeItem(STORAGE_KEY);
     }
+
+    state.selected = state.selected || {};
+    state.correct = state.correct || {};
+    state.missed = state.missed || {};
+    state.mastered = state.mastered || {};
+    state.bookmarked = state.bookmarked || {};
+    state.revealed = state.revealed || {};
+    state.resultHistory = Array.isArray(state.resultHistory) ? state.resultHistory : [];
 }
 
 function saveState() {
@@ -76,6 +102,7 @@ function shuffleArray(items) {
 
 function filteredQuestions() {
     const base = questions.filter((question) => {
+        if (state.filter === "unanswered") return !state.selected[question.id];
         if (state.filter === "missed") return Boolean(state.missed[question.id]);
         if (state.filter === "bookmarked") return Boolean(state.bookmarked[question.id]);
         if (state.filter === "mastered") return Boolean(state.mastered[question.id]);
@@ -101,6 +128,10 @@ function answeredIds() {
     return new Set([...Object.keys(state.correct), ...Object.keys(state.missed)]);
 }
 
+function totalQuestionCount() {
+    return examPattern?.questionCount || questions.length || 24;
+}
+
 function computeExamResult() {
     const answered = answeredIds();
     const scored = { "法規": 0, "無線工学": 0 };
@@ -113,7 +144,7 @@ function computeExamResult() {
 
     const lawPassed = scored["法規"] >= 40;
     const engineeringPassed = scored["無線工学"] >= 40;
-    const allAnswered = answered.size >= 24;
+    const allAnswered = answered.size >= totalQuestionCount();
     const total = (scored["法規"] || 0) + (scored["無線工学"] || 0);
 
     return {
@@ -130,11 +161,15 @@ function computeExamResult() {
 
 function updateStats() {
     const result = computeExamResult();
+    const hideScores = state.examMode && !result.allAnswered;
 
-    dom.answered.textContent = `${result.answered.size}/24`;
-    dom.law.textContent = `${result.lawScore}/60`;
-    dom.engineering.textContent = `${result.engineeringScore}/60`;
+    dom.answered.textContent = `${result.answered.size}/${totalQuestionCount()}`;
+    dom.law.textContent = hideScores ? "--/60" : `${result.lawScore}/60`;
+    dom.engineering.textContent = hideScores ? "--/60" : `${result.engineeringScore}/60`;
     dom.result.textContent = result.allAnswered ? (result.passed ? "合格圏" : "復習") : "-";
+    if (dom.progressFill) {
+        dom.progressFill.style.width = `${Math.min(100, (result.answered.size / totalQuestionCount()) * 100)}%`;
+    }
 }
 
 function updateFilterButtons() {
@@ -142,17 +177,41 @@ function updateFilterButtons() {
         button.classList.toggle("is-active", button.dataset.filter === state.filter);
     });
     dom.shuffle.checked = state.shuffle;
+    dom.examMode.checked = state.examMode;
+    dom.autoNext.checked = state.autoNext;
+}
+
+function renderPalette() {
+    if (!dom.palette) return;
+    dom.palette.innerHTML = "";
+    order.forEach((question, index) => {
+        const button = document.createElement("button");
+        button.className = "palette-button";
+        button.type = "button";
+        button.textContent = question.officialQuestionNo || index + 1;
+        button.classList.toggle("is-current", index === state.current);
+        button.classList.toggle("is-correct", Boolean(state.correct[question.id]));
+        button.classList.toggle("is-wrong", Boolean(state.missed[question.id]));
+        button.classList.toggle("is-bookmarked", Boolean(state.bookmarked[question.id]));
+        button.addEventListener("click", () => {
+            state.current = index;
+            saveState();
+            renderQuestion();
+        });
+        dom.palette.appendChild(button);
+    });
 }
 
 function setChoiceClasses(question) {
     const selected = state.selected[question.id];
     const revealed = state.revealed[question.id];
+    const hideAnswer = state.examMode && !computeExamResult().allAnswered;
 
     Array.from(dom.choices.children).forEach((button) => {
         const value = button.dataset.choice;
-        button.classList.toggle("is-selected", value === selected && !revealed);
-        button.classList.toggle("is-correct", revealed && value === question.answer);
-        button.classList.toggle("is-wrong", revealed && value === selected && selected !== question.answer);
+        button.classList.toggle("is-selected", value === selected && (!revealed || hideAnswer));
+        button.classList.toggle("is-correct", !hideAnswer && revealed && value === question.answer);
+        button.classList.toggle("is-wrong", !hideAnswer && revealed && value === selected && selected !== question.answer);
     });
 }
 
@@ -171,6 +230,7 @@ function renderEmptyState() {
 function renderQuestion() {
     updateStats();
     updateFilterButtons();
+    renderPalette();
 
     const question = currentQuestion();
     if (!question) {
@@ -210,26 +270,66 @@ function renderQuestion() {
         dom.choices.appendChild(button);
     });
 
-    dom.answerPanel.hidden = !revealed;
+    const hideAnswer = state.examMode && !computeExamResult().allAnswered;
+    dom.answerPanel.hidden = !revealed || hideAnswer;
     dom.answerLine.textContent = answerChoice ? `正解: ${answerChoice.id}. ${answerChoice.text}` : `正解: ${question.answer}`;
     dom.explanation.textContent = question.explanation;
-    dom.reveal.textContent = revealed ? "解説を閉じる" : selected ? "採点する" : "解答を見る";
+    dom.reveal.disabled = hideAnswer;
+    dom.reveal.textContent = hideAnswer ? "結果発表まで非表示" : revealed ? "解説を閉じる" : selected ? "採点する" : "解答を見る";
     setChoiceClasses(question);
     announceResultIfComplete();
 }
 
-function renderResultDialog(result) {
+function formatTime(seconds) {
+    const safeSeconds = Math.max(0, Math.floor(seconds));
+    const minutes = Math.floor(safeSeconds / 60);
+    const rest = safeSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+}
+
+function elapsedSeconds() {
+    if (!state.startedAt) return 0;
+    const end = state.finishedAt || Date.now();
+    return Math.max(0, Math.floor((end - state.startedAt) / 1000));
+}
+
+function updateTimer() {
+    if (!dom.timer) return;
+    const limit = (examPattern?.timeLimitMinutes || 60) * 60;
+    const remaining = Math.max(0, limit - elapsedSeconds());
+    dom.timer.textContent = formatTime(remaining);
+    dom.timerBox?.classList.toggle("is-low", remaining > 0 && remaining <= 300);
+    if (remaining === 0 && !state.resultAnnounced && !computeExamResult().allAnswered) {
+        finishExam(true);
+    }
+}
+
+function startTimer() {
+    if (!state.startedAt) {
+        state.startedAt = Date.now();
+        saveState();
+    }
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+}
+
+function renderResultDialog(result, options = {}) {
     if (!dom.resultDialog) return;
 
     const missedQuestions = questions.filter((question) => state.missed[question.id]);
+    const incomplete = !result.allAnswered;
 
-    dom.resultTitle.textContent = result.passed ? "合格圏です" : "復習しましょう";
-    dom.resultLead.textContent = result.passed
+    dom.resultTitle.textContent = incomplete ? "途中結果です" : result.passed ? "合格圏です" : "復習しましょう";
+    dom.resultLead.textContent = incomplete
+        ? `未回答が${totalQuestionCount() - result.answered.size}問あります。今の回答だけで採点しています。`
+        : result.passed
         ? "1周完了。法規・無線工学ともに公式基準の40点以上に届いています。"
         : "1周完了。各科目40点以上が目安なので、間違えた問題をもう一度固めましょう。";
     dom.resultLaw.textContent = `${result.lawScore}/60`;
     dom.resultEngineering.textContent = `${result.engineeringScore}/60`;
     dom.resultTotal.textContent = `${result.total}/120`;
+    dom.resultTime.textContent = formatTime(elapsedSeconds());
 
     dom.resultMissedList.innerHTML = "";
     if (missedQuestions.length === 0) {
@@ -245,7 +345,66 @@ function renderResultDialog(result) {
     }
 
     dom.resultReview.disabled = missedQuestions.length === 0;
+    renderHistory();
     dom.resultDialog.hidden = false;
+    if (result.passed && !incomplete && !options.skipEffect) {
+        runResultEffect();
+    }
+}
+
+function renderHistory() {
+    if (!dom.resultHistoryList) return;
+    dom.resultHistoryList.innerHTML = "";
+    const history = state.resultHistory.slice(0, 5);
+    if (!history.length) {
+        const item = document.createElement("li");
+        item.textContent = "まだ記録はありません。";
+        dom.resultHistoryList.appendChild(item);
+        return;
+    }
+
+    history.forEach((entry) => {
+        const item = document.createElement("li");
+        const date = new Date(entry.at);
+        const label = document.createElement("span");
+        const score = document.createElement("strong");
+        label.textContent = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        score.textContent = `${entry.passed ? "合格圏" : "復習"} ${entry.total}/120`;
+        item.append(label, score);
+        dom.resultHistoryList.appendChild(item);
+    });
+}
+
+function recordResult(result) {
+    if (state.resultRecorded || !result.allAnswered) return;
+    state.finishedAt = state.finishedAt || Date.now();
+    state.resultRecorded = true;
+    state.resultHistory = [
+        {
+            at: state.finishedAt,
+            passed: result.passed,
+            lawScore: result.lawScore,
+            engineeringScore: result.engineeringScore,
+            total: result.total,
+            elapsedSeconds: elapsedSeconds()
+        },
+        ...state.resultHistory
+    ].slice(0, 10);
+    saveState();
+}
+
+function runResultEffect() {
+    const burst = document.getElementById("result-burst");
+    if (!burst) return;
+    burst.innerHTML = "";
+    const colors = ["#0f6a7a", "#1f8a5b", "#d84545", "#e2bd42", "#ffffff"];
+    for (let i = 0; i < 48; i += 1) {
+        const piece = document.createElement("span");
+        piece.style.setProperty("--x", `${Math.random() * 100}%`);
+        piece.style.setProperty("--d", `${Math.random() * 0.5}s`);
+        piece.style.setProperty("--c", colors[i % colors.length]);
+        burst.appendChild(piece);
+    }
 }
 
 function closeResultDialog() {
@@ -259,6 +418,7 @@ function announceResultIfComplete() {
     if (!result.allAnswered || state.resultAnnounced) return;
 
     state.resultAnnounced = true;
+    recordResult(result);
     saveState();
     renderResultDialog(result);
 }
@@ -273,8 +433,9 @@ function renderSourceNote() {
 }
 
 function selectChoice(question, choiceId) {
+    startTimer();
     state.selected[question.id] = choiceId;
-    state.revealed[question.id] = true;
+    state.revealed[question.id] = !state.examMode;
 
     if (choiceId === question.answer) {
         state.correct[question.id] = true;
@@ -286,6 +447,9 @@ function selectChoice(question, choiceId) {
 
     saveState();
     renderQuestion();
+    if (state.autoNext && !computeExamResult().allAnswered) {
+        setTimeout(() => move(1), 350);
+    }
 }
 
 function move(delta) {
@@ -298,6 +462,7 @@ function move(delta) {
 function revealAnswer() {
     const question = currentQuestion();
     if (!question) return;
+    if (state.examMode && !computeExamResult().allAnswered) return;
     state.revealed[question.id] = !state.revealed[question.id];
     saveState();
     renderQuestion();
@@ -328,10 +493,26 @@ function setFilter(filter) {
     renderQuestion();
 }
 
+function finishExam(fromTimer = false) {
+    const result = computeExamResult();
+    state.resultAnnounced = result.allAnswered || fromTimer;
+    if (fromTimer) {
+        state.finishedAt = state.finishedAt || Date.now();
+    }
+    if (result.allAnswered) {
+        recordResult(result);
+    }
+    saveState();
+    renderResultDialog(result, { skipEffect: fromTimer || !result.allAnswered });
+}
+
 function resetProgress() {
     const keepSettings = {
         filter: state.filter,
-        shuffle: state.shuffle
+        shuffle: state.shuffle,
+        resultHistory: state.resultHistory || [],
+        examMode: state.examMode,
+        autoNext: state.autoNext
     };
     state = {
         current: 0,
@@ -343,9 +524,16 @@ function resetProgress() {
         mastered: {},
         bookmarked: {},
         revealed: {},
-        resultAnnounced: false
+        resultAnnounced: false,
+        resultRecorded: false,
+        resultHistory: keepSettings.resultHistory,
+        examMode: keepSettings.examMode,
+        autoNext: keepSettings.autoNext,
+        startedAt: Date.now(),
+        finishedAt: null
     };
     rebuildOrder();
+    startTimer();
     renderQuestion();
 }
 
@@ -356,10 +544,25 @@ function bindEvents() {
     dom.bookmark.addEventListener("click", toggleBookmark);
     dom.master.addEventListener("click", toggleMastered);
     dom.reset.addEventListener("click", resetProgress);
+    dom.finish.addEventListener("click", () => finishExam(false));
     dom.resultClose.addEventListener("click", closeResultDialog);
+    dom.resultRetry.addEventListener("click", () => {
+        closeResultDialog();
+        resetProgress();
+    });
     dom.resultReview.addEventListener("click", () => {
         closeResultDialog();
         setFilter("missed");
+    });
+    dom.examMode.addEventListener("change", () => {
+        state.examMode = dom.examMode.checked;
+        saveState();
+        renderQuestion();
+    });
+    dom.autoNext.addEventListener("change", () => {
+        state.autoNext = dom.autoNext.checked;
+        saveState();
+        renderQuestion();
     });
     dom.shuffle.addEventListener("change", () => {
         state.shuffle = dom.shuffle.checked;
@@ -374,6 +577,7 @@ function bindEvents() {
         if (event.key === "ArrowLeft") move(-1);
         if (event.key === "ArrowRight") move(1);
         if (event.key === "Escape") closeResultDialog();
+        if (event.key.toLowerCase() === "r") finishExam(false);
         if (event.key === " ") {
             event.preventDefault();
             revealAnswer();
@@ -394,6 +598,7 @@ async function init() {
         officialSources = data.officialSources || [];
         rebuildOrder();
         renderSourceNote();
+        startTimer();
         renderQuestion();
     } catch (error) {
         dom.question.textContent = "questions.json を読み込めませんでした。GitHub Pages などのWebサーバー上で開いてください。";

@@ -37,9 +37,34 @@
             </div>
         </section>
 
+        <section class="exam-tools" aria-label="試験ツール">
+            <div class="timer-box">
+                <span>残り時間</span>
+                <strong id="timer-display">60:00</strong>
+            </div>
+            <div class="exam-switches">
+                <label class="toggle">
+                    <input id="exam-mode-toggle" type="checkbox">
+                    <span>模試モード</span>
+                </label>
+                <label class="toggle">
+                    <input id="auto-next-toggle" type="checkbox">
+                    <span>自動で次へ</span>
+                </label>
+            </div>
+            <button class="primary-button" id="finish-button" type="button">結果発表</button>
+        </section>
+
+        <div class="progress-track" aria-hidden="true">
+            <span id="progress-fill"></span>
+        </div>
+
+        <nav class="question-palette" id="question-palette" aria-label="問題番号"></nav>
+
         <nav class="controls" aria-label="出題モード">
             <div class="segmented" role="tablist" aria-label="問題フィルター">
                 <button class="segment is-active" data-filter="all" type="button">全問</button>
+                <button class="segment" data-filter="unanswered" type="button">未回答</button>
                 <button class="segment" data-filter="missed" type="button">苦手</button>
                 <button class="segment" data-filter="bookmarked" type="button">保存</button>
                 <button class="segment" data-filter="mastered" type="button">習得</button>
@@ -88,6 +113,7 @@
 
         <section class="result-dialog" id="result-dialog" aria-labelledby="result-title" aria-modal="true" role="dialog" hidden>
             <div class="result-card">
+                <div class="result-burst" id="result-burst" aria-hidden="true"></div>
                 <p class="eyebrow">結果発表</p>
                 <h2 id="result-title">1周完了</h2>
                 <p class="result-lead" id="result-lead"></p>
@@ -105,6 +131,10 @@
                         <span>総合</span>
                         <strong id="result-total">0/120</strong>
                     </div>
+                    <div>
+                        <span>所要時間</span>
+                        <strong id="result-time">00:00</strong>
+                    </div>
                 </div>
 
                 <div class="result-review">
@@ -112,8 +142,14 @@
                     <ul id="result-missed-list"></ul>
                 </div>
 
+                <div class="history-panel">
+                    <h3>最近の結果</h3>
+                    <ol id="result-history-list"></ol>
+                </div>
+
                 <div class="result-actions">
                     <button class="secondary-button" id="result-review-button" type="button">苦手だけ復習</button>
+                    <button class="secondary-button" id="result-retry-button" type="button">もう一周</button>
                     <button class="primary-button" id="result-close-button" type="button">閉じる</button>
                 </div>
             </div>
