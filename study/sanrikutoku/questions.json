@@ -1,0 +1,493 @@
+{
+  "title": "三陸特 公式例題ベース単語帳データ",
+  "description": "公益財団法人 日本無線協会が公開している第三級陸上特殊無線技士 CBT方式の国家試験例題を参照した学習データ。公式PDFは解答付き、当ページの解説は学習用に作成。",
+  "examPattern": {
+    "qualification": "第三級陸上特殊無線技士",
+    "method": "CBT方式",
+    "questionCount": 24,
+    "subjects": [
+      { "name": "法規", "count": 12, "pointsPerQuestion": 5, "maxScore": 60, "passingScore": 40 },
+      { "name": "無線工学", "count": 12, "pointsPerQuestion": 5, "maxScore": 60, "passingScore": 40 }
+    ],
+    "timeLimitMinutes": 60,
+    "officialSource": "https://www.nichimu.or.jp/kshiken/shiryou/index.html"
+  },
+  "officialSources": [
+    {
+      "id": "jri-cbt-examples",
+      "name": "公益財団法人 日本無線協会 CBT方式の国家試験の例題",
+      "url": "https://www.nichimu.or.jp/kshiken/siken/vcmsFolder_856/vcms_856.html",
+      "note": "第三級陸上特殊無線技士は法規 No.1-No.3、無線工学 No.1-No.3 が掲載。"
+    },
+    {
+      "id": "law-no1-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 法規 No.1",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf"
+    },
+    {
+      "id": "eng-no1-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 無線工学 No.1",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf"
+    },
+    {
+      "id": "law-no2-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 法規 No.2",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_02.pdf"
+    },
+    {
+      "id": "law-no3-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 法規 No.3",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_03.pdf"
+    },
+    {
+      "id": "eng-no2-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 無線工学 No.2",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_02.pdf"
+    },
+    {
+      "id": "eng-no3-202402",
+      "name": "第三級陸上特殊無線技士 試験問題例題 無線工学 No.3",
+      "published": "2024.02",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_03.pdf"
+    }
+  ],
+  "questions": [
+    {
+      "id": "law-no1-202402-q01",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 1,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "「無線局」の定義として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "無線設備及び無線設備の操作を行う者の総体をいう。ただし、受信のみを目的とするものを含まない。" },
+        { "id": "2", "text": "無線設備及び無線従事者の総体をいう。ただし、発射する電波が著しく微弱で総務省令で定めるものを含まない。" },
+        { "id": "3", "text": "無線設備及び無線設備の操作の監督を行う者の総体をいう。" },
+        { "id": "4", "text": "無線設備及び無線設備を管理する者の総体をいう。" }
+      ],
+      "answer": "1",
+      "explanation": "無線局は、無線設備とその操作を行う者を合わせた総体です。受信のみを目的とするものは含みません。"
+    },
+    {
+      "id": "law-no1-202402-q02",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 2,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人があらかじめ総務大臣の許可を受けなければならないのはどの場合か。",
+      "choices": [
+        { "id": "1", "text": "無線設備の設置場所を変更しようとするとき。" },
+        { "id": "2", "text": "無線局の運用を開始しようとするとき。" },
+        { "id": "3", "text": "無線局の運用を休止しようとするとき。" },
+        { "id": "4", "text": "無線局を廃止しようとするとき。" }
+      ],
+      "answer": "1",
+      "explanation": "無線設備の設置場所変更など、免許内容に関わる変更は原則として事前許可が必要です。"
+    },
+    {
+      "id": "law-no1-202402-q03",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 3,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "送信設備に使用する電波の質として、空欄に入る語句はどれか。",
+      "choices": [
+        { "id": "1", "text": "周波数の偏差及び幅" },
+        { "id": "2", "text": "空中線電力の偏差" },
+        { "id": "3", "text": "周波数の安定度" },
+        { "id": "4", "text": "変調度" }
+      ],
+      "answer": "1",
+      "explanation": "電波の質では、周波数の偏差及び幅、高調波の強度などが総務省令の基準に適合している必要があります。"
+    },
+    {
+      "id": "law-no1-202402-q04",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 4,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "「無線従事者」の定義として空欄に入る語句はどれか。",
+      "choices": [
+        { "id": "1", "text": "無線設備の操作又はその監督を行う者" },
+        { "id": "2", "text": "無線局に配置された者" },
+        { "id": "3", "text": "無線局を運用する者" },
+        { "id": "4", "text": "無線局を管理する者" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者とは、無線設備の操作又はその監督を行う者で、総務大臣の免許を受けたものです。"
+    },
+    {
+      "id": "law-no1-202402-q05",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 5,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "第三級陸上特殊無線技士が、陸上の無線局の1,215MHz以上の周波数を使用する一定の無線設備で、外部の転換装置の技術操作を行える空中線電力は何ワット以下か。",
+      "choices": [
+        { "id": "1", "text": "100ワット" },
+        { "id": "2", "text": "10ワット" },
+        { "id": "3", "text": "250ワット" },
+        { "id": "4", "text": "25ワット" }
+      ],
+      "answer": "1",
+      "explanation": "三陸特の操作範囲では、この条件の外部転換装置について空中線電力100W以下が問われています。"
+    },
+    {
+      "id": "law-no1-202402-q06",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 6,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線従事者は、その業務に従事しているとき、免許証をどのようにしていなければならないか。",
+      "choices": [
+        { "id": "1", "text": "携帯する。" },
+        { "id": "2", "text": "通信室内に保管する。" },
+        { "id": "3", "text": "通信室内の見やすい箇所に掲げる。" },
+        { "id": "4", "text": "無線局に備え付ける。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者は、業務に従事しているとき免許証を携帯する必要があります。"
+    },
+    {
+      "id": "law-no1-202402-q07",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 7,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局がなるべく擬似空中線回路を使用しなければならないのはどの場合か。",
+      "choices": [
+        { "id": "1", "text": "無線設備の機器の試験又は調整を行うために運用するとき。" },
+        { "id": "2", "text": "工事設計書に記載した空中線を使用できないとき。" },
+        { "id": "3", "text": "総務大臣の行う無線局の検査のために運用するとき。" },
+        { "id": "4", "text": "他の無線局の通信に混信を与えるおそれがあるとき。" }
+      ],
+      "answer": "1",
+      "explanation": "試験や調整で運用するときは、実際に電波を放射しない擬似空中線回路の使用が望まれます。"
+    },
+    {
+      "id": "law-no1-202402-q08",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 8,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "総務大臣は、無線局の発射する電波の質が基準に適合していないと認めるとき、どのような処分を行うことができるか。",
+      "choices": [
+        { "id": "1", "text": "臨時に電波の発射の停止を命ずる。" },
+        { "id": "2", "text": "空中線の撤去を命ずる。" },
+        { "id": "3", "text": "周波数又は空中線電力の指定を変更する。" },
+        { "id": "4", "text": "無線局の免許を取り消す。" }
+      ],
+      "answer": "1",
+      "explanation": "電波の質が基準に適合しない場合、総務大臣は臨時に電波の発射停止を命じることができます。"
+    },
+    {
+      "id": "law-no1-202402-q09",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 9,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人が電波法又は電波法に基づく命令に違反したとき、総務大臣が行うことができる処分はどれか。",
+      "choices": [
+        { "id": "1", "text": "無線局の運用の停止" },
+        { "id": "2", "text": "再免許の拒否" },
+        { "id": "3", "text": "通信の相手方又は通信事項の制限" },
+        { "id": "4", "text": "電波の型式の制限" }
+      ],
+      "answer": "1",
+      "explanation": "法令違反に対する処分として、無線局の運用停止などが定められています。"
+    },
+    {
+      "id": "law-no1-202402-q10",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 10,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "総務大臣から無線従事者がその免許を取り消されることがある場合に該当しないものはどれか。",
+      "choices": [
+        { "id": "1", "text": "引き続き5年以上無線設備の操作を行わなかったとき。" },
+        { "id": "2", "text": "著しく心身に欠陥があって無線従事者たるに適しない者に該当するに至ったとき。" },
+        { "id": "3", "text": "電波法若しくは電波法に基づく命令又はこれらに基づく処分に違反したとき。" },
+        { "id": "4", "text": "不正な手段により無線従事者の免許を受けたとき。" }
+      ],
+      "answer": "1",
+      "explanation": "一定期間操作していないこと自体は、この設問では免許取消し事由に該当しないものとして扱われます。"
+    },
+    {
+      "id": "law-no1-202402-q11",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 11,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人は、免許状に記載した事項に変更を生じたときは、どうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "免許状を総務大臣に提出し、訂正を受ける。" },
+        { "id": "2", "text": "総務大臣に免許状の再交付を申請する。" },
+        { "id": "3", "text": "遅滞なく、その旨を総務大臣に報告する。" },
+        { "id": "4", "text": "直ちに、その旨を総務大臣に届け出る。" }
+      ],
+      "answer": "1",
+      "explanation": "免許状の記載事項に変更が生じた場合は、免許状を提出して訂正を受けます。"
+    },
+    {
+      "id": "law-no1-202402-q12",
+      "source": "日本無線協会 公式CBT例題 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_E/3rikutoku_E_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 12,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人は、無線従事者を選任し、又は解任したときは、どうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "遅滞なく、その旨を総務大臣に届け出る。" },
+        { "id": "2", "text": "1箇月以内にその旨を総務大臣に報告する。" },
+        { "id": "3", "text": "2週間以内にその旨を総務大臣に届け出る。" },
+        { "id": "4", "text": "速やかに総務大臣の承認を受ける。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者の選任又は解任をしたときは、遅滞なく総務大臣へ届け出ます。"
+    },
+    {
+      "id": "eng-no1-202402-q13",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 13,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "電気に関する単位で、誤っているのはどれか。",
+      "choices": [
+        { "id": "1", "text": "電流〔A〕" },
+        { "id": "2", "text": "インダクタンス〔Wb〕" },
+        { "id": "3", "text": "静電容量〔F〕" },
+        { "id": "4", "text": "抵抗〔Ω〕" }
+      ],
+      "answer": "2",
+      "explanation": "インダクタンスの単位はヘンリ〔H〕です。Wbは磁束の単位です。"
+    },
+    {
+      "id": "eng-no1-202402-q14",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 14,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "電界効果トランジスタ（FET）の電極と一般の接合形トランジスタの電極の組合せで、その働きが対応しているのはどれか。",
+      "choices": [
+        { "id": "1", "text": "ドレイン - ベース" },
+        { "id": "2", "text": "ゲート - ベース" },
+        { "id": "3", "text": "ドレイン - エミッタ" },
+        { "id": "4", "text": "ソース - コレクタ" }
+      ],
+      "answer": "2",
+      "explanation": "FETのゲートは、接合形トランジスタのベースのように制御端子として働きます。"
+    },
+    {
+      "id": "eng-no1-202402-q15",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 15,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "三素子八木・宇田アンテナで、A<B<Cの長さ関係があるとき、A・B・Cの名称の組合せで正しいのはどれか。図は公式PDFを参照。",
+      "choices": [
+        { "id": "1", "text": "A:反射器 B:導波器 C:放射器" },
+        { "id": "2", "text": "A:反射器 B:放射器 C:導波器" },
+        { "id": "3", "text": "A:導波器 B:反射器 C:放射器" },
+        { "id": "4", "text": "A:導波器 B:放射器 C:反射器" }
+      ],
+      "answer": "4",
+      "explanation": "八木アンテナでは一般に導波器が短く、放射器が中間、反射器が長くなります。A<B<CならAが導波器、Bが放射器、Cが反射器です。"
+    },
+    {
+      "id": "eng-no1-202402-q16",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 16,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "短波（HF）と比べたときの超短波（VHF）の伝わり方として、最も適切なものはどれか。",
+      "choices": [
+        { "id": "1", "text": "見通し距離外の通信に適する。" },
+        { "id": "2", "text": "太陽の紫外線による影響を受ける。" },
+        { "id": "3", "text": "昼間と夜間では、電波の伝わり方が異なる。" },
+        { "id": "4", "text": "通常、電離層を突き抜けてしまう。" }
+      ],
+      "answer": "4",
+      "explanation": "VHFは電離層反射による長距離伝搬よりも見通し内通信が中心で、通常は電離層を突き抜けやすい性質があります。"
+    },
+    {
+      "id": "eng-no1-202402-q17",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 17,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "機器に用いる電源ヒューズの電流値は、機器の規格電流に比べて、どのような値のものが最も適切か。",
+      "choices": [
+        { "id": "1", "text": "少し小さい値" },
+        { "id": "2", "text": "十分小さい値" },
+        { "id": "3", "text": "少し大きい値" },
+        { "id": "4", "text": "十分大きい値" }
+      ],
+      "answer": "3",
+      "explanation": "通常動作で切れず、異常時には保護できるよう、規格電流より少し大きい値が適切です。"
+    },
+    {
+      "id": "eng-no1-202402-q18",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 18,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "抵抗Rに流れる電流を測定するときの電流計Aのつなぎ方として、正しい接続図はどれか。図は公式PDFを参照。",
+      "choices": [
+        { "id": "1", "text": "接続図1" },
+        { "id": "2", "text": "接続図2" },
+        { "id": "3", "text": "接続図3" },
+        { "id": "4", "text": "接続図4" }
+      ],
+      "answer": "2",
+      "explanation": "電流計は測りたい負荷と直列に接続します。公式図では2が正しい接続です。"
+    },
+    {
+      "id": "eng-no1-202402-q19",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 19,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "振幅変調（A3E）波と比べたときの周波数変調（F3E）波の占有周波数帯幅の一般的な特徴はどれか。",
+      "choices": [
+        { "id": "1", "text": "広い" },
+        { "id": "2", "text": "狭い" },
+        { "id": "3", "text": "同じ" },
+        { "id": "4", "text": "半分" }
+      ],
+      "answer": "1",
+      "explanation": "一般にFM波はAM波より広い占有周波数帯幅を必要とします。"
+    },
+    {
+      "id": "eng-no1-202402-q20",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 20,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "アナログ通信方式と比べたときのデジタル通信方式の一般的な特徴として、誤っているのはどれか。",
+      "choices": [
+        { "id": "1", "text": "ネットワークやコンピュータとの親和性がよい。" },
+        { "id": "2", "text": "信号処理による遅延が生じる。" },
+        { "id": "3", "text": "雑音の影響を受けやすい。" },
+        { "id": "4", "text": "受信側で誤り訂正を行うことができる。" }
+      ],
+      "answer": "3",
+      "explanation": "デジタル通信は誤り訂正などにより、一般に雑音に強くできる点が特徴です。"
+    },
+    {
+      "id": "eng-no1-202402-q21",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 21,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "FDMAは、個々のユーザに使用チャネルとして何を個別に割り当てる方式か。",
+      "choices": [
+        { "id": "1", "text": "極めて短い時間" },
+        { "id": "2", "text": "拡散符号" },
+        { "id": "3", "text": "変調方式" },
+        { "id": "4", "text": "周波数" }
+      ],
+      "answer": "4",
+      "explanation": "FDMAはFrequency Division Multiple Accessで、ユーザごとに周波数チャネルを割り当てる方式です。"
+    },
+    {
+      "id": "eng-no1-202402-q22",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 22,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "入力信号の0又は1によって、搬送波の位相のみを変化させる方式を何というか。",
+      "choices": [
+        { "id": "1", "text": "ASK" },
+        { "id": "2", "text": "FSK" },
+        { "id": "3", "text": "QAM" },
+        { "id": "4", "text": "PSK" }
+      ],
+      "answer": "4",
+      "explanation": "PSKはPhase Shift Keyingで、搬送波の位相を変化させるデジタル変調方式です。"
+    },
+    {
+      "id": "eng-no1-202402-q23",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 23,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "送信された信号を受信し、受信機の出力側で元の信号がどれだけ忠実に再現できるかという能力はどれか。",
+      "choices": [
+        { "id": "1", "text": "忠実度" },
+        { "id": "2", "text": "安定度" },
+        { "id": "3", "text": "選択度" },
+        { "id": "4", "text": "感度" }
+      ],
+      "answer": "1",
+      "explanation": "元の信号をどれだけ忠実に再現できるかを表す受信機性能は忠実度です。"
+    },
+    {
+      "id": "eng-no1-202402-q24",
+      "source": "日本無線協会 公式CBT例題 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/3rikutoku_A/3rikutoku_A_01.pdf",
+      "published": "2024.02",
+      "officialQuestionNo": 24,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "FM（F3E）送受信機において、電波が発射されるのはどれか。",
+      "choices": [
+        { "id": "1", "text": "電源スイッチを接（ON）にしたとき。" },
+        { "id": "2", "text": "スケルチを動作させたとき。" },
+        { "id": "3", "text": "プレストークボタンを離したとき。" },
+        { "id": "4", "text": "プレストークボタンを押したとき。" }
+      ],
+      "answer": "4",
+      "explanation": "送信はプレストークボタンを押している間に行われ、電波が発射されます。"
+    }
+  ]
+}

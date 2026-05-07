@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三陸特 過去問単語帳</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">第三級陸上特殊無線技士</p>
+                <h1>三陸特 過去問単語帳</h1>
+            </div>
+            <button class="ghost-button" id="reset-button" type="button">進捗リセット</button>
+        </header>
+
+        <section class="stats-grid" aria-label="学習状況">
+            <div class="stat-box">
+                <span class="stat-label">回答数</span>
+                <strong id="stat-answered">0</strong>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">法規</span>
+                <strong id="stat-law">0/60</strong>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">無線工学</span>
+                <strong id="stat-engineering">0/60</strong>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">判定</span>
+                <strong id="stat-result">-</strong>
+            </div>
+        </section>
+
+        <nav class="controls" aria-label="出題モード">
+            <div class="segmented" role="tablist" aria-label="問題フィルター">
+                <button class="segment is-active" data-filter="all" type="button">全問</button>
+                <button class="segment" data-filter="missed" type="button">苦手</button>
+                <button class="segment" data-filter="bookmarked" type="button">保存</button>
+                <button class="segment" data-filter="mastered" type="button">習得</button>
+            </div>
+            <label class="toggle">
+                <input id="shuffle-toggle" type="checkbox">
+                <span>ランダム</span>
+            </label>
+        </nav>
+
+        <section class="study-card" aria-live="polite">
+            <div class="card-meta">
+                <span id="source-label">読み込み中</span>
+                <span id="counter-label">0 / 0</span>
+            </div>
+
+            <div class="subject-row">
+                <span class="subject-pill" id="subject-label">-</span>
+                <button class="icon-button" id="bookmark-button" type="button" aria-label="ブックマーク">☆</button>
+            </div>
+
+            <h2 id="question-text">問題データを読み込んでいます。</h2>
+
+            <div class="choices" id="choices"></div>
+
+            <section class="answer-panel" id="answer-panel" hidden>
+                <p class="answer-line" id="answer-line"></p>
+                <p id="explanation-text"></p>
+            </section>
+
+            <div class="action-row">
+                <button class="secondary-button" id="prev-button" type="button">前へ</button>
+                <button class="primary-button" id="reveal-button" type="button">解答を見る</button>
+                <button class="secondary-button" id="next-button" type="button">次へ</button>
+            </div>
+
+            <div class="master-row">
+                <button class="ghost-button" id="master-button" type="button">習得済みにする</button>
+            </div>
+        </section>
+
+        <section class="data-note">
+            <h2>公式出典</h2>
+            <p id="source-note">問題データは <code>questions.json</code> で管理しています。日本無線協会のCBT例題を参照し、各カードに掲載年月・PDF URL・公式問題番号を記録しています。</p>
+        </section>
+
+        <section class="result-dialog" id="result-dialog" aria-labelledby="result-title" aria-modal="true" role="dialog" hidden>
+            <div class="result-card">
+                <p class="eyebrow">結果発表</p>
+                <h2 id="result-title">1周完了</h2>
+                <p class="result-lead" id="result-lead"></p>
+
+                <div class="result-score-grid">
+                    <div>
+                        <span>法規</span>
+                        <strong id="result-law">0/60</strong>
+                    </div>
+                    <div>
+                        <span>無線工学</span>
+                        <strong id="result-engineering">0/60</strong>
+                    </div>
+                    <div>
+                        <span>総合</span>
+                        <strong id="result-total">0/120</strong>
+                    </div>
+                </div>
+
+                <div class="result-review">
+                    <h3>復習リスト</h3>
+                    <ul id="result-missed-list"></ul>
+                </div>
+
+                <div class="result-actions">
+                    <button class="secondary-button" id="result-review-button" type="button">苦手だけ復習</button>
+                    <button class="primary-button" id="result-close-button" type="button">閉じる</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js" defer></script>
+</body>
+
+</html>
