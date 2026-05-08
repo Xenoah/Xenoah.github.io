@@ -4,7 +4,7 @@ This site uses GitHub Pages and Jekyll for the blog.
 
 ## Write a post
 
-Open `/blog/editor.html`, write the article in Markdown, then create one folder per article:
+Open `/blog/editor.html`, write the article in Markdown, then export one folder per article:
 
 ```text
 blog/articles/YYYY-MM-DD-slug/
@@ -12,11 +12,23 @@ blog/articles/YYYY-MM-DD-slug/
 └─ image.png
 ```
 
-Put the whole folder under `blog/articles`. GitHub Pages will build `index.md` as a blog article.
+Use `画像込みZIPを書き出し` to download a ZIP that contains `index.md` and selected images. Extract the ZIP, then put the extracted folder under `blog/articles`. GitHub Pages will build `index.md` as a blog article.
 
 The editor saves drafts in the browser automatically. Drafts are local only and are not published.
 
 The old `_posts/YYYY-MM-DD-slug.md` style still works, but article folders are recommended for image-heavy posts.
+
+## Editor Features
+
+- Export an article folder ZIP containing `index.md` and images.
+- Save directly to a local folder when the browser supports the File System Access API.
+- Manage multiple images and insert Markdown image tags.
+- Set an image as the eyecatch / OGP image.
+- Convert pasted HTML to Markdown without running scripts.
+- Import an existing `index.md`.
+- Preview the full article, including title, description, tags, eyecatch, and body.
+- Check basic publishing requirements before export.
+- Copy the public URL and folder tree.
 
 ## Folder Article
 
@@ -57,6 +69,23 @@ Reference them from Markdown like this:
 ```
 
 The editor can preview a local image, insert the Markdown image tag, set it as the eyecatch, and download the image with a clean filename. After export, place the image file next to `index.md`. If you use the GitHub upload button, the selected image is uploaded to the same article folder.
+
+## HTML Conversion
+
+Paste HTML into the converter panel in `/blog/editor.html`.
+
+The converter supports common article HTML:
+
+- headings
+- paragraphs and line breaks
+- links and images
+- unordered and ordered lists
+- blockquotes
+- code blocks
+- tables
+- figure captions
+
+After conversion, use the article preview to check visual layout before exporting.
 
 ## Public pages
 

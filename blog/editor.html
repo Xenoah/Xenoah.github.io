@@ -7,7 +7,7 @@ permalink: /blog/editor.html
 <section class="blog-index-head">
   <div>
     <p class="section-label">Markdown Editor</p>
-    <h1>記事フォルダを作って、置くだけで公開。</h1>
+    <h1>記事フォルダごと書き出して、置くだけで公開。</h1>
     <p>`blog/articles/YYYY-MM-DD-slug/` に `index.md` と画像をまとめると、GitHub Pagesが自動でブログ記事として表示します。</p>
   </div>
 </section>
@@ -15,15 +15,15 @@ permalink: /blog/editor.html
 <section class="editor-guide" aria-label="Publish flow">
   <div>
     <strong>1. 書く</strong>
-    <span>本文とSEO設定を入力。下書きは自動保存されます。</span>
+    <span>Markdown、HTML変換、画像管理をこの画面でまとめます。</span>
   </div>
   <div>
-    <strong>2. 書き出す</strong>
-    <span>`index.md` と画像をダウンロードします。</span>
+    <strong>2. フォルダ出力</strong>
+    <span>`index.md` と画像入りの記事フォルダZIPを書き出します。</span>
   </div>
   <div>
-    <strong>3. 置く</strong>
-    <span>記事フォルダを `blog/articles` に配置します。</span>
+    <strong>3. 配置</strong>
+    <span>解凍した記事フォルダを `blog/articles` に置くと公開されます。</span>
   </div>
 </section>
 
@@ -55,7 +55,7 @@ permalink: /blog/editor.html
       </div>
       <div class="field">
         <label for="image">アイキャッチ画像パス</label>
-        <input id="image" type="text" placeholder="/blog/images/example.png">
+        <input id="image" type="text" placeholder="/blog/articles/YYYY-MM-DD-slug/cover.png">
       </div>
       <div class="output-box">
         <span>記事フォルダ</span>
@@ -63,10 +63,18 @@ permalink: /blog/editor.html
         <span>Markdown配置先</span>
         <code id="postPath">blog/articles/YYYY-MM-DD-slug/index.md</code>
       </div>
-      <div class="button-row">
-        <button class="tool-button" id="downloadBtn" type="button">Markdownを書き出し</button>
-        <button class="tool-button secondary" id="copyBtn" type="button">全文コピー</button>
+      <div class="stats-grid" aria-label="Article stats">
+        <div><strong id="charCount">0</strong><span>文字</span></div>
+        <div><strong id="imageCount">0</strong><span>画像</span></div>
+        <div><strong id="readTime">1</strong><span>分</span></div>
       </div>
+      <div class="button-row stack">
+        <button class="tool-button" id="exportFolderBtn" type="button">画像込みZIPを書き出し</button>
+        <button class="tool-button secondary" id="saveFolderBtn" type="button">フォルダへ保存</button>
+        <button class="ghost-button" id="downloadBtn" type="button">index.mdだけ書き出し</button>
+        <button class="ghost-button" id="copyBtn" type="button">Markdown全文コピー</button>
+      </div>
+      <p class="help-text">標準はZIP出力です。対応ブラウザでは「フォルダへ保存」も使えます。</p>
       <p class="status" id="exportStatus"></p>
     </div>
   </aside>
@@ -82,6 +90,7 @@ permalink: /blog/editor.html
       <button class="tool-button secondary" type="button" data-wrap="**">太字</button>
       <button class="tool-button secondary" type="button" data-wrap="`">コード</button>
       <button class="tool-button secondary" type="button" data-insert="- 箇条書き">リスト</button>
+      <button class="tool-button secondary" type="button" data-insert="1. 番号付き">番号</button>
       <button class="tool-button secondary" type="button" data-insert="[リンク](https://example.com)">リンク</button>
       <button class="tool-button secondary" type="button" data-insert="> 引用">引用</button>
       <button class="tool-button secondary" type="button" data-codeblock="true">コードブロック</button>
@@ -92,20 +101,24 @@ permalink: /blog/editor.html
 
 - Markdownで書けます
 - 下書きはこのブラウザに自動保存されます
-- `index.md` と画像を同じ記事フォルダに入れると記事になります
+- ZIPを書き出すと、`index.md` と画像が記事フォルダにまとまります
 
-画像は右側の画像パネルから挿入できます。</textarea>
+画像は右側の画像パネルから複数追加できます。</textarea>
   </section>
 
   <aside class="panel">
     <div class="panel-head">
-      <h2>下書き</h2>
+      <h2>下書き / 読み込み</h2>
     </div>
     <div class="panel-body">
       <div class="button-row stack">
         <button class="tool-button" id="saveDraftBtn" type="button">今すぐ保存</button>
         <button class="tool-button secondary" id="loadDraftBtn" type="button">下書きを復元</button>
         <button class="ghost-button" id="clearDraftBtn" type="button">下書きを削除</button>
+      </div>
+      <div class="field file-field">
+        <label for="importMdFile">既存index.mdを読み込み</label>
+        <input id="importMdFile" type="file" accept=".md,.markdown,text/markdown,text/plain">
       </div>
       <p class="help-text">下書きはブラウザのlocalStorageに保存されます。公開はされません。</p>
       <p class="status" id="draftStatus"></p>
@@ -117,32 +130,47 @@ permalink: /blog/editor.html
       <h2>画像</h2>
     </div>
     <div class="panel-body">
-      <div class="field">
-        <label for="imageFile">画像ファイル</label>
-        <input id="imageFile" type="file" accept="image/*">
+      <div class="field file-field">
+        <label for="imageFiles">画像ファイル 複数可</label>
+        <input id="imageFiles" type="file" accept="image/*" multiple>
       </div>
-      <div class="image-preview" id="imagePreview">
-        <span>画像を選ぶとプレビューします</span>
+      <div class="asset-list" id="assetList">
+        <p class="empty-state">画像を選ぶとここに並びます。</p>
       </div>
+      <p class="help-text">画像はZIP内で `index.md` と同じ記事フォルダに入ります。本文には `/blog/articles/.../image.png` の形で挿入されます。</p>
+      <p class="status" id="imageStatus"></p>
+    </div>
+  </aside>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>HTMLから変換</h2>
+    </div>
+    <div class="panel-body">
       <div class="field">
-        <label for="imageFolder">配置フォルダー</label>
-        <input id="imageFolder" type="text" value="/blog/articles/YYYY-MM-DD-slug/">
-      </div>
-      <div class="field">
-        <label for="imageName">保存ファイル名</label>
-        <input id="imageName" type="text" placeholder="example.png">
-      </div>
-      <div class="field">
-        <label for="imageAlt">代替テキスト</label>
-        <input id="imageAlt" type="text" placeholder="画像の説明">
+        <label for="htmlInput">HTMLを貼り付け</label>
+        <textarea id="htmlInput" class="html-input" placeholder="<h2>見出し</h2><p>本文...</p>"></textarea>
       </div>
       <div class="button-row stack">
-        <button class="tool-button" id="insertImageBtn" type="button">本文へ画像を挿入</button>
-        <button class="tool-button secondary" id="setCoverBtn" type="button">アイキャッチにする</button>
-        <button class="ghost-button" id="downloadImageBtn" type="button">画像を書き出し</button>
+        <button class="tool-button" id="convertHtmlReplaceBtn" type="button">Markdownへ変換して置き換え</button>
+        <button class="tool-button secondary" id="convertHtmlAppendBtn" type="button">変換して末尾へ追加</button>
       </div>
-      <p class="help-text">画像を書き出したら、`index.md` と同じ記事フォルダへ配置してください。</p>
-      <p class="status" id="imageStatus"></p>
+      <p class="help-text">見出し、段落、リンク、画像、リスト、引用、コード、表をMarkdownへ変換します。script/styleは除去します。</p>
+      <p class="status" id="htmlStatus"></p>
+    </div>
+  </aside>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>公開前チェック</h2>
+    </div>
+    <div class="panel-body">
+      <ul class="check-list" id="publishChecklist"></ul>
+      <div class="button-row stack">
+        <button class="ghost-button" id="copyPermalinkBtn" type="button">公開URLをコピー</button>
+        <button class="ghost-button" id="copyTreeBtn" type="button">フォルダ構成をコピー</button>
+      </div>
+      <p class="status" id="checkStatus"></p>
     </div>
   </aside>
 
@@ -168,19 +196,20 @@ permalink: /blog/editor.html
         <input id="token" type="password" autocomplete="off" placeholder="github_pat_...">
       </div>
       <div class="button-row stack">
-        <button class="tool-button" id="uploadBtn" type="button">index.mdをアップロード</button>
+        <button class="tool-button" id="uploadBtn" type="button">記事フォルダをアップロード</button>
         <button class="ghost-button" id="saveTokenBtn" type="button">Token保存</button>
       </div>
-      <p class="help-text">手動配置だけで運用できます。画像を選択中なら、直接アップロード時に同じ記事フォルダへ送ります。</p>
+      <p class="help-text">手動配置だけで運用できます。直接アップロードは `index.md` と選択中の画像を同じ記事フォルダへ送ります。</p>
       <p class="status" id="uploadStatus"></p>
     </div>
   </aside>
 
   <section class="panel preview-panel">
-    <div class="panel-head">
-      <h2>プレビュー</h2>
+    <div class="panel-head panel-head-row">
+      <h2>記事プレビュー</h2>
+      <span class="mini-status" id="previewStatus">自動更新</span>
     </div>
-    <div id="preview" class="preview article-body"></div>
+    <div id="preview" class="preview article-preview"></div>
   </section>
 </div>
 
