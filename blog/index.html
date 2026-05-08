@@ -1,49 +1,64 @@
----
-layout: blog
-title: Blog
-description: Xenoahの制作、学び、VRChat、電子工作、プログラミングの記事一覧。
-permalink: /blog/
----
-<section class="blog-index-head">
-  <div>
-    <p class="section-label">Xenoah Journal</p>
-    <h1>作ったもの、学んだこと、考えたこと。</h1>
-    <p>制作、VRChat、電子工作、プログラミング、学び直しの記録。</p>
-  </div>
-  <aside class="blog-index-meta" aria-label="Blog summary">
-    {% assign folder_articles = site.pages | where: "blog_article", true %}
-    {% assign all_articles = site.posts | concat: folder_articles | sort: "date" | reverse %}
-    <span>{{ all_articles.size }}</span>
-    <small>Articles</small>
-  </aside>
-</section>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | Xenoahのホームページ</title>
+  <meta name="description" content="Xenoahの制作、学び、VRChat、電子工作、プログラミングの記事一覧。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://xenoah.github.io/blog/">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/blog/assets/blog.css">
+</head>
+<body>
+  <header class="blog-header">
+    <a class="brand" href="/blog/" aria-label="Blog home">
+      <img src="/file_index/xenoah_banner.png" alt="Xenoah">
+    </a>
+    <nav class="blog-nav" aria-label="Blog navigation">
+      <a href="/blog/">Articles</a>
+      <a href="/blog/editor.html">Editor</a>
+      <a href="/top.htm">Home</a>
+    </nav>
+  </header>
+  <main class="blog-shell">
+    <section class="blog-index-head">
+      <div>
+        <p class="section-label">Xenoah Journal</p>
+        <h1>作ったもの、学んだこと、考えたこと。</h1>
+        <p>制作、VRChat、電子工作、プログラミング、学び直しの記録。</p>
+      </div>
+      <aside class="blog-index-meta" aria-label="Blog summary">
+        <span>2</span>
+        <small>Articles</small>
+      </aside>
+    </section>
+    <section class="post-list" aria-label="Articles">
 
-<section class="post-list" aria-label="Articles">
-  {% if all_articles.size > 0 %}
-    {% for post in all_articles %}
       <article class="post-card">
-        <a href="{{ post.url | relative_url }}">
-          {% if post.image %}
-          <span class="post-card-image">
-            <img src="{{ post.image | relative_url }}" alt="" loading="lazy">
-          </span>
-          {% else %}
-          <span class="post-card-image post-card-image-empty" aria-hidden="true"></span>
-          {% endif %}
+        <a href="/blog/2026/05/08/blog-start/">
+          <span class="post-card-image"><img src="/blog/articles/2026-05-08-blog-start/cover.svg" alt="" loading="lazy"></span>
           <span class="post-card-body">
-            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
-            <h2>{{ post.title }}</h2>
-            <p>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}</p>
-            {% if post.tags %}
-            <span class="post-tags">
-              {% for tag in post.tags %}#{{ tag }}{% unless forloop.last %} {% endunless %}{% endfor %}
-            </span>
-            {% endif %}
+            <time datetime="2026-05-08">2026.05.08</time>
+            <h2>ブログ機能を追加しました</h2>
+            <p>Markdownで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。</p>
+            <span class="post-tags">#blog #update</span>
           </span>
         </a>
       </article>
-    {% endfor %}
-  {% else %}
-    <p class="empty-state">まだ記事がありません。</p>
-  {% endif %}
-</section>
+
+      <article class="post-card">
+        <a href="/blog/2026/05/05/vrchat/">
+          <span class="post-card-image"><img src="/blog/articles/2026-05-05-vrchat/rectangle_large_type_2_3d84719b611df8c4aa030251d20f4347.png" alt="" loading="lazy"></span>
+          <span class="post-card-body">
+            <time datetime="2026-05-05">2026.05.05</time>
+            <h2>VRChatは私をどう変えたか?振り返った</h2>
+            <p>VRChatは、私にとって使い手次第の認識拡大ツールである。出会い、創作、学び、居場所、そして危うさまで振り返る。</p>
+            <span class="post-tags">#VRChat #VR #essay #metaverse</span>
+          </span>
+        </a>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

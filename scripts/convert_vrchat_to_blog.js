@@ -20,6 +20,7 @@ body = body.replace(/^[\s\S]*?<a class="profile-link"/, '<a class="profile-link"
 body = body.replace(/\s*<p class="back-link">[\s\S]*?<\/p>\s*$/, "\n");
 
 const srcs = new Set();
+srcs.add("images_vrchat/rectangle_large_type_2_3d84719b611df8c4aa030251d20f4347.png");
 for (const match of body.matchAll(/src="([^"]+)"|url\(['"]?([^'")]+)['"]?\)/g)) {
   const value = match[1] || match[2];
   if (value && (value.startsWith("images_vrchat/") || value.startsWith("images_links/"))) {
