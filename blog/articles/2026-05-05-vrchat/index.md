@@ -1,0 +1,285 @@
+---
+layout: post
+blog_article: true
+title: "VRChatは私をどう変えたか?振り返った"
+date: 2026-05-05
+description: "VRChatは、私にとって使い手次第の認識拡大ツールである。出会い、創作、学び、居場所、そして危うさまで振り返る。"
+permalink: /blog/2026/05/05/vrchat/
+image: "/blog/articles/2026-05-05-vrchat/rectangle_large_type_2_3d84719b611df8c4aa030251d20f4347.png"
+tags:
+  - VRChat
+  - VR
+  - essay
+  - metaverse
+---
+
+<p class="source-note">この記事は既存ページ <a href="/vrchat.htm">vrchat.htm</a> をブログ記事として再構成したものです。元ページはそのまま残しています。</p>
+
+<a class="profile-link" href="https://vrchat.com/home/user/Noah-JP" target="_blank" rel="noopener noreferrer">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/profile-logo_vrchat_square.png" alt="">
+        VRChatプロフィールを開く
+    </a>
+
+    <h2>私にとってのVRChat</h2>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777895113-R3V2gjTrL4SzWxOYMckXyDGi.png" alt="">
+        <figcaption>2024/06/23@日本人向け 1対1お話しワールド NAGiSA ［JP］ アバター：2A-7カスタム</figcaption>
+    </figure>
+
+    <h3>使い手次第では化けるゲーム</h3>
+    <p>VRChatは、私にとって「<strong>使い手次第の認識拡大ツール</strong>」である。</p>
+    <p>ただのゲームでも、ただのSNSでも、ただの現実逃避でもない。人と出会い、創作し、学び、自分の知らなかった価値観や文化に接続できる場所だ。</p>
+    <p>一方で、使い方を誤れば、生活リズムを崩し、人間関係に飲まれ、現実から目をそらす場所にもなる。</p>
+    <p>だからこそ、VRChatは面白い。<br>危うさごと含めて、かなり強烈な場所だと思っている。<br>ここでは"私のVRChat"について触れていこう。</p>
+    <p>(お断り)<br>サムネとタイトルについて。VRChatは時間を溶かすという意味で恐ろしいと表現しております。</p>
+
+    <h2>自己紹介</h2>
+    <h3>始めまして。Xenoahです。</h3>
+    <p>読み方は「ぜのあ」です。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777892356-VjDsKrOPY7JEQabGo12ZfgHX.png" alt="">
+        <figcaption>2025/12/14作成</figcaption>
+    </figure>
+    <p>名前でよく間違われるがわたしゃ日本人だよ。<br>この名前になる前は「Noah-JP」。しかし<br>ノアさんがたくさんおり、間違われる為に2025年初頭改名、今に至る。</p>
+
+    <h2>VRChat歴</h2>
+    <h3>それまでのVRゲーム歴</h3>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777886385-ENk9qbIK6nht3TwFHa2UvoPi.png" alt="">
+    </figure>
+    <p>もともと、BeatSaberを遊びたくてQuest2を買った。<br>それからいくつかVRゲームをやっていた中に<br><strong>VRChatが居た</strong>だけだったのだ。</p>
+    <figure class="small-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/picture_pc_d477bc61dd7990284ff5a954680cd317.gif" alt="">
+        <figcaption>Beat Saber(撮影日:2020/12/19)</figcaption>
+    </figure>
+    <figure class="small-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/picture_pc_e1fe146d23ff441cc01ffa7d5942e320.gif" alt="">
+        <figcaption>Echo VR(撮影日:2021/01/03)</figcaption>
+    </figure>
+    <figure class="small-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/picture_pc_5e2feb0f2afae4380c80d1b95dd0c493.gif" alt="">
+        <figcaption>Eleven Table Tennis(撮影日:2022/06/08)</figcaption>
+    </figure>
+    <figure class="small-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/picture_pc_41d558c542f75496f04f2d4e1c627572.gif" alt="">
+        <figcaption>Premium Bowling (撮影日:2022/08/23)</figcaption>
+    </figure>
+
+    <h3>VRChatとの出会い</h3>
+    <p>当時のVRChatプレイ動画が見つからなかったので省略</p>
+    <p>VRChat歴だけでいうと、もう5年になる。初回起動は2020年12月(だったと思う)。<br><s>別にマウント取ろうとしているわけじゃない。</s><br>観測した限りSteamリリースした2017年から遊んでいる猛者もいるので古参ではない。とだけ言っておく。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777883360-EYpGCZzvQoU2PjkR36qM14yT.png" alt="">
+        <figcaption>2026/05/04現在少なくとも5年以上は遊んでいる証拠</figcaption>
+    </figure>
+    <p>VRChatを始めたきっかけは単純だった。Quest 2を買い、ストアで適当に遊べそうなゲームを探していたら、たまたまVRChatにたどり着いた。</p>
+    <p>最初から「メタバースで交流したい」とか「アバター文化に触れたい」と思っていたわけではない。VRで何ができるのかを探っていたら、目の前に現れた。それだけだった。</p>
+
+    <h3>言語が通じないファーストコンタクト</h3>
+    <p>しかし、初めて入ったVRChatの印象はかなり強烈だった。</p>
+    <p>日本人がいない。<br>無法地帯。<br>蚊帳の外。<br>怖い。</p>
+    <p>始めて入ったホームワールドは…誰もいねぇ!!!<br>適当にポチポチ触って入ったのが「<a href="https://vrchat.com/home/world/wrld_4cf554b4-430c-4f8f-b53e-1f294eed230b" target="_blank" rel="noopener nofollow">The Black Cat</a>」日本人ﾄﾞｺ!?<br>検索して入った「<a href="https://vrchat.com/home/world/wrld_736bad27-4663-4346-a345-26e1e859d94e" target="_blank" rel="noopener nofollow">Japan Shrine</a>」「<a href="https://vrchat.com/home/world/wrld_bf51e60f-f372-48b1-a757-88ba8331d926" target="_blank" rel="noopener nofollow">［JP］Tutorial world</a>」日本人いない!!!<br>そんな感じだったと思う(はっきり覚えていない)</p>
+    <div class="embed">
+        <iframe src="https://www.youtube.com/embed/_zW-6VN1NFc?rel=0" title="YouTube video" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <p>知らない言語、知らないノリ、知らない人たちの中に放り込まれた感覚があった。自由な場所というより、ルールの分からない異国の路地裏に迷い込んだようだった。<br><strong>GOOGLE TRANSLATER IS MY WAIFU!</strong></p>
+    <p>正直、その時点では「これは自分の居場所ではないかもしれない」と思った。</p>
+    <p>それからもちょくちょく入ってはいたが、しばらくしてVRChatから離れることになった。</p>
+
+    <h3>再開のきっかけは、YouTubeだった</h3>
+    <p>転機になったのは、2024年1月ぐらいに見たYouTube配信だった。</p>
+    <div class="embed">
+        <iframe src="https://www.youtube.com/embed/7-osyOY-III?rel=0" title="YouTube video" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <p>「ジェネリック紅茶系マルチリンガルYouTuber」と呼びたい配信者が、世界中の人たちと楽しそうに会話していた。</p>
+    <p>日本人らしき人が、英語圏の人たちと自然に話している。VRChatの中で、国籍も言語も越えて笑っている。</p>
+    <p>それを見て、思った。</p>
+    <p>あれ、自分が最初に感じたVRChatは、ほんの一部だったのではないか。</p>
+
+    <h3>2024/02 VRChat再開、日本人のVRChatter発見</h3>
+    <p>そこで、もう一度入ってみることにした。再開時はQuest単騎。まずは英語圏のワールドに入り、カタコトでも会話を試みた。最初は当然うまくいかない。それでも、少しずつ楽しくなっていった。</p>
+    <p>そして、Japan Shrineにカタコトで挑んでいたとき、初めて日本人ユーザーと出会った。</p>
+    <figure class="small-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/picture_pc_957ae593a2e5557310015c69b9577c2f.gif" alt="">
+        <figcaption>2024/03/02@Japan Shrine</figcaption>
+    </figure>
+    <p>そのとき、その人たちに日本人ワールドへ連れて行ってもらった。そこから<strong>一気にフレンドが増えた</strong>。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777887495-DJtIoYNv2lfGUTEFPg9CKm5d.png" alt="">
+        <figcaption>2026/03/04 FUJIYAMAにて日本ユーザーと交流している。</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777887351-qLXbU5Z62ui9BPxK7EAJCNDR.png" alt="">
+        <figcaption>2024/03/04 FUJIYAMAにてカメラの使い方を習う</figcaption>
+    </figure>
+    <p>出会ったフレンドのフレンドとフレンドになり、野良プレイヤーと乾杯し、<strong>さらにフレンドが増えていった</strong>。</p>
+
+    <h3>2024/03 PCVRに移行、終点「ポピー横丁」への招待</h3>
+    <p>私のVRChat生活はここで崩壊の音を鳴らし始めた。</p>
+    <p>アバターの外見について齟齬があると認識した頃。<br>実はQuest単体じゃダメって教わり、LinkケーブルでVRChatを遊ぶようになった。</p>
+    <p>そこに<br>「PCでつないでるんだね?じゃあここに行こうよ」<br>夜に差し掛かるころ<strong>魔の誘い</strong>があった。<br><strong>「ポピー横丁」</strong>と書いてある。</p>
+    <p>ポータルに半ば流れで入った。</p>
+    <p>目の前のアバター数に驚愕した。<br>アバターローディングが追い付かないのだ。<br>先ほどのFUJIYAMAと、うって変わってボイスの大きさに圧倒された。<br>最初に受けたのは、「カオス」という印象。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777888104-LeQ5PtlpfBI0rYyX6M2wWkgj.png" alt="">
+        <figcaption>2024/03/10@ポピー横丁　そこは賑やかな飲み屋ワールドだった</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777888513-Ji2pBNs3DjF5vWaw6Sf7z9Kh.png" alt="">
+        <figcaption>2024/03/16@ポピー横丁　この世界は自由なんだと気づいた時。この時ロシア語に出逢う</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777891878-j8cMhvpo0lxs6Nt7Ke5mrT4a.png" alt="">
+        <figcaption>2024/05/31@ポピー横丁　パリピ砲との出逢い。これがのちに私を変えた</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777888776-GbqmRCDtrSIxQwaVo4PpcvuL.png" alt="">
+        <figcaption>2024/03/25@ぶいあ～る横丁　クリエィティブの場として可能性を見出した瞬間</figcaption>
+    </figure>
+
+    <h3>2024/04 同期会加入</h3>
+    <p>VRChat参加日を誕生日、あるいは入学日と例えられ「同期会」というシステムがある。<br>VRChatのグループ機能やDiscordでの活動が主で、定期的に集まるのだ。</p>
+    <p>2024年2月、同じ時期にVRChatを始めた人たちが集まる場があった。</p>
+    <figure class="medium-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777891558-ea9NDJr8GXYiu7W130VLPj42.png" alt="">
+        <figcaption>所属してる「2024年2月VRC同期会」</figcaption>
+    </figure>
+    <p>2021年初めにVRChat始めたとは言えまともに活動してないので<br>私の<strong>活動開始を2024年2月とした</strong>。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777891386-5dAQG8ZXPzM7YBmFcRvD1a4y.png" alt="">
+        <figcaption>2024/04/06@同期会</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777891463-FSjgxYV8T7K1poLGfuANh3O2.png" alt="">
+        <figcaption>2024/04/06@同期会</figcaption>
+    </figure>
+    <p>※こちらの設定でほとんどのアバターはフォールバックアバターになってることに留意</p>
+    <p>最初はみんなバラバラのアバターで、初期アバターの人も少なくとも居た。<br>当時はYouTubeにも今ほど情報がなく、VRChatはまだ少しマイナーな印象だった。</p>
+    <p>だからこそ、お互いに情報共有する感じがあった。</p>
+    <p>月を重ねるうちに、少しずつ変化が見えてくる。ランクが上がる。アバターが変わる。知っているワールドが増える。遊び方が増える。</p>
+    <p>知らないワールドや遊び方も、同期会でたくさん知った。同じタイミングで始めた人たちが、それぞれ違う方向に成長していくのを見るのは、かなり面白かった。</p>
+
+    <h3>2024/05 BlenderとUnityで改変に挑戦</h3>
+    <p>VRChatは、人と話す場所であると同時に、自分の手を動かす場所でもある。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777893089-98EPdUW01Z2FoHGnjNmwC7bz.png" alt="">
+        <figcaption>https://hello.vrchat.com/より</figcaption>
+    </figure>
+    <p>VRChatのスローガンをご存じだろうか?<br>「フレンドを集い、ワールドを散策し、<strong>何かを創造</strong>しよう。」</p>
+    <p>そう、このゲームはユーザーにクリエィティブを期待している。</p>
+    <p><strong>現在、私のアバターは基本的に自作している。</strong></p>
+    <p>とはいえ最初はハードルが高すぎたので改変から入った。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777893432-RaC2JwOZLeWxFVuhiY3gDt8N.png" alt="">
+        <figcaption>2024/05/21@ポピー横丁　初期は2A-7/LCの改変だった。</figcaption>
+    </figure>
+    <a class="link-card" href="https://booth.pm/ja/items/1381874" target="_blank" rel="noopener nofollow">
+        <span class="link-card-body">
+            <strong class="link-card-title">VR用3Dモデル「2A-7/LC　(ニアナ/ライトカスタム)」 - 拾い部屋 - BOOTH</strong>
+            <span class="link-card-desc">■■オキュラスクエストを想定した2A-7の軽量化版です■■</span>
+            <span class="link-card-url">booth.pm</span>
+        </span>
+        <span class="link-card-image" style="background-image: url('/blog/articles/2026-05-05-vrchat/aba9a7ce2c851a9dbd4b24df9d46ec312a7c3a5c55adbfc6abf89d6f47ba.jpeg');"></span>
+    </a>
+    <p>私のプライドというかなんというか、モットーがある。<br>できるかぎりModular AvatarやlilToonといった外部ツールに頼りすぎないようにしている。<br>便利な道具を否定したいわけではない。ただ、自分で構造を理解しながら作りたかった。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777893806-WNwnZrUqSy6m5LdCTxMz0Ds7.png" alt="">
+        <figcaption>2024/05/05 自作アバターが猛威を振るっているところ。以下ダウンロードは自己責任で</figcaption>
+    </figure>
+    <a class="file-card" href="https://note.com/api/v2/attachments/download/7297d7ed70746350350c9da95111a9e5" target="_blank" rel="noopener nofollow">
+        <span class="file-card-body">
+            <strong class="file-card-title">mesh_female - bone.fbx</strong>
+            <span class="file-card-note">754 KB<br>ファイルダウンロードについて</span>
+        </span>
+        <span class="file-card-button">ダウンロード</span>
+    </a>
+    <p>そのおかげで、BlenderやUnityの操作を少し深めることができた。アバターを直す。調整する。見た目を詰める。構造を理解する。その過程で、3D制作やUnityの知識が少しずつ身についた。</p>
+    <figure class="medium-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777897304-nUw0M5ZecOE79vlDPu8K4HfY.png" alt="">
+        <figcaption>2024/06/08@FUJIYAMA　アバターを作っているところ。この頃にUV展開を覚えた</figcaption>
+    </figure>
+    <figure class="medium-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777896932-PwCeQukXTUGERjBbW340DcVs.png" alt="">
+        <figcaption>2024/06/11@ぶいあ～る横丁　自作アバターに味を占めた頃に作ったネタアバター</figcaption>
+    </figure>
+    <figure class="medium-media">
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777897110-HnSwqRcv4u7WPxJoyIKfd3EU.png" alt="">
+        <figcaption>2024/06/16@ポピー横丁　同上</figcaption>
+    </figure>
+    <p><strong>VRChatは遊び場</strong>であると同時に、かなり<strong>実践的な制作環境</strong>でもあると確信。</p>
+    <p class="list-like">(以下今後追加予定)<br>2024/06　アバターギミックとの出会い<br>2024/09　VRChat再開<br>2024/10　アバター「Aona」制作記<br>2024/10　学術との出会い。コスモリアおよび芳紅堂<br>2024/11　航空機/宇宙機への興味再燃<br>2024/12　初めてのリアルイベント<br>2025/01　ゲームワールドを知る<br>2025/02　空前のヒット!モナーアバター<br>2025/03　ドローンとの出会い<br>2025/04　哲学への興味再燃<br>2025/05　イベントへ参加してみる<br>2025/11　CVSを知る<br>2025/12　ポピ横オフ会<br>2026/01　物理学をさらに知りたい!<br>2026/02　推しのVTuberがライブやるって!<br>2026/03　バイブコーダーになりました<br>2025/04　アバターをアップデートしたい!</p>
+
+    <h2>日本人コミュニティと居場所</h2>
+    <h3>普通に日本人がいた安心感</h3>
+    <p>日本人コミュニティに入ってまず安心したのは、普通に日本人がいたことだった。</p>
+    <p>最初の自分は「VRChatに日本人はいない」と思っていた。しかし実際には、JPTやFUJIYAMAのような入口があり、そこから横丁やイベント、コミュニティへとつながっていく流れがあった。</p>
+    <p>ポピー横丁、ぶいあ～る横丁、哲学カフェ 芳紅堂、ポコ堂。たまにNAGISAやJPTにも行く。</p>
+    <p>特にポピー横丁、哲学カフェ 芳紅堂、同期会は、自分にとって大きな場所になった。</p>
+    <p>よく知っている顔がいて、相互フォローの人も多い。行けば誰かがいて、話せるかもしれない。話さなくても、同じ空間にいられる。</p>
+    <p>それは「いつでも帰ってこられる場所」という安心感だった。</p>
+    <p>VRChatの居場所は、単なるワールド名ではない。そこにいる人、繰り返し会う顔、積み重なった会話、何度も過ごした時間でできている。</p>
+    <p>気ががつけばKnown Userになっていた。ランクを上げたくてVRC+にも課金した。それ以来、今までずっとVRC+に入っている。</p>
+    <p>まんまと沼である。<br>悔しいが、否定はできない。</p>
+
+    <h3>地位や年齢ではなく、面白さで出会う場所</h3>
+    <p>VRChatで面白かったのは、現実の地位や年齢にあまり縛られないことだった。</p>
+    <p>超有名企業に勤める人、珍しい職業の人、変な人、航空宇宙に詳しい人、技術系の人、3D系の人、哲学に詳しい人。現実ではなかなか同じ場所に集まらない人たちと、同じワールドに立っている。</p>
+    <p>VRChatで惹かれるのは、ただ話しやすい人ではない。</p>
+    <p>新鮮さがある人。<br>学術に長けていて話が面白い人。<br>頭がいい人。<br>何かしら飛び抜けている人。<br>技術がある人。<br>そして、自分自身の軸を持っている人。</p>
+    <p>VRChatでは、職業や年齢よりも、その人が何に熱を持ち、何を考え、何を作り、どう世界を見ているかが前に出る。</p>
+    <p>そういう人たちと話すうちに、自分の知識と知見の狭さに窮屈さを感じるようになった。そして同時に、周りの人たちから「勉強は苦痛ではなく、面白いものだ」という情熱を感じた。</p>
+    <p>放送大学に入る明確な決定打になった一言があるわけではない。けれど、VRChatで出会った人たちの熱量は、間違いなく自分の背中を押した。</p>
+
+    <h2>パリピ砲、DJ、そして音楽</h2>
+    <h3>視界ジャックとパリピ砲</h3>
+    <p>VRChatで変わったのは、学びや制作だけではない。音楽や映像演出への感覚も変わった。<br>ここは「ポピー横丁」。</p>
+    <p>先述した通り一時期、視界ジャックやパリピ砲にハマっていた。鑑賞するだけでなく、自分でも作成していた。</p>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777892813-avdtZKbiRSg6ypF8VXefDCwW.png" alt="">
+        <figcaption>2024/05/25　自作パリピ砲テスト</figcaption>
+    </figure>
+    <figure>
+        <img loading="lazy" src="/blog/articles/2026-05-05-vrchat/1777881854-VsncSdhuMIXKJ6Nwe3y27Rqb.png" alt="">
+        <figcaption>そして飛ばされるのだった。</figcaption>
+    </figure>
+    <p>ここだけの話、当時はあの過剰な光、音、動きが一気に押し寄せる感覚にかなりやられていた。</p>
+    <p>荒らしとして使われるものを歓迎すべきではないし、用法は守るべきだ。実際、荒らし行為をしたいわけではない。ただ、あの過剰な演出そのものには、ある種の芸術性すら感じていた。</p>
+    <p>その影響で、Hard bass、dubstep、hard technoにもハマっていった。</p>
+
+    <h3>DJの虜</h3>
+    <p>また、VRChatでは野良のDJがプレイしている場面にもよく出会った。</p>
+    <p>曲と曲のつなぎ。<br>場の空気を読む選曲。<br>音で空間を支配する感覚。</p>
+    <p>それにしびれた。</p>
+    <p>そこから、ただ音楽を聴くのではなく、音楽で場を作るという視点を知った。</p>
+    <p>そのころから、毎年行っているFUJI ROCKのDJプレイもより楽しめるようになった。さらに自分の手元にDDJ-FLX4が来たが、触ってみると想像以上に難しかった。</p>
+    <p>見るのとやるのではまるで違う。DJとは、単に曲を流すことではなく、時間と空気を編集する技術なのだと感じた。</p>
+    <p>そして、クラブにも行くようになった。ナンパや出会い目的ではない。興味がゼロとは言わないが、主目的はそこではない。純粋に音楽を楽しみに行くようになった。</p>
+    <p>VRChatで知った音楽空間への興味は、現実のクラブ体験にもつながっていった。</p>
+
+    <h2>良いところと、危ういところ</h2>
+    <h3>良いところ</h3>
+    <p>VRChatの良いところは、出会い、創作、学び、居場所、そして場所を問わないことだ。</p>
+    <p>現実では出会えない人と出会える。自分のアバターやワールド、イベントを通して創作できる。学術、技術、哲学、3D、音楽、文化など、さまざまな分野の話に触れられる。物理的な距離に関係なく、いつもの場所に帰ってこられる。</p>
+
+    <h3>危ういところ</h3>
+    <p>一方で、危うさも大きい。</p>
+    <p>依存。<br>夜更かし。<br>飲酒。<br>人間関係の近すぎる距離。<br>現実生活への侵食。<br>現実からの逃避。<br>視野の局所化で起きるバイアス。<br>プライバシーの危うさ。<br>散財。<br>デジタルタトゥー。</p>
+    <p>自分自身、ポピー横丁やぶいあ～る横丁でたくさん話すようになり、アルコール摂取量が増え、夜更かしも重ねた。良いことばかりを切り取ると綺麗に見えるが、実際には生活リズムを削りながら得たものでもある。</p>
+    <p>VRChatは自由な場所だ。だからこそ、自分で線を引く必要がある。</p>
+
+    <h2>[さいごに]VRChatは人生を変えるゲームとなり得るか?</h2>
+    <h3>どこが変わった私の人生</h3>
+    <p>知見が広がり様々な世界に出逢えた<br>技術面(Blender,Unity)の向上<br>リアルイベントへの参加回数増<br>コミュニケーション能力の上昇<br>声域の拡張→一時期女性の声を出そうと努力した結果カラオケで使えるように<br>巻き舌の獲得→ロシア語を習得しようとした結果巻き舌ができるように</p>
+
+    <h3>それでも私は勧めたい</h3>
+    <p>VRChatを誰にでも無条件で勧めるつもりはない。</p>
+    <p>生活リズムを崩しやすい人、依存しやすい人、人間関係の距離を詰めすぎる人、プライバシー管理が苦手な人には、注意が必要だと思う。</p>
+    <p>それでも私は、VRChatを勧めたい。</p>
+    <p>自分の世界を広げたい人。人と話すきっかけが欲しい人。創作したい人。3D、音楽、技術、VRに興味がある人。現実の肩書き抜きで人と出会いたい人。学び直しの刺激が欲しい人。</p>
+    <p>そういう人にとって、VRChatはかなり強力な場所になる。</p>
+    <p>私にとってVRChatは、現実から切り離された別世界ではない。現実の認識を広げるための装置だった。</p>
+    <p>逃避先にもなる。<br>居場所にもなる。<br>創作の燃料にもなる。<br>生活を削る炉にもなる。</p>
+    <p>結局は使い手次第だ。</p>
+    <p>ただ、うまく付き合えば、VRChatは現実を狭めるものではなく、現実の見え方を増やしてくれる。</p>
+    <p>私とVRChatの関係を一言で表すなら、やはりこれだ。</p>
+    <p><strong>VRChatは、使い手次第の認識拡大ツールである。</strong></p>
