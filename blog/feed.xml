@@ -1,0 +1,26 @@
+---
+layout: null
+permalink: /blog/feed.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ site.title | xml_escape }} Blog</title>
+    <description>{{ site.description | xml_escape }}</description>
+    <link>{{ '/blog/' | absolute_url }}</link>
+    <atom:link href="{{ '/blog/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml" />
+    <language>ja</language>
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+    {% assign folder_articles = site.pages | where: "blog_article", true %}
+    {% assign all_articles = site.posts | concat: folder_articles | sort: "date" | reverse %}
+    {% for post in all_articles limit: 20 %}
+    <item>
+      <title>{{ post.title | xml_escape }}</title>
+      <description>{{ post.description | default: post.excerpt | strip_html | strip_newlines | xml_escape }}</description>
+      <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
+      <link>{{ post.url | absolute_url }}</link>
+      <guid isPermaLink="true">{{ post.url | absolute_url }}</guid>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

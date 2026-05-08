@@ -1,0 +1,187 @@
+---
+layout: blog
+title: Blog Editor
+description: Markdown記事と画像を同じフォルダで管理して公開するための下書き保存つきエディター。
+permalink: /blog/editor.html
+---
+<section class="blog-index-head">
+  <div>
+    <p class="section-label">Markdown Editor</p>
+    <h1>記事フォルダを作って、置くだけで公開。</h1>
+    <p>`blog/articles/YYYY-MM-DD-slug/` に `index.md` と画像をまとめると、GitHub Pagesが自動でブログ記事として表示します。</p>
+  </div>
+</section>
+
+<section class="editor-guide" aria-label="Publish flow">
+  <div>
+    <strong>1. 書く</strong>
+    <span>本文とSEO設定を入力。下書きは自動保存されます。</span>
+  </div>
+  <div>
+    <strong>2. 書き出す</strong>
+    <span>`index.md` と画像をダウンロードします。</span>
+  </div>
+  <div>
+    <strong>3. 置く</strong>
+    <span>記事フォルダを `blog/articles` に配置します。</span>
+  </div>
+</section>
+
+<div class="editor-grid">
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>記事設定</h2>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label for="title">タイトル</label>
+        <input id="title" type="text" value="新しい記事">
+      </div>
+      <div class="field">
+        <label for="date">公開日</label>
+        <input id="date" type="date">
+      </div>
+      <div class="field">
+        <label for="slug">URL用スラッグ</label>
+        <input id="slug" type="text" value="new-article" inputmode="latin">
+      </div>
+      <div class="field">
+        <label for="description">説明文 SEO / SNS</label>
+        <textarea id="description">検索結果やSNSカードに表示する短い説明文。</textarea>
+      </div>
+      <div class="field">
+        <label for="tags">タグ カンマ区切り</label>
+        <input id="tags" type="text" value="note, blog">
+      </div>
+      <div class="field">
+        <label for="image">アイキャッチ画像パス</label>
+        <input id="image" type="text" placeholder="/blog/images/example.png">
+      </div>
+      <div class="output-box">
+        <span>記事フォルダ</span>
+        <code id="articleFolderPath">blog/articles/YYYY-MM-DD-slug/</code>
+        <span>Markdown配置先</span>
+        <code id="postPath">blog/articles/YYYY-MM-DD-slug/index.md</code>
+      </div>
+      <div class="button-row">
+        <button class="tool-button" id="downloadBtn" type="button">Markdownを書き出し</button>
+        <button class="tool-button secondary" id="copyBtn" type="button">全文コピー</button>
+      </div>
+      <p class="status" id="exportStatus"></p>
+    </div>
+  </aside>
+
+  <section class="panel editor-main">
+    <div class="panel-head panel-head-row">
+      <h2>本文</h2>
+      <span id="draftSaved" class="mini-status">下書き待機中</span>
+    </div>
+    <div class="editor-toolbar" aria-label="Markdown tools">
+      <button class="tool-button secondary" type="button" data-insert="## 見出し">H2</button>
+      <button class="tool-button secondary" type="button" data-insert="### 小見出し">H3</button>
+      <button class="tool-button secondary" type="button" data-wrap="**">太字</button>
+      <button class="tool-button secondary" type="button" data-wrap="`">コード</button>
+      <button class="tool-button secondary" type="button" data-insert="- 箇条書き">リスト</button>
+      <button class="tool-button secondary" type="button" data-insert="[リンク](https://example.com)">リンク</button>
+      <button class="tool-button secondary" type="button" data-insert="> 引用">引用</button>
+      <button class="tool-button secondary" type="button" data-codeblock="true">コードブロック</button>
+    </div>
+    <textarea id="body" class="markdown-input">## はじめに
+
+ここに本文を書きます。
+
+- Markdownで書けます
+- 下書きはこのブラウザに自動保存されます
+- `index.md` と画像を同じ記事フォルダに入れると記事になります
+
+画像は右側の画像パネルから挿入できます。</textarea>
+  </section>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>下書き</h2>
+    </div>
+    <div class="panel-body">
+      <div class="button-row stack">
+        <button class="tool-button" id="saveDraftBtn" type="button">今すぐ保存</button>
+        <button class="tool-button secondary" id="loadDraftBtn" type="button">下書きを復元</button>
+        <button class="ghost-button" id="clearDraftBtn" type="button">下書きを削除</button>
+      </div>
+      <p class="help-text">下書きはブラウザのlocalStorageに保存されます。公開はされません。</p>
+      <p class="status" id="draftStatus"></p>
+    </div>
+  </aside>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>画像</h2>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label for="imageFile">画像ファイル</label>
+        <input id="imageFile" type="file" accept="image/*">
+      </div>
+      <div class="image-preview" id="imagePreview">
+        <span>画像を選ぶとプレビューします</span>
+      </div>
+      <div class="field">
+        <label for="imageFolder">配置フォルダー</label>
+        <input id="imageFolder" type="text" value="/blog/articles/YYYY-MM-DD-slug/">
+      </div>
+      <div class="field">
+        <label for="imageName">保存ファイル名</label>
+        <input id="imageName" type="text" placeholder="example.png">
+      </div>
+      <div class="field">
+        <label for="imageAlt">代替テキスト</label>
+        <input id="imageAlt" type="text" placeholder="画像の説明">
+      </div>
+      <div class="button-row stack">
+        <button class="tool-button" id="insertImageBtn" type="button">本文へ画像を挿入</button>
+        <button class="tool-button secondary" id="setCoverBtn" type="button">アイキャッチにする</button>
+        <button class="ghost-button" id="downloadImageBtn" type="button">画像を書き出し</button>
+      </div>
+      <p class="help-text">画像を書き出したら、`index.md` と同じ記事フォルダへ配置してください。</p>
+      <p class="status" id="imageStatus"></p>
+    </div>
+  </aside>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>GitHubへ直接アップロード</h2>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label for="owner">Owner</label>
+        <input id="owner" type="text" value="Xenoah">
+      </div>
+      <div class="field">
+        <label for="repo">Repository</label>
+        <input id="repo" type="text" value="Xenoah.github.io">
+      </div>
+      <div class="field">
+        <label for="branch">Branch</label>
+        <input id="branch" type="text" value="main">
+      </div>
+      <div class="field">
+        <label for="token">GitHub token</label>
+        <input id="token" type="password" autocomplete="off" placeholder="github_pat_...">
+      </div>
+      <div class="button-row stack">
+        <button class="tool-button" id="uploadBtn" type="button">index.mdをアップロード</button>
+        <button class="ghost-button" id="saveTokenBtn" type="button">Token保存</button>
+      </div>
+      <p class="help-text">手動配置だけで運用できます。画像を選択中なら、直接アップロード時に同じ記事フォルダへ送ります。</p>
+      <p class="status" id="uploadStatus"></p>
+    </div>
+  </aside>
+
+  <section class="panel preview-panel">
+    <div class="panel-head">
+      <h2>プレビュー</h2>
+    </div>
+    <div id="preview" class="preview article-body"></div>
+  </section>
+</div>
+
+<script src="{{ '/blog/assets/editor.js' | relative_url }}"></script>

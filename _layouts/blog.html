@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'ja' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% assign page_title = page.title | default: site.title %}
+  {% assign raw_description = page.description | default: site.description %}
+  {% assign meta_description = raw_description | strip_html | strip_newlines | truncate: 160 %}
+  <title>{{ page_title }}{% unless page_title == site.title %} | {{ site.title }}{% endunless %}</title>
+  <meta name="description" content="{{ meta_description }}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url }}">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page_title }}">
+  <meta property="og:description" content="{{ meta_description }}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url }}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": {{ page_title | jsonify }},
+    "description": {{ meta_description | jsonify }},
+    "url": {{ page.url | absolute_url | jsonify }},
+    "publisher": {
+      "@type": "Person",
+      "name": {{ site.author | default: site.title | jsonify }}
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="blog-header">
+    <a class="brand" href="{{ '/blog/' | relative_url }}" aria-label="Blog home">
+      <img src="{{ '/file_index/xenoah_banner.png' | relative_url }}" alt="Xenoah">
+    </a>
+    <nav class="blog-nav" aria-label="Blog navigation">
+      <a href="{{ '/blog/' | relative_url }}">Articles</a>
+      <a href="{{ '/blog/editor.html' | relative_url }}">Editor</a>
+      <a href="{{ '/top.htm' | relative_url }}">Home</a>
+    </nav>
+  </header>
+  <main class="blog-shell">
+    {{ content }}
+  </main>
+</body>
+</html>

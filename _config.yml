@@ -1,2 +1,19 @@
+title: Xenoahのホームページ
+description: Xenoahの制作、学び、VRChat、電子工作、プログラミングの記事置き場。
+url: "https://xenoah.github.io"
+lang: ja
+timezone: Asia/Tokyo
+author: Xenoah
+
+permalink: /blog/:year/:month/:day/:title/
+
 plugins:
-  -  jekyll-sitemap
+  - jekyll-sitemap
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Xenoah
