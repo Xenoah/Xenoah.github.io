@@ -688,6 +688,7 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .mini-status {
@@ -1053,6 +1054,11 @@ img {
   margin-bottom: 18px;
 }
 
+.editor-hero h1,
+.editor-hero p {
+  overflow-wrap: anywhere;
+}
+
 .editor-live-badge {
   display: grid;
   place-items: center;
@@ -1097,6 +1103,7 @@ img {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(300px, 0.92fr);
   gap: 12px;
+  align-items: start;
   padding: 14px;
   background:
     linear-gradient(180deg, rgba(234, 244, 242, 0.62), rgba(255, 255, 255, 0)),
@@ -1282,11 +1289,25 @@ img {
 
   .editor-hero,
   .editor-workspace {
-    width: min(100%, calc(100vw - 32px));
+    width: 100%;
+    margin-left: 0;
+    transform: none;
   }
 
   .editor-live-badge {
     width: 92px;
+  }
+
+  .editor-hero h1 {
+    max-width: 100%;
+    font-size: clamp(2rem, 10vw, 2.65rem);
+    line-height: 1.12;
+    word-break: break-all;
+  }
+
+  .editor-hero p:not(.section-label) {
+    max-width: 100%;
+    word-break: break-all;
   }
 
   .assist-surface,
