@@ -78,7 +78,7 @@ Reference them from HTML like this:
 </figure>
 ```
 
-The editor can preview a local image, insert the HTML figure block, set it as the eyecatch, and download the image with a clean filename. After export, place the image file next to `index.html`. If you use the GitHub upload button, the selected image is uploaded to the same article folder.
+The editor can preview a local image, insert the HTML figure block, set it as the eyecatch, and download the image with a clean filename. After export, place the image file next to `index.html`.
 
 ## HTML Import
 

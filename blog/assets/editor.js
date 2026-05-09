@@ -13,17 +13,12 @@
     tags: $("tags"),
     image: $("image"),
     body: $("body"),
-    owner: $("owner"),
-    repo: $("repo"),
-    branch: $("branch"),
-    token: $("token"),
     imageFiles: $("imageFiles"),
     importHtmlFile: $("importHtmlFile"),
     htmlInput: $("htmlInput")
   };
 
   const exportStatus = $("exportStatus");
-  const uploadStatus = $("uploadStatus");
   const draftStatus = $("draftStatus");
   const draftSaved = $("draftSaved");
   const imageStatus = $("imageStatus");
@@ -40,7 +35,6 @@
   const readTime = $("readTime");
 
   fields.date.value = new Date().toISOString().slice(0, 10);
-  fields.token.value = localStorage.getItem("xenoah_blog_github_token") || "";
 
   function slugify(value) {
     return String(value || "")
@@ -599,78 +593,6 @@
     setStatus(statusElement, message);
   }
 
-  function toBase64Utf8(value) {
-    const bytes = encoder.encode(value);
-    let binary = "";
-    bytes.forEach((byte) => {
-      binary += String.fromCharCode(byte);
-    });
-    return btoa(binary);
-  }
-
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        const value = String(reader.result || "");
-        resolve(value.includes(",") ? value.split(",")[1] : value);
-      });
-      reader.addEventListener("error", () => reject(reader.error));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function uploadContent(owner, repo, branch, token, path, content, message) {
-    const baseUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}`;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    };
-
-    let sha;
-    const getResponse = await fetch(`${baseUrl}?ref=${encodeURIComponent(branch)}`, { headers });
-    if (getResponse.ok) {
-      const existing = await getResponse.json();
-      sha = existing.sha;
-    } else if (getResponse.status !== 404) {
-      throw new Error(`GitHub確認に失敗しました: ${getResponse.status}`);
-    }
-
-    const putResponse = await fetch(baseUrl, {
-      method: "PUT",
-      headers,
-      body: JSON.stringify({ message, content, branch, sha })
-    });
-
-    if (!putResponse.ok) {
-      const error = await putResponse.json().catch(() => ({}));
-      throw new Error(error.message || `GitHubアップロードに失敗しました: ${putResponse.status}`);
-    }
-  }
-
-  async function uploadArticle() {
-    const owner = fields.owner.value.trim();
-    const repo = fields.repo.value.trim();
-    const branch = fields.branch.value.trim() || "main";
-    const token = fields.token.value.trim();
-
-    if (!owner || !repo || !token) {
-      setStatus(uploadStatus, "Owner、Repository、GitHub tokenを入力してください。");
-      return;
-    }
-
-    setStatus(uploadStatus, `${articleIndexPath()} をアップロードしています...`);
-    await uploadContent(owner, repo, branch, token, articleIndexPath(), toBase64Utf8(articleHtmlSource()), `add blog article: ${fields.title.value}`);
-
-    for (const asset of assets) {
-      setStatus(uploadStatus, `${articleFolder()}${asset.name} をアップロードしています...`);
-      await uploadContent(owner, repo, branch, token, `${articleFolder()}${asset.name}`, await fileToBase64(asset.file), `add blog image: ${asset.name}`);
-    }
-
-    setStatus(uploadStatus, `${articleFolder()} をアップロードしました。GitHub Pagesの反映まで少し待ってください。`);
-  }
-
   function bindChangeEvents() {
     [fields.date, fields.description, fields.tags, fields.image, fields.body].forEach((field) => {
       field.addEventListener("input", () => {
@@ -728,11 +650,6 @@
   $("convertHtmlAppendBtn").addEventListener("click", () => applyHtmlInput("append"));
   $("copyPermalinkBtn").addEventListener("click", () => copyText(`https://xenoah.github.io${publicPermalink()}`, checkStatus, "公開URLをコピーしました。"));
   $("copyTreeBtn").addEventListener("click", () => copyText(folderTree(), checkStatus, "フォルダ構成をコピーしました。"));
-  $("saveTokenBtn").addEventListener("click", () => {
-    localStorage.setItem("xenoah_blog_github_token", fields.token.value.trim());
-    setStatus(uploadStatus, "Tokenをこのブラウザに保存しました。");
-  });
-  $("uploadBtn").addEventListener("click", () => uploadArticle().catch((error) => setStatus(uploadStatus, error.message)));
 
   if (localStorage.getItem(draftKey)) {
     draftSaved.textContent = "保存済み下書きあり";
@@ -741,5 +658,5 @@
 
   renderAssets();
   updatePreview();
-  previewStatus.textContent = "自動更新中";
+  previewStatus.textContent = "リアルタイム";
 })();
