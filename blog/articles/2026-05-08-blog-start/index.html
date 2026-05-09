@@ -1,64 +1,29 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ブログ機能を追加しました | Xenoahのホームページ</title>
-  <meta name="description" content="Markdownで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="canonical" href="https://xenoah.github.io/blog/2026/05/08/blog-start/">
-  <meta property="og:site_name" content="Xenoahのホームページ">
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="ブログ機能を追加しました">
-  <meta property="og:description" content="Markdownで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。">
-  <meta property="og:url" content="https://xenoah.github.io/blog/2026/05/08/blog-start/">
-  <meta property="og:image" content="https://xenoah.github.io/blog/articles/2026-05-08-blog-start/cover.svg">
-  <meta property="og:locale" content="ja_JP">
-  <meta property="article:published_time" content="2026-05-08">
-  <meta property="article:tag" content="blog">
-  <meta property="article:tag" content="update">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/blog/assets/blog.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"ブログ機能を追加しました","description":"Markdownで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。","datePublished":"2026-05-08","author":{"@type":"Person","name":"Xenoah"},"publisher":{"@type":"Person","name":"Xenoah"},"mainEntityOfPage":"https://xenoah.github.io/blog/2026/05/08/blog-start/","image":"https://xenoah.github.io/blog/articles/2026-05-08-blog-start/cover.svg"}</script>
-</head>
-<body>
-  <header class="blog-header">
-    <a class="brand" href="/blog/" aria-label="Blog home">
-      <img src="/file_index/xenoah_banner.png" alt="Xenoah">
-    </a>
-    <nav class="blog-nav" aria-label="Blog navigation">
-      <a href="/blog/">Articles</a>
-      <a href="/blog/editor.html">Editor</a>
-      <a href="/top.htm">Home</a>
-    </nav>
-  </header>
-  <main class="article-wrap">
-    <article class="article">
-      <header class="article-head">
-        <p class="article-kicker">2026.05.08</p>
-        <h1>ブログ機能を追加しました</h1>
-        <p class="article-lead">Markdownで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。</p>
-        <div class="tag-row" aria-label="Tags"><span>blog</span><span>update</span></div>
-      </header>
-      <figure class="eyecatch"><img src="/blog/articles/2026-05-08-blog-start/cover.svg" alt=""></figure>
-      <div class="article-body">
+---
+layout: post
+blog_article: true
+title: "ブログ機能を追加しました"
+date: 2026-05-08
+description: "HTMLで記事を書き、記事フォルダに画像と一緒に置いて公開できるブログ機能の最初の記事です。"
+permalink: /blog/2026/05/08/blog-start/
+image: "/blog/articles/2026-05-08-blog-start/cover.svg"
+tags:
+  - blog
+  - update
+---
+
 <p>このページは、GitHub PagesとJekyllで動くブログ機能のサンプル記事です。</p>
-<p>記事は <code>blog/articles/YYYY-MM-DD-slug/index.md</code> として追加します。画像は同じ記事フォルダに置けます。</p>
+
+<p>記事は <code>blog/articles/YYYY-MM-DD-slug/index.html</code> として追加します。画像は同じ記事フォルダに置けます。</p>
+
 <p><img loading="lazy" src="/blog/articles/2026-05-08-blog-start/cover.svg" alt="Xenoah Blog cover"></p>
+
 <h2>使い方</h2>
+
 <ul>
-<li><code>/blog/editor.html</code> で記事を書く</li>
-<li><code>index.md</code> を書き出す</li>
-<li><code>blog/articles/YYYY-MM-DD-slug/</code> に <code>index.md</code> と画像を入れる</li>
-<li>GitHubへ反映するとブログ一覧とRSSへ自動で表示される</li>
+  <li><code>/blog/editor.html</code> で記事を書く</li>
+  <li><code>index.html</code> を書き出す</li>
+  <li><code>blog/articles/YYYY-MM-DD-slug/</code> に <code>index.html</code> と画像を入れる</li>
+  <li>GitHubへ反映するとブログ一覧とRSSへ自動で表示される</li>
 </ul>
+
 <p>SEO用のタイトル、説明文、OGP、構造化データ、RSS、サイトマップ連携も入っています。</p>
-      </div>
-    </article>
-    <nav class="post-nav" aria-label="Post navigation">
-      <a href="/blog/">All articles</a>
-    </nav>
-  </main>
-</body>
-</html>

@@ -48,10 +48,10 @@ function escapeHtml(value) {
 const articles = [];
 for (const dirent of fs.readdirSync(articlesDir, { withFileTypes: true })) {
   if (!dirent.isDirectory()) continue;
-  const mdPath = path.join(articlesDir, dirent.name, "index.md");
   const htmlPath = path.join(articlesDir, dirent.name, "index.html");
-  if (!fs.existsSync(mdPath) || !fs.existsSync(htmlPath)) continue;
-  const data = parseFrontMatter(fs.readFileSync(mdPath, "utf8"));
+  if (!fs.existsSync(htmlPath)) continue;
+  const data = parseFrontMatter(fs.readFileSync(htmlPath, "utf8").replace(/^\uFEFF/, ""));
+  if (data.blog_article !== "true" && data.blog_article !== true) continue;
   articles.push({
     title: data.title || dirent.name,
     date: data.date || "",

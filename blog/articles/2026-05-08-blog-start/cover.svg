@@ -19,5 +19,5 @@
   <path d="M100 508C212 404 313 396 424 482C531 565 640 554 768 426C879 314 964 306 1100 396" fill="none" stroke="rgba(255,255,255,.78)" stroke-width="12" stroke-linecap="round"/>
   <text x="118" y="250" fill="#fff" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="0">XENOAH JOURNAL</text>
   <text x="116" y="336" fill="#fff" font-family="Arial, sans-serif" font-size="84" font-weight="800" letter-spacing="0">Blog Articles</text>
-  <text x="122" y="394" fill="rgba(255,255,255,.82)" font-family="Arial, sans-serif" font-size="26" letter-spacing="0">Markdown + images in one folder</text>
+  <text x="122" y="394" fill="rgba(255,255,255,.82)" font-family="Arial, sans-serif" font-size="26" letter-spacing="0">HTML + images in one folder</text>
 </svg>

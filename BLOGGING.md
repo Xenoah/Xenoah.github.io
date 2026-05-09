@@ -4,28 +4,28 @@ This site uses GitHub Pages and Jekyll for the blog.
 
 ## Write a post
 
-Open `/blog/editor.html`, write the article in Markdown, then export one folder per article:
+Open `/blog/editor.html`, write the article body in HTML, then export one folder per article:
 
 ```text
 blog/articles/YYYY-MM-DD-slug/
-├─ index.md
+├─ index.html
 └─ image.png
 ```
 
-Use `画像込みZIPを書き出し` to download a ZIP that contains `index.md` and selected images. Extract the ZIP, then put the extracted folder under `blog/articles`. GitHub Pages will build `index.md` as a blog article.
+Use `画像込みZIPを書き出し` to download a ZIP that contains `index.html` and selected images. Extract the ZIP, then put the extracted folder under `blog/articles`. GitHub Pages will build `index.html` as a blog article.
 
 The editor saves drafts in the browser automatically. Drafts are local only and are not published.
 
-The old `_posts/YYYY-MM-DD-slug.md` style still works, but article folders are recommended for image-heavy posts.
+Article folders with `index.html` are the standard format for this blog.
 
 ## Editor Features
 
-- Export an article folder ZIP containing `index.md` and images.
+- Export an article folder ZIP containing `index.html` and images.
 - Save directly to a local folder when the browser supports the File System Access API.
-- Manage multiple images and insert Markdown image tags.
+- Manage multiple images and insert HTML `<figure>` blocks.
 - Set an image as the eyecatch / OGP image.
-- Convert pasted HTML to Markdown without running scripts.
-- Import an existing `index.md`.
+- Paste external HTML into the body without running scripts.
+- Import an existing `index.html`.
 - Preview the full article, including title, description, tags, eyecatch, and body.
 - Check basic publishing requirements before export.
 - Copy the public URL and folder tree.
@@ -33,7 +33,7 @@ The old `_posts/YYYY-MM-DD-slug.md` style still works, but article folders are r
 ## Folder Article
 
 ```text
-blog/articles/2026-05-08-blog-start/index.md
+blog/articles/2026-05-08-blog-start/index.html
 ```
 
 Required front matter for folder articles:
@@ -52,6 +52,13 @@ image: "/blog/articles/2026-05-08-article-title/image.png"
 ---
 ```
 
+Write the body as HTML after the front matter:
+
+```html
+<h2>Section title</h2>
+<p>Article text.</p>
+```
+
 `image` is optional, but recommended. It is used for the article eyecatch, blog card thumbnail, and SNS preview.
 
 ## Images
@@ -62,19 +69,22 @@ Put article images in the same article folder:
 blog/articles/2026-05-08-article-title/image.png
 ```
 
-Reference them from Markdown like this:
+Reference them from HTML like this:
 
-```md
-![Alt text](/blog/articles/2026-05-08-article-title/image.png)
+```html
+<figure>
+  <img loading="lazy" src="/blog/articles/2026-05-08-article-title/image.png" alt="Alt text">
+  <figcaption>Alt text</figcaption>
+</figure>
 ```
 
-The editor can preview a local image, insert the Markdown image tag, set it as the eyecatch, and download the image with a clean filename. After export, place the image file next to `index.md`. If you use the GitHub upload button, the selected image is uploaded to the same article folder.
+The editor can preview a local image, insert the HTML figure block, set it as the eyecatch, and download the image with a clean filename. After export, place the image file next to `index.html`. If you use the GitHub upload button, the selected image is uploaded to the same article folder.
 
-## HTML Conversion
+## HTML Import
 
-Paste HTML into the converter panel in `/blog/editor.html`.
+Paste HTML into the import panel in `/blog/editor.html`.
 
-The converter supports common article HTML:
+The editor keeps common article HTML:
 
 - headings
 - paragraphs and line breaks
@@ -85,7 +95,7 @@ The converter supports common article HTML:
 - tables
 - figure captions
 
-After conversion, use the article preview to check visual layout before exporting.
+`script`, `style`, `noscript`, inline event attributes, and `javascript:` URLs are removed before preview/export.
 
 ## Public pages
 

@@ -3,7 +3,7 @@ const path = require("path");
 
 const article = process.argv[2];
 if (!article) {
-  throw new Error("Usage: node scripts/check_blog_article_assets.js <article-index.md>");
+  throw new Error("Usage: node scripts/check_blog_article_assets.js <article-index.html>");
 }
 
 const root = process.cwd();

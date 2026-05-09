@@ -773,7 +773,7 @@ img {
 
 .field input:focus,
 .field textarea:focus,
-.markdown-input:focus {
+.html-editor-input:focus {
   border-color: var(--accent);
   outline: 3px solid rgba(15, 140, 122, 0.14);
 }
@@ -812,7 +812,7 @@ img {
   border-color: var(--accent);
 }
 
-.markdown-input {
+.html-editor-input {
   width: 100%;
   min-height: 520px;
   padding: 18px;
@@ -1148,7 +1148,7 @@ img {
     border-left: 0;
   }
 
-  .markdown-input,
+  .html-editor-input,
   .preview {
     min-height: 380px;
   }

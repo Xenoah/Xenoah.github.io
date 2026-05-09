@@ -5,11 +5,11 @@ const root = process.cwd();
 const input = process.argv[2];
 
 if (!input) {
-  throw new Error("Usage: node scripts/render_static_blog_article.js <article/index.md>");
+  throw new Error("Usage: node scripts/render_static_blog_article.js <article/index.html>");
 }
 
 const inputPath = path.resolve(root, input);
-const raw = fs.readFileSync(inputPath, "utf8");
+const raw = fs.readFileSync(inputPath, "utf8").replace(/^\uFEFF/, "");
 
 function parseFrontMatter(source) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
@@ -63,94 +63,6 @@ function escapeHtml(value) {
 
 function stripHtml(value) {
   return String(value || "").replace(/<[^>]*>/g, "");
-}
-
-function inlineMarkdown(value) {
-  let html = escapeHtml(value);
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img loading="lazy" src="$2" alt="$1">');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" rel="noopener noreferrer">$1</a>');
-  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-  return html;
-}
-
-function markdownToHtml(markdown) {
-  const lines = markdown.split(/\r?\n/);
-  const html = [];
-  let inCode = false;
-  let code = [];
-  let inList = false;
-  let inOrderedList = false;
-
-  function closeLists() {
-    if (inList) {
-      html.push("</ul>");
-      inList = false;
-    }
-    if (inOrderedList) {
-      html.push("</ol>");
-      inOrderedList = false;
-    }
-  }
-
-  for (const line of lines) {
-    if (line.startsWith("```")) {
-      if (inCode) {
-        html.push(`<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`);
-        code = [];
-        inCode = false;
-      } else {
-        closeLists();
-        inCode = true;
-      }
-      continue;
-    }
-
-    if (inCode) {
-      code.push(line);
-      continue;
-    }
-
-    if (/^<[\s\S]*>$/.test(line.trim())) {
-      closeLists();
-      html.push(line);
-    } else if (/^###\s+/.test(line)) {
-      closeLists();
-      html.push(`<h3>${inlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
-    } else if (/^##\s+/.test(line)) {
-      closeLists();
-      html.push(`<h2>${inlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
-    } else if (/^#\s+/.test(line)) {
-      closeLists();
-      html.push(`<h1>${inlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
-    } else if (/^>\s?/.test(line)) {
-      closeLists();
-      html.push(`<blockquote>${inlineMarkdown(line.replace(/^>\s?/, ""))}</blockquote>`);
-    } else if (/^-\s+/.test(line)) {
-      if (!inList) {
-        closeLists();
-        html.push("<ul>");
-        inList = true;
-      }
-      html.push(`<li>${inlineMarkdown(line.replace(/^-\s+/, ""))}</li>`);
-    } else if (/^\d+\.\s+/.test(line)) {
-      if (!inOrderedList) {
-        closeLists();
-        html.push("<ol>");
-        inOrderedList = true;
-      }
-      html.push(`<li>${inlineMarkdown(line.replace(/^\d+\.\s+/, ""))}</li>`);
-    } else if (line.trim() === "") {
-      closeLists();
-    } else {
-      closeLists();
-      html.push(`<p>${inlineMarkdown(line)}</p>`);
-    }
-  }
-
-  closeLists();
-  return html.join("\n");
 }
 
 function renderArticle(data, htmlBody) {
@@ -231,12 +143,8 @@ ${htmlBody}
 }
 
 const parsed = parseFrontMatter(raw);
-const htmlBody = markdownToHtml(parsed.body.trim());
+const htmlBody = parsed.body.trim();
 const html = renderArticle(parsed.data, htmlBody);
-
-const sourceDir = path.dirname(inputPath);
-const articleHtmlPath = path.join(sourceDir, "index.html");
-fs.writeFileSync(articleHtmlPath, html, "utf8");
 
 if (parsed.data.permalink && String(parsed.data.permalink).startsWith("/")) {
   const permalinkDir = path.join(root, parsed.data.permalink.replace(/^\//, ""));
@@ -244,4 +152,4 @@ if (parsed.data.permalink && String(parsed.data.permalink).startsWith("/")) {
   fs.writeFileSync(path.join(permalinkDir, "index.html"), html, "utf8");
 }
 
-console.log(`rendered ${articleHtmlPath}`);
+console.log(`rendered ${parsed.data.permalink || input}`);

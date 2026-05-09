@@ -1,25 +1,25 @@
 ---
 layout: blog
 title: Blog Editor
-description: Markdown記事と画像を同じフォルダで管理して公開するための下書き保存つきエディター。
+description: HTML記事と画像を同じフォルダで管理して公開するための下書き保存つきエディター。
 permalink: /blog/editor.html
 ---
 <section class="blog-index-head">
   <div>
-    <p class="section-label">Markdown Editor</p>
+    <p class="section-label">HTML Editor</p>
     <h1>記事フォルダごと書き出して、置くだけで公開。</h1>
-    <p>`blog/articles/YYYY-MM-DD-slug/` に `index.md` と画像をまとめると、GitHub Pagesが自動でブログ記事として表示します。</p>
+    <p>`blog/articles/YYYY-MM-DD-slug/` に `index.html` と画像をまとめると、GitHub Pagesが自動でブログ記事として表示します。</p>
   </div>
 </section>
 
 <section class="editor-guide" aria-label="Publish flow">
   <div>
     <strong>1. 書く</strong>
-    <span>Markdown、HTML変換、画像管理をこの画面でまとめます。</span>
+    <span>HTML本文、画像管理、プレビューをこの画面でまとめます。</span>
   </div>
   <div>
     <strong>2. フォルダ出力</strong>
-    <span>`index.md` と画像入りの記事フォルダZIPを書き出します。</span>
+    <span>`index.html` と画像入りの記事フォルダZIPを書き出します。</span>
   </div>
   <div>
     <strong>3. 配置</strong>
@@ -60,8 +60,8 @@ permalink: /blog/editor.html
       <div class="output-box">
         <span>記事フォルダ</span>
         <code id="articleFolderPath">blog/articles/YYYY-MM-DD-slug/</code>
-        <span>Markdown配置先</span>
-        <code id="postPath">blog/articles/YYYY-MM-DD-slug/index.md</code>
+        <span>HTML配置先</span>
+        <code id="postPath">blog/articles/YYYY-MM-DD-slug/index.html</code>
       </div>
       <div class="stats-grid" aria-label="Article stats">
         <div><strong id="charCount">0</strong><span>文字</span></div>
@@ -71,8 +71,8 @@ permalink: /blog/editor.html
       <div class="button-row stack">
         <button class="tool-button" id="exportFolderBtn" type="button">画像込みZIPを書き出し</button>
         <button class="tool-button secondary" id="saveFolderBtn" type="button">フォルダへ保存</button>
-        <button class="ghost-button" id="downloadBtn" type="button">index.mdだけ書き出し</button>
-        <button class="ghost-button" id="copyBtn" type="button">Markdown全文コピー</button>
+        <button class="ghost-button" id="downloadBtn" type="button">index.htmlだけ書き出し</button>
+        <button class="ghost-button" id="copyBtn" type="button">HTML全文コピー</button>
       </div>
       <p class="help-text">標準はZIP出力です。対応ブラウザでは「フォルダへ保存」も使えます。</p>
       <p class="status" id="exportStatus"></p>
@@ -84,26 +84,28 @@ permalink: /blog/editor.html
       <h2>本文</h2>
       <span id="draftSaved" class="mini-status">下書き待機中</span>
     </div>
-    <div class="editor-toolbar" aria-label="Markdown tools">
-      <button class="tool-button secondary" type="button" data-insert="## 見出し">H2</button>
-      <button class="tool-button secondary" type="button" data-insert="### 小見出し">H3</button>
-      <button class="tool-button secondary" type="button" data-wrap="**">太字</button>
-      <button class="tool-button secondary" type="button" data-wrap="`">コード</button>
-      <button class="tool-button secondary" type="button" data-insert="- 箇条書き">リスト</button>
-      <button class="tool-button secondary" type="button" data-insert="1. 番号付き">番号</button>
-      <button class="tool-button secondary" type="button" data-insert="[リンク](https://example.com)">リンク</button>
-      <button class="tool-button secondary" type="button" data-insert="> 引用">引用</button>
-      <button class="tool-button secondary" type="button" data-codeblock="true">コードブロック</button>
+    <div class="editor-toolbar" aria-label="HTML tools">
+      <button class="tool-button secondary" type="button" data-insert="<h2>見出し</h2>">H2</button>
+      <button class="tool-button secondary" type="button" data-insert="<h3>小見出し</h3>">H3</button>
+      <button class="tool-button secondary" type="button" data-before="<strong>" data-after="</strong>">太字</button>
+      <button class="tool-button secondary" type="button" data-before="<code>" data-after="</code>">コード</button>
+      <button class="tool-button secondary" type="button" data-insert="<ul>&#10;  <li>箇条書き</li>&#10;</ul>">リスト</button>
+      <button class="tool-button secondary" type="button" data-insert="<ol>&#10;  <li>番号付き</li>&#10;</ol>">番号</button>
+      <button class="tool-button secondary" type="button" data-before="<a href=&quot;https://example.com&quot;>" data-after="</a>">リンク</button>
+      <button class="tool-button secondary" type="button" data-insert="<blockquote>&#10;  <p>引用</p>&#10;</blockquote>">引用</button>
+      <button class="tool-button secondary" type="button" data-insert="<pre><code>console.log(&quot;hello&quot;);</code></pre>">コードブロック</button>
     </div>
-    <textarea id="body" class="markdown-input">## はじめに
+    <textarea id="body" class="html-editor-input"><h2>はじめに</h2>
 
-ここに本文を書きます。
+<p>ここに本文をHTMLで書きます。</p>
 
-- Markdownで書けます
-- 下書きはこのブラウザに自動保存されます
-- ZIPを書き出すと、`index.md` と画像が記事フォルダにまとまります
+<ul>
+  <li>本文はそのままHTMLとして扱われます</li>
+  <li>下書きはこのブラウザに自動保存されます</li>
+  <li>ZIPを書き出すと、<code>index.html</code> と画像が記事フォルダにまとまります</li>
+</ul>
 
-画像は右側の画像パネルから複数追加できます。</textarea>
+<p>画像は右側の画像パネルから複数追加できます。</p></textarea>
   </section>
 
   <aside class="panel">
@@ -117,8 +119,8 @@ permalink: /blog/editor.html
         <button class="ghost-button" id="clearDraftBtn" type="button">下書きを削除</button>
       </div>
       <div class="field file-field">
-        <label for="importMdFile">既存index.mdを読み込み</label>
-        <input id="importMdFile" type="file" accept=".md,.markdown,text/markdown,text/plain">
+        <label for="importHtmlFile">既存index.htmlを読み込み</label>
+        <input id="importHtmlFile" type="file" accept=".html,.htm,text/html,text/plain">
       </div>
       <p class="help-text">下書きはブラウザのlocalStorageに保存されます。公開はされません。</p>
       <p class="status" id="draftStatus"></p>
@@ -137,14 +139,14 @@ permalink: /blog/editor.html
       <div class="asset-list" id="assetList">
         <p class="empty-state">画像を選ぶとここに並びます。</p>
       </div>
-      <p class="help-text">画像はZIP内で `index.md` と同じ記事フォルダに入ります。本文には `/blog/articles/.../image.png` の形で挿入されます。</p>
+      <p class="help-text">画像はZIP内で `index.html` と同じ記事フォルダに入ります。本文には `<img>` として `/blog/articles/.../image.png` の形で挿入されます。</p>
       <p class="status" id="imageStatus"></p>
     </div>
   </aside>
 
   <aside class="panel">
     <div class="panel-head">
-      <h2>HTMLから変換</h2>
+      <h2>HTML取り込み</h2>
     </div>
     <div class="panel-body">
       <div class="field">
@@ -152,10 +154,10 @@ permalink: /blog/editor.html
         <textarea id="htmlInput" class="html-input" placeholder="<h2>見出し</h2><p>本文...</p>"></textarea>
       </div>
       <div class="button-row stack">
-        <button class="tool-button" id="convertHtmlReplaceBtn" type="button">Markdownへ変換して置き換え</button>
-        <button class="tool-button secondary" id="convertHtmlAppendBtn" type="button">変換して末尾へ追加</button>
+        <button class="tool-button" id="convertHtmlReplaceBtn" type="button">HTMLとして置き換え</button>
+        <button class="tool-button secondary" id="convertHtmlAppendBtn" type="button">HTMLとして末尾へ追加</button>
       </div>
-      <p class="help-text">見出し、段落、リンク、画像、リスト、引用、コード、表をMarkdownへ変換します。script/styleは除去します。</p>
+      <p class="help-text">貼り付けたHTMLを本文へ取り込みます。script/styleやイベント属性は除去します。</p>
       <p class="status" id="htmlStatus"></p>
     </div>
   </aside>
@@ -199,7 +201,7 @@ permalink: /blog/editor.html
         <button class="tool-button" id="uploadBtn" type="button">記事フォルダをアップロード</button>
         <button class="ghost-button" id="saveTokenBtn" type="button">Token保存</button>
       </div>
-      <p class="help-text">手動配置だけで運用できます。直接アップロードは `index.md` と選択中の画像を同じ記事フォルダへ送ります。</p>
+      <p class="help-text">手動配置だけで運用できます。直接アップロードは `index.html` と選択中の画像を同じ記事フォルダへ送ります。</p>
       <p class="status" id="uploadStatus"></p>
     </div>
   </aside>

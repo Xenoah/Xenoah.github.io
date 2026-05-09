@@ -62,5 +62,5 @@ tags:
 
 const note = '<p class="source-note">この記事は既存ページ <a href="/vrchat.htm">vrchat.htm</a> をブログ記事として再構成したものです。元ページはそのまま残しています。</p>\n\n';
 
-fs.writeFileSync(path.join(outDir, "index.md"), frontMatter + note + body.trim() + "\n", "utf8");
-console.log(`created ${path.join(outDir, "index.md")} with ${nameMap.size} copied assets`);
+fs.writeFileSync(path.join(outDir, "index.html"), frontMatter + note + body.trim() + "\n", "utf8");
+console.log(`created ${path.join(outDir, "index.html")} with ${nameMap.size} copied assets`);

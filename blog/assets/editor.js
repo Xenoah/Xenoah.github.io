@@ -1,6 +1,6 @@
 (function () {
   const $ = (id) => document.getElementById(id);
-  const draftKey = "xenoah_blog_editor_draft_v3";
+  const draftKey = "xenoah_blog_editor_draft_html_v1";
   const encoder = new TextEncoder();
   let assets = [];
   let draftTimer = 0;
@@ -18,7 +18,7 @@
     branch: $("branch"),
     token: $("token"),
     imageFiles: $("imageFiles"),
-    importMdFile: $("importMdFile"),
+    importHtmlFile: $("importHtmlFile"),
     htmlInput: $("htmlInput")
   };
 
@@ -97,7 +97,7 @@
   }
 
   function articleIndexPath() {
-    return `${articleFolder()}index.md`;
+    return `${articleFolder()}index.html`;
   }
 
   function publicPermalink() {
@@ -138,10 +138,6 @@
     return lines.join("\n");
   }
 
-  function articleMarkdown() {
-    return `${frontMatter()}${fields.body.value.trim()}\n`;
-  }
-
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
@@ -151,122 +147,40 @@
       .replace(/'/g, "&#39;");
   }
 
-  function inlineMarkdown(value) {
-    let html = escapeHtml(value);
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img loading="lazy" src="$2" alt="$1">');
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" rel="noopener noreferrer">$1</a>');
-    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-    return html;
+  function sanitizeUrl(value) {
+    const trimmed = String(value || "").trim();
+    if (/^\s*javascript:/i.test(trimmed)) {
+      return "";
+    }
+    return trimmed;
   }
 
-  function renderMarkdown(markdown) {
-    const lines = markdown.split(/\r?\n/);
-    const html = [];
-    let inCode = false;
-    let code = [];
-    let inList = false;
-    let inOrderedList = false;
-    let table = [];
-
-    function closeLists() {
-      if (inList) {
-        html.push("</ul>");
-        inList = false;
-      }
-      if (inOrderedList) {
-        html.push("</ol>");
-        inOrderedList = false;
-      }
-    }
-
-    function flushTable() {
-      if (!table.length) {
-        return;
-      }
-      const rows = table
-        .filter((line) => !/^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line))
-        .map((line) => line.replace(/^\||\|$/g, "").split("|").map((cell) => inlineMarkdown(cell.trim())));
-      if (rows.length) {
-        html.push("<table>");
-        rows.forEach((row, index) => {
-          html.push(index === 0 ? "<thead><tr>" : index === 1 ? "<tbody><tr>" : "<tr>");
-          row.forEach((cell) => html.push(index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`));
-          html.push(index === 0 ? "</tr></thead>" : "</tr>");
-        });
-        if (rows.length > 1) {
-          html.push("</tbody>");
+  function sanitizeArticleHtml(html) {
+    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+    doc.querySelectorAll("script,style,noscript,iframe[srcdoc]").forEach((node) => node.remove());
+    doc.body.querySelectorAll("*").forEach((node) => {
+      Array.from(node.attributes).forEach((attr) => {
+        const name = attr.name.toLowerCase();
+        if (name.startsWith("on")) {
+          node.removeAttribute(attr.name);
         }
-        html.push("</table>");
-      }
-      table = [];
-    }
-
-    lines.forEach((line) => {
-      if (line.startsWith("```")) {
-        flushTable();
-        if (inCode) {
-          html.push(`<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`);
-          code = [];
-          inCode = false;
-        } else {
-          closeLists();
-          inCode = true;
+        if ((name === "href" || name === "src") && !sanitizeUrl(attr.value)) {
+          node.removeAttribute(attr.name);
         }
-        return;
+      });
+      if (node.tagName.toLowerCase() === "img" && !node.hasAttribute("loading")) {
+        node.setAttribute("loading", "lazy");
       }
-
-      if (inCode) {
-        code.push(line);
-        return;
-      }
-
-      if (/^\|.+\|$/.test(line.trim())) {
-        closeLists();
-        table.push(line.trim());
-        return;
-      }
-
-      flushTable();
-
-      if (/^###\s+/.test(line)) {
-        closeLists();
-        html.push(`<h3>${inlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
-      } else if (/^##\s+/.test(line)) {
-        closeLists();
-        html.push(`<h2>${inlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
-      } else if (/^#\s+/.test(line)) {
-        closeLists();
-        html.push(`<h1>${inlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
-      } else if (/^>\s?/.test(line)) {
-        closeLists();
-        html.push(`<blockquote>${inlineMarkdown(line.replace(/^>\s?/, ""))}</blockquote>`);
-      } else if (/^-\s+/.test(line)) {
-        if (!inList) {
-          closeLists();
-          html.push("<ul>");
-          inList = true;
-        }
-        html.push(`<li>${inlineMarkdown(line.replace(/^-\s+/, ""))}</li>`);
-      } else if (/^\d+\.\s+/.test(line)) {
-        if (!inOrderedList) {
-          closeLists();
-          html.push("<ol>");
-          inOrderedList = true;
-        }
-        html.push(`<li>${inlineMarkdown(line.replace(/^\d+\.\s+/, ""))}</li>`);
-      } else if (line.trim() === "") {
-        closeLists();
-      } else {
-        closeLists();
-        html.push(`<p>${inlineMarkdown(line)}</p>`);
+      if (node.tagName.toLowerCase() === "a" && node.getAttribute("target") === "_blank" && !node.getAttribute("rel")) {
+        node.setAttribute("rel", "noopener noreferrer");
       }
     });
+    return doc.body.innerHTML.trim();
+  }
 
-    flushTable();
-    closeLists();
-    return html.join("\n");
+  function articleHtmlSource() {
+    const body = sanitizeArticleHtml(fields.body.value).trim();
+    return `${frontMatter()}${body}\n`;
   }
 
   function tagHtml() {
@@ -280,6 +194,7 @@
   function updatePreview() {
     updatePaths();
     const cover = fields.image.value.trim();
+    const bodyHtml = sanitizeArticleHtml(fields.body.value);
     preview.innerHTML = `
       <article class="article preview-article">
         <header class="article-head">
@@ -289,16 +204,20 @@
           ${tagHtml()}
         </header>
         ${cover ? `<figure class="eyecatch"><img src="${escapeHtml(cover)}" alt=""></figure>` : ""}
-        <div class="article-body">${renderMarkdown(fields.body.value)}</div>
+        <div class="article-body">${bodyHtml}</div>
       </article>
     `;
-    updateStats();
+    updateStats(bodyHtml);
     updateChecklist();
   }
 
-  function updateStats() {
-    const plain = fields.body.value.replace(/[#>*_`[\]()!-]/g, "").trim();
-    const chars = plain.length;
+  function textFromHtml(html) {
+    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+    return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function updateStats(html) {
+    const chars = textFromHtml(html || fields.body.value).length;
     charCount.textContent = String(chars);
     imageCount.textContent = String(assets.length);
     readTime.textContent = String(Math.max(1, Math.ceil(chars / 600)));
@@ -310,14 +229,15 @@
 
   function updateChecklist() {
     const hasLocalCover = !fields.image.value.trim() || fields.image.value.startsWith(publicArticleFolder()) || fields.image.value.startsWith("/");
+    const bodyTextLength = textFromHtml(fields.body.value).length;
     const checks = [
       [fields.title.value.trim().length >= 4, "タイトルが入っている"],
       [fields.description.value.trim().length >= 50 && fields.description.value.trim().length <= 160, "説明文が50-160文字"],
       [slugify(fields.slug.value) === fields.slug.value.trim() || fields.slug.value.trim().length > 0, "スラッグが設定済み"],
-      [fields.body.value.trim().length >= 80, "本文が80文字以上"],
+      [bodyTextLength >= 80, "本文が80文字以上"],
       [splitTags().length > 0, "タグが1つ以上"],
       [hasLocalCover, "アイキャッチ画像パスを確認"],
-      [articleMarkdown().includes("blog_article: true"), "フォルダ記事設定あり"]
+      [articleHtmlSource().includes("blog_article: true"), "HTML記事設定あり"]
     ];
     publishChecklist.innerHTML = checks.map(([ok, text]) => checklistItem(ok, text)).join("");
   }
@@ -377,11 +297,11 @@
     draftSaved.textContent = "下書きなし";
   }
 
-  function insertAtCursor(textarea, insert, wrap) {
+  function insertAtCursor(textarea, insert, before, after) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selected = textarea.value.slice(start, end);
-    const value = wrap ? `${wrap}${selected || "text"}${wrap}` : insert;
+    const value = before ? `${before}${selected || "text"}${after || ""}` : insert;
     textarea.setRangeText(value, start, end, "end");
     textarea.focus();
     updatePreview();
@@ -456,7 +376,7 @@
     asset.alt = input.value.trim() || "画像";
 
     if (button.dataset.action === "insert") {
-      insertAtCursor(fields.body, `![${asset.alt}](${assetPublicPath(asset)})`, "");
+      insertAtCursor(fields.body, `<figure>\n  <img loading="lazy" src="${assetPublicPath(asset)}" alt="${escapeHtml(asset.alt)}">\n  <figcaption>${escapeHtml(asset.alt)}</figcaption>\n</figure>`, "", "");
       setStatus(imageStatus, `${asset.name} を本文に挿入しました。`);
     } else if (button.dataset.action === "cover") {
       fields.image.value = assetPublicPath(asset);
@@ -475,14 +395,14 @@
   }
 
   function downloadArticleOnly() {
-    downloadBlob(new Blob([articleMarkdown()], { type: "text/markdown;charset=utf-8" }), "index.md");
-    setStatus(exportStatus, `index.md を書き出しました。${articleFolder()} に配置してください。`);
+    downloadBlob(new Blob([articleHtmlSource()], { type: "text/html;charset=utf-8" }), "index.html");
+    setStatus(exportStatus, `index.html を書き出しました。${articleFolder()} に配置してください。`);
     saveDraft(false);
   }
 
   async function copyArticle() {
-    await navigator.clipboard.writeText(articleMarkdown());
-    setStatus(exportStatus, "Markdown全文をクリップボードにコピーしました。");
+    await navigator.clipboard.writeText(articleHtmlSource());
+    setStatus(exportStatus, "HTML全文をクリップボードにコピーしました。");
   }
 
   function crc32(bytes) {
@@ -546,8 +466,8 @@
   async function articleFiles() {
     const folder = articleFolderName();
     const files = [{
-      path: `${folder}/index.md`,
-      bytes: encoder.encode(articleMarkdown())
+      path: `${folder}/index.html`,
+      bytes: encoder.encode(articleHtmlSource())
     }];
 
     for (const asset of assets) {
@@ -573,9 +493,9 @@
     }
     const root = await window.showDirectoryPicker();
     const dir = await root.getDirectoryHandle(articleFolderName(), { create: true });
-    const indexHandle = await dir.getFileHandle("index.md", { create: true });
+    const indexHandle = await dir.getFileHandle("index.html", { create: true });
     const indexWritable = await indexHandle.createWritable();
-    await indexWritable.write(articleMarkdown());
+    await indexWritable.write(articleHtmlSource());
     await indexWritable.close();
 
     for (const asset of assets) {
@@ -589,126 +509,41 @@
     saveDraft(false);
   }
 
-  function markdownEscape(value) {
-    return String(value || "").replace(/\s+/g, " ").trim();
-  }
-
-  function htmlToMarkdown(html) {
+  function importFullHtml(html) {
     const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll("script,style,noscript,iframe").forEach((node) => node.remove());
+    const meta = (selector) => doc.querySelector(selector)?.getAttribute("content")?.trim() || "";
+    const text = (selector) => doc.querySelector(selector)?.textContent?.trim() || "";
+    const title = meta('meta[property="og:title"]') || text(".article-head h1") || text("h1") || text("title").replace(/\s*\|.*$/, "");
+    const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || text(".article-lead");
+    const date = meta('meta[property="article:published_time"]').slice(0, 10) || text(".article-kicker").replaceAll(".", "-");
+    const canonical = doc.querySelector('link[rel="canonical"]')?.getAttribute("href") || meta('meta[property="og:url"]');
+    const image = meta('meta[property="og:image"]').replace(/^https:\/\/xenoah\.github\.io/, "");
+    const tags = Array.from(doc.querySelectorAll('meta[property="article:tag"]')).map((node) => node.getAttribute("content")).filter(Boolean);
+    const body = doc.querySelector(".article-body") || doc.body;
 
-    function inline(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node.nodeValue.replace(/\s+/g, " ");
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return "";
-      }
-      const tag = node.tagName.toLowerCase();
-      const text = Array.from(node.childNodes).map(inline).join("");
-      if (tag === "strong" || tag === "b") return `**${text.trim()}**`;
-      if (tag === "em" || tag === "i") return `*${text.trim()}*`;
-      if (tag === "code") return `\`${node.textContent.trim()}\``;
-      if (tag === "br") return "\n";
-      if (tag === "a") {
-        const href = node.getAttribute("href") || "";
-        return href ? `[${text.trim() || href}](${href})` : text;
-      }
-      if (tag === "img") {
-        const src = node.getAttribute("src") || "";
-        const alt = node.getAttribute("alt") || "画像";
-        return src ? `![${alt}](${src})` : "";
-      }
-      return text;
+    if (title) fields.title.value = title;
+    if (description) fields.description.value = description;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) fields.date.value = date;
+    if (image) fields.image.value = image;
+    if (tags.length) fields.tags.value = tags.join(", ");
+    if (canonical) {
+      const url = canonical.replace(/^https:\/\/xenoah\.github\.io/, "");
+      const parts = url.split("/").filter(Boolean);
+      fields.slug.value = parts[parts.length - 1] || fields.slug.value;
+      fields.slug.dataset.touched = "true";
     }
-
-    function block(node, depth) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return markdownEscape(node.nodeValue);
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return "";
-      }
-
-      const tag = node.tagName.toLowerCase();
-      const children = () => Array.from(node.childNodes).map((child) => block(child, depth)).filter(Boolean).join("\n\n");
-      const text = markdownEscape(inline(node));
-
-      if (/^h[1-6]$/.test(tag)) {
-        return `${"#".repeat(Number(tag[1]))} ${text}`;
-      }
-      if (tag === "p") {
-        return text;
-      }
-      if (tag === "pre") {
-        return `\`\`\`\n${node.textContent.replace(/\n+$/, "")}\n\`\`\``;
-      }
-      if (tag === "blockquote") {
-        return children().split("\n").map((line) => `> ${line}`).join("\n");
-      }
-      if (tag === "ul" || tag === "ol") {
-        return Array.from(node.children)
-          .filter((child) => child.tagName && child.tagName.toLowerCase() === "li")
-          .map((li, index) => {
-            const marker = tag === "ol" ? `${index + 1}.` : "-";
-            return `${"  ".repeat(depth)}${marker} ${markdownEscape(inline(li))}`;
-          })
-          .join("\n");
-      }
-      if (tag === "table") {
-        const rows = Array.from(node.querySelectorAll("tr")).map((tr) =>
-          Array.from(tr.children).map((cell) => markdownEscape(inline(cell)))
-        ).filter((row) => row.length);
-        if (!rows.length) return "";
-        const header = rows[0];
-        const separator = header.map(() => "---");
-        return [header, separator, ...rows.slice(1)].map((row) => `| ${row.join(" | ")} |`).join("\n");
-      }
-      if (tag === "figure") {
-        return children();
-      }
-      if (tag === "figcaption") {
-        return text ? `*${text}*` : "";
-      }
-      if (tag === "img") {
-        return inline(node);
-      }
-      if (tag === "hr") {
-        return "---";
-      }
-      if (["div", "section", "article", "main", "body"].includes(tag)) {
-        return children();
-      }
-      return text || children();
-    }
-
-    return Array.from(doc.body.childNodes).map((node) => block(node, 0)).filter(Boolean).join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+    fields.body.value = sanitizeArticleHtml(body.innerHTML);
   }
 
-  function convertHtml(mode) {
-    const markdown = htmlToMarkdown(fields.htmlInput.value);
-    if (!markdown) {
-      setStatus(htmlStatus, "変換できるHTMLがありません。");
-      return;
-    }
-    if (mode === "replace") {
-      fields.body.value = markdown;
-    } else {
-      fields.body.value = `${fields.body.value.trim()}\n\n${markdown}`.trim();
-    }
-    updatePreview();
-    scheduleDraftSave();
-    setStatus(htmlStatus, "HTMLをMarkdownへ変換しました。プレビューで崩れがないか確認してください。");
-  }
-
-  function parseFrontMatter(markdown) {
-    const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  function parseFrontMatter(html) {
+    html = String(html || "").replace(/^\uFEFF/, "");
+    const match = html.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
     if (!match) {
-      fields.body.value = markdown;
+      importFullHtml(html);
       return;
     }
     const yaml = match[1];
-    fields.body.value = markdown.slice(match[0].length);
+    fields.body.value = sanitizeArticleHtml(html.slice(match[0].length));
     const read = (key) => {
       const found = yaml.match(new RegExp(`^${key}:\\s*"?([^"\\n]+)"?\\s*$`, "m"));
       return found ? found[1].trim() : "";
@@ -729,8 +564,8 @@
     }
   }
 
-  async function importMarkdownFile() {
-    const file = fields.importMdFile.files && fields.importMdFile.files[0];
+  async function importHtmlFile() {
+    const file = fields.importHtmlFile.files && fields.importHtmlFile.files[0];
     if (!file) return;
     parseFrontMatter(await file.text());
     updatePreview();
@@ -738,8 +573,24 @@
     setStatus(draftStatus, `${file.name} を読み込みました。`);
   }
 
+  function applyHtmlInput(mode) {
+    const html = sanitizeArticleHtml(fields.htmlInput.value);
+    if (!textFromHtml(html) && !/<img|<iframe|<figure/i.test(html)) {
+      setStatus(htmlStatus, "取り込めるHTMLがありません。");
+      return;
+    }
+    if (mode === "replace") {
+      fields.body.value = html;
+    } else {
+      fields.body.value = `${fields.body.value.trim()}\n\n${html}`.trim();
+    }
+    updatePreview();
+    scheduleDraftSave();
+    setStatus(htmlStatus, "HTMLを本文へ取り込みました。プレビューで崩れがないか確認してください。");
+  }
+
   function folderTree() {
-    const names = ["index.md", ...assets.map((asset) => asset.name)];
+    const names = ["index.html", ...assets.map((asset) => asset.name)];
     return `${articleFolderName()}/\n${names.map((name, index) => `${index === names.length - 1 ? "`-" : "|-"} ${name}`).join("\n")}`;
   }
 
@@ -810,7 +661,7 @@
     }
 
     setStatus(uploadStatus, `${articleIndexPath()} をアップロードしています...`);
-    await uploadContent(owner, repo, branch, token, articleIndexPath(), toBase64Utf8(articleMarkdown()), `add blog article: ${fields.title.value}`);
+    await uploadContent(owner, repo, branch, token, articleIndexPath(), toBase64Utf8(articleHtmlSource()), `add blog article: ${fields.title.value}`);
 
     for (const asset of assets) {
       setStatus(uploadStatus, `${articleFolder()}${asset.name} をアップロードしています...`);
@@ -841,19 +692,15 @@
     });
   }
 
-  document.querySelectorAll("[data-insert], [data-wrap], [data-codeblock]").forEach((button) => {
+  document.querySelectorAll("[data-insert], [data-before]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (button.dataset.codeblock) {
-        insertAtCursor(fields.body, "```js\nconsole.log(\"hello\");\n```", "");
-        return;
-      }
-      insertAtCursor(fields.body, button.dataset.insert, button.dataset.wrap);
+      insertAtCursor(fields.body, button.dataset.insert || "", button.dataset.before, button.dataset.after);
     });
   });
 
   bindChangeEvents();
   fields.imageFiles.addEventListener("change", () => addFiles(fields.imageFiles.files));
-  fields.importMdFile.addEventListener("change", () => importMarkdownFile().catch((error) => setStatus(draftStatus, error.message)));
+  fields.importHtmlFile.addEventListener("change", () => importHtmlFile().catch((error) => setStatus(draftStatus, error.message)));
   assetList.addEventListener("click", handleAssetAction);
   assetList.addEventListener("input", (event) => {
     const item = event.target.closest(".asset-item");
@@ -877,8 +724,8 @@
     }
   });
   $("clearDraftBtn").addEventListener("click", clearDraft);
-  $("convertHtmlReplaceBtn").addEventListener("click", () => convertHtml("replace"));
-  $("convertHtmlAppendBtn").addEventListener("click", () => convertHtml("append"));
+  $("convertHtmlReplaceBtn").addEventListener("click", () => applyHtmlInput("replace"));
+  $("convertHtmlAppendBtn").addEventListener("click", () => applyHtmlInput("append"));
   $("copyPermalinkBtn").addEventListener("click", () => copyText(`https://xenoah.github.io${publicPermalink()}`, checkStatus, "公開URLをコピーしました。"));
   $("copyTreeBtn").addEventListener("click", () => copyText(folderTree(), checkStatus, "フォルダ構成をコピーしました。"));
   $("saveTokenBtn").addEventListener("click", () => {
