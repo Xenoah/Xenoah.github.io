@@ -39,6 +39,10 @@ details[open]>.project-head:after,details[open]>summary .project-head:after{cont
 .inventory details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
 .inventory summary{cursor:pointer;padding:13px 15px;font-weight:bold;background:var(--soft)}
 .inventory ul{margin:0;padding:12px 18px 14px 32px;color:#2f3545;font-size:14px}
+.booth-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.booth-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 18px rgba(20,28,52,.05)}
+.booth-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#eef1f7;border-bottom:1px solid var(--line)}
+.booth-card-body{padding:13px 14px 15px}.booth-card h3{margin:0 0 6px;font-size:16px;line-height:1.45}.booth-card p{margin:0 0 10px;color:#3b4254;font-size:13px}.booth-card .meta{color:var(--sub);font-size:12px;margin-bottom:10px}
 .retro-box{background:var(--code);color:#d1fae5;border-radius:12px;padding:14px;font-family:Consolas,"Courier New",monospace;font-size:13px;overflow-x:auto}.footer{margin:36px 0 10px;padding-top:16px;border-top:1px solid var(--line);color:var(--sub);font-size:13px}
 @media(max-width:720px){body{padding:10px}.hero{padding:18px}.field{grid-template-columns:1fr;gap:2px}.project-head h3{margin-right:0}.project-head:after{position:static;display:inline-block;margin-top:8px}.metrics{grid-template-columns:1fr 1fr}}
 </style>
@@ -83,6 +87,72 @@ details[open]>.project-head:after,details[open]>summary .project-head:after{cont
     <div class="cap-card"><h3>現場寄りの課題設定</h3><p>FA、帳票、G-code、配線、ローカル処理など、実務に近い問題を小さく分解してプロトタイプ化。</p></div>
     <div class="cap-card"><h3>公開までの完走</h3><p>アイデアで止めず、GitHub Pagesで動くURLまで出す。実装範囲、制約、次の改善点も記録。</p></div>
     <div class="cap-card"><h3>AIの使い方</h3><p>AI任せにせず、要件定義、実装指示、レビュー、検証、改善判断を自分で担当する開発補助として利用。</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>BOOTH Pickups</h2>
+  <p class="section-intro">3D配布物の中から、外部向けに制作力が伝わりやすいものを選定。画像はローカル保存した軽量版を使用しています。</p>
+  <div class="booth-grid">
+    <article class="booth-card">
+      <img src="images_portfolio/aona.jpg" alt="VRChat想定アバター 葵那 Aona">
+      <div class="booth-card-body">
+        <h3>VRChat想定アバター「葵那(Aona)」</h3>
+        <div class="meta">3D Character / VRChat / Blender / Unity</div>
+        <p>完全オリジナルの3Dアバターモデル。PC/Android両対応、FBX・テクスチャ・Unity Packageまで含めた構成で、キャラクターモデリングから配布形式までまとめている。</p>
+        <a class="button" href="https://3droid.booth.pm/items/6460364" target="_blank">商品ページ</a>
+      </div>
+    </article>
+
+    <article class="booth-card">
+      <img src="images_portfolio/led-badge.jpg" alt="VRChat対応 LEDマトリクスなバッジ">
+      <div class="booth-card-body">
+        <h3>LEDマトリクスなバッジ</h3>
+        <div class="meta">VRChat Accessory / Material Animation</div>
+        <p>電子工作モチーフのVRC向けアクセサリ。LED表示部のマテリアルを差し替え、Offsetアニメーションでスクロール表示できる設計になっている。</p>
+        <a class="button" href="https://3droid.booth.pm/items/6677390" target="_blank">商品ページ</a>
+      </div>
+    </article>
+
+    <article class="booth-card">
+      <img src="images_portfolio/solder-stand.jpg" alt="はんだリール作業スタンド">
+      <div class="booth-card-body">
+        <h3>はんだリール作業スタンド</h3>
+        <div class="meta">3D Print / Practical Tool / STL</div>
+        <p>作業中のはんだリール転がりと絡まりを抑える3Dプリント用スタンド。内径・外径条件、材質、しなり動作まで考慮した実用寄りの設計。</p>
+        <a class="button" href="https://3droid.booth.pm/items/6738446" target="_blank">商品ページ</a>
+      </div>
+    </article>
+
+    <article class="booth-card">
+      <img src="images_portfolio/shichirin.jpg" alt="七輪 しちりん 3Dモデル">
+      <div class="booth-card-body">
+        <h3>七輪(しちりん) ～餅を添えて～</h3>
+        <div class="meta">3D Model / Blender / FBX</div>
+        <p>和風小物を題材にした3Dモデル。FBXとBlenderファイルを同梱し、テクスチャに依存しないマテリアル構成で扱いやすくしている。</p>
+        <a class="button" href="https://3droid.booth.pm/items/6530473" target="_blank">商品ページ</a>
+      </div>
+    </article>
+
+    <article class="booth-card">
+      <img src="images_portfolio/dodge-the-falling.jpg" alt="自作ゲーム DODGE THE FALLING">
+      <div class="booth-card-body">
+        <h3>自作ゲーム DODGE THE FALLING</h3>
+        <div class="meta">Game / DxLib / Windows</div>
+        <p>DxLibで制作したWindows向け自作ゲーム。上から降ってくるエラーを避けるシンプルなルールで、入力処理、当たり判定、ゲームループ、配布物化まで含めた初期ゲーム制作の成果物。</p>
+        <a class="button" href="https://3droid.booth.pm/items/4225608" target="_blank">商品ページ</a>
+      </div>
+    </article>
+
+    <article class="booth-card">
+      <img src="images_portfolio/pingpong-table.jpg" alt="卓球台 3Dモデル">
+      <div class="booth-card-body">
+        <h3>卓球台 3Dモデル</h3>
+        <div class="meta">3D Model / VRChat / Blender / FBX / Unity</div>
+        <p>実物サイズを基準に作成したVRChat向け3Dモデル。物理演算を適用した利用を想定し、blend・fbx・unitypackageを同梱して、ワールド組み込みまで進めやすい構成にしている。</p>
+        <a class="button" href="https://3droid.booth.pm/items/5577605" target="_blank">商品ページ</a>
+      </div>
+    </article>
   </div>
 </section>
 
