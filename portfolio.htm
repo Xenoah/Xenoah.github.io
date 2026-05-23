@@ -1,13 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ポートフォリオ | Xenoah</title>
 <style>
-:root{--bg:#f7f7fb;--ink:#10121a;--sub:#555b68;--panel:#fff;--line:#d9dce8;--accent:#2457ff;--accent2:#00a86b;--warn:#b26a00;--fail:#9b1c31;--code:#111827}
+:root{
+  --bg:#f7f7fb;--ink:#10121a;--sub:#555b68;--panel:#fff;--line:#d9dce8;
+  --accent:#2457ff;--accent2:#00a86b;--warn:#b26a00;--code:#111827;--soft:#f2f5ff;
+}
 *{box-sizing:border-box}
-body{margin:0;padding:16px;background:var(--bg);color:var(--ink);font-family:"Yu Gothic","Meiryo","Hiragino Kaku Gothic ProN",sans-serif;line-height:1.75}
+body{margin:0;padding:16px;background:var(--bg);color:var(--ink);font-family:"Yu Gothic","Meiryo","Hiragino Kaku Gothic ProN",sans-serif;line-height:1.72}
 a{color:var(--accent)}a:hover{text-decoration:none}
 .site-banner{margin-bottom:14px}.site-banner img{max-width:100%;height:auto}
 .hero{border:1px solid var(--line);background:linear-gradient(135deg,rgba(36,87,255,.10),transparent 38%),linear-gradient(315deg,rgba(0,168,107,.12),transparent 42%),var(--panel);padding:24px;border-radius:14px;box-shadow:0 10px 28px rgba(20,28,52,.08)}
@@ -16,16 +19,28 @@ h1{margin:0 0 10px;font-size:28px;line-height:1.35}.lead{margin:0;font-size:15px
 .note{margin-top:14px;padding:12px 14px;border-left:4px solid var(--accent2);background:rgba(0,168,107,.08);font-size:14px}
 .section{margin-top:28px}.section h2{margin:0 0 12px;padding-left:10px;border-left:6px solid var(--accent);font-size:22px}.section-intro{margin:0 0 16px;color:var(--sub)}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:14px 0 0;list-style:none}.pill-list li{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px}
-.project-grid{display:grid;grid-template-columns:1fr;gap:16px}
-.project-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(20,28,52,.06)}
-.project-head{padding:16px 18px;background:#101827;color:#fff}.project-head h3{margin:0;font-size:19px}.project-meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.metric strong{display:block;font-size:24px;color:var(--accent);line-height:1.1}.metric span{display:block;margin-top:6px;color:var(--sub);font-size:13px}
+.project-grid{display:grid;grid-template-columns:1fr;gap:14px}
+details.project-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(20,28,52,.06)}
+details.project-card summary{list-style:none;cursor:pointer;padding:0}
+details.project-card summary::-webkit-details-marker{display:none}
+.project-head{padding:16px 18px;background:#101827;color:#fff;position:relative}
+.project-head:after{content:"Open";position:absolute;right:16px;top:16px;color:#cbd5e1;font-size:12px;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:2px 8px}
+details[open]>.project-head:after,details[open]>summary .project-head:after{content:"Close"}
+.project-head h3{margin:0 70px 6px 0;font-size:19px;line-height:1.35}.project-summary{margin:0;color:#dbe4f0;font-size:13px}
+.project-meta{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
 .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);font-size:12px;color:#f1f5f9}
-.project-body{padding:14px 18px 18px}.field{display:grid;grid-template-columns:128px 1fr;gap:10px;padding:9px 0;border-bottom:1px dashed #dfe3ef}.field:last-child{border-bottom:none}
-.label{font-weight:bold;color:#1f2937;font-size:13px}.value{color:#2f3545;font-size:14px}.value ul{margin:0;padding-left:1.2em}
+.project-body{padding:14px 18px 18px}.field{display:grid;grid-template-columns:138px 1fr;gap:10px;padding:9px 0;border-bottom:1px dashed #dfe3ef}.field:last-child{border-bottom:none}
+.label{font-weight:bold;color:#1f2937;font-size:13px}.value{color:#2f3545;font-size:14px}.value ul{margin:0;padding-left:1.2em}.value li{margin:2px 0}
 .links{display:flex;flex-wrap:wrap;gap:8px}.button{display:inline-block;padding:5px 10px;border:1px solid var(--accent);border-radius:8px;background:#f8faff;text-decoration:none;font-size:13px}.button.ghost{border-color:var(--line);color:#444b5a;background:#fff}
 .status-wip{color:var(--warn);font-weight:bold}.capability{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.cap-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.cap-card h3{margin:0 0 8px;font-size:16px}.cap-card p{margin:0;color:var(--sub);font-size:14px}
+.inventory{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.inventory details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+.inventory summary{cursor:pointer;padding:13px 15px;font-weight:bold;background:var(--soft)}
+.inventory ul{margin:0;padding:12px 18px 14px 32px;color:#2f3545;font-size:14px}
 .retro-box{background:var(--code);color:#d1fae5;border-radius:12px;padding:14px;font-family:Consolas,"Courier New",monospace;font-size:13px;overflow-x:auto}.footer{margin:36px 0 10px;padding-top:16px;border-top:1px solid var(--line);color:var(--sub);font-size:13px}
-@media(max-width:720px){body{padding:10px}.hero{padding:18px}.field{grid-template-columns:1fr;gap:2px}}
+@media(max-width:720px){body{padding:10px}.hero{padding:18px}.field{grid-template-columns:1fr;gap:2px}.project-head h3{margin-right:0}.project-head:after{position:static;display:inline-block;margin-top:8px}.metrics{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -36,233 +51,284 @@ h1{margin:0 0 10px;font-size:28px;line-height:1.35}.lead{margin:0;font-size:15px
 
 <section class="hero">
   <p class="eyebrow">Portfolio / Build Log</p>
-  <h1>制御盤とブラウザの間で、使える道具を作る。</h1>
+  <h1>FA・制御系の視点で、実用寄りのWebツールと試作環境を作る。</h1>
   <p class="lead">
-    FA現場で見える小さな困りごと、Webで試したい表現、G-codeやPDFのような実務寄りのデータ処理を、
-    AI支援を使いながら小さな試作品として形にしています。
-    ここでは完成度だけでなく、何を考え、どこで詰まり、次に何を直すかも記録します。
+    制御盤・電装・現場作業で得た問題意識を起点に、ブラウザアプリ、ローカル処理ツール、信号処理、CAD風UI、データベース、学習コンテンツを実装しています。
+    外部サービスに依存しすぎない静的Web構成、ローカル処理、GitHub Pages公開、AI支援を使った高速な試作と検証が主な制作スタイルです。
   </p>
   <div class="note">
     <b>AI利用について：</b>
     一部のプロジェクトでは、ChatGPT / Claude / Codex などのAIコーディング支援を使っています。
-    主な担当範囲は、課題設定、要件定義、仕様化、AIへの実装指示、動作確認、改善判断、ドキュメント整理です。
-    コード完全自筆性よりも、「現場課題や興味を動く形に変える過程」を重視しています。
+    担当範囲は、課題設定、要件定義、仕様化、AIへの実装指示、動作確認、改善判断、ドキュメント整理です。
+    コードの完全自筆性よりも、課題を整理して動作する形に落とし込む工程を重視しています。
   </div>
   <ul class="pill-list">
     <li>FA / 電装</li><li>HTML / CSS / JavaScript</li><li>Python GUI</li><li>PDF / OCR</li>
-    <li>G-code / 3Dプリント</li><li>GitHub Pages</li><li>AI-assisted Development</li><li>VRChat / Blender / Unity</li>
+    <li>G-code / 3Dプリント</li><li>GIS / Map UI</li><li>Web Audio / MIDI</li><li>GitHub Pages</li>
+    <li>AI-assisted Development</li><li>VRChat / Blender / Unity</li>
   </ul>
+  <div class="metrics">
+    <div class="metric"><strong>10+</strong><span>公開または公開予定のWebツール</span></div>
+    <div class="metric"><strong>7</strong><span>扱っている技術領域: PDF, GIS, CAD, Audio, OCR, DB, Game</span></div>
+    <div class="metric"><strong>Local-first</strong><span>PDFや音声など、可能な範囲でブラウザ内処理を優先</span></div>
+    <div class="metric"><strong>FA視点</strong><span>現場作業、帳票、制御、配線、G-codeを題材にした試作</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>External Summary</h2>
+  <p class="section-intro">外部の人にまず伝えたい要点。詳細は各プロジェクトを開くと確認できます。</p>
+  <div class="capability">
+    <div class="cap-card"><h3>実装の幅</h3><p>静的Webアプリ、PDF処理、地図UI、VJ/音声処理、2D CAD風UI、学習サイト、ミニゲーム、データベースまで横断して作成。</p></div>
+    <div class="cap-card"><h3>現場寄りの課題設定</h3><p>FA、帳票、G-code、配線、ローカル処理など、実務に近い問題を小さく分解してプロトタイプ化。</p></div>
+    <div class="cap-card"><h3>公開までの完走</h3><p>アイデアで止めず、GitHub Pagesで動くURLまで出す。実装範囲、制約、次の改善点も記録。</p></div>
+    <div class="cap-card"><h3>AIの使い方</h3><p>AI任せにせず、要件定義、実装指示、レビュー、検証、改善判断を自分で担当する開発補助として利用。</p></div>
+  </div>
 </section>
 
 <section class="section">
   <h2>Featured Projects</h2>
-  <p class="section-intro">
-    公開中のWebアプリと、試作中のローカルツールを混ぜて掲載しています。
-    「完成品の自慢」ではなく、現在の制作ログとして読めるようにしています。
-  </p>
+  <p class="section-intro">主要プロジェクト。各カードは折りたたみ式です。</p>
 
   <div class="project-grid">
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：XNH_news-atlas / World News Map Viewer</h3>
-        <div class="project-meta"><span class="tag">Web App</span><span class="tag">Map</span><span class="tag">GitHub Actions</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>XNH_news-atlas / World News Map Viewer</h3>
+          <p class="project-summary">世界ニュース、災害、自然イベントを地図・時間・カテゴリで俯瞰する静的Webアプリ。</p>
+          <div class="project-meta"><span class="tag">Web App</span><span class="tag">MapLibre</span><span class="tag">GitHub Actions</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">世界ニュースを地図上に可視化する静的Webアプリ。ニュース記事、災害・地震・自然イベントなどを地理情報と結び、時間・カテゴリ・検索で絞り込めるようにする試み。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">MapLibre GL JSを使ったダークテーマの世界地図UI、ニュースイベント一覧、ヒートマップ、トレンド表示、静的JSONデータ更新フロー。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">ニュースは記事単位では追えても、「どこで何が起きているか」を地図・時間軸・カテゴリで俯瞰しづらい。ブラウザだけで見られる形にしたかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">企画、要件定義、UI方針、AI実装指示、動作確認、GitHub Pages公開、改善点整理。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / MapLibre GL JS / Python / GitHub Actions / RSS / GeoRSS / GeoJSON / Static JSON</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">UI構成、データ処理、スコアリング、README整理、デバッグ候補の洗い出しに利用。地図として何を見せたいか、公開方針、検証判断は本人側で実施。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">バックエンドなしでGitHub Pagesに公開できる構成にできた。地図、リスト、時間フィルタ、カテゴリ表示の関係が作品として見える。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">ニュースの位置推定精度、非ジオタグ記事の扱い、データ量、ソース偏りが課題。世界地図化は見栄えが良い反面、誤配置すると説得力が落ちる。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">位置情報の信頼度表示、ソース別フィルタ、モバイルUI改善、非ジオタグ記事のレビュー導線を強化したい。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_news-atlas/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_news-atlas" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">ニュース記事や自然イベントを地理情報に結び、地図、イベント一覧、ヒートマップ、トレンド表示で確認するWebアプリ。</div></div>
+        <div class="field"><div class="label">実装範囲</div><div class="value"><ul><li>MapLibre GL JSによるダークテーマ地図UI</li><li>ニュースイベント一覧、カテゴリフィルタ、検索、時間範囲フィルタ</li><li>RSS / GeoRSS / GeoJSON / 静的JSONを扱う更新フロー</li><li>バックエンドを持たないGitHub Pages公開構成</li></ul></div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">地図、時系列、カテゴリを同一UIで扱うため、単なるリンク集ではなく「どこで何が起きているか」を可視化できる。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">非ジオタグ記事の位置推定、誤配置の信頼度表示、ソース偏り、データ量増加時の表示負荷。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">HTML / CSS / JavaScript / MapLibre GL JS / Python / GitHub Actions / RSS / GeoRSS / GeoJSON</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_news-atlas/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_news-atlas" target="_blank">GitHub</a></div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：XNH WebApp PDF Editor</h3>
-        <div class="project-meta"><span class="tag">PDF</span><span class="tag">Vanilla JS</span><span class="tag">Local Processing</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>XNH WebApp PDF Editor</h3>
+          <p class="project-summary">ブラウザだけでPDFの読み込み、ページ編集、注釈、保存を行うローカル処理型PDFエディタ。</p>
+          <div class="project-meta"><span class="tag">PDF</span><span class="tag">Vanilla JS</span><span class="tag">Local Processing</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">ブラウザだけでPDFを読み込み、表示、ページ編集、注釈追加、保存まで行うローカル処理完結型のPDFエディタ。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">PDF読み込み、ページサムネイル、ページ並び替え、削除、回転、結合、抽出、図形・テキスト注釈、Undo / Redo、保存処理を持つWebアプリ。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">ちょっとしたPDF編集で外部サービスへファイルを投げたくない。ローカル完結で、ビルドなしですぐ起動できる道具が欲しかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">要件整理、UI動線設計、AI実装指示、機能検証、README整理、ローカル処理方針の確認。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / pdf.js / pdf-lib / Canvas / GitHub Pages</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">実装案、UI整理、エラー対策、PDF編集方式の文章化に利用。PDFの扱い方、外部送信しない方針、最終確認は本人が担当。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">npm install不要、CDN非依存、静的ホスティングで動く構成にできた。PDFを外に送らず処理する思想も明確に出せた。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">PDF本文はWordのような文字データではなく描画命令の塊なので、意味的な全文編集は難しい。見た目を焼き込む方式との割り切りが必要だった。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">注釈操作の安定化、スマホUI、保存前プレビュー、操作説明の追加。PDF編集は沼なので、沼底の看板も立てる。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_WEBAPP_pdf-editor/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_WEBAPP_pdf-editor" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">外部サービスへPDFを送信せず、ブラウザ内でページ操作と注釈追加を行うツール。</div></div>
+        <div class="field"><div class="label">実装範囲</div><div class="value"><ul><li>PDF読み込み、ページサムネイル、ページ並び替え、削除、回転、結合、抽出</li><li>図形・テキスト注釈、Undo / Redo、保存処理</li><li>CDN非依存、静的ホスティングで動く構成</li></ul></div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">PDFを外部に送らない設計方針と、静的Webだけで実用的な編集操作を成立させている点。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">PDF本文は描画命令の集合であり、Wordのような意味的全文編集は難しい。編集可能範囲の明示が必要。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">HTML / CSS / JavaScript / pdf.js / pdf-lib / Canvas / GitHub Pages</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_WEBAPP_pdf-editor/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_WEBAPP_pdf-editor" target="_blank">GitHub</a></div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：XNH_vj-fx-maker</h3>
-        <div class="project-meta"><span class="tag">Creative Coding</span><span class="tag">WebGL</span><span class="tag">Audio Reactive</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>XNH_vj-fx-maker</h3>
+          <p class="project-summary">画像・動画・音声を読み込み、WebGL / Web Audio / Web MIDIで映像エフェクトを生成するVJツール。</p>
+          <div class="project-meta"><span class="tag">Creative Coding</span><span class="tag">WebGL</span><span class="tag">Audio Reactive</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">ブラウザ単体で動作するVJ用エフェクトメーカー。画像・動画・音声を読み込み、レイヤー式の映像エフェクトを組み合わせて遊べるツール。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">素材読み込み、エフェクトレイヤー、A/Bシーン、クロスフェード、BPM同期、音声反応、タイムライン、キーフレーム、MIDI Learnなどを持つ映像生成UI。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">音楽やVJ表現を、重い専用ソフトだけでなくブラウザ上で軽く試したい。自分の音楽・映像遊びの入口にしたかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">コンセプト、機能案、エフェクト整理、AI実装指示、UI確認、音声反応・タイムライン操作の検証。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / Canvas / WebGL / Web Audio API / Web MIDI API</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">エフェクト案、UI構造、Web Audio / MIDIまわりの実装補助、README化に利用。使って楽しいか、操作として破綻していないかは本人が確認。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">VJ、音、タイムライン、エフェクトをひとつの画面にまとめられた。遊びの作品として見た目のインパクトが出る。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">機能を盛るほどUIが複雑化する。エフェクト数と操作性のバランス、パフォーマンス、ブラウザ差分が課題。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">プリセット共有、軽量モード、チュートリアル、ライブ用途に耐える安定性確認。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_vj-fx-maker/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_vj-fx-maker" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">ブラウザ単体で映像素材、音声反応、シーン切替、タイムライン操作を検証するVJ用エフェクトメーカー。</div></div>
+        <div class="field"><div class="label">実装範囲</div><div class="value"><ul><li>素材読み込み、エフェクトレイヤー、A/Bシーン、クロスフェード</li><li>BPM同期、音声反応、タイムライン、キーフレーム</li><li>MIDI Learnによる外部操作の検証</li></ul></div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">WebGL、Web Audio、Web MIDIを1画面にまとめ、ブラウザ上でライブ映像系UIの主要要素を検証している点。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">機能追加に伴うUI複雑化、ブラウザ差分、描画負荷、ライブ用途での安定性。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">HTML / CSS / JavaScript / Canvas / WebGL / Web Audio API / Web MIDI API</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_vj-fx-maker/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_vj-fx-maker" target="_blank">GitHub</a></div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：XNH_2DCAD</h3>
-        <div class="project-meta"><span class="tag">CAD-like UI</span><span class="tag">Web App</span><span class="tag">AI Studio</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>SYNTH MATCH SPECTRA</h3>
+          <p class="project-summary">Web Audio APIでシンセ音色を作り、耳と波形で一致を狙うブラウザゲーム。</p>
+          <div class="project-meta"><span class="tag">Game</span><span class="tag">Web Audio</span><span class="tag">MIDI</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">ブラウザで触れる2D CAD風ツール。図形を置く、編集する、寸法や作図操作の雰囲気を掴むための試作。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">CAD風の作図UI。現時点では「本格CAD」ではなく、Web上で図形・操作系を試すためのプロトタイプ。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">AutoCADやFusion 360のような重量級ツールとは別に、ブラウザ上で軽く図形編集やUIアイデアを試せる場所が欲しかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">要求の方向性決め、AI Studio / AI支援での生成、GitHub Pages公開、操作感の確認。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / GitHub Pages / AI Studio</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">初期実装・UI生成にAIを利用。CADとして何が足りないか、どこが実用から遠いかの評価は本人側で実施。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">Web上で「CADっぽい操作系」をすぐ見せられる作品になった。ポートフォリオ上では、FA/CAD関心の入口として機能する。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">CADは拘束、寸法、スナップ、座標精度、保存形式が本体。見た目だけでは実用CADにならない。ここは現実が硬い。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">DXF/SVG入出力、スナップ、グリッド、寸法線、印刷スケール、Undo / Redoの強化。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_2DCAD/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_2DCAD" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">周波数、波形、フィルタ、歪み、空間系FXなどを調整し、ターゲット音色に近づけるミニゲーム兼シンセ実験環境。</div></div>
+        <div class="field"><div class="label">実装範囲</div><div class="value"><ul><li>Web Audio APIによるオシレータ、フィルタ、FX、リミッタ</li><li>フリープレイ、PCキーボード演奏、MIDI入力</li><li>波形表示、FFT風ビジュアル、レベル制のパラメータ解放</li></ul></div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">音声合成、ゲームUI、入力処理、可視化を単一HTMLでまとめ、操作しながら音響パラメータを確認できる点。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">ブラウザごとのAudioContext制約、MIDI権限、FXを重ねた際の音量管理、モバイル操作性。</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="game/synth-wave-match/synth-wave-match.html" target="_blank">Demo</a></div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：DTMF Converter / DTMFの仕組み</h3>
-        <div class="project-meta"><span class="tag">Signal</span><span class="tag">Web Audio</span><span class="tag">Study</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>XNH_2DCAD</h3>
+          <p class="project-summary">ブラウザで図形編集やCAD風操作系を検証する2D CADプロトタイプ。</p>
+          <div class="project-meta"><span class="tag">CAD-like UI</span><span class="tag">Web App</span><span class="tag">AI Studio</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">電話のプッシュ音で使われるDTMFを、周波数の組み合わせとして理解・実装するためのWeb系学習プロジェクト。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">DTMFの低群/高群周波数、生成、検出、Goertzel法やWeb Audio APIでの扱いを整理した実装・解説ページ。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">音声信号処理は見えにくい。ボタン音を周波数・判定条件として分解し、Web上で理解できる形にしたかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">技術調査、仕様整理、AI支援による文章・実装補助、動作確認。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / Web Audio API / DTMF / 周波数解析</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">DTMF仕様の整理、検出ロジックの候補、説明文の構成に利用。式・周波数・判定条件は確認しながら整理。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">単なる便利ツールではなく、通信・信号処理の学習ログとして置ける。電子工作/FA寄りの関心とも接続できる。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">生成は比較的簡単だが、検出はノイズ、しきい値、twist、継続時間の判定が効く。現実の音声はおとなしくない。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">実マイク入力での検出安定化、スペクトラム表示、誤検出ログの可視化。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_WEBAPP_DTMF/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_WEBAPP_DTMF" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">本格CADではなく、Web上で作図UI、図形編集、スナップや寸法操作の方向性を検証するプロトタイプ。</div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">FA/CAD系UIへの関心を、静的Webで触れる形に落とし込んでいる点。今後のDXF/SVG入出力や寸法線実装につなげやすい。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">拘束、寸法、スナップ、座標精度、保存形式、Undo / Redo。現状は作図UIの検証段階。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">HTML / CSS / JavaScript / GitHub Pages / AI Studio</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_2DCAD/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_2DCAD" target="_blank">GitHub</a></div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head">
-        <h3>Project Name：XNH_HaikuRemixGenerator</h3>
-        <div class="project-meta"><span class="tag">Creative Web</span><span class="tag">Public Domain</span><span class="tag">Generator</span><span class="tag">公開中</span></div>
-      </div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>DTMF Converter / DTMFの仕組み</h3>
+          <p class="project-summary">電話のプッシュ音を周波数の組み合わせとして生成・検出する信号処理学習プロジェクト。</p>
+          <div class="project-meta"><span class="tag">Signal</span><span class="tag">Web Audio</span><span class="tag">Study</span><span class="tag">公開中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">俳句をシャッフルし、ランダムに組み合わせて読むジェネレーター。技術作品というより、Web上の小さな言語遊び。</div></div>
-        <div class="field"><div class="label">何を作ったか</div><div class="value">俳句素材をランダムに再構成し、偶然できる言葉の組み合わせを楽しむWebページ。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">技術ログだけだと硬すぎる。文化・言葉・ランダム性を使った軽い作品も置くことで、制作の幅を出したかった。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">企画、素材方針、著作権まわりの確認、AI支援での実装・文章整理、公開。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">HTML / CSS / JavaScript / GitHub Pages / Random Generation</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">実装補助、文言整理、権利面の注意点整理に利用。素材選定と公開判断は本人側で実施。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">小さく公開できる作品として、ポートフォリオに人間味を足せる。硬い工具箱の中に短冊が混ざる感じ。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">ランダム生成は、面白い結果と意味不明な結果の差が大きい。素材整理と表示演出で品質が変わる。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">季語・作者・時代でのフィルタ、生成結果の保存、SNS共有、出典表示の強化。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_HaikuRemixGenerator/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_HaikuRemixGenerator" target="_blank">GitHub</a></div></div>
+        <div class="field"><div class="label">概要</div><div class="value">DTMFの低群/高群周波数、生成、検出、Goertzel法、Web Audio APIでの扱いを整理した実装・解説ページ。</div></div>
+        <div class="field"><div class="label">評価される点</div><div class="value">通信・信号処理をWeb上で確認できる形にしており、電子工作やFAの信号理解にも接続しやすい。</div></div>
+        <div class="field"><div class="label">技術課題</div><div class="value">実マイク入力ではノイズ、しきい値、twist、継続時間の判定が効く。誤検出ログの可視化が次の課題。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">HTML / CSS / JavaScript / Web Audio API / DTMF / 周波数解析</div></div>
+        <div class="field"><div class="label">Links</div><div class="value links"><a class="button" href="https://xenoah.github.io/XNH_WEBAPP_DTMF/" target="_blank">Demo</a><a class="button ghost" href="https://github.com/Xenoah/XNH_WEBAPP_DTMF" target="_blank">GitHub</a></div></div>
       </div>
-    </article>
+    </details>
 
+  </div>
+</section>
+
+<section class="section">
+  <h2>Site Inventory</h2>
+  <p class="section-intro">ホームページ全体の公開物。カテゴリごとに折りたたみで整理しています。</p>
+  <div class="inventory">
+    <details>
+      <summary>便利ツール / Web Apps</summary>
+      <ul>
+        <li>QRコード読取・生成WEBAPP</li>
+        <li>PDFエディターWEBAPP</li>
+        <li>AudioConvertor: 音声ファイル変換</li>
+        <li>SVGコンバーターWEBAPP</li>
+        <li>GIFコンバーター</li>
+        <li>Omni SciCalc: 関数・単位・グラフ系の電卓</li>
+        <li>2D CADモドキ</li>
+        <li>DTMFコンバーター</li>
+        <li>VJ背景簡易映像エフェクトジェネレーター</li>
+      </ul>
+    </details>
+    <details>
+      <summary>ミニゲーム / Interactive</summary>
+      <ul>
+        <li>SYNTH MATCH SPECTRA: Web Audioシンセ音色マッチゲーム</li>
+        <li>FPVドローンゲーム</li>
+        <li>ランダム俳句ジェネレーター</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Study / Database</summary>
+      <ul>
+        <li>インタラクティブ数学: 三角関数、カオス、フーリエ、確率などの視覚教材</li>
+        <li>三陸特 過去問 単語帳</li>
+        <li>世界ニュースマップ</li>
+        <li>日本の人工衛星/探査機DB</li>
+        <li>日本の科学研究機関DB</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Creative / Profile</summary>
+      <ul>
+        <li>VRChat活動記録</li>
+        <li>Blender / Unity / VRChat向け制作</li>
+        <li>使用ソフト一覧: VS Code, Fusion 360, Blender, KiCad, GIMP, DaVinci Resolve, FL Studio Mobile</li>
+        <li>Blog: 制作ログ、VRChat記事、サイト更新記録</li>
+      </ul>
+    </details>
   </div>
 </section>
 
 <section class="section">
   <h2>Prototype / Study Backlog</h2>
-  <p class="section-intro">まだ公開ページとして整っていないが、ポートフォリオの核になりそうな試作・学習テーマ。現時点では「完成品」ではなく、制作中のログとして扱います。</p>
+  <p class="section-intro">まだ公開ページとして整っていない試作・学習テーマ。各項目は検証中です。</p>
   <div class="project-grid">
-
-    <article class="project-card">
-      <div class="project-head"><h3>Project Name：Penplot-Gcoder</h3><div class="project-meta"><span class="tag">Python GUI</span><span class="tag">G-code</span><span class="tag">Toolpath</span><span class="tag">試作中</span></div></div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>Penplot-Gcoder</h3>
+          <p class="project-summary">SVG / DXF / 画像からペンプロッタ用G-codeを生成するデスクトップアプリ構想。</p>
+          <div class="project-meta"><span class="tag">Python GUI</span><span class="tag">G-code</span><span class="tag">Toolpath</span><span class="tag">試作中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">SVG / DXF / 画像からペンプロッタ用G-codeを生成するデスクトップアプリ構想。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">既存ツールでは、描画順序、ペン上下、塗りつぶし、プレビュー、実機向けG-codeの調整をまとめて扱いにくい。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">要件定義、画面仕様、AI実装指示、G-code出力仕様検討、実機制御を想定した検証。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">Python / PyQt6 または PySide6 / svgpathtools / ezdxf / OpenCV / Shapely / NumPy / G-code</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">アーキテクチャ案、UI部品、パス生成ロジック、README/CLAUDE.md整理に利用予定。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">FA・機械制御寄りの興味と、Python GUI、座標処理、G-codeを一本にまとめられる題材。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">幾何処理、オフセット、塗りつぶし、2-opt等のパス最適化は簡単ではない。ここはAIに丸投げすると沼に落ちる。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">まずはSVG読み込み、2Dプレビュー、ペン上下G-code、単純な描画順最適化からMVP化。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value"><span class="status-wip">Preparing / 非公開または整理中</span></div></div>
+        <div class="field"><div class="label">狙い</div><div class="value">描画順序、ペン上下、塗りつぶし、プレビュー、実機向けG-code調整をまとめて扱う。</div></div>
+        <div class="field"><div class="label">検証項目</div><div class="value">SVG読み込み、2Dプレビュー、ペン上下G-code、単純な描画順最適化、実機制御を想定した安全確認。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">Python / PyQt6 or PySide6 / svgpathtools / ezdxf / OpenCV / Shapely / NumPy / G-code</div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head"><h3>Project Name：PDF ROI OCR Renamer</h3><div class="project-meta"><span class="tag">Python GUI</span><span class="tag">OCR</span><span class="tag">PDF</span><span class="tag">試作中</span></div></div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>PDF ROI OCR Renamer</h3>
+          <p class="project-summary">PDFの指定範囲をOCRし、抽出文字列からファイル名を生成する業務改善ツール構想。</p>
+          <div class="project-meta"><span class="tag">Python GUI</span><span class="tag">OCR</span><span class="tag">PDF</span><span class="tag">試作中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">PDFの指定範囲をOCRし、抽出文字列からファイル名を自動生成する業務改善ツール構想。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">帳票PDFのファイル名変更や分類は単純作業だが、人間がやると遅く、ミスも出る。ROI指定で半自動化したい。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">仕様設計、GUIフロー、ROI選択、正規表現抽出、ファイル名サニタイズ、AI実装指示、動作検証。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">Python / PySide6 / PyMuPDF / PaddleOCR または Tesseract / Pillow / JSON設定 / 正規表現</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">画面設計、実装順、例外処理、確認ダイアログ、設定保存まわりのコード支援に利用。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">業務改善として説明しやすい。FA/事務処理/帳票の現場感と、Python GUIの学習が接続できる。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">OCR精度、表記ゆれ、PDF解像度、D&D起動時の確認UX、誤リネーム防止が難所。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">ROI保存、プレビュー、リネーム前確認、衝突時suffix、ログ出力を優先してMVP化。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value"><span class="status-wip">Preparing / 非公開または整理中</span></div></div>
+        <div class="field"><div class="label">狙い</div><div class="value">帳票PDFのファイル名変更や分類を、ROI指定と正規表現抽出で半自動化する。</div></div>
+        <div class="field"><div class="label">検証項目</div><div class="value">ROI保存、プレビュー、リネーム前確認、衝突時suffix、ログ出力、誤リネーム防止。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">Python / PySide6 / PyMuPDF / PaddleOCR or Tesseract / Pillow / JSON設定 / 正規表現</div></div>
       </div>
-    </article>
+    </details>
 
-    <article class="project-card">
-      <div class="project-head"><h3>Project Name：MazeRouter_forKicad</h3><div class="project-meta"><span class="tag">KiCad</span><span class="tag">Algorithm</span><span class="tag">Rust / R&D</span><span class="tag">構想中</span></div></div>
+    <details class="project-card">
+      <summary>
+        <div class="project-head">
+          <h3>MazeRouter_forKicad</h3>
+          <p class="project-summary">KiCad向け自動配線ルータ。DSN/SES形式を介して外部ルータとして動かす研究テーマ。</p>
+          <div class="project-meta"><span class="tag">KiCad</span><span class="tag">Algorithm</span><span class="tag">Rust / R&D</span><span class="tag">構想中</span></div>
+        </div>
+      </summary>
       <div class="project-body">
-        <div class="field"><div class="label">概要：</div><div class="value">KiCad向けの自動配線ルータ構想。DSN/SES形式を介して外部ルータとして動かす研究テーマ。</div></div>
-        <div class="field"><div class="label">Problem：</div><div class="value">基板配線は制約が多く、既存ルータだけでは意図通りにいかない場面がある。迷路探索や学習的な改善余地を調べたい。</div></div>
-        <div class="field"><div class="label">Role：</div><div class="value">調査、要件整理、DSN/SES入出力方針、アルゴリズム候補の整理、AI実装指示。</div></div>
-        <div class="field"><div class="label">Tech：</div><div class="value">KiCad / DSN / SES / Rust / Python補助 / Maze Routing / EDA</div></div>
-        <div class="field"><div class="label">AI Use：</div><div class="value">ファイル形式調査、Rust設計案、アルゴリズム整理、実装タスク分解に利用予定。</div></div>
-        <div class="field"><div class="label">What worked：</div><div class="value">電子回路、EDA、アルゴリズム、実装支援AIの組み合わせとして、研究ログに向く。</div></div>
-        <div class="field"><div class="label">What failed：</div><div class="value">自動配線は制約処理の塊。最短経路だけでは基板は救えない。設計ルール、ビア、ネット、クリアランスが牙をむく。</div></div>
-        <div class="field"><div class="label">Next：</div><div class="value">小規模DSNの読み込み、グリッド化、単一ネット配線、SES出力の最小実験。</div></div>
-        <div class="field"><div class="label">Links：</div><div class="value"><span class="status-wip">Research / 整理中</span></div></div>
+        <div class="field"><div class="label">狙い</div><div class="value">基板配線の制約処理、迷路探索、設計ルール、ビア、ネット、クリアランスを扱う外部ルータの検証。</div></div>
+        <div class="field"><div class="label">検証項目</div><div class="value">小規模DSNの読み込み、グリッド化、単一ネット配線、SES出力の最小実験。</div></div>
+        <div class="field"><div class="label">Tech</div><div class="value">KiCad / DSN / SES / Rust / Python補助 / Maze Routing / EDA</div></div>
       </div>
-    </article>
-
+    </details>
   </div>
 </section>
 
 <section class="section">
   <h2>Capability Map</h2>
-  <p class="section-intro">「全部できます」ではなく、触れている深度で分けています。ここを盛ると後で燃えるので、現実寄せ。</p>
+  <p class="section-intro">経験のある領域と、試作・学習段階の領域を分けて記載しています。</p>
   <div class="capability">
     <div class="cap-card"><h3>実務寄り</h3><p>FA、電装、PLC周辺、センサ、リレー、AC200 V系、Excel/CSV、帳票、現場トラブルの切り分け。</p></div>
-    <div class="cap-card"><h3>試作で使用</h3><p>HTML/CSS/JavaScript、GitHub Pages、Python GUI、PDF処理、OCR、Web Audio、Canvas/WebGL。</p></div>
+    <div class="cap-card"><h3>試作で使用</h3><p>HTML/CSS/JavaScript、GitHub Pages、Python GUI、PDF処理、OCR、Web Audio、Canvas/WebGL、Web MIDI。</p></div>
     <div class="cap-card"><h3>学習・研究中</h3><p>G-code、ツールパス生成、KiCad自動配線、Rust、3Dプリンタ用スライサー、AIエージェント運用。</p></div>
-    <div class="cap-card"><h3>創作・表現</h3><p>VRChat、Blender、Unity、VJ表現、俳句ジェネレーター、Web上の小さな実験作品。</p></div>
+    <div class="cap-card"><h3>創作・表現</h3><p>VRChat、Blender、Unity、VJ表現、俳句ジェネレーター、Web上の小規模実験。</p></div>
   </div>
 </section>
 
 <section class="section">
   <h2>How I Build</h2>
   <div class="retro-box">
-現場の違和感 / 作りたい衝動<br>
+現場課題 / 作りたい機能<br>
 ↓<br>
 要件を短く書く<br>
 ↓<br>
-AIに実装案を出させる<br>
+AI支援で実装案を比較する<br>
 ↓<br>
-動かす・壊す・ログを読む<br>
+動作確認・エラー確認・ログ確認<br>
 ↓<br>
-危ないところ、使いにくいところを直す<br>
+リスク箇所と操作性を修正する<br>
 ↓<br>
 Demo / GitHub / Note として残す
   </div>
 </section>
 
 <div class="footer">
-  <p>最終更新：2026-05-23 / このページは Xenoah の制作ログ兼ポートフォリオです。完成品、試作品、失敗ログを混ぜて、あとから見返せる形にしています。</p>
+  <p>最終更新：2026-05-23 / このページは Xenoah の制作ログ兼ポートフォリオです。完成品、試作品、課題ログをまとめています。</p>
 </div>
 
 </body>
