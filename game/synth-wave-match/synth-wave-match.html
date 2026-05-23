@@ -46,7 +46,8 @@
        CSS: 2-Column Layout (Game Screen)
        ========================================= */
     #game-screen {
-        width: 100%; max-width: 1200px; height: 100vh; max-height: 900px;
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: min(1200px, calc(100vw - 150px)); height: min(900px, calc(100vh - 48px));
         display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;
         z-index: 5; background: none;
         align-items: stretch;
@@ -78,16 +79,16 @@
         transform: translateY(1px);
     }
 
-    .return-menu-btn.settings-open-btn {
-        right: 142px;
+    .return-menu-btn.global-settings-btn {
         border-color: var(--acc-yellow);
         color: var(--acc-yellow);
         box-shadow: 0 0 14px rgba(224, 175, 104, 0.18);
     }
-    .return-menu-btn.settings-open-btn:hover {
+    .return-menu-btn.global-settings-btn:hover {
         background: rgba(224, 175, 104, 0.14);
         box-shadow: 0 0 20px rgba(224, 175, 104, 0.28);
     }
+    .return-menu-btn.menu-open-btn { top: 58px; right: 14px; }
 
     .settings-overlay {
         position: fixed; inset: 0; z-index: 80;
@@ -250,6 +251,42 @@
         padding: 12px; border-radius: 0 8px 8px 0; font-weight: bold; font-size: 13px; min-height: 40px;
     }
 
+    .keyboard-panel {
+        background: var(--bg-panel); border: 1px solid rgba(125, 207, 255, 0.36);
+        border-radius: 8px; padding: 12px; box-shadow: inset 0 0 18px rgba(0,0,0,0.28);
+    }
+    .keyboard-panel.hidden { display: none; }
+    .keyboard-toolbar {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+    }
+    .keyboard-control {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        background: rgba(0,0,0,0.22); border: 1px solid #2d3147; border-radius: 8px; padding: 9px 10px;
+    }
+    .keyboard-control label { color: #9aa5ce; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; }
+    .keyboard-control select { min-width: 86px; }
+    .keyboard-keys {
+        display: grid; grid-template-columns: repeat(var(--key-count, 18), minmax(34px, 1fr));
+        gap: 4px; align-items: end;
+    }
+    .keyboard-key {
+        min-width: 0; height: 74px; padding: 6px 2px 5px;
+        border-radius: 0 0 7px 7px; border: 1px solid #3b4261;
+        background: linear-gradient(180deg, #f3f5ff 0%, #aeb8dc 100%);
+        color: #11131c; font-size: 11px; line-height: 1.1;
+        display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+    }
+    .keyboard-key.is-black {
+        height: 50px; background: linear-gradient(180deg, #171a28 0%, #050508 100%);
+        color: var(--acc-cyan); border-color: #111827;
+    }
+    .keyboard-key.active {
+        transform: translateY(2px); filter: brightness(1.25);
+        box-shadow: 0 0 18px rgba(125, 207, 255, 0.45);
+    }
+    .keyboard-note { font-weight: 900; }
+    .keyboard-code { font-family: monospace; opacity: 0.72; font-size: 10px; }
+
     .enemy-visual { position: relative; }
     .speech-bubble {
         position: absolute; top: 12px; right: 12px; max-width: 68%;
@@ -340,7 +377,7 @@
     .level-input-area { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; }
     .level-input { background: #000; color: var(--acc-yellow); border: 1px solid #444; font-size: 24px; width: 80px; text-align: center; padding: 5px; border-radius: 4px; }
     
-    .quick-select { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .quick-select { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .quick-select button { background: #2a2e40; font-size: 15px; padding: 10px; }
     .quick-select button small { font-size: 10px; color: #aaa; font-weight: normal; margin-top: 4px; }
     .quick-select button:hover { background: #3b4261; border-color: var(--acc-cyan); color: var(--acc-cyan); }
@@ -355,6 +392,7 @@
         #app { height: auto; min-height: 100vh; align-items: flex-start; }
         .screen { min-height: 100vh; height: auto; overflow-y: auto; padding: 16px 0; }
         #game-screen {
+            position: relative; top: auto; left: auto; transform: none;
             grid-template-columns: 1fr;
             width: 100%; height: auto; min-height: 100vh; max-height: none;
             padding: 12px; gap: 12px; overflow-y: auto;
@@ -370,6 +408,9 @@
         .right-panel { padding: 12px; overflow-y: visible; }
         .controls-grid { grid-template-columns: 1fr; gap: 12px; }
         .quick-select { grid-template-columns: 1fr 1fr; }
+        .keyboard-toolbar { grid-template-columns: 1fr; }
+        .keyboard-keys { grid-template-columns: repeat(6, 1fr); }
+        .keyboard-key, .keyboard-key.is-black { height: 54px; }
         .unlock-info ul { grid-template-columns: 1fr; }
         .unlock-info li[style*="grid-column"] { grid-column: auto !important; justify-content: flex-start !important; }
         .speech-bubble { position: static; max-width: 100%; margin-bottom: 10px; }
@@ -384,6 +425,7 @@
 
 <div id="app">
     <canvas id="particles-js"></canvas>
+    <button class="return-menu-btn global-settings-btn" type="button" onclick="openSettings()" aria-label="設定を開く">設定</button>
 
     <div id="start-screen" class="screen">
         <div class="dialog-box">
@@ -409,8 +451,8 @@
                 <button onclick="setAndStart(10)">Lv. 10<br><small>エフェクト入門</small></button>
                 <button onclick="setAndStart(40)">Lv. 40<br><small>フルラック解放</small></button>
                 <button onclick="setAndStart(100)">Lv. 100<br><small>最高難易度</small></button>
-                <button onclick="game.startFreeMode()">FREE<br><small>自由制作</small></button>
-                <button onclick="openSettings()">SETTING<br><small>音量調整</small></button>
+                <button onclick="game.startFreeMode('single')">FREE SINGLE<br><small>単音制作</small></button>
+                <button onclick="game.startFreeMode('keyboard')">FREE KEYBOARD<br><small>鍵盤演奏</small></button>
             </div>
 
             <div class="level-input-area">
@@ -478,8 +520,7 @@
     </div>
 
     <div id="game-screen" class="screen hidden">
-        <button class="return-menu-btn settings-open-btn" type="button" onclick="openSettings()" aria-label="設定を開く">設定</button>
-        <button class="return-menu-btn" type="button" onclick="game.showTitle()" aria-label="メニューへ戻る">メニューへ戻る</button>
+        <button class="return-menu-btn menu-open-btn" type="button" onclick="game.showTitle()" aria-label="メニューへ戻る">メニューへ戻る</button>
         <div class="left-panel">
             <div class="hud">
                 <div class="hud-box"><div class="hud-label">LEVEL</div><div class="hud-value" id="hud-level">1</div></div>
@@ -529,13 +570,37 @@
                     <span>押している間 相手の音</span><span class="key-hint">Hold: T</span>
                 </button>
                 <button class="btn-player" id="btn-player">
-                    <span>押している間 自分の音</span><span class="key-hint">Hold: Space</span>
+                    <span id="player-main-label">押している間 自分の音</span><span class="key-hint" id="player-sub-label">Hold: Space</span>
                 </button>
                 <div class="btn-submit-wrap">
                     <button class="btn-submit" id="btn-submit">
                         <span id="submit-main-label">CHECK / 判定</span><span class="key-hint" id="submit-sub-label">Shortcut: Enter</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="keyboard-panel hidden" id="keyboard-panel">
+                <div class="keyboard-toolbar">
+                    <div class="keyboard-control">
+                        <label for="keyboard-octave">OCTAVE</label>
+                        <select id="keyboard-octave">
+                            <option value="2">C2</option>
+                            <option value="3">C3</option>
+                            <option value="4" selected>C4</option>
+                            <option value="5">C5</option>
+                            <option value="6">C6</option>
+                        </select>
+                    </div>
+                    <div class="keyboard-control">
+                        <label for="keyboard-key-count">KEYS</label>
+                        <select id="keyboard-key-count">
+                            <option value="12">12</option>
+                            <option value="18" selected>18</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="keyboard-keys" id="keyboard-keys"></div>
             </div>
 
             <div class="message-log" id="msg-log">SYSTEM: Ready.</div>
@@ -1024,6 +1089,7 @@ class ModularSynth {
         this.ctx = audioCtx;
         this.isPlaying = false;
         this.activeVoice = null;
+        this.keyboardVoices = new Map();
         this.attackTime = 0.018;
         this.releaseTime = 0.075;
         this.fastReleaseTime = 0.018;
@@ -1396,13 +1462,40 @@ class ModularSynth {
                 o.frequency.setTargetAtTime(this.params.freq * ratios[i], t, tc);
             });
         }
+        this.keyboardVoices.forEach(voice => this.applyVoiceOscParams(voice, this.params, voice.baseFreq));
 
         this.lfoTremolo.frequency.setTargetAtTime(Math.max(0.001, this.params.tremolo), t, tc);
         this.tremoloOffset.offset.setTargetAtTime(this.params.tremolo > 0 ? 0.75 : 1.0, t, tc);
         this.tremoloDepth.gain.setTargetAtTime(this.params.tremolo > 0 ? 0.25 : 0.0, t, tc);
     }
 
-    createVoice() {
+    applyVoiceOscParams(voice, params = this.params, freqOverride = null) {
+        if (!voice) return;
+        const t = this.ctx.currentTime;
+        const tc = 0.015;
+        const baseFreq = freqOverride || params.freq || 440;
+        const spread = params.pitchspread || 12;
+        const ratios = [Math.pow(2, -spread / 12), Math.pow(2, spread / 12), Math.pow(2, (spread * 0.58) / 12)];
+
+        if (voice.osc1) {
+            voice.osc1.type = params.type || 'sine';
+            voice.osc1.frequency.setTargetAtTime(baseFreq, t, tc);
+        }
+        if (voice.osc2) {
+            voice.osc2.type = params.type || 'sine';
+            voice.osc2.frequency.setTargetAtTime(baseFreq / 2, t, tc);
+            voice.osc2.detune.setTargetAtTime(params.detune || 0, t, tc);
+        }
+        if (voice.osc2Gain) voice.osc2Gain.gain.setTargetAtTime((params.subvol || 0) / 100, t, tc);
+        if (voice.pitchOscs && voice.pitchOscs.length) {
+            voice.pitchOscs.forEach((o, i) => {
+                o.type = params.type || 'sine';
+                o.frequency.setTargetAtTime(baseFreq * ratios[i], t, tc);
+            });
+        }
+    }
+
+    createVoice(baseFreq = null) {
         const voice = {
             osc1: this.ctx.createOscillator(),
             osc2: this.ctx.createOscillator(),
@@ -1412,7 +1505,8 @@ class ModularSynth {
             pitchInputGain: this.ctx.createGain(),
             noiseInputGain: this.ctx.createGain(),
             pitchOscs: [0, 1, 2].map(() => this.ctx.createOscillator()),
-            noiseSource: this.ctx.createBufferSource()
+            noiseSource: this.ctx.createBufferSource(),
+            baseFreq
         };
 
         voice.inputGain.gain.value = 0.0001;
@@ -1510,17 +1604,60 @@ class ModularSynth {
         this.isPlaying = true;
     }
 
-    stop(immediate = false) {
-        if(!this.activeVoice) return;
-        const voice = this.activeVoice;
-        this.activeVoice = null;
-        this.osc1 = null;
-        this.osc2 = null;
-        this.osc1Gain = null;
-        this.osc2Gain = null;
-        this.pitchOscs = null;
-        this.noiseSource = null;
+    startNote(noteId, freq, params = null) {
+        if (params) this.params = { ...this.params, ...params };
+        if (this.keyboardVoices.has(noteId)) this.stopNote(noteId, true);
+
+        const voice = this.createVoice(freq);
+        this.keyboardVoices.set(noteId, voice);
+        this.applyParams(this.params);
+        this.applyVoiceOscParams(voice, this.params, freq);
+        voice.osc1Gain.gain.value = 1;
+        voice.osc2Gain.gain.value = this.params.subvol / 100;
+
+        voice.osc1.start();
+        voice.osc2.start();
+        voice.pitchOscs.forEach(o => o.start());
+        voice.noiseSource.start();
+
+        const t = this.ctx.currentTime;
+        this.masterGain.gain.cancelScheduledValues(t);
+        this.masterGain.gain.setTargetAtTime(AppSettings.getGameGain(), t, 0.015);
+        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
+            g.gain.cancelScheduledValues(t);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(1, t + this.attackTime);
+        });
+
+        this.isPlaying = true;
+    }
+
+    stopNote(noteId, immediate = false) {
+        const voice = this.keyboardVoices.get(noteId);
+        if (!voice) return;
+        this.keyboardVoices.delete(noteId);
         this.stopVoice(voice, immediate ? this.fastReleaseTime : this.releaseTime);
+        this.isPlaying = !!this.activeVoice || this.keyboardVoices.size > 0;
+    }
+
+    stopAllNotes(immediate = false) {
+        Array.from(this.keyboardVoices.keys()).forEach(noteId => this.stopNote(noteId, immediate));
+    }
+
+    stop(immediate = false) {
+        if(!this.activeVoice && !this.keyboardVoices.size) return;
+        if (this.activeVoice) {
+            const voice = this.activeVoice;
+            this.activeVoice = null;
+            this.osc1 = null;
+            this.osc2 = null;
+            this.osc1Gain = null;
+            this.osc2Gain = null;
+            this.pitchOscs = null;
+            this.noiseSource = null;
+            this.stopVoice(voice, immediate ? this.fastReleaseTime : this.releaseTime);
+        }
+        this.stopAllNotes(immediate);
         this.isPlaying = false;
     }
 }
@@ -1554,6 +1691,19 @@ const AudioMgr = {
     },
     stopPlayer() {
         if(this.playerSynth && this.playerSynth.isPlaying) this.playerSynth.stop();
+    },
+
+    startKeyboardNote(noteId, freq, params) {
+        this.init();
+        if(this.ctx.state === 'suspended') this.ctx.resume();
+        this.targetSynth.stop(true);
+        this.playerSynth.startNote(noteId, freq, params);
+    },
+    stopKeyboardNote(noteId) {
+        if(this.playerSynth) this.playerSynth.stopNote(noteId);
+    },
+    stopKeyboardNotes(immediate = false) {
+        if(this.playerSynth) this.playerSynth.stopAllNotes(immediate);
     },
 
     async loadIRFile(file) {
@@ -1778,6 +1928,7 @@ const AudioMgr = {
 
 const game = {
     mode: 'game',
+    freeMode: 'single',
     level: 1,
     score: 0,
     timeLeft: 300,
@@ -1793,6 +1944,20 @@ const game = {
     battleTurn: 1,
     isResolving: false,
     lastEvaluation: null,
+    keyboardOctave: 4,
+    keyboardKeyCount: 18,
+    keyboardHeld: new Set(),
+    keyboardLayout: [
+        { code: 'KeyZ', label: 'Z' }, { code: 'KeyS', label: 'S' }, { code: 'KeyX', label: 'X' },
+        { code: 'KeyD', label: 'D' }, { code: 'KeyC', label: 'C' }, { code: 'KeyV', label: 'V' },
+        { code: 'KeyG', label: 'G' }, { code: 'KeyB', label: 'B' }, { code: 'KeyH', label: 'H' },
+        { code: 'KeyN', label: 'N' }, { code: 'KeyJ', label: 'J' }, { code: 'KeyM', label: 'M' },
+        { code: 'Comma', label: ',' }, { code: 'KeyL', label: 'L' }, { code: 'Period', label: '.' },
+        { code: 'Semicolon', label: ';' }, { code: 'Slash', label: '/' }, { code: 'KeyQ', label: 'Q' },
+        { code: 'Digit2', label: '2' }, { code: 'KeyW', label: 'W' }, { code: 'Digit3', label: '3' },
+        { code: 'KeyE', label: 'E' }, { code: 'KeyR', label: 'R' }, { code: 'Digit5', label: '5' }
+    ],
+    noteNames: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
 
     enemyRoster: [
         { name: 'Wave Slime', icon: '🫧', cls: 'Basic Tone Mimic', minLevel: 1, hp: 70, atk: 8 },
@@ -1876,6 +2041,14 @@ const game = {
         document.getElementById(id).classList.remove('hidden');
     },
 
+    isFreeMode() {
+        return this.mode === 'free';
+    },
+
+    isKeyboardMode() {
+        return this.mode === 'free' && this.freeMode === 'keyboard';
+    },
+
     setParamControlEnabled(param, enabled) {
         const el = document.getElementById(`p-${param}`);
         if (!el) return;
@@ -1886,36 +2059,49 @@ const game = {
 
     setModeUI(mode) {
         const free = mode === 'free';
+        const keyboard = free && this.freeMode === 'keyboard';
         const targetBtn = document.getElementById('btn-target');
+        const playerBtn = document.getElementById('btn-player');
         const submitBtn = document.getElementById('btn-submit');
         const submitMain = document.getElementById('submit-main-label');
         const submitSub = document.getElementById('submit-sub-label');
+        const playerMain = document.getElementById('player-main-label');
+        const playerSub = document.getElementById('player-sub-label');
         const targetTitle = document.getElementById('target-monitor-title');
         const playerTitle = document.getElementById('player-monitor-title');
+        const keyboardPanel = document.getElementById('keyboard-panel');
 
         if (targetBtn) targetBtn.disabled = free;
+        if (playerBtn) playerBtn.disabled = keyboard;
         if (submitBtn) submitBtn.disabled = free;
         if (submitMain) submitMain.textContent = free ? 'FREE MODE' : 'CHECK / 判定';
-        if (submitSub) submitSub.textContent = free ? 'No scoring' : 'Shortcut: Enter';
+        if (submitSub) submitSub.textContent = free ? (keyboard ? 'Keyboard live' : 'No scoring') : 'Shortcut: Enter';
+        if (playerMain) playerMain.textContent = keyboard ? '鍵盤で自由演奏' : '押している間 自分の音';
+        if (playerSub) playerSub.textContent = keyboard ? 'PC keyboard' : 'Hold: Space';
         if (targetTitle) targetTitle.textContent = free ? 'FREE MODE: TARGET DISABLED' : 'TARGET SIGNAL (マゼンタ)';
-        if (playerTitle) playerTitle.textContent = free ? 'LIVE PATCH SIGNAL (シアン)' : 'YOUR SIGNAL (シアン)';
+        if (playerTitle) playerTitle.textContent = free ? (keyboard ? 'KEYBOARD PATCH SIGNAL (シアン)' : 'LIVE PATCH SIGNAL (シアン)') : 'YOUR SIGNAL (シアン)';
+        if (keyboardPanel) keyboardPanel.classList.toggle('hidden', !keyboard);
+        if (keyboard) this.renderKeyboard();
     },
 
-    startFreeMode() {
+    startFreeMode(kind = 'single') {
         UISfx.play('start');
         this.mode = 'free';
+        this.freeMode = kind === 'keyboard' ? 'keyboard' : 'single';
         this.stopAllAudio();
         clearInterval(this.timerId);
         this.isResolving = false;
         this.level = 0;
         this.score = 0;
         this.timeLeft = 0;
-        this.currentOpponent = { name: 'Free Oscillator', icon: '🎚️', cls: 'Sandbox Mode' };
+        this.currentOpponent = this.isKeyboardMode()
+            ? { name: 'Keyboard Lab', icon: '🎹', cls: 'Playable Patch' }
+            : { name: 'Free Oscillator', icon: '🎚️', cls: 'Sandbox Mode' };
         this.activeParams = Object.keys(this.paramDefs);
         this.targetParams = {};
         this.currentParams = {};
 
-        document.getElementById('hud-level').textContent = 'FREE';
+        document.getElementById('hud-level').textContent = this.isKeyboardMode() ? 'KEYS' : 'FREE';
         document.getElementById('time-display').textContent = '--:--';
         document.getElementById('score-display').textContent = '—';
 
@@ -1935,8 +2121,90 @@ const game = {
         this.refreshBattleUI();
         this.setModeUI('free');
         this.showScreen('game-screen');
-        this.logMsg('FREE MODE: すべてのパラメータを自由に操作可能。Spaceで音を鳴らせ。');
-        this.speakOpponent('フリーモードよ。全ツマミ解放。重いFXまで好きに音を作りなさい。');
+        if (this.isKeyboardMode()) {
+            this.logMsg('FREE KEYBOARD: 鍵盤で演奏しながら、右側のラックで音色を調整できる。');
+            this.speakOpponent('鍵盤モードよ。オクターブと鍵数を選んで、好きに演奏しなさい。');
+        } else {
+            this.logMsg('FREE SINGLE: すべてのパラメータを自由に操作可能。Spaceで音を鳴らせ。');
+            this.speakOpponent('単音フリーモードよ。全ツマミ解放。重いFXまで好きに音を作りなさい。');
+        }
+    },
+
+    midiToFreq(midi) {
+        return 440 * Math.pow(2, (midi - 69) / 12);
+    },
+
+    getKeyboardNote(index) {
+        const semitone = index % 12;
+        const octave = this.keyboardOctave + Math.floor(index / 12);
+        const midi = (this.keyboardOctave + 1) * 12 + index;
+        return {
+            index,
+            midi,
+            freq: this.midiToFreq(midi),
+            note: `${this.noteNames[semitone]}${octave}`,
+            isBlack: [1, 3, 6, 8, 10].includes(semitone)
+        };
+    },
+
+    getKeyboardNoteForCode(code) {
+        const activeLayout = this.keyboardLayout.slice(0, this.keyboardKeyCount);
+        const index = activeLayout.findIndex(k => k.code === code);
+        if (index < 0) return null;
+        return { ...this.getKeyboardNote(index), code, label: activeLayout[index].label };
+    },
+
+    renderKeyboard() {
+        const keys = document.getElementById('keyboard-keys');
+        const octaveSelect = document.getElementById('keyboard-octave');
+        const countSelect = document.getElementById('keyboard-key-count');
+        if (!keys) return;
+        if (octaveSelect) octaveSelect.value = String(this.keyboardOctave);
+        if (countSelect) countSelect.value = String(this.keyboardKeyCount);
+        keys.style.setProperty('--key-count', this.keyboardKeyCount);
+        keys.innerHTML = this.keyboardLayout.slice(0, this.keyboardKeyCount).map((key, index) => {
+            const note = this.getKeyboardNote(index);
+            return `
+                <button type="button" class="keyboard-key ${note.isBlack ? 'is-black' : ''}" data-code="${key.code}" data-freq="${note.freq}">
+                    <span class="keyboard-note">${note.note}</span>
+                    <span class="keyboard-code">${key.label}</span>
+                </button>
+            `;
+        }).join('');
+    },
+
+    setKeyboardOption(key, value) {
+        this.releaseAllKeyboardNotes();
+        if (key === 'octave') this.keyboardOctave = clamp(parseInt(value, 10) || 4, 2, 6);
+        if (key === 'count') this.keyboardKeyCount = clamp(parseInt(value, 10) || 18, 12, 24);
+        this.renderKeyboard();
+        this.logMsg(`FREE KEYBOARD: ${this.keyboardKeyCount} keys / C${this.keyboardOctave}`);
+    },
+
+    pressKeyboardCode(code, freqOverride = null) {
+        if (!this.isKeyboardMode() || this.keyboardHeld.has(code)) return;
+        const note = this.getKeyboardNoteForCode(code);
+        if (!note && !freqOverride) return;
+        const freq = freqOverride || note.freq;
+        this.keyboardHeld.add(code);
+        AudioMgr.startKeyboardNote(code, freq, this.currentParams);
+        document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.add('active'));
+        this.logMsg(`FREE KEYBOARD: ${note ? note.note : Math.round(freq) + 'Hz'} を再生中。`);
+    },
+
+    releaseKeyboardCode(code) {
+        if (!this.keyboardHeld.has(code)) return;
+        this.keyboardHeld.delete(code);
+        AudioMgr.stopKeyboardNote(code);
+        document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.remove('active'));
+    },
+
+    releaseAllKeyboardNotes() {
+        this.keyboardHeld.forEach(code => {
+            AudioMgr.stopKeyboardNote(code);
+            document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.remove('active'));
+        });
+        this.keyboardHeld.clear();
     },
 
     setupLevel() {
@@ -2083,6 +2351,8 @@ const game = {
     },
 
     stopAllAudio() {
+        this.releaseAllKeyboardNotes();
+        AudioMgr.stopKeyboardNotes(true);
         AudioMgr.stopPlayer();
         AudioMgr.stopTarget();
         document.getElementById('btn-player').classList.remove('active');
@@ -2305,16 +2575,19 @@ const game = {
 
 
 document.querySelectorAll('input[type=range], select').forEach(el => {
-    el.addEventListener('input', (e) => game.onInputChanged(e.target.getAttribute('data-param'), e.target.value));
+    el.addEventListener('input', (e) => {
+        const param = e.target.getAttribute('data-param');
+        if (param) game.onInputChanged(param, e.target.value);
+    });
 });
 
 const btnTarget = document.getElementById('btn-target');
 const btnPlayer = document.getElementById('btn-player');
 
-const onTargetDown = (e) => { e.preventDefault(); if (game.mode === 'free') { UISfx.play('disabled'); game.logMsg('FREE MODE: ターゲット音は無効。自分の音だけ鳴らせる。'); return; } UISfx.play('transport'); AudioMgr.startTarget(game.targetParams); btnTarget.classList.add('active'); game.logMsg("ターゲット音を再生中..."); game.speakOpponent("よく聞きなさい。私の音の癖は外周の揺れにも出る。"); };
+const onTargetDown = (e) => { e.preventDefault(); if (game.isFreeMode()) { UISfx.play('disabled'); game.logMsg('FREE MODE: ターゲット音は無効。自分の音だけ鳴らせる。'); return; } UISfx.play('transport'); AudioMgr.startTarget(game.targetParams); btnTarget.classList.add('active'); game.logMsg("ターゲット音を再生中..."); game.speakOpponent("よく聞きなさい。私の音の癖は外周の揺れにも出る。"); };
 const onTargetUp = (e) => { e.preventDefault(); UISfx.play('release'); AudioMgr.stopTarget(); btnTarget.classList.remove('active'); game.logMsg("Ready."); };
 
-const onPlayerDown = (e) => { e.preventDefault(); UISfx.play('transport'); AudioMgr.startPlayer(game.currentParams); btnPlayer.classList.add('active'); game.logMsg(game.mode === 'free' ? "フリーパッチ再生中..." : "プレイヤー音を再生中..."); if (game.mode === 'free') game.speakOpponent("その音、悪くないわね。フィルターとFXも触ってみなさい。"); else game.speakOpponent("自分の音と見比べて、差が大きいところを詰めなさい。"); };
+const onPlayerDown = (e) => { e.preventDefault(); if (game.isKeyboardMode()) { UISfx.play('disabled'); game.logMsg('FREE KEYBOARD: 画面の鍵盤かPCキーで鳴らせる。'); return; } UISfx.play('transport'); AudioMgr.startPlayer(game.currentParams); btnPlayer.classList.add('active'); game.logMsg(game.isFreeMode() ? "フリーパッチ再生中..." : "プレイヤー音を再生中..."); if (game.isFreeMode()) game.speakOpponent("その音、悪くないわね。フィルターとFXも触ってみなさい。"); else game.speakOpponent("自分の音と見比べて、差が大きいところを詰めなさい。"); };
 const onPlayerUp = (e) => { e.preventDefault(); UISfx.play('release'); AudioMgr.stopPlayer(); btnPlayer.classList.remove('active'); game.logMsg("Ready."); };
 
 btnTarget.addEventListener('mousedown', onTargetDown);
@@ -2329,6 +2602,36 @@ btnPlayer.addEventListener('mouseup', onPlayerUp);
 btnPlayer.addEventListener('mouseleave', onPlayerUp);
 btnPlayer.addEventListener('touchend', onPlayerUp);
 
+const keyboardKeys = document.getElementById('keyboard-keys');
+if (keyboardKeys) {
+    keyboardKeys.addEventListener('pointerdown', (e) => {
+        const key = e.target.closest('.keyboard-key');
+        if (!key) return;
+        e.preventDefault();
+        key.setPointerCapture?.(e.pointerId);
+        game.pressKeyboardCode(key.dataset.code, parseFloat(key.dataset.freq));
+    });
+    keyboardKeys.addEventListener('pointerup', (e) => {
+        const key = e.target.closest('.keyboard-key');
+        if (!key) return;
+        e.preventDefault();
+        game.releaseKeyboardCode(key.dataset.code);
+    });
+    keyboardKeys.addEventListener('pointercancel', (e) => {
+        const key = e.target.closest('.keyboard-key');
+        if (key) game.releaseKeyboardCode(key.dataset.code);
+    });
+    keyboardKeys.addEventListener('pointerleave', (e) => {
+        const key = e.target.closest('.keyboard-key');
+        if (key) game.releaseKeyboardCode(key.dataset.code);
+    });
+}
+
+const keyboardOctave = document.getElementById('keyboard-octave');
+const keyboardKeyCount = document.getElementById('keyboard-key-count');
+if (keyboardOctave) keyboardOctave.addEventListener('change', (e) => game.setKeyboardOption('octave', e.target.value));
+if (keyboardKeyCount) keyboardKeyCount.addEventListener('change', (e) => game.setKeyboardOption('count', e.target.value));
+
 let keyTHeld = false;
 let keySpaceHeld = false;
 
@@ -2338,6 +2641,7 @@ document.addEventListener('keydown', (e) => {
         if (e.code === 'Escape') closeSettings();
         return;
     }
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) && e.code !== 'Enter') return;
     if ((e.target.id === 'input-level' || String(e.target.id || '').startsWith('settings-')) && e.code !== 'Enter') return;
 
     if (e.code === 'Space' || e.code === 'KeyT' || e.code === 'Enter') {
@@ -2348,6 +2652,15 @@ document.addEventListener('keydown', (e) => {
         if(e.code === 'Enter' && !document.getElementById('start-screen').classList.contains('hidden')) game.start();
         return;
     }
+
+    if(game.isKeyboardMode()) {
+        const note = game.getKeyboardNoteForCode(e.code);
+        if (note) {
+            e.preventDefault();
+            game.pressKeyboardCode(e.code);
+            return;
+        }
+    }
     
     if(e.code === 'KeyT' && !keyTHeld) {
         keyTHeld = true;
@@ -2357,7 +2670,7 @@ document.addEventListener('keydown', (e) => {
         keySpaceHeld = true;
         onPlayerDown(e);
     }
-    if(e.code === 'Enter' && game.mode !== 'free') { 
+    if(e.code === 'Enter' && !game.isFreeMode()) {
         document.getElementById('btn-submit').click(); 
     }
 });
@@ -2365,6 +2678,14 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     const settingsOpen = !document.getElementById('settings-overlay')?.classList.contains('hidden');
     if (settingsOpen) return;
+    if (game.isKeyboardMode()) {
+        const note = game.getKeyboardNoteForCode(e.code);
+        if (note) {
+            e.preventDefault();
+            game.releaseKeyboardCode(e.code);
+            return;
+        }
+    }
     if ((e.target.id === 'input-level' || String(e.target.id || '').startsWith('settings-')) && e.code !== 'Enter') return;
 
     if(e.code === 'KeyT') {
