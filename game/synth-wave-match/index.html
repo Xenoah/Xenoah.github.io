@@ -882,8 +882,10 @@ function resetSettings() {
 const UISfx = {
     ctx: null,
     master: null,
+    limiter: null,
     enabled: true,
     lastKnob: 0,
+    lastTransport: 0,
 
     init() {
         if (this.ctx) return;
@@ -891,8 +893,15 @@ const UISfx = {
         if (!AudioContextClass) return;
         this.ctx = new AudioContextClass();
         this.master = this.ctx.createGain();
+        this.limiter = this.ctx.createDynamicsCompressor();
+        this.limiter.threshold.value = -10;
+        this.limiter.knee.value = 8;
+        this.limiter.ratio.value = 12;
+        this.limiter.attack.value = 0.002;
+        this.limiter.release.value = 0.09;
         this.master.gain.value = AppSettings.getUiGain();
-        this.master.connect(this.ctx.destination);
+        this.master.connect(this.limiter);
+        this.limiter.connect(this.ctx.destination);
     },
 
     resume() {
@@ -936,6 +945,8 @@ const UISfx = {
             this.blip(320 + Math.random() * 70, 0.026, 'triangle', 0.18, 260);
             return;
         }
+        if ((kind === 'transport' || kind === 'release') && now - this.lastTransport < 24) return;
+        if (kind === 'transport' || kind === 'release') this.lastTransport = now;
         if (kind === 'toggle') return this.blip(520, 0.065, 'square', 0.18, 780);
         if (kind === 'transport') return this.blip(880, 0.038, 'triangle', 0.15, 660);
         if (kind === 'release') return this.blip(420, 0.032, 'sine', 0.10, 280);
@@ -1012,6 +1023,10 @@ class ModularSynth {
     constructor(audioCtx) {
         this.ctx = audioCtx;
         this.isPlaying = false;
+        this.activeVoice = null;
+        this.attackTime = 0.018;
+        this.releaseTime = 0.075;
+        this.fastReleaseTime = 0.018;
         
         this.analyserOsc = this.ctx.createAnalyser();
         this.analyserOsc.fftSize = 2048;
@@ -1262,6 +1277,7 @@ class ModularSynth {
         });
         this.vocoderMix.connect(this.masterGain);
 
+        this.noiseGain.connect(this.ringGain);
         this.pitchShiftGain.connect(this.ringGain);
 
         this.masterGain.connect(this.autoPanNode);
@@ -1386,66 +1402,125 @@ class ModularSynth {
         this.tremoloDepth.gain.setTargetAtTime(this.params.tremolo > 0 ? 0.25 : 0.0, t, tc);
     }
 
+    createVoice() {
+        const voice = {
+            osc1: this.ctx.createOscillator(),
+            osc2: this.ctx.createOscillator(),
+            osc1Gain: this.ctx.createGain(),
+            osc2Gain: this.ctx.createGain(),
+            inputGain: this.ctx.createGain(),
+            pitchInputGain: this.ctx.createGain(),
+            noiseInputGain: this.ctx.createGain(),
+            pitchOscs: [0, 1, 2].map(() => this.ctx.createOscillator()),
+            noiseSource: this.ctx.createBufferSource()
+        };
+
+        voice.inputGain.gain.value = 0.0001;
+        voice.pitchInputGain.gain.value = 0.0001;
+        voice.noiseInputGain.gain.value = 0.0001;
+
+        voice.osc1.connect(voice.osc1Gain);
+        voice.osc2.connect(voice.osc2Gain);
+        voice.osc1Gain.connect(voice.inputGain);
+        voice.osc2Gain.connect(voice.inputGain);
+        voice.inputGain.connect(this.ringGain);
+
+        voice.pitchOscs.forEach(o => o.connect(voice.pitchInputGain));
+        voice.pitchInputGain.connect(this.pitchShiftGain);
+
+        voice.noiseSource.buffer = createNoiseBuffer(this.ctx);
+        voice.noiseSource.loop = true;
+        voice.noiseSource.connect(voice.noiseInputGain);
+        voice.noiseInputGain.connect(this.noiseGain);
+
+        this.vibratoDepth.connect(voice.osc1.detune);
+        this.vibratoDepth.connect(voice.osc2.detune);
+
+        return voice;
+    }
+
+    stopVoice(voice, releaseTime = this.releaseTime) {
+        if (!voice) return;
+        const t = this.ctx.currentTime;
+        const release = Math.max(0.006, releaseTime);
+        const stopAt = t + release + 0.015;
+
+        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
+            if (!g) return;
+            try {
+                g.gain.cancelScheduledValues(t);
+                g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + release);
+            } catch (err) {
+                console.warn('Voice fade failed', err);
+            }
+        });
+
+        [voice.osc1, voice.osc2, voice.noiseSource, ...(voice.pitchOscs || [])].forEach(source => {
+            if (!source) return;
+            try { source.stop(stopAt); } catch (err) {}
+        });
+
+        const cleanupDelay = Math.max(20, Math.ceil((stopAt - this.ctx.currentTime) * 1000) + 30);
+        window.setTimeout(() => {
+            try { this.vibratoDepth.disconnect(voice.osc1.detune); } catch (err) {}
+            try { this.vibratoDepth.disconnect(voice.osc2.detune); } catch (err) {}
+            [
+                voice.osc1, voice.osc2, voice.osc1Gain, voice.osc2Gain,
+                voice.inputGain, voice.pitchInputGain, voice.noiseSource,
+                voice.noiseInputGain, ...(voice.pitchOscs || [])
+            ].forEach(node => {
+                try { if (node && node.disconnect) node.disconnect(); } catch (err) {}
+            });
+        }, cleanupDelay);
+    }
+
     start(params = null) {
-        if(this.isPlaying) this.stop(true);
+        if(this.activeVoice) this.stopVoice(this.activeVoice, this.fastReleaseTime);
         if(params) this.params = { ...this.params, ...params };
 
-        this.osc1 = this.ctx.createOscillator();
-        this.osc2 = this.ctx.createOscillator();
-        this.osc1Gain = this.ctx.createGain();
-        this.osc2Gain = this.ctx.createGain();
-        this.pitchOscs = [0, 1, 2].map(() => this.ctx.createOscillator());
-
-        this.osc1.connect(this.osc1Gain);
-        this.osc2.connect(this.osc2Gain);
-        this.osc1Gain.connect(this.ringGain);
-        this.osc2Gain.connect(this.ringGain);
-        this.pitchOscs.forEach(o => o.connect(this.pitchShiftGain));
-        this.vibratoDepth.connect(this.osc1.detune);
-        this.vibratoDepth.connect(this.osc2.detune);
-
-        this.noiseSource = this.ctx.createBufferSource();
-        this.noiseSource.buffer = createNoiseBuffer(this.ctx);
-        this.noiseSource.loop = true;
-        this.noiseSource.connect(this.noiseGain);
-        this.noiseGain.connect(this.ringGain);
+        const voice = this.createVoice();
+        this.activeVoice = voice;
+        this.osc1 = voice.osc1;
+        this.osc2 = voice.osc2;
+        this.osc1Gain = voice.osc1Gain;
+        this.osc2Gain = voice.osc2Gain;
+        this.pitchOscs = voice.pitchOscs;
+        this.noiseSource = voice.noiseSource;
 
         this.applyParams(this.params);
 
         this.osc1Gain.gain.value = 1; 
         this.osc2Gain.gain.value = this.params.subvol / 100;
 
-        this.osc1.start();
-        this.osc2.start();
-        if (this.pitchOscs) this.pitchOscs.forEach(o => o.start());
-        if (this.noiseSource) this.noiseSource.start();
+        voice.osc1.start();
+        voice.osc2.start();
+        voice.pitchOscs.forEach(o => o.start());
+        voice.noiseSource.start();
 
-        this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
-        this.masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        this.masterGain.gain.linearRampToValueAtTime(AppSettings.getGameGain(), this.ctx.currentTime + 0.05);
+        const t = this.ctx.currentTime;
+        this.masterGain.gain.cancelScheduledValues(t);
+        this.masterGain.gain.setTargetAtTime(AppSettings.getGameGain(), t, 0.015);
+        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
+            g.gain.cancelScheduledValues(t);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(1, t + this.attackTime);
+        });
 
         this.isPlaying = true;
     }
 
     stop(immediate = false) {
-        if(!this.isPlaying) return;
-        const t = this.ctx.currentTime;
-        
-        this.masterGain.gain.cancelScheduledValues(t);
-        if (immediate) {
-            this.masterGain.gain.setValueAtTime(0, t);
-            if(this.osc1) this.osc1.stop(t);
-            if(this.osc2) this.osc2.stop(t);
-            if(this.pitchOscs) this.pitchOscs.forEach(o => o.stop(t));
-            if(this.noiseSource) this.noiseSource.stop(t);
-        } else {
-            this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
-            this.masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-            if(this.osc1) this.osc1.stop(t + 0.2);
-            if(this.osc2) this.osc2.stop(t + 0.2);
-            if(this.pitchOscs) this.pitchOscs.forEach(o => o.stop(t + 0.2));
-            if(this.noiseSource) this.noiseSource.stop(t + 0.2);
-        }
+        if(!this.activeVoice) return;
+        const voice = this.activeVoice;
+        this.activeVoice = null;
+        this.osc1 = null;
+        this.osc2 = null;
+        this.osc1Gain = null;
+        this.osc2Gain = null;
+        this.pitchOscs = null;
+        this.noiseSource = null;
+        this.stopVoice(voice, immediate ? this.fastReleaseTime : this.releaseTime);
         this.isPlaying = false;
     }
 }
