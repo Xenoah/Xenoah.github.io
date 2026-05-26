@@ -3,2894 +3,1649 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SYNTH WAVE MATCH - ALL FX LAB EDITION</title>
+<title>PERFECT PITCH QUIZ</title>
 <style>
-    /* =========================================
-       CSS: Variables & Base
-       ========================================= */
-    :root {
-        --bg-main: #0a0a0f;
-        --bg-panel: #16161e;
-        --bg-rack: #1f1f2e;
-        --text-main: #c0caf5;
-        --text-muted: #565f89;
-        --acc-cyan: #7dcfff;
-        --acc-magenta: #f7768e;
-        --acc-green: #9ece6a;
-        --acc-yellow: #e0af68;
-        --border-color: #292e42;
+:root {
+    color-scheme: dark;
+    --bg: #111318;
+    --surface: #1b1f27;
+    --surface-2: #242a34;
+    --line: #3a4250;
+    --text: #f4f0e8;
+    --muted: #aab0bb;
+    --teal: #48d7c4;
+    --amber: #f2b84b;
+    --rose: #ef6f7b;
+    --green: #7bd972;
+    --blue: #6aa7ff;
+    --black-key: #101217;
+    --white-key: #f5f0e6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    background:
+        linear-gradient(135deg, rgba(72, 215, 196, 0.10), transparent 28%),
+        linear-gradient(315deg, rgba(242, 184, 75, 0.09), transparent 30%),
+        var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+    overflow-x: hidden;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar {
+    min-height: 58px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(17, 19, 24, 0.86);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.brand-sub {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn,
+.text-btn,
+.primary-btn,
+.ghost-btn {
+    min-height: 40px;
+    border-radius: 8px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+    color: var(--text);
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+}
+
+.icon-btn {
+    width: 42px;
+    padding: 0;
+    font-size: 18px;
+}
+
+.primary-btn {
+    background: var(--teal);
+    color: #06201d;
+    border-color: transparent;
+}
+
+.ghost-btn {
+    background: transparent;
+}
+
+.text-btn:hover,
+.icon-btn:hover,
+.ghost-btn:hover {
+    border-color: var(--teal);
+}
+
+.primary-btn:hover {
+    filter: brightness(1.05);
+}
+
+.screen {
+    width: min(1240px, calc(100vw - 28px));
+    margin: 0 auto;
+    padding: 22px 0 30px;
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+.start-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+    gap: 18px;
+    align-items: stretch;
+    min-height: calc(100vh - 112px);
+}
+
+.title-panel,
+.panel {
+    background: rgba(27, 31, 39, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+.title-panel {
+    padding: clamp(22px, 4vw, 44px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+}
+
+.title-panel::after {
+    content: "";
+    position: absolute;
+    inset: auto -60px -80px auto;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 36px solid rgba(72, 215, 196, 0.10);
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(40px, 7vw, 86px);
+    line-height: 0.95;
+    letter-spacing: 0;
+}
+
+.lead {
+    width: min(36rem, 100%);
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.75;
+}
+
+.level-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 28px;
+}
+
+.level-chip {
+    min-height: 76px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.chip-kicker {
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.chip-name {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.mode-panel {
+    padding: 18px;
+    display: grid;
+    gap: 12px;
+    align-content: center;
+}
+
+.mode-card {
+    min-height: 96px;
+    padding: 16px;
+    text-align: left;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.mode-card:hover {
+    border-color: var(--teal);
+    background: #202732;
+}
+
+.mode-name {
+    display: block;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.mode-note {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.mode-mark {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(72, 215, 196, 0.14);
+    color: var(--teal);
+    font-weight: 900;
+}
+
+.game-layout {
+    display: grid;
+    grid-template-columns: minmax(310px, 0.82fr) minmax(360px, 1.18fr);
+    gap: 16px;
+    align-items: stretch;
+}
+
+.panel {
+    padding: 16px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.stat {
+    min-height: 66px;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.stat-value {
+    margin-top: 3px;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.sound-panel {
+    min-height: 520px;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 14px;
+}
+
+.stage-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(242, 184, 75, 0.14);
+    color: var(--amber);
+    font-weight: 900;
+    border: 1px solid rgba(242, 184, 75, 0.35);
+}
+
+.prompt {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.scope {
+    min-height: 250px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+        #131720;
+    overflow: hidden;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.play-btn {
+    min-height: 84px;
+    border-radius: 8px;
+    background: var(--teal);
+    color: #04221e;
+    font-size: 28px;
+    font-weight: 1000;
+    letter-spacing: 0;
+}
+
+.result-box {
+    min-height: 88px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #12161d;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.result-main {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.result-main.good {
+    color: var(--green);
+}
+
+.result-main.bad {
+    color: var(--rose);
+}
+
+.result-sub {
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.answer-panel {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.answer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.answer-title {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.answer-mode {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.note-btn,
+.quality-btn {
+    min-height: 58px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    font-weight: 900;
+}
+
+.note-btn.black {
+    background: #141820;
+    color: var(--blue);
+}
+
+.note-btn.white {
+    background: #ece7dc;
+    color: #16191f;
+}
+
+.note-btn.selected,
+.quality-btn.selected {
+    background: var(--amber);
+    color: #241600;
+    border-color: transparent;
+}
+
+.note-btn.correct,
+.quality-btn.correct {
+    background: var(--green);
+    color: #092006;
+    border-color: transparent;
+}
+
+.note-btn.wrong,
+.quality-btn.wrong {
+    background: var(--rose);
+    color: #26080d;
+    border-color: transparent;
+}
+
+.quality-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.quality-btn {
+    min-height: 54px;
+}
+
+.submit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.piano {
+    position: relative;
+    height: 152px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #11151c;
+    padding: 14px;
+    overflow: hidden;
+}
+
+.white-keys {
+    position: absolute;
+    inset: 14px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.white-key,
+.black-key {
+    border-radius: 0 0 7px 7px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    padding-bottom: 8px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.white-key {
+    background: var(--white-key);
+    color: #141414;
+}
+
+.black-layer {
+    position: absolute;
+    inset: 14px;
+    pointer-events: none;
+}
+
+.black-key {
+    position: absolute;
+    top: 0;
+    width: 9%;
+    height: 62%;
+    background: var(--black-key);
+    color: var(--blue);
+    border-color: #050609;
+}
+
+.black-key[data-pc="1"] { left: 9%; }
+.black-key[data-pc="3"] { left: 23.5%; }
+.black-key[data-pc="6"] { left: 52%; }
+.black-key[data-pc="8"] { left: 66.5%; }
+.black-key[data-pc="10"] { left: 81%; }
+
+.key-lit {
+    outline: 4px solid var(--amber);
+    outline-offset: -4px;
+}
+
+.training-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
+    gap: 16px;
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+}
+
+.field label {
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #11161d;
+    color: var(--text);
+    padding: 0 10px;
+}
+
+.training-keys {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.training-keys button {
+    min-height: 70px;
+    border-radius: 8px;
+    font-weight: 900;
+    border: 1px solid var(--line);
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
+    display: none;
+    place-items: center;
+    z-index: 50;
+    padding: 18px;
+}
+
+.modal.active {
+    display: grid;
+}
+
+.modal-panel {
+    width: min(520px, 100%);
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 18px;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
+}
+
+.modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .start-layout,
+    .game-layout,
+    .training-layout {
+        grid-template-columns: 1fr;
     }
 
-    * { box-sizing: border-box; user-select: none; }
-    body {
-        margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main);
-        font-family: 'Segoe UI', sans-serif;
-        display: flex; justify-content: center; align-items: center; min-height: 100vh;
-        overflow: hidden;
+    .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    #app {
-        width: 100vw; height: 100vh; position: relative;
-        display: flex; justify-content: center; align-items: center;
+    .button-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .quality-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .level-strip {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .topbar {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .brand-title {
+        font-size: 15px;
     }
 
     .screen {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: radial-gradient(circle at center, #1a1a24 0%, #000000 100%);
-        transition: opacity 0.3s; z-index: 10;
-    }
-    .screen.hidden { opacity: 0; pointer-events: none; }
-
-    /* =========================================
-       CSS: 2-Column Layout (Game Screen)
-       ========================================= */
-    #game-screen {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: min(1560px, calc(100vw - 96px)); height: min(900px, calc(100vh - 48px));
-        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; padding: 20px;
-        z-index: 5; background: none;
-        align-items: stretch;
+        width: min(100vw - 18px, 1240px);
+        padding-top: 12px;
     }
 
-
-    .return-menu-btn {
-        position: fixed;
-        top: 14px;
-        right: 14px;
-        z-index: 50;
-        padding: 9px 14px;
-        border: 1px solid var(--acc-cyan);
-        border-radius: 999px;
-        background: rgba(10, 10, 15, 0.82);
-        color: var(--acc-cyan);
-        font-weight: 800;
-        font-size: 13px;
-        letter-spacing: 0.04em;
-        box-shadow: 0 0 14px rgba(125, 207, 255, 0.18);
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-    }
-    .return-menu-btn:hover {
-        background: rgba(125, 207, 255, 0.16);
-        box-shadow: 0 0 20px rgba(125, 207, 255, 0.30);
-    }
-    .return-menu-btn:active {
-        transform: translateY(1px);
+    .stat-grid,
+    .submit-row,
+    .control-grid {
+        grid-template-columns: 1fr;
     }
 
-    .return-menu-btn.global-settings-btn {
-        border-color: var(--acc-yellow);
-        color: var(--acc-yellow);
-        box-shadow: 0 0 14px rgba(224, 175, 104, 0.18);
+    .training-keys {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-    .return-menu-btn.global-settings-btn:hover {
-        background: rgba(224, 175, 104, 0.14);
-        box-shadow: 0 0 20px rgba(224, 175, 104, 0.28);
-    }
-    .return-menu-btn.menu-open-btn { top: 58px; right: 14px; }
-
-    .settings-overlay {
-        position: fixed; inset: 0; z-index: 80;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(0, 0, 0, 0.62);
-        backdrop-filter: blur(6px);
-        opacity: 1; pointer-events: auto;
-        transition: opacity 0.18s ease;
-    }
-    .settings-overlay.hidden { opacity: 0; pointer-events: none; }
-    .settings-dialog {
-        width: min(460px, calc(100vw - 32px));
-        background: var(--bg-panel);
-        border: 1px solid var(--border-color);
-        border-radius: 14px;
-        padding: 22px;
-        box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 24px rgba(125,207,255,0.09);
-    }
-    .settings-title { margin: 0 0 8px; color: var(--acc-cyan); letter-spacing: 0.08em; font-size: 20px; }
-    .settings-note { color: #9aa5ce; font-size: 12px; line-height: 1.55; margin: 0 0 18px; }
-    .settings-row { background: rgba(0,0,0,0.24); border: 1px solid #2d3147; border-radius: 10px; padding: 13px 14px; margin-bottom: 12px; }
-    .settings-row-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
-    .settings-label { font-weight: 800; font-size: 13px; color: #dbe2ff; }
-    .settings-value { font-family: monospace; color: var(--acc-yellow); font-weight: 800; }
-    .settings-row input[type="range"] { width: 100%; }
-    .settings-actions { display:flex; gap:10px; justify-content:flex-end; margin-top: 18px; }
-    .settings-actions button { padding: 10px 16px; }
-
-    .left-panel { display: flex; flex-direction: column; gap: 15px; height: 100%; }
-    .right-panel {
-        background: var(--bg-rack); border-radius: 8px; border: 1px solid var(--border-color);
-        padding: 20px; overflow-y: auto; box-shadow: inset 0 5px 10px rgba(0,0,0,0.3);
-        display: flex; flex-direction: column; gap: 15px; height: 100%;
-    }
-
-    /* =========================================
-       CSS: HUD & Monitors (Left Panel)
-       ========================================= */
-    .hud {
-        display: flex; justify-content: space-between; align-items: center;
-        background: var(--bg-panel); padding: 15px 20px; border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-    .hud-box { text-align: center; }
-    .hud-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-    .hud-value { font-size: 20px; font-weight: bold; color: var(--acc-cyan); font-family: monospace; }
-    #time-display { color: var(--acc-magenta); font-size: 28px; }
-
-    .monitors { display: flex; flex-direction: column; gap: 15px; flex: 1; }
-
-
-    .avatar-strip {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
-    .avatar-card {
-        background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 10px;
-        padding: 12px; box-shadow: inset 0 0 18px rgba(0,0,0,0.35);
-    }
-    .avatar-card.enemy-visual { border-color: rgba(247, 118, 142, 0.45); }
-    .avatar-card.player-visual { border-color: rgba(125, 207, 255, 0.45); }
-    .avatar-card.damage-pop { animation: damage-shake 0.34s ease; }
-    .avatar-card.attack-pop { animation: attack-pulse 0.34s ease; }
-    .avatar-card.audio-sway { transform-origin: center center; }
-    .avatar-canvas-wrap {
-        width: 100%; aspect-ratio: 16 / 9; min-height: 180px;
-        background: radial-gradient(circle at center, rgba(32,26,48,0.95) 0%, rgba(7,8,14,1) 70%);
-        border: 1px solid #2d3147; border-radius: 10px; overflow: hidden; position: relative;
-    }
-    #canvas-opponent-avatar { width: 100%; height: 100%; display: block; }
-    .avatar-meta-panel { padding-top: 10px; }
-    .avatar-caption { font-size: 11px; color: #9aa5ce; margin-top: 8px; line-height: 1.5; }
-
-    .battle-strip {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
-    .battler-card {
-        background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 10px;
-        padding: 12px; display: flex; align-items: center; gap: 12px;
-        box-shadow: inset 0 0 18px rgba(0,0,0,0.35);
-    }
-    .battler-card.enemy { border-color: rgba(247, 118, 142, 0.45); }
-    .battler-card.player-card { border-color: rgba(125, 207, 255, 0.45); }
-    .battler-icon {
-        width: 68px; height: 68px; border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 34px; font-weight: bold; line-height: 1; flex: 0 0 auto;
-        background: linear-gradient(145deg, #11131c, #1f2230);
-        border: 2px solid #3b4261;
-        text-shadow: 0 0 12px currentColor;
-    }
-    .battler-card.enemy .battler-icon { color: var(--acc-magenta); }
-    .battler-card.player-card .battler-icon { color: var(--acc-cyan); }
-    .battler-meta { min-width: 0; flex: 1; }
-    .battler-role { font-size: 10px; letter-spacing: 1.4px; color: var(--text-muted); text-transform: uppercase; }
-    .battler-name { font-size: 18px; font-weight: 700; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .battler-sub { font-size: 11px; color: #9aa5ce; margin-top: 2px; }
-    .battler-meter-label {
-        display: flex; justify-content: space-between; gap: 8px;
-        font-size: 10px; color: var(--text-muted); margin-top: 8px; margin-bottom: 4px;
-    }
-    .hp-text { color: var(--acc-yellow); font-family: monospace; white-space: nowrap; }
-    .battler-meter { height: 8px; background: #0c0d14; border-radius: 999px; overflow: hidden; border: 1px solid #2d3147; }
-    .battler-meter-fill { height: 100%; width: 100%; transition: width 0.35s ease; }
-    .battler-card.enemy .battler-meter-fill { background: linear-gradient(90deg, #7a2636, var(--acc-magenta)); }
-    .battler-card.player-card .battler-meter-fill { background: linear-gradient(90deg, #255470, var(--acc-cyan)); }
-    .battler-card.damage-pop { animation: damage-shake 0.34s ease; }
-    .battler-card.attack-pop { animation: attack-pulse 0.34s ease; }
-
-    @keyframes damage-shake {
-        0% { transform: translateX(0); filter: brightness(1); }
-        25% { transform: translateX(-5px); filter: brightness(1.8); }
-        50% { transform: translateX(5px); filter: brightness(1.4); }
-        75% { transform: translateX(-3px); filter: brightness(1.6); }
-        100% { transform: translateX(0); filter: brightness(1); }
-    }
-    @keyframes attack-pulse {
-        0% { transform: scale(1); filter: brightness(1); }
-        45% { transform: scale(1.035); filter: brightness(1.8); }
-        100% { transform: scale(1); filter: brightness(1); }
-    }
-    
-    .monitor-box {
-        flex: 1; background: #050508; border: 2px solid #333; border-radius: 8px;
-        position: relative; display: flex; flex-direction: column; padding: 10px;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-    }
-    .monitor-box.target { border-color: rgba(247, 118, 142, 0.4); }
-    .monitor-box.player { border-color: rgba(125, 207, 255, 0.4); }
-
-    .monitor-header { font-size: 12px; font-weight: bold; margin-bottom: 5px; font-family: monospace; }
-    .monitor-box.target .monitor-header { color: var(--acc-magenta); }
-    .monitor-box.player .monitor-header { color: var(--acc-cyan); }
-
-    .canvas-wrap { flex: 1; position: relative; min-height: 100px; }
-    canvas { width: 100%; height: 100%; display: block; position: absolute; top:0; left:0; }
-
-    .action-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-submit-wrap { grid-column: span 2; }
-
-    button {
-        background: #2a2e40; color: var(--text-main); border: 2px solid #3b4261;
-        padding: 12px; font-size: 14px; font-weight: bold; border-radius: 8px;
-        cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    button:hover { filter: brightness(1.2); }
-    button:active { transform: translateY(2px); }
-    
-    .btn-target { border-color: var(--acc-magenta); color: var(--acc-magenta); }
-    .btn-target.active { background: var(--acc-magenta); color: #000; box-shadow: 0 0 15px var(--acc-magenta); }
-    
-    .btn-player { border-color: var(--acc-cyan); color: var(--acc-cyan); }
-    .btn-player.active { background: var(--acc-cyan); color: #000; box-shadow: 0 0 15px var(--acc-cyan); }
-    
-    .btn-submit { background: #1a2b1f; border-color: var(--acc-green); color: var(--acc-green); width: 100%; font-size: 16px;}
-    
-    .key-hint { font-size: 10px; opacity: 0.7; margin-top: 4px; }
-
-    .shortcut-map {
-        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
-        background: rgba(0,0,0,0.24); border: 1px solid #2d3147; border-radius: 8px; padding: 10px;
-    }
-    .shortcut-chip {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        min-width: 0; font-size: 11px; color: #9aa5ce;
-    }
-    .keycap {
-        min-width: 34px; padding: 4px 7px; border-radius: 5px;
-        border: 1px solid rgba(125, 207, 255, 0.42); background: #10131d;
-        color: var(--acc-cyan); font-family: monospace; font-weight: 900; text-align: center;
-        box-shadow: inset 0 -2px 0 rgba(0,0,0,0.36);
-    }
-
-    .message-log {
-        background: rgba(0,0,0,0.4); border-left: 4px solid var(--acc-yellow);
-        padding: 12px; border-radius: 0 8px 8px 0; font-weight: bold; font-size: 13px; min-height: 40px;
-    }
-
-    .keyboard-panel {
-        background: var(--bg-panel); border: 1px solid rgba(125, 207, 255, 0.36);
-        border-radius: 8px; padding: 12px; box-shadow: inset 0 0 18px rgba(0,0,0,0.28);
-    }
-    .keyboard-panel.hidden { display: none; }
-    .keyboard-toolbar {
-        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px;
-    }
-    .keyboard-control {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        background: rgba(0,0,0,0.22); border: 1px solid #2d3147; border-radius: 8px; padding: 9px 10px;
-    }
-    .keyboard-control label { color: #9aa5ce; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; }
-    .keyboard-control select { min-width: 86px; }
-    .keyboard-control button { width: 100%; min-height: 30px; padding: 6px 8px; font-size: 11px; }
-    .midi-status { color: #9aa5ce; font-size: 10px; text-align: right; line-height: 1.2; }
-    .keyboard-keys {
-        display: grid; grid-template-columns: repeat(var(--key-count, 18), minmax(34px, 1fr));
-        gap: 4px; align-items: end;
-    }
-    .keyboard-key {
-        min-width: 0; height: 74px; padding: 6px 2px 5px;
-        border-radius: 0 0 7px 7px; border: 1px solid #3b4261;
-        background: linear-gradient(180deg, #f3f5ff 0%, #aeb8dc 100%);
-        color: #11131c; font-size: 11px; line-height: 1.1;
-        display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
-    }
-    .keyboard-key.is-black {
-        height: 50px; background: linear-gradient(180deg, #171a28 0%, #050508 100%);
-        color: var(--acc-cyan); border-color: #111827;
-    }
-    .keyboard-key.active {
-        transform: translateY(2px); filter: brightness(1.25);
-        box-shadow: 0 0 18px rgba(125, 207, 255, 0.45);
-    }
-    .keyboard-note { font-weight: 900; }
-    .keyboard-code { font-family: monospace; opacity: 0.72; font-size: 10px; }
-    .keyboard-map {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px;
-        margin-top: 10px; padding-top: 10px; border-top: 1px solid #2d3147;
-    }
-    .keyboard-map-chip {
-        display: flex; align-items: center; justify-content: space-between; gap: 5px;
-        min-width: 0; padding: 5px 6px; border-radius: 6px;
-        background: rgba(255,255,255,0.045); color: #dbe2ff; font-size: 10px;
-    }
-    .keyboard-map-chip .keycap { min-width: 24px; padding: 2px 5px; font-size: 10px; }
-
-    .enemy-visual { position: relative; }
-    .speech-bubble {
-        position: absolute; top: 12px; right: 12px; max-width: 68%;
-        background: rgba(18, 20, 31, 0.96); color: var(--acc-yellow);
-        border: 1px solid rgba(247, 118, 142, 0.45); border-radius: 14px;
-        padding: 10px 12px; font-size: 12px; line-height: 1.45; z-index: 3;
-        box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-    }
-    .speech-bubble.error { color: var(--acc-magenta); }
-    .speech-bubble::after {
-        content: ''; position: absolute; left: 18px; bottom: -10px; width: 18px; height: 18px;
-        background: rgba(18, 20, 31, 0.96); border-left: 1px solid rgba(247, 118, 142, 0.45); border-bottom: 1px solid rgba(247, 118, 142, 0.45);
-        transform: rotate(-35deg) skewX(-10deg); border-bottom-left-radius: 4px;
-    }
-    .param-splash { animation: param-pulse 0.55s ease; }
-    @keyframes param-pulse {
-        0% { box-shadow: 0 0 0 rgba(247,118,142,0); transform: translateY(0); }
-        35% { box-shadow: 0 0 20px rgba(247,118,142,0.45); transform: translateY(-2px); }
-        100% { box-shadow: 0 0 0 rgba(247,118,142,0); transform: translateY(0); }
-    }
-    .result-compare {
-        margin: 16px 0 22px; background: rgba(0,0,0,0.28); border: 1px solid #333; border-radius: 10px; padding: 12px; text-align: left;
-    }
-    .result-compare-title { font-size: 13px; font-weight: 700; color: var(--acc-cyan); margin-bottom: 8px; }
-    .result-compare-table { display: grid; gap: 8px; }
-    .result-compare-row {
-        display: grid; grid-template-columns: minmax(110px, 1.4fr) 1fr 1fr minmax(70px, 0.8fr); gap: 8px; align-items: center;
-        font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.04);
-    }
-    .result-compare-head { font-size: 11px; color: #94a0d2; background: transparent; padding-top: 0; padding-bottom: 2px; }
-    .result-compare-row.bad { border-left: 4px solid var(--acc-magenta); }
-    .result-compare-row.good { border-left: 4px solid var(--acc-green); }
-    .result-name { font-weight: 700; }
-    .result-val { font-family: monospace; color: #dbe2ff; }
-    .result-diff { font-family: monospace; color: var(--acc-yellow); }
-    .result-status { font-weight: 700; text-align: center; }
-    .result-status.good { color: var(--acc-green); }
-    .result-status.bad { color: var(--acc-magenta); }
-
-    /* =========================================
-       CSS: Modules & Controls (Right Panel)
-       ========================================= */
-    .module { background: var(--bg-panel); border: 1px solid #333; border-radius: 6px; padding: 15px; transition: opacity 0.3s; }
-    .module.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
-    .module.collapsed .controls-grid { display: none; }
-    .module-title {
-        font-size: 14px; font-weight: bold; color: var(--acc-green); border-bottom: 1px solid #333;
-        padding-bottom: 5px; margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    }
-    .module-toggle {
-        width: 28px; height: 24px; padding: 0; border: 1px solid #3b4261; border-radius: 5px;
-        background: #11131c; color: var(--acc-cyan); font-size: 14px; line-height: 1; display: inline-flex;
-    }
-    button:disabled { opacity: 0.38; cursor: not-allowed; filter: grayscale(100%); }
-
-    .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .control-item { display: flex; flex-direction: column; transition: opacity 0.18s, filter 0.18s; }
-    .control-item.inactive { opacity: 0.26; filter: grayscale(100%); pointer-events: none; }
-    .file-control { margin-top: 8px; font-size: 11px; color: #9aa5ce; }
-    .file-control input { width: 100%; margin-top: 6px; color: var(--text-main); font-size: 11px; }
-    .module-note.strong { color: var(--acc-yellow); border-left: 3px solid var(--acc-yellow); padding-left: 8px; }
-    .control-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; color: #aaa; }
-    .module-note { font-size: 10px; color: #7f88b8; margin: -4px 0 10px; line-height: 1.4; }
-    .val-display { color: var(--acc-cyan); font-family: monospace; }
-
-    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-    input[type=range]::-webkit-slider-thumb {
-        -webkit-appearance: none; height: 18px; width: 10px; border-radius: 2px;
-        background: var(--acc-cyan); cursor: pointer; margin-top: -7px;
-    }
-    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #444; border-radius: 2px; }
-    select { background: #111; color: var(--text-main); border: 1px solid #444; padding: 5px; border-radius: 4px; }
-
-    @media (min-width: 1320px) {
-        #game-screen {
-            grid-template-columns: minmax(430px, 0.78fr) minmax(760px, 1.22fr);
-        }
-        .right-panel {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            align-content: start;
-        }
-        .module { min-width: 0; }
-        .module .controls-grid { gap: 12px; }
-    }
-
-    /* =========================================
-       CSS: Start Screen Details
-       ========================================= */
-    .dialog-box { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; max-width: 650px; width: 90%; }
-    
-    .unlock-info {
-        background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 8px;
-        padding: 15px; text-align: left; margin: 20px 0; font-size: 13px;
-    }
-    .unlock-info h3 { margin: 0 0 10px 0; font-size: 15px; color: var(--acc-yellow); text-align: center; letter-spacing: 2px; }
-    .unlock-info ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .unlock-info li { background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
-    .lv-badge { background: var(--acc-cyan); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; width: 45px; text-align: center; }
-    
-    .level-input-area { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; }
-    .level-input { background: #000; color: var(--acc-yellow); border: 1px solid #444; font-size: 24px; width: 80px; text-align: center; padding: 5px; border-radius: 4px; }
-    
-    .quick-select { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .quick-select button { background: #2a2e40; font-size: 15px; padding: 10px; }
-    .quick-select button small { font-size: 10px; color: #aaa; font-weight: normal; margin-top: 4px; }
-    .quick-select button:hover { background: #3b4261; border-color: var(--acc-cyan); color: var(--acc-cyan); }
-
-    #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
-
-    /* =========================================
-       CSS: Responsive Layout
-       ========================================= */
-    @media (max-width: 860px) {
-        body { overflow: auto; align-items: flex-start; }
-        #app { height: auto; min-height: 100vh; align-items: flex-start; }
-        .screen { min-height: 100vh; height: auto; overflow-y: auto; padding: 16px 0; }
-        #game-screen {
-            position: relative; top: auto; left: auto; transform: none;
-            grid-template-columns: 1fr;
-            width: 100%; height: auto; min-height: 100vh; max-height: none;
-            padding: 12px; gap: 12px; overflow-y: auto;
-        }
-        .left-panel, .right-panel { height: auto; min-height: 0; }
-        .avatar-strip { grid-template-columns: 1fr; }
-        .avatar-canvas-wrap { min-height: 160px; }
-        .monitors { min-height: 360px; }
-        .monitor-box { min-height: 170px; }
-        .hud { padding: 10px 12px; }
-        #time-display { font-size: 22px; }
-        .hud-value { font-size: 18px; }
-        .right-panel { padding: 12px; overflow-y: visible; }
-        .controls-grid { grid-template-columns: 1fr; gap: 12px; }
-        .shortcut-map { grid-template-columns: 1fr; }
-        .quick-select { grid-template-columns: 1fr 1fr; }
-        .keyboard-toolbar { grid-template-columns: 1fr; }
-        .keyboard-keys { grid-template-columns: repeat(6, 1fr); }
-        .keyboard-key, .keyboard-key.is-black { height: 54px; }
-        .unlock-info ul { grid-template-columns: 1fr; }
-        .unlock-info li[style*="grid-column"] { grid-column: auto !important; justify-content: flex-start !important; }
-        .speech-bubble { position: static; max-width: 100%; margin-bottom: 10px; }
-        .speech-bubble::after { display: none; }
-        .result-compare-row { grid-template-columns: 1fr 1fr; }
-        .result-compare-head { display: none; }
-    }
-
+}
 </style>
 </head>
 <body>
-
-<div id="app">
-    <canvas id="particles-js"></canvas>
-    <button class="return-menu-btn global-settings-btn" type="button" onclick="openSettings()" aria-label="設定を開く">設定</button>
-
-    <div id="start-screen" class="screen">
-        <div class="dialog-box">
-            <h1 style="color:var(--acc-cyan); font-size:36px; margin:0 0 5px; letter-spacing: 2px;">SYNTH MATCH SPECTRA</h1>
-            <p style="margin-top:0; color:#aaa; font-size:14px;">相手の音を解析し、右側のラックで再現しろ。ズレた箇所は相手が吹き出しで教えてくる。</p>
-            
-            <div class="unlock-info">
-                <h3>【 レベルごとの機材解放リスト 】</h3>
-                <ul>
-                    <li><span class="lv-badge">Lv 1</span> 周波数(Freq)のみ</li>
-                    <li><span class="lv-badge">Lv 2</span> ＋ 波形(Waveform)</li>
-                    <li><span class="lv-badge">Lv 5</span> ＋ LPF(フィルター)</li>
-                    <li><span class="lv-badge">Lv 10</span> ＋ 歪み(Dist), ディレイ</li>
-                    <li><span class="lv-badge">Lv 20</span> ＋ サブVCO(音量, Detune)</li>
-                    <li><span class="lv-badge">Lv 30</span> ＋ レゾナンス(Q), HPF</li>
-                    <li style="grid-column: span 2; justify-content: center;"><span class="lv-badge" style="width:auto;">Lv 40~</span> ＋ BitCrush, Tremolo（全機材解放）</li>
-                </ul>
-                <p style="font-size: 11px; color: var(--acc-magenta); margin: 8px 0 0 0; text-align: center;">※Lv26以上、Lv51以上でさらに判定の許容誤差が厳しくなります。</p>
-            </div>
-
-            <div class="quick-select">
-                <button onclick="setAndStart(1)">Lv. 1<br><small>チュートリアル</small></button>
-                <button onclick="setAndStart(10)">Lv. 10<br><small>エフェクト入門</small></button>
-                <button onclick="setAndStart(40)">Lv. 40<br><small>フルラック解放</small></button>
-                <button onclick="setAndStart(100)">Lv. 100<br><small>最高難易度</small></button>
-                <button onclick="game.startFreeMode('keyboard')">FREE PLAY<br><small>単音 + 鍵盤</small></button>
-                <button onclick="game.startFreeMode('keyboard')">FREE MIDI<br><small>外部入力</small></button>
-            </div>
-
-            <div class="level-input-area">
-                <label style="color:#aaa; font-size:14px; font-weight:bold;">カスタムレベル:</label>
-                <input type="number" id="input-level" class="level-input" min="1" max="100" value="1">
-                <button style="background:var(--acc-cyan); color:#000; padding:10px 30px; font-size:18px; border:none;" onclick="game.start()">GAME START</button>
-            </div>
-            <p id="cookie-status-line" style="font-size:11px; color:#8f9bcf; margin:10px 0 0;">Cookie状態: 未確認</p>
+<div class="app">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-title">PERFECT PITCH QUIZ</div>
+            <div class="brand-sub">Note, chord, and code-name challenge</div>
         </div>
-    </div>
-
-    <div id="result-screen" class="screen hidden">
-        <div class="dialog-box" style="max-width: 760px;">
-            <h2 id="result-title" style="font-size:36px; margin-bottom:10px;">CLEARED</h2>
-            <div id="result-score" style="font-size:40px; color:var(--acc-yellow); margin-bottom:20px;">0</div>
-            <p id="result-desc" style="color:#aaa; margin-bottom:18px;">見事だ。</p>
-            <div class="result-compare" id="result-compare">
-                <div class="result-compare-title">TARGET vs PLAYER</div>
-                <div class="result-compare-table" id="result-compare-table"></div>
-            </div>
-            <div style="display:flex; gap:10px; justify-content:center;">
-                <button onclick="game.nextLevel()" style="background:var(--acc-green); color:#000; padding:10px 20px;">NEXT LEVEL</button>
-                <button onclick="game.showTitle()" style="background:transparent; padding:10px 20px;">TITLE MENU</button>
-            </div>
+        <div class="top-actions">
+            <button class="icon-btn" id="home-btn" type="button" title="タイトルへ">⌂</button>
+            <button class="icon-btn" id="settings-btn" type="button" title="設定">⚙</button>
         </div>
-    </div>
+    </header>
 
-    <div id="settings-overlay" class="settings-overlay hidden" aria-hidden="true">
-        <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-            <h2 class="settings-title" id="settings-title">VOLUME SETTINGS</h2>
-            <p class="settings-note">ゲーム本体のシンセ音と、クリックなどのUI SEを個別に調整できます。Cookie保存を許可した場合のみ、音量・進行状況を保存します。<br><span id="settings-cookie-status">Cookie状態: 未確認</span></p>
-            <div class="settings-row">
-                <div class="settings-row-head">
-                    <span class="settings-label">GAME / SYNTH 音量</span>
-                    <span class="settings-value"><span id="settings-game-volume-value">60</span>%</span>
-                </div>
-                <input type="range" id="settings-game-volume" min="0" max="100" value="60" step="1">
-            </div>
-            <div class="settings-row">
-                <div class="settings-row-head">
-                    <span class="settings-label">UI SE 音量</span>
-                    <span class="settings-value"><span id="settings-ui-volume-value">60</span>%</span>
-                </div>
-                <input type="range" id="settings-ui-volume" min="0" max="100" value="60" step="1">
-            </div>
-            <div class="settings-actions">
-                <button type="button" onclick="resetSettings()" style="background:transparent;">RESET</button>
-                <button type="button" onclick="closeSettings()" style="background:var(--acc-cyan); color:#000;">CLOSE</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="cookie-consent-overlay" class="settings-overlay hidden" aria-hidden="true">
-        <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="cookie-consent-title">
-            <h2 class="settings-title" id="cookie-consent-title">COOKIE SAVE</h2>
-            <p class="settings-note">
-                音量設定・最後に到達したレベル・ベストスコアをCookieに保存してよいですか？<br>
-                この確認はCookieが存在しない初回のみ表示します。
-            </p>
-            <div class="settings-actions">
-                <button type="button" onclick="CookieConsent.reject()" style="background:transparent;">使わない</button>
-                <button type="button" onclick="CookieConsent.accept()" style="background:var(--acc-cyan); color:#000;">使う</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="game-screen" class="screen hidden">
-        <button class="return-menu-btn menu-open-btn" type="button" onclick="game.showTitle()" aria-label="メニューへ戻る">メニューへ戻る</button>
-        <div class="left-panel">
-            <div class="hud">
-                <div class="hud-box"><div class="hud-label">LEVEL</div><div class="hud-value" id="hud-level">1</div></div>
-                <div class="hud-box"><div class="hud-label">TIME</div><div class="hud-value" id="time-display">05:00</div></div>
-                <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score-display">0</div></div>
-            </div>
-
-            <div class="avatar-strip">
-                <div class="avatar-card enemy-visual" id="avatar-opponent-card">
-                    <div class="speech-bubble" id="opponent-bubble">まずは相手の音を聞け。</div>
-                    <div class="avatar-canvas-wrap">
-                        <canvas id="canvas-opponent-avatar"></canvas>
+    <main>
+        <section id="start-screen" class="screen active">
+            <div class="start-layout">
+                <div class="title-panel">
+                    <div>
+                        <h1>PERFECT<br>PITCH<br>QUIZ</h1>
+                        <p class="lead">単音から始まり、レベルが上がると和音、コードネーム当てへ進む音感クイズ。</p>
                     </div>
-                    <div class="avatar-meta-panel">
-                        <div class="battler-role">Opponent Signature</div>
-                        <div class="battler-name" id="enemy-name">Wave Slime</div>
-                        <div class="battler-sub" id="enemy-class">Basic Tone Mimic</div>
-                        <div class="avatar-caption">相手の音を再生すると、アバター本体と外周スペクトラムが揺れる。</div>
+                    <div class="level-strip" aria-label="level flow">
+                        <div class="level-chip">
+                            <div class="chip-kicker">Lv.1</div>
+                            <div class="chip-name">白鍵単音</div>
+                        </div>
+                        <div class="level-chip">
+                            <div class="chip-kicker">Lv.5</div>
+                            <div class="chip-name">12音単音</div>
+                        </div>
+                        <div class="level-chip">
+                            <div class="chip-kicker">Lv.15</div>
+                            <div class="chip-name">2音和音</div>
+                        </div>
+                        <div class="level-chip">
+                            <div class="chip-kicker">Lv.25</div>
+                            <div class="chip-name">三和音</div>
+                        </div>
+                        <div class="level-chip">
+                            <div class="chip-kicker">Lv.40</div>
+                            <div class="chip-name">7thコード</div>
+                        </div>
                     </div>
                 </div>
-                <div class="avatar-card player-visual" id="avatar-player-card">
-                    <div class="avatar-canvas-wrap">
-                        <canvas id="canvas-player-avatar"></canvas>
-                    </div>
-                    <div class="avatar-meta-panel">
-                        <div class="battler-role">Player Signature</div>
-                        <div class="battler-name" id="player-name">Patch Tuner</div>
-                        <div class="battler-sub" id="player-class">Signal Apprentice</div>
-                        <div class="avatar-caption">自分の音を再生すると、プレイヤー側のアバターも同様に揺れて反応する。</div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="monitors">
-                <div class="monitor-box target">
-                    <div class="monitor-header" id="target-monitor-title">TARGET SIGNAL (マゼンタ)</div>
-                    <div class="canvas-wrap"><canvas id="canvas-target-osc"></canvas></div>
-                </div>
-                <div class="monitor-box player">
-                    <div class="monitor-header" id="player-monitor-title">YOUR SIGNAL (シアン)</div>
-                    <div class="canvas-wrap"><canvas id="canvas-player-osc"></canvas></div>
-                </div>
-            </div>
-
-            <div class="action-bar">
-                <button class="btn-target" id="btn-target">
-                    <span>押している間 相手の音</span><span class="key-hint">Hold: T</span>
-                </button>
-                <button class="btn-player" id="btn-player">
-                    <span id="player-main-label">押している間 自分の音</span><span class="key-hint" id="player-sub-label">Hold: Space</span>
-                </button>
-                <div class="btn-submit-wrap">
-                    <button class="btn-submit" id="btn-submit">
-                        <span id="submit-main-label">CHECK / 判定</span><span class="key-hint" id="submit-sub-label">Shortcut: Enter</span>
+                <div class="mode-panel panel">
+                    <button class="mode-card" type="button" data-start="challenge">
+                        <span>
+                            <span class="mode-name">Challenge</span>
+                            <span class="mode-note">正解を重ねるほど単音からコードへ進行</span>
+                        </span>
+                        <span class="mode-mark">GO</span>
+                    </button>
+                    <button class="mode-card" type="button" data-start="easy">
+                        <span>
+                            <span class="mode-name">Easy</span>
+                            <span class="mode-note">白鍵単音だけで音名を確認</span>
+                        </span>
+                        <span class="mode-mark">C</span>
+                    </button>
+                    <button class="mode-card" type="button" data-start="normal">
+                        <span>
+                            <span class="mode-name">Normal</span>
+                            <span class="mode-note">12音単音の基本クイズ</span>
+                        </span>
+                        <span class="mode-mark">12</span>
+                    </button>
+                    <button class="mode-card" type="button" data-start="chord">
+                        <span>
+                            <span class="mode-name">Chord</span>
+                            <span class="mode-note">ルートとコード種を当てる</span>
+                        </span>
+                        <span class="mode-mark">Cm</span>
+                    </button>
+                    <button class="mode-card" type="button" data-start="training">
+                        <span>
+                            <span class="mode-name">Training</span>
+                            <span class="mode-note">単音とコードを自由に鳴らす</span>
+                        </span>
+                        <span class="mode-mark">LAB</span>
                     </button>
                 </div>
             </div>
+        </section>
 
-            <div class="shortcut-map" id="transport-keymap" aria-label="transport keymap">
-                <div class="shortcut-chip"><span class="keycap">T</span><span>Target</span></div>
-                <div class="shortcut-chip"><span class="keycap">Space</span><span>Frequency</span></div>
-                <div class="shortcut-chip"><span class="keycap">Enter</span><span>Check</span></div>
-            </div>
-
-            <div class="keyboard-panel hidden" id="keyboard-panel">
-                <div class="keyboard-toolbar">
-                    <div class="keyboard-control">
-                        <label for="keyboard-octave">OCTAVE</label>
-                        <select id="keyboard-octave">
-                            <option value="2">C2</option>
-                            <option value="3">C3</option>
-                            <option value="4" selected>C4</option>
-                            <option value="5">C5</option>
-                            <option value="6">C6</option>
-                        </select>
-                    </div>
-                    <div class="keyboard-control">
-                        <label for="keyboard-key-count">KEYS</label>
-                        <select id="keyboard-key-count">
-                            <option value="12">12</option>
-                            <option value="18" selected>18</option>
-                            <option value="24">24</option>
-                        </select>
-                    </div>
-                    <div class="keyboard-control">
-                        <button type="button" id="midi-connect">MIDI</button>
-                        <span class="midi-status" id="midi-status">not connected</span>
-                    </div>
+        <section id="game-screen" class="screen">
+            <div class="stat-grid">
+                <div class="stat">
+                    <div class="stat-label">LEVEL</div>
+                    <div class="stat-value" id="stat-level">1</div>
                 </div>
-                <div class="keyboard-keys" id="keyboard-keys"></div>
-                <div class="keyboard-map" id="keyboard-map" aria-label="keyboard keymap"></div>
+                <div class="stat">
+                    <div class="stat-label">SCORE</div>
+                    <div class="stat-value" id="stat-score">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">COMBO</div>
+                    <div class="stat-value" id="stat-combo">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">ACCURACY</div>
+                    <div class="stat-value" id="stat-accuracy">0%</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">BEST</div>
+                    <div class="stat-value" id="stat-best">0</div>
+                </div>
             </div>
 
-            <div class="message-log" id="msg-log">SYSTEM: Ready.</div>
+            <div class="game-layout">
+                <section class="panel sound-panel">
+                    <div class="stage-row">
+                        <span class="badge" id="question-kind">NOTE</span>
+                        <span class="prompt" id="stage-prompt">Listen and answer</span>
+                    </div>
+                    <div class="scope">
+                        <canvas id="scope" width="720" height="360" aria-label="sound visual"></canvas>
+                    </div>
+                    <button class="play-btn" id="play-btn" type="button">PLAY</button>
+                    <div class="result-box">
+                        <div class="result-main" id="result-main">Ready</div>
+                        <div class="result-sub" id="result-sub">Level 1 starts with single white-key notes.</div>
+                    </div>
+                </section>
+
+                <section class="panel answer-panel">
+                    <div class="answer-head">
+                        <div class="answer-title">Answer</div>
+                        <div class="answer-mode" id="answer-mode">Note name</div>
+                    </div>
+
+                    <div class="button-grid" id="note-grid"></div>
+                    <div class="quality-grid hidden" id="quality-grid"></div>
+
+                    <div class="submit-row">
+                        <button class="primary-btn" id="submit-btn" type="button">ANSWER</button>
+                        <button class="ghost-btn" id="next-btn" type="button">NEXT</button>
+                    </div>
+
+                    <div class="piano" aria-label="piano display">
+                        <div class="white-keys" id="white-keys"></div>
+                        <div class="black-layer" id="black-keys"></div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section id="training-screen" class="screen">
+            <div class="training-layout">
+                <section class="panel">
+                    <div class="answer-title">Training</div>
+                    <div class="control-grid" style="margin-top:14px;">
+                        <div class="field">
+                            <label for="training-octave">Octave</label>
+                            <select id="training-octave">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="training-quality">Chord</label>
+                            <select id="training-quality"></select>
+                        </div>
+                    </div>
+                    <div class="training-keys" id="training-keys"></div>
+                </section>
+                <section class="panel sound-panel">
+                    <div class="stage-row">
+                        <span class="badge">LAB</span>
+                        <span class="prompt" id="training-readout">C4 / 261.63Hz</span>
+                    </div>
+                    <div class="scope">
+                        <canvas id="training-scope" width="720" height="360" aria-label="training visual"></canvas>
+                    </div>
+                    <button class="play-btn" id="training-play" type="button">PLAY</button>
+                    <div class="result-box">
+                        <div class="result-main">Sound Lab</div>
+                        <div class="result-sub" id="training-sub">Select a key to audition notes or chords.</div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="modal" id="settings-modal">
+    <div class="modal-panel">
+        <div class="modal-head">
+            <div class="modal-title">Settings</div>
+            <button class="icon-btn" id="close-settings" type="button" title="閉じる">×</button>
         </div>
-
-        <div class="right-panel rack" id="synth-rack">
-            <div class="module" id="mod-osc1">
-                <div class="module-title">VCO 1 (MAIN OSCILLATOR)</div>
-                <div class="controls-grid">
-                    <div class="control-item">
-                        <div class="control-header"><label>Waveform</label></div>
-                        <select id="p-type" data-param="type">
-                            <option value="sine">Sine</option>
-                            <option value="square">Square</option>
-                            <option value="sawtooth">Sawtooth</option>
-                            <option value="triangle">Triangle</option>
-                        </select>
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>Frequency</label><span class="val-display"><span id="v-freq">440</span> Hz</span></div>
-                        <input type="range" id="p-freq" data-param="freq" min="100" max="1000" value="440" step="10">
-                    </div>
-                </div>
+        <div class="control-grid">
+            <div class="field">
+                <label for="volume">Game Volume</label>
+                <input id="volume" type="range" min="0" max="100" value="70">
             </div>
-
-            <div class="module disabled" id="mod-osc2">
-                <div class="module-title">VCO 2 (SUB OSCILLATOR)</div>
-                <div class="controls-grid">
-                    <div class="control-item">
-                        <div class="control-header"><label>Sub Vol</label><span class="val-display"><span id="v-subvol">0</span> %</span></div>
-                        <input type="range" id="p-subvol" data-param="subvol" min="0" max="100" value="0" step="5">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>Detune</label><span class="val-display"><span id="v-detune">0</span> ct</span></div>
-                        <input type="range" id="p-detune" data-param="detune" min="-50" max="50" value="0" step="1">
-                    </div>
-                </div>
+            <div class="field">
+                <label for="a4">A4 Pitch</label>
+                <input id="a4" type="number" min="400" max="480" step="1" value="440">
             </div>
-
-            <div class="module disabled" id="mod-filter">
-                <div class="module-title">VCF (FILTER)</div>
-                <div class="controls-grid">
-                    <div class="control-item">
-                        <div class="control-header"><label>Cutoff (LPF)</label><span class="val-display"><span id="v-lpf">5000</span> Hz</span></div>
-                        <input type="range" id="p-lpf" data-param="lpf" min="200" max="5000" value="5000" step="50">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>Resonance (Q)</label><span class="val-display"><span id="v-res">1.0</span></span></div>
-                        <input type="range" id="p-res" data-param="res" min="0" max="20" value="1" step="0.5">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>High-pass</label><span class="val-display"><span id="v-hpf">20</span> Hz</span></div>
-                        <input type="range" id="p-hpf" data-param="hpf" min="20" max="1000" value="20" step="10">
-                    </div>
-                </div>
+            <div class="field">
+                <label for="waveform">Waveform</label>
+                <select id="waveform">
+                    <option value="sine">Sine</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Saw</option>
+                    <option value="random">Random</option>
+                </select>
             </div>
-
-            <div class="module disabled" id="mod-fx">
-                <div class="module-title"><span>FX RACK</span><button class="module-toggle" type="button" onclick="toggleModuleCollapse('mod-fx')">−</button></div>
-                <div class="controls-grid">
-                    <div class="control-item">
-                        <div class="control-header"><label>Distortion</label><span class="val-display"><span id="v-dist">0</span> %</span></div>
-                        <input type="range" id="p-dist" data-param="dist" min="0" max="100" value="0" step="5">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>BitCrush</label><span class="val-display"><span id="v-bits">16</span> bit</span></div>
-                        <input type="range" id="p-bits" data-param="bits" min="4" max="16" value="16" step="1">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>Delay Time</label><span class="val-display"><span id="v-delay">0.00</span> s</span></div>
-                        <input type="range" id="p-delay" data-param="delay" min="0" max="0.5" value="0" step="0.05">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-header"><label>Tremolo Rate</label><span class="val-display"><span id="v-tremolo">0</span> Hz</span></div>
-                        <input type="range" id="p-tremolo" data-param="tremolo" min="0" max="20" value="0" step="1">
-                    </div>
-                </div>
-            </div>
-
-            <div class="module disabled" id="mod-corefx">
-                <div class="module-title"><span>CORE FX EXPANSION</span><button class="module-toggle" type="button" onclick="toggleModuleCollapse('mod-corefx')">−</button></div>
-                <div class="module-note">添付リストの中からWeb Audio APIで実用的に鳴らせる最低限FXを追加。FREE/CHALLENGE両対応。</div>
-                <div class="controls-grid">
-                    <div class="control-item"><div class="control-header"><label>Reverb</label><span class="val-display"><span id="v-reverb">0</span> %</span></div><input type="range" id="p-reverb" data-param="reverb" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Chorus</label><span class="val-display"><span id="v-chorus">0</span> %</span></div><input type="range" id="p-chorus" data-param="chorus" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Flanger</label><span class="val-display"><span id="v-flanger">0</span> %</span></div><input type="range" id="p-flanger" data-param="flanger" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Phaser</label><span class="val-display"><span id="v-phaser">0</span> %</span></div><input type="range" id="p-phaser" data-param="phaser" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Auto Pan</label><span class="val-display"><span id="v-autopan">0</span> Hz</span></div><input type="range" id="p-autopan" data-param="autopan" min="0" max="12" value="0" step="1"></div>
-                    <div class="control-item"><div class="control-header"><label>Vibrato</label><span class="val-display"><span id="v-vibrato">0</span> ct</span></div><input type="range" id="p-vibrato" data-param="vibrato" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Ring Mod</label><span class="val-display"><span id="v-ringmod">0</span> %</span></div><input type="range" id="p-ringmod" data-param="ringmod" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Overdrive</label><span class="val-display"><span id="v-overdrive">0</span> %</span></div><input type="range" id="p-overdrive" data-param="overdrive" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Fuzz</label><span class="val-display"><span id="v-fuzz">0</span> %</span></div><input type="range" id="p-fuzz" data-param="fuzz" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Saturation</label><span class="val-display"><span id="v-saturation">0</span> %</span></div><input type="range" id="p-saturation" data-param="saturation" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Wavefolder</label><span class="val-display"><span id="v-wavefold">0</span> %</span></div><input type="range" id="p-wavefold" data-param="wavefold" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>SampleRate Reducer</label><span class="val-display"><span id="v-samplerate">0</span> %</span></div><input type="range" id="p-samplerate" data-param="samplerate" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Band Pass</label><span class="val-display"><span id="v-bpf">OFF</span> Hz</span></div><input type="range" id="p-bpf" data-param="bpf" min="0" max="5000" value="0" step="100"></div>
-                    <div class="control-item"><div class="control-header"><label>Notch</label><span class="val-display"><span id="v-notch">OFF</span> Hz</span></div><input type="range" id="p-notch" data-param="notch" min="0" max="5000" value="0" step="100"></div>
-                    <div class="control-item"><div class="control-header"><label>Compressor</label><span class="val-display"><span id="v-compressor">0</span> %</span></div><input type="range" id="p-compressor" data-param="compressor" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Gate</label><span class="val-display"><span id="v-gate">0</span> %</span></div><input type="range" id="p-gate" data-param="gate" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Noise</label><span class="val-display"><span id="v-noise">0</span> %</span></div><input type="range" id="p-noise" data-param="noise" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Stereo Width</label><span class="val-display"><span id="v-stereo">40</span> %</span></div><input type="range" id="p-stereo" data-param="stereo" min="0" max="100" value="40" step="5"></div>
-                </div>
-            </div>
-
-            <div class="module disabled" id="mod-heavyfx">
-                <div class="module-title"><span>HEAVY FX LAB</span><button class="module-toggle" type="button" onclick="toggleModuleCollapse('mod-heavyfx')">−</button></div>
-                <div class="module-note strong">重い系FXの近似実装。Vocoder / Granular / Spectral Morph / Convolution IR / Polyphonic Pitch Shift。</div>
-                <div class="controls-grid">
-                    <div class="control-item"><div class="control-header"><label>Vocoder</label><span class="val-display"><span id="v-vocoder">0</span> %</span></div><input type="range" id="p-vocoder" data-param="vocoder" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Granular</label><span class="val-display"><span id="v-granular">0</span> %</span></div><input type="range" id="p-granular" data-param="granular" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Spectral Morph</label><span class="val-display"><span id="v-spectral">0</span> %</span></div><input type="range" id="p-spectral" data-param="spectral" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Convolution IR</label><span class="val-display"><span id="v-convir">0</span> %</span></div><input type="range" id="p-convir" data-param="convir" min="0" max="100" value="0" step="5"><div class="file-control">IR WAV / Audio file<input type="file" id="ir-file" accept="audio/*" onchange="AudioMgr.loadIRFile(this.files && this.files[0])"></div></div>
-                    <div class="control-item"><div class="control-header"><label>Poly Pitch</label><span class="val-display"><span id="v-polypitch">0</span> %</span></div><input type="range" id="p-polypitch" data-param="polypitch" min="0" max="100" value="0" step="5"></div>
-                    <div class="control-item"><div class="control-header"><label>Pitch Spread</label><span class="val-display"><span id="v-pitchspread">12</span> st</span></div><input type="range" id="p-pitchspread" data-param="pitchspread" min="3" max="24" value="12" step="1"></div>
-                </div>
+            <div class="field">
+                <label for="round-size">Round Size</label>
+                <select id="round-size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                </select>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-/** =========================================================================
- * SYNTH WAVE MATCH - LOGIC
- * Fixed Edition: initial parameter application, tremolo gain routing, safer logs, responsive layout.
- *
- * ========================================================================= */
+const NOTE_NAMES = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"];
+const NOTE_SHORT = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const WHITE_PCS = [0, 2, 4, 5, 7, 9, 11];
+const BLACK_PCS = [1, 3, 6, 8, 10];
+const WHITE_LABELS = [
+    { pc: 0, name: "C" },
+    { pc: 2, name: "D" },
+    { pc: 4, name: "E" },
+    { pc: 5, name: "F" },
+    { pc: 7, name: "G" },
+    { pc: 9, name: "A" },
+    { pc: 11, name: "B" }
+];
+const QUALITIES = [
+    { id: "maj", label: "Major", suffix: "maj", intervals: [0, 4, 7] },
+    { id: "min", label: "Minor", suffix: "min", intervals: [0, 3, 7] },
+    { id: "dim", label: "Diminished", suffix: "dim", intervals: [0, 3, 6] },
+    { id: "aug", label: "Augmented", suffix: "aug", intervals: [0, 4, 8] },
+    { id: "sus4", label: "Sus4", suffix: "sus4", intervals: [0, 5, 7] },
+    { id: "dom7", label: "7", suffix: "7", intervals: [0, 4, 7, 10] },
+    { id: "maj7", label: "Major 7", suffix: "maj7", intervals: [0, 4, 7, 11] },
+    { id: "min7", label: "Minor 7", suffix: "min7", intervals: [0, 3, 7, 10] }
+];
+const QUALITY_MAP = Object.fromEntries(QUALITIES.map(q => [q.id, q]));
 
-// クイックスタートボタン用
-function setAndStart(level) {
-    document.getElementById('input-level').value = level;
-    game.start();
-}
-
-const formatTime = (sec) => `${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;
-const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-
-const CookieStore = {
-    get(name) {
-        const key = `${encodeURIComponent(name)}=`;
-        return document.cookie.split(';').map(v => v.trim()).reduce((found, item) => {
-            if (found !== null) return found;
-            return item.startsWith(key) ? decodeURIComponent(item.slice(key.length)) : null;
-        }, null);
-    },
-
-    set(name, value, days = 365) {
-        const maxAge = Math.max(1, Math.floor(days * 86400));
-        document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax`;
-    },
-
-    remove(name) {
-        document.cookie = `${encodeURIComponent(name)}=; max-age=0; path=/; SameSite=Lax`;
-    },
-
-    getJSON(name) {
-        const raw = this.get(name);
-        if (!raw) return null;
-        try { return JSON.parse(raw); }
-        catch (err) {
-            console.warn('Cookie JSON parse failed', err);
-            return null;
-        }
-    },
-
-    setJSON(name, value, days = 365) {
-        this.set(name, JSON.stringify(value), days);
-    }
+const DEFAULT_SETTINGS = {
+    volume: 70,
+    a4: 440,
+    waveform: "sine",
+    roundSize: 10,
+    best: 0
 };
 
-const CookieConsent = {
-    consentKey: 'synthMatchCookieConsentV1',
-    granted: false,
-    decided: false,
-
-    init() {
-        const value = CookieStore.get(this.consentKey);
-        this.granted = value === 'accepted';
-        this.decided = value === 'accepted' || value === 'declined';
-        if (!this.decided) this.showPrompt();
-    },
-
-    isEnabled() { return this.granted; },
-    isDecided() { return this.decided; },
-
-    showPrompt() {
-        const overlay = document.getElementById('cookie-consent-overlay');
-        if (!overlay) return;
-        overlay.classList.remove('hidden');
-        overlay.setAttribute('aria-hidden', 'false');
-    },
-
-    hidePrompt() {
-        const overlay = document.getElementById('cookie-consent-overlay');
-        if (!overlay) return;
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-    },
-
-    accept() {
-        CookieStore.set(this.consentKey, 'accepted');
-        this.granted = true;
-        this.decided = true;
-        this.hidePrompt();
-        AppSettings.save();
-        AppSettings.syncUI();
-        UISfx.play('success');
-    },
-
-    reject() {
-        // 再表示防止のため、拒否済みフラグだけ最小限Cookieに保存する。
-        CookieStore.set(this.consentKey, 'declined');
-        this.granted = false;
-        this.decided = true;
-        this.hidePrompt();
-        AppSettings.syncUI();
-        UISfx.play('toggle');
-    }
-};
-
-const AppSettings = {
-    storageKey: 'synthMatchStateV1',
-    gameVolume: 60,
-    uiVolume: 60,
-    lastLevel: 1,
-    bestScore: 0,
-
-    load() {
-        if (!CookieConsent.isEnabled()) return;
-        const data = CookieStore.getJSON(this.storageKey);
-        if (!data) return;
-        if (Number.isFinite(data.gameVolume)) this.gameVolume = clamp(Math.round(data.gameVolume), 0, 100);
-        if (Number.isFinite(data.uiVolume)) this.uiVolume = clamp(Math.round(data.uiVolume), 0, 100);
-        if (Number.isFinite(data.lastLevel)) this.lastLevel = clamp(Math.round(data.lastLevel), 1, 100);
-        if (Number.isFinite(data.bestScore)) this.bestScore = Math.max(0, Math.round(data.bestScore));
-    },
-
-    save() {
-        if (!CookieConsent.isEnabled()) return;
-        CookieStore.setJSON(this.storageKey, {
-            gameVolume: this.gameVolume,
-            uiVolume: this.uiVolume,
-            lastLevel: this.lastLevel,
-            bestScore: this.bestScore
-        });
-    },
-
-    getGameGain() { return (this.gameVolume / 100) * 0.8; },
-    getUiGain() { return (this.uiVolume / 100) * 0.3; },
-
-    setGameVolume(value) {
-        this.gameVolume = clamp(Math.round(Number(value) || 0), 0, 100);
-        this.save();
-        this.syncUI();
-        if (typeof AudioMgr !== 'undefined') AudioMgr.applyVolumeSettings();
-    },
-
-    setUiVolume(value) {
-        this.uiVolume = clamp(Math.round(Number(value) || 0), 0, 100);
-        this.save();
-        this.syncUI();
-        UISfx.applyVolume();
-    },
-
-    setLastLevel(value) {
-        const level = clamp(Math.round(Number(value) || 1), 1, 100);
-        if (level > this.lastLevel) this.lastLevel = level;
-        else this.lastLevel = level;
-        this.save();
-        this.syncUI();
-    },
-
-    updateBestScore(value) {
-        const score = Math.max(0, Math.round(Number(value) || 0));
-        if (score > this.bestScore) {
-            this.bestScore = score;
-            this.save();
-            this.syncUI();
-        }
-    },
-
-    reset() {
-        this.gameVolume = 60;
-        this.uiVolume = 60;
-        this.lastLevel = 1;
-        this.bestScore = 0;
-        this.save();
-        this.syncUI();
-        if (typeof AudioMgr !== 'undefined') AudioMgr.applyVolumeSettings();
-        UISfx.applyVolume();
-    },
-
-    syncUI() {
-        const gameSlider = document.getElementById('settings-game-volume');
-        const uiSlider = document.getElementById('settings-ui-volume');
-        const gameValue = document.getElementById('settings-game-volume-value');
-        const uiValue = document.getElementById('settings-ui-volume-value');
-        if (gameSlider) gameSlider.value = this.gameVolume;
-        if (uiSlider) uiSlider.value = this.uiVolume;
-        if (gameValue) gameValue.textContent = this.gameVolume;
-        if (uiValue) uiValue.textContent = this.uiVolume;
-
-        const levelInput = document.getElementById('input-level');
-        if (levelInput && CookieConsent.isEnabled() && (!levelInput.dataset.cookieLoaded)) {
-            levelInput.value = this.lastLevel;
-            levelInput.dataset.cookieLoaded = '1';
-        }
-
-        const status = CookieConsent.isEnabled()
-            ? `Cookie ON / LAST Lv.${this.lastLevel} / BEST ${this.bestScore}`
-            : (CookieConsent.isDecided() ? 'Cookie OFF / 設定・進行状況は保存しません' : 'Cookie未設定 / 初回確認待ち');
-        const titleStatus = document.getElementById('cookie-status-line');
-        const settingsStatus = document.getElementById('settings-cookie-status');
-        if (titleStatus) titleStatus.textContent = status;
-        if (settingsStatus) settingsStatus.textContent = status;
-    }
-};
-
-CookieConsent.init();
-AppSettings.load();
-AppSettings.syncUI();
-
-function openSettings() {
-    UISfx.play('toggle');
-    AppSettings.syncUI();
-    const overlay = document.getElementById('settings-overlay');
-    if (!overlay) return;
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden', 'false');
-}
-
-function closeSettings() {
-    UISfx.play('toggle');
-    const overlay = document.getElementById('settings-overlay');
-    if (!overlay) return;
-    overlay.classList.add('hidden');
-    overlay.setAttribute('aria-hidden', 'true');
-}
-
-function resetSettings() {
-    AppSettings.reset();
-    UISfx.play('success');
-}
-
-const UISfx = {
-    ctx: null,
-    master: null,
-    limiter: null,
-    enabled: true,
-    lastKnob: 0,
-    lastTransport: 0,
-
-    init() {
-        if (this.ctx) return;
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        this.ctx = new AudioContextClass();
-        this.master = this.ctx.createGain();
-        this.limiter = this.ctx.createDynamicsCompressor();
-        this.limiter.threshold.value = -10;
-        this.limiter.knee.value = 8;
-        this.limiter.ratio.value = 12;
-        this.limiter.attack.value = 0.002;
-        this.limiter.release.value = 0.09;
-        this.master.gain.value = AppSettings.getUiGain();
-        this.master.connect(this.limiter);
-        this.limiter.connect(this.ctx.destination);
-    },
-
-    resume() {
-        this.init();
-        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
-    },
-
-    applyVolume() {
-        if (!this.master || !this.ctx) return;
-        this.master.gain.setTargetAtTime(AppSettings.getUiGain(), this.ctx.currentTime, 0.015);
-    },
-
-    blip(freq = 700, duration = 0.055, type = 'triangle', gain = 0.52, endFreq = null) {
-        if (!this.enabled) return;
-        this.resume();
-        if (!this.ctx || !this.master) return;
-        const t = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const amp = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, t);
-        if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), t + duration);
-        amp.gain.setValueAtTime(0.0001, t);
-        amp.gain.exponentialRampToValueAtTime(gain, t + 0.006);
-        amp.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-        osc.connect(amp).connect(this.master);
-        osc.start(t);
-        osc.stop(t + duration + 0.02);
-    },
-
-    chord(notes, duration = 0.11, gain = 0.26) {
-        if (!this.enabled) return;
-        notes.forEach((freq, i) => setTimeout(() => this.blip(freq, duration, 'triangle', gain, freq * 1.015), i * 28));
-    },
-
-    play(kind) {
-        const now = performance.now();
-        if (kind === 'knob') {
-            if (now - this.lastKnob < 58) return;
-            this.lastKnob = now;
-            this.blip(320 + Math.random() * 70, 0.026, 'triangle', 0.18, 260);
-            return;
-        }
-        if ((kind === 'transport' || kind === 'release') && now - this.lastTransport < 24) return;
-        if (kind === 'transport' || kind === 'release') this.lastTransport = now;
-        if (kind === 'toggle') return this.blip(520, 0.065, 'square', 0.18, 780);
-        if (kind === 'transport') return this.blip(880, 0.038, 'triangle', 0.15, 660);
-        if (kind === 'release') return this.blip(420, 0.032, 'sine', 0.10, 280);
-        if (kind === 'submit') return this.blip(760, 0.055, 'triangle', 0.22, 1020);
-        if (kind === 'start') return this.chord([523.25, 659.25, 783.99], 0.08, 0.16);
-        if (kind === 'back') return this.chord([523.25, 392.00, 261.63], 0.075, 0.15);
-        if (kind === 'success') return this.chord([659.25, 880.00, 1318.51], 0.10, 0.18);
-        if (kind === 'error') return this.chord([196.00, 146.83, 98.00], 0.095, 0.22);
-        if (kind === 'disabled') return this.blip(125, 0.07, 'sawtooth', 0.16, 90);
-        this.blip(700, 0.045, 'triangle', 0.16, 550);
-    }
-};
-
-
-function toggleModuleCollapse(id) {
-    UISfx.play('toggle');
-    const module = document.getElementById(id);
-    if (!module) return;
-    module.classList.toggle('collapsed');
-    const btn = module.querySelector('.module-toggle');
-    if (btn) btn.textContent = module.classList.contains('collapsed') ? '+' : '−';
-}
-
-function makeDistCurve(amount) {
-    const k = amount * 10, n = 44100, curve = new Float32Array(n), deg = Math.PI / 180;
-    for (let i = 0; i < n; ++i) { let x = i * 2 / n - 1; curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x)); }
-    return curve;
-}
-
-function makeBitCrushCurve(bits) {
-    const n = 44100, curve = new Float32Array(n), steps = Math.pow(2, bits);
-    for (let i = 0; i < n; ++i) { let x = i * 2 / n - 1; curve[i] = Math.round(x * steps) / steps; }
-    return curve;
-}
-
-function makeSoftDriveCurve(amount, mode = 'overdrive') {
-    const n = 2048, curve = new Float32Array(n), a = Math.max(0, amount) / 100;
-    if (a <= 0) return null;
-    for (let i = 0; i < n; i++) {
-        const x = i * 2 / (n - 1) - 1;
-        let y = x;
-        if (mode === 'fuzz') y = Math.sign(x) * (1 - Math.exp(-Math.abs(x * (1 + a * 28))));
-        else if (mode === 'saturation') y = Math.tanh(x * (1 + a * 8));
-        else if (mode === 'wavefold') y = Math.sin(x * (1 + a * 5) * Math.PI * 0.85);
-        else if (mode === 'samplerate') {
-            const steps = Math.max(4, Math.round(64 - a * 60));
-            y = Math.round(x * steps) / steps;
-        } else y = Math.atan(x * (1 + a * 14)) / Math.atan(1 + a * 14);
-        curve[i] = Math.max(-1, Math.min(1, y));
-    }
-    return curve;
-}
-
-function createReverbImpulse(ctx, seconds = 1.35, decay = 2.2) {
-    const rate = ctx.sampleRate, length = Math.max(1, Math.floor(rate * seconds));
-    const impulse = ctx.createBuffer(2, length, rate);
-    for (let c = 0; c < impulse.numberOfChannels; c++) {
-        const data = impulse.getChannelData(c);
-        for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-    }
-    return impulse;
-}
-
-function createNoiseBuffer(ctx) {
-    const length = ctx.sampleRate * 2;
-    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
-    return buffer;
-}
-
-
-class ModularSynth {
-    constructor(audioCtx) {
-        this.ctx = audioCtx;
-        this.isPlaying = false;
-        this.activeVoice = null;
-        this.keyboardVoices = new Map();
-        this.attackTime = 0.018;
-        this.releaseTime = 0.075;
-        this.fastReleaseTime = 0.018;
-        
-        this.analyserOsc = this.ctx.createAnalyser();
-        this.analyserOsc.fftSize = 2048;
-        
-        this.params = {
-            type: 'sine', freq: 440, subvol: 0, detune: 0,
-            lpf: 5000, res: 1, hpf: 20, dist: 0, bits: 16, delay: 0, tremolo: 0,
-            reverb: 0, chorus: 0, flanger: 0, phaser: 0, autopan: 0, vibrato: 0, ringmod: 0,
-            overdrive: 0, fuzz: 0, saturation: 0, wavefold: 0, samplerate: 0,
-            bpf: 0, notch: 0, compressor: 0, gate: 0, noise: 0, stereo: 40,
-            vocoder: 0, granular: 0, spectral: 0, convir: 0, polypitch: 0, pitchspread: 12
-        };
-        
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0;
-
-        // Final safety limiter: keeps stacked FX + UI SFX from clipping the browser output.
-        // The synth itself still has dynamics controls, but those are creative FX.
-        // This limiter is only for output protection/headroom.
-        this.safetyLimiter = this.ctx.createDynamicsCompressor();
-        this.safetyLimiter.threshold.value = -6;
-        this.safetyLimiter.knee.value = 10;
-        this.safetyLimiter.ratio.value = 16;
-        this.safetyLimiter.attack.value = 0.002;
-        this.safetyLimiter.release.value = 0.12;
-        
-        this.lfoTremolo = this.ctx.createOscillator();
-        this.tremoloDepth = this.ctx.createGain();
-        this.tremoloOffset = this.ctx.createConstantSource();
-        this.gainTremolo = this.ctx.createGain();
-        this.distNode = this.ctx.createWaveShaper();
-        this.bitNode = this.ctx.createWaveShaper();
-        this.lpfNode = this.ctx.createBiquadFilter();
-        this.hpfNode = this.ctx.createBiquadFilter();
-        this.delayNode = this.ctx.createDelay();
-        this.delayGain = this.ctx.createGain();
-        this.overdriveNode = this.ctx.createWaveShaper();
-        this.fuzzNode = this.ctx.createWaveShaper();
-        this.saturationNode = this.ctx.createWaveShaper();
-        this.wavefoldNode = this.ctx.createWaveShaper();
-        this.sampleRateNode = this.ctx.createWaveShaper();
-        this.ringGain = this.ctx.createGain();
-        this.ringOffset = this.ctx.createConstantSource();
-        this.ringDepth = this.ctx.createGain();
-        this.ringLFO = this.ctx.createOscillator();
-        this.vibratoLFO = this.ctx.createOscillator();
-        this.vibratoDepth = this.ctx.createGain();
-        this.autoPanNode = this.ctx.createStereoPanner();
-        this.autoPanLFO = this.ctx.createOscillator();
-        this.autoPanDepth = this.ctx.createGain();
-        this.bpfNode = this.ctx.createBiquadFilter();
-        this.notchNode = this.ctx.createBiquadFilter();
-        this.compNode = this.ctx.createDynamicsCompressor();
-        this.gateGain = this.ctx.createGain();
-        this.chorusDelay = this.ctx.createDelay();
-        this.chorusGain = this.ctx.createGain();
-        this.chorusLFO = this.ctx.createOscillator();
-        this.chorusDepth = this.ctx.createGain();
-        this.flangerDelay = this.ctx.createDelay();
-        this.flangerGain = this.ctx.createGain();
-        this.flangerFeedback = this.ctx.createGain();
-        this.flangerLFO = this.ctx.createOscillator();
-        this.flangerDepth = this.ctx.createGain();
-        this.phaserNode = this.ctx.createBiquadFilter();
-        this.phaserGain = this.ctx.createGain();
-        this.phaserLFO = this.ctx.createOscillator();
-        this.phaserDepth = this.ctx.createGain();
-        this.reverbNode = this.ctx.createConvolver();
-        this.reverbGain = this.ctx.createGain();
-        this.noiseGain = this.ctx.createGain();
-        this.irNode = this.ctx.createConvolver();
-        this.irGain = this.ctx.createGain();
-        this.granularDelay = this.ctx.createDelay(0.25);
-        this.granularGain = this.ctx.createGain();
-        this.granularFeedback = this.ctx.createGain();
-        this.granularLFO = this.ctx.createOscillator();
-        this.granularDepth = this.ctx.createGain();
-        this.spectralFilterA = this.ctx.createBiquadFilter();
-        this.spectralFilterB = this.ctx.createBiquadFilter();
-        this.spectralGain = this.ctx.createGain();
-        this.spectralLFO = this.ctx.createOscillator();
-        this.spectralDepthA = this.ctx.createGain();
-        this.spectralDepthB = this.ctx.createGain();
-        this.vocoderMix = this.ctx.createGain();
-        this.vocoderFilters = [];
-        this.pitchShiftGain = this.ctx.createGain();
-        this.reverbNode.buffer = createReverbImpulse(this.ctx);
-        this.irNode.buffer = createReverbImpulse(this.ctx, 2.2, 1.35);
-
-        this.lpfNode.type = 'lowpass';
-        this.hpfNode.type = 'highpass';
-        this.bpfNode.type = 'bandpass';
-        this.notchNode.type = 'notch';
-        this.phaserNode.type = 'allpass';
-        this.spectralFilterA.type = 'peaking';
-        this.spectralFilterB.type = 'notch';
-        this.spectralFilterA.Q.value = 2.4;
-        this.spectralFilterB.Q.value = 6.0;
-        this.spectralFilterA.gain.value = 0;
-
-        this.gainTremolo.gain.value = 0;
-        this.tremoloOffset.offset.value = 1;
-        this.tremoloDepth.gain.value = 0;
-        this.lfoTremolo.connect(this.tremoloDepth);
-        this.tremoloDepth.connect(this.gainTremolo.gain);
-        this.tremoloOffset.connect(this.gainTremolo.gain);
-        this.lfoTremolo.start();
-        this.tremoloOffset.start();
-
-        this.ringGain.gain.value = 0;
-        this.ringOffset.offset.value = 1;
-        this.ringDepth.gain.value = 0;
-        this.ringLFO.frequency.value = 30;
-        this.ringLFO.connect(this.ringDepth);
-        this.ringDepth.connect(this.ringGain.gain);
-        this.ringOffset.connect(this.ringGain.gain);
-        this.ringLFO.start();
-        this.ringOffset.start();
-
-        this.vibratoLFO.frequency.value = 5;
-        this.vibratoDepth.gain.value = 0;
-        this.vibratoLFO.connect(this.vibratoDepth);
-        this.vibratoLFO.start();
-
-        this.autoPanLFO.frequency.value = 1;
-        this.autoPanDepth.gain.value = 0;
-        this.autoPanLFO.connect(this.autoPanDepth);
-        this.autoPanDepth.connect(this.autoPanNode.pan);
-        this.autoPanLFO.start();
-
-        this.chorusDelay.delayTime.value = 0.018;
-        this.chorusGain.gain.value = 0;
-        this.chorusLFO.frequency.value = 0.8;
-        this.chorusDepth.gain.value = 0.004;
-        this.chorusLFO.connect(this.chorusDepth);
-        this.chorusDepth.connect(this.chorusDelay.delayTime);
-        this.chorusLFO.start();
-
-        this.flangerDelay.delayTime.value = 0.004;
-        this.flangerGain.gain.value = 0;
-        this.flangerFeedback.gain.value = 0.18;
-        this.flangerLFO.frequency.value = 0.25;
-        this.flangerDepth.gain.value = 0.003;
-        this.flangerLFO.connect(this.flangerDepth);
-        this.flangerDepth.connect(this.flangerDelay.delayTime);
-        this.flangerDelay.connect(this.flangerFeedback);
-        this.flangerFeedback.connect(this.flangerDelay);
-        this.flangerLFO.start();
-
-        this.phaserNode.frequency.value = 850;
-        this.phaserNode.Q.value = 2.2;
-        this.phaserGain.gain.value = 0;
-        this.phaserLFO.frequency.value = 0.35;
-        this.phaserDepth.gain.value = 650;
-        this.phaserLFO.connect(this.phaserDepth);
-        this.phaserDepth.connect(this.phaserNode.frequency);
-        this.phaserLFO.start();
-
-        this.reverbGain.gain.value = 0;
-        this.noiseGain.gain.value = 0;
-        this.irGain.gain.value = 0;
-        this.granularGain.gain.value = 0;
-        this.granularFeedback.gain.value = 0;
-        this.granularDelay.delayTime.value = 0.025;
-        this.granularLFO.frequency.value = 8;
-        this.granularDepth.gain.value = 0;
-        this.granularLFO.connect(this.granularDepth);
-        this.granularDepth.connect(this.granularDelay.delayTime);
-        this.granularLFO.start();
-
-        this.spectralGain.gain.value = 0;
-        this.spectralFilterA.frequency.value = 850;
-        this.spectralFilterB.frequency.value = 1800;
-        this.spectralLFO.frequency.value = 0.22;
-        this.spectralDepthA.gain.value = 0;
-        this.spectralDepthB.gain.value = 0;
-        this.spectralLFO.connect(this.spectralDepthA);
-        this.spectralLFO.connect(this.spectralDepthB);
-        this.spectralDepthA.connect(this.spectralFilterA.frequency);
-        this.spectralDepthB.connect(this.spectralFilterB.frequency);
-        this.spectralLFO.start();
-
-        this.vocoderMix.gain.value = 0;
-        [180, 320, 520, 850, 1350, 2100, 3300, 5200].forEach((freq, index) => {
-            const f = this.ctx.createBiquadFilter();
-            f.type = 'bandpass';
-            f.frequency.value = freq;
-            f.Q.value = index < 2 ? 3.5 : 5.5;
-            this.vocoderFilters.push(f);
-        });
-        this.pitchShiftGain.gain.value = 0;
-
-        this.ringGain.connect(this.gainTremolo);
-        this.gainTremolo.connect(this.distNode);
-        this.distNode.connect(this.overdriveNode);
-        this.overdriveNode.connect(this.fuzzNode);
-        this.fuzzNode.connect(this.saturationNode);
-        this.saturationNode.connect(this.wavefoldNode);
-        this.wavefoldNode.connect(this.sampleRateNode);
-        this.sampleRateNode.connect(this.bitNode);
-        this.bitNode.connect(this.hpfNode);
-        this.hpfNode.connect(this.bpfNode);
-        this.bpfNode.connect(this.notchNode);
-        this.notchNode.connect(this.lpfNode);
-
-        this.lpfNode.connect(this.compNode);
-        this.compNode.connect(this.gateGain);
-        this.gateGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.delayNode);
-        this.delayNode.connect(this.delayGain);
-        this.delayGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.chorusDelay);
-        this.chorusDelay.connect(this.chorusGain);
-        this.chorusGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.flangerDelay);
-        this.flangerDelay.connect(this.flangerGain);
-        this.flangerGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.phaserNode);
-        this.phaserNode.connect(this.phaserGain);
-        this.phaserGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.reverbNode);
-        this.reverbNode.connect(this.reverbGain);
-        this.reverbGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.irNode);
-        this.irNode.connect(this.irGain);
-        this.irGain.connect(this.masterGain);
-
-        this.lpfNode.connect(this.granularDelay);
-        this.granularDelay.connect(this.granularGain);
-        this.granularGain.connect(this.masterGain);
-        this.granularDelay.connect(this.granularFeedback);
-        this.granularFeedback.connect(this.granularDelay);
-
-        this.lpfNode.connect(this.spectralFilterA);
-        this.spectralFilterA.connect(this.spectralFilterB);
-        this.spectralFilterB.connect(this.spectralGain);
-        this.spectralGain.connect(this.masterGain);
-
-        this.vocoderFilters.forEach(f => {
-            this.lpfNode.connect(f);
-            f.connect(this.vocoderMix);
-        });
-        this.vocoderMix.connect(this.masterGain);
-
-        this.noiseGain.connect(this.ringGain);
-        this.pitchShiftGain.connect(this.ringGain);
-
-        this.masterGain.connect(this.autoPanNode);
-        this.autoPanNode.connect(this.safetyLimiter);
-        this.safetyLimiter.connect(this.analyserOsc);
-        this.analyserOsc.connect(this.ctx.destination);
-    }
-
-    setIRBuffer(buffer) {
-        if (!buffer) return;
-        this.irNode.buffer = buffer;
-    }
-
-    applyParams(p) {
-        this.params = { ...this.params, ...p };
-
-        const t = this.ctx.currentTime;
-        const tc = 0.015;
-
-        // OscillatorNode は start() 前でも type/frequency を設定できる。
-        // ここで isPlaying 判定を入れると、初回再生時の target/current パラメータが反映されない。
-        if(this.osc1) {
-            this.osc1.type = this.params.type;
-            this.osc1.frequency.setTargetAtTime(this.params.freq, t, tc);
-        }
-        if(this.osc2) {
-            this.osc2.type = this.params.type;
-            this.osc2.frequency.setTargetAtTime(this.params.freq / 2, t, tc);
-            this.osc2.detune.setTargetAtTime(this.params.detune, t, tc);
-            this.osc2Gain.gain.setTargetAtTime(this.params.subvol / 100, t, tc);
-        }
-
-        this.lpfNode.frequency.setTargetAtTime(this.params.lpf, t, tc);
-        this.lpfNode.Q.setTargetAtTime(this.params.res, t, tc);
-        this.hpfNode.frequency.setTargetAtTime(this.params.hpf, t, tc);
-
-        this.distNode.curve = this.params.dist > 0 ? makeDistCurve(this.params.dist) : null;
-        this.overdriveNode.curve = makeSoftDriveCurve(this.params.overdrive, 'overdrive');
-        this.fuzzNode.curve = makeSoftDriveCurve(this.params.fuzz, 'fuzz');
-        this.saturationNode.curve = makeSoftDriveCurve(this.params.saturation, 'saturation');
-        this.wavefoldNode.curve = makeSoftDriveCurve(this.params.wavefold, 'wavefold');
-        this.sampleRateNode.curve = makeSoftDriveCurve(this.params.samplerate, 'samplerate');
-        this.bitNode.curve = this.params.bits < 16 ? makeBitCrushCurve(this.params.bits) : null;
-
-        this.delayNode.delayTime.setTargetAtTime(this.params.delay, t, tc);
-        this.delayGain.gain.setTargetAtTime(this.params.delay > 0 ? 0.4 : 0, t, tc);
-        this.reverbGain.gain.setTargetAtTime((this.params.reverb || 0) / 140, t, tc);
-        this.chorusGain.gain.setTargetAtTime((this.params.chorus || 0) / 140, t, tc);
-        this.flangerGain.gain.setTargetAtTime((this.params.flanger || 0) / 160, t, tc);
-        this.phaserGain.gain.setTargetAtTime((this.params.phaser || 0) / 140, t, tc);
-        this.noiseGain.gain.setTargetAtTime((this.params.noise || 0) / 200, t, tc);
-
-        const ring = (this.params.ringmod || 0) / 100;
-        this.ringOffset.offset.setTargetAtTime(1 - ring, t, tc);
-        this.ringDepth.gain.setTargetAtTime(ring, t, tc);
-        this.vibratoDepth.gain.setTargetAtTime(this.params.vibrato || 0, t, tc);
-
-        this.autoPanLFO.frequency.setTargetAtTime(Math.max(0.001, this.params.autopan || 0.001), t, tc);
-        this.autoPanDepth.gain.setTargetAtTime((this.params.autopan || 0) > 0 ? Math.min(1, (this.params.stereo || 40) / 100) : 0, t, tc);
-
-        const bpfOn = (this.params.bpf || 0) > 0;
-        this.bpfNode.type = bpfOn ? 'bandpass' : 'allpass';
-        this.bpfNode.frequency.setTargetAtTime(bpfOn ? this.params.bpf : 1000, t, tc);
-        this.bpfNode.Q.setTargetAtTime(bpfOn ? 1.2 : 0.0001, t, tc);
-
-        const notchOn = (this.params.notch || 0) > 0;
-        this.notchNode.type = notchOn ? 'notch' : 'allpass';
-        this.notchNode.frequency.setTargetAtTime(notchOn ? this.params.notch : 1000, t, tc);
-        this.notchNode.Q.setTargetAtTime(notchOn ? 4 : 0.0001, t, tc);
-
-        const comp = (this.params.compressor || 0) / 100;
-        if (comp <= 0) {
-            this.compNode.threshold.setTargetAtTime(0, t, tc);
-            this.compNode.ratio.setTargetAtTime(1, t, tc);
-            this.compNode.attack.setTargetAtTime(0.003, t, tc);
-            this.compNode.release.setTargetAtTime(0.12, t, tc);
-        } else {
-            this.compNode.threshold.setTargetAtTime(-12 - comp * 36, t, tc);
-            this.compNode.ratio.setTargetAtTime(1 + comp * 11, t, tc);
-            this.compNode.attack.setTargetAtTime(0.003 + comp * 0.02, t, tc);
-            this.compNode.release.setTargetAtTime(0.08 + comp * 0.22, t, tc);
-        }
-        this.gateGain.gain.setTargetAtTime((this.params.gate || 0) > 0 ? 1 - (this.params.gate || 0) / 160 : 1, t, tc);
-
-        const granular = (this.params.granular || 0) / 100;
-        this.granularDelay.delayTime.setTargetAtTime(0.012 + granular * 0.08, t, tc);
-        this.granularGain.gain.setTargetAtTime(granular * 0.62, t, tc);
-        this.granularFeedback.gain.setTargetAtTime(granular * 0.38, t, tc);
-        this.granularLFO.frequency.setTargetAtTime(4 + granular * 22, t, tc);
-        this.granularDepth.gain.setTargetAtTime(granular * 0.018, t, tc);
-
-        const spectral = (this.params.spectral || 0) / 100;
-        this.spectralGain.gain.setTargetAtTime(spectral * 0.72, t, tc);
-        this.spectralFilterA.gain.setTargetAtTime(2 + spectral * 16, t, tc);
-        this.spectralFilterA.frequency.setTargetAtTime(450 + spectral * 900, t, tc);
-        this.spectralFilterB.frequency.setTargetAtTime(1400 + spectral * 2600, t, tc);
-        this.spectralDepthA.gain.setTargetAtTime(spectral * 750, t, tc);
-        this.spectralDepthB.gain.setTargetAtTime(spectral * 1400, t, tc);
-        this.spectralLFO.frequency.setTargetAtTime(0.08 + spectral * 1.4, t, tc);
-
-        const vocoder = (this.params.vocoder || 0) / 100;
-        this.vocoderMix.gain.setTargetAtTime(vocoder * 0.72, t, tc);
-        this.vocoderFilters.forEach((f, i) => {
-            const base = [180, 320, 520, 850, 1350, 2100, 3300, 5200][i];
-            f.frequency.setTargetAtTime(base * (1 + vocoder * 0.12 * Math.sin(i)), t, tc);
-            f.Q.setTargetAtTime(2.2 + vocoder * 6.5, t, tc);
-        });
-
-        this.irGain.gain.setTargetAtTime((this.params.convir || 0) / 130, t, tc);
-        this.pitchShiftGain.gain.setTargetAtTime((this.params.polypitch || 0) / 185, t, tc);
-        if (this.pitchOscs && this.pitchOscs.length) {
-            const spread = this.params.pitchspread || 12;
-            const ratios = [Math.pow(2, -spread / 12), Math.pow(2, spread / 12), Math.pow(2, (spread * 0.58) / 12)];
-            this.pitchOscs.forEach((o, i) => {
-                o.type = this.params.type;
-                o.frequency.setTargetAtTime(this.params.freq * ratios[i], t, tc);
-            });
-        }
-        this.keyboardVoices.forEach(voice => this.applyVoiceOscParams(voice, this.params, voice.baseFreq));
-
-        this.lfoTremolo.frequency.setTargetAtTime(Math.max(0.001, this.params.tremolo), t, tc);
-        this.tremoloOffset.offset.setTargetAtTime(this.params.tremolo > 0 ? 0.75 : 1.0, t, tc);
-        this.tremoloDepth.gain.setTargetAtTime(this.params.tremolo > 0 ? 0.25 : 0.0, t, tc);
-    }
-
-    applyVoiceOscParams(voice, params = this.params, freqOverride = null) {
-        if (!voice) return;
-        const t = this.ctx.currentTime;
-        const tc = 0.015;
-        const baseFreq = freqOverride || params.freq || 440;
-        const spread = params.pitchspread || 12;
-        const ratios = [Math.pow(2, -spread / 12), Math.pow(2, spread / 12), Math.pow(2, (spread * 0.58) / 12)];
-
-        if (voice.osc1) {
-            voice.osc1.type = params.type || 'sine';
-            voice.osc1.frequency.setTargetAtTime(baseFreq, t, tc);
-        }
-        if (voice.osc2) {
-            voice.osc2.type = params.type || 'sine';
-            voice.osc2.frequency.setTargetAtTime(baseFreq / 2, t, tc);
-            voice.osc2.detune.setTargetAtTime(params.detune || 0, t, tc);
-        }
-        if (voice.osc2Gain) voice.osc2Gain.gain.setTargetAtTime((params.subvol || 0) / 100, t, tc);
-        if (voice.pitchOscs && voice.pitchOscs.length) {
-            voice.pitchOscs.forEach((o, i) => {
-                o.type = params.type || 'sine';
-                o.frequency.setTargetAtTime(baseFreq * ratios[i], t, tc);
-            });
-        }
-    }
-
-    createVoice(baseFreq = null) {
-        const voice = {
-            osc1: this.ctx.createOscillator(),
-            osc2: this.ctx.createOscillator(),
-            osc1Gain: this.ctx.createGain(),
-            osc2Gain: this.ctx.createGain(),
-            inputGain: this.ctx.createGain(),
-            pitchInputGain: this.ctx.createGain(),
-            noiseInputGain: this.ctx.createGain(),
-            pitchOscs: [0, 1, 2].map(() => this.ctx.createOscillator()),
-            noiseSource: this.ctx.createBufferSource(),
-            baseFreq
-        };
-
-        voice.inputGain.gain.value = 0.0001;
-        voice.pitchInputGain.gain.value = 0.0001;
-        voice.noiseInputGain.gain.value = 0.0001;
-
-        voice.osc1.connect(voice.osc1Gain);
-        voice.osc2.connect(voice.osc2Gain);
-        voice.osc1Gain.connect(voice.inputGain);
-        voice.osc2Gain.connect(voice.inputGain);
-        voice.inputGain.connect(this.ringGain);
-
-        voice.pitchOscs.forEach(o => o.connect(voice.pitchInputGain));
-        voice.pitchInputGain.connect(this.pitchShiftGain);
-
-        voice.noiseSource.buffer = createNoiseBuffer(this.ctx);
-        voice.noiseSource.loop = true;
-        voice.noiseSource.connect(voice.noiseInputGain);
-        voice.noiseInputGain.connect(this.noiseGain);
-
-        this.vibratoDepth.connect(voice.osc1.detune);
-        this.vibratoDepth.connect(voice.osc2.detune);
-
-        return voice;
-    }
-
-    stopVoice(voice, releaseTime = this.releaseTime) {
-        if (!voice) return;
-        const t = this.ctx.currentTime;
-        const release = Math.max(0.006, releaseTime);
-        const stopAt = t + release + 0.015;
-
-        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
-            if (!g) return;
-            try {
-                g.gain.cancelScheduledValues(t);
-                g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t);
-                g.gain.exponentialRampToValueAtTime(0.0001, t + release);
-            } catch (err) {
-                console.warn('Voice fade failed', err);
-            }
-        });
-
-        [voice.osc1, voice.osc2, voice.noiseSource, ...(voice.pitchOscs || [])].forEach(source => {
-            if (!source) return;
-            try { source.stop(stopAt); } catch (err) {}
-        });
-
-        const cleanupDelay = Math.max(20, Math.ceil((stopAt - this.ctx.currentTime) * 1000) + 30);
-        window.setTimeout(() => {
-            try { this.vibratoDepth.disconnect(voice.osc1.detune); } catch (err) {}
-            try { this.vibratoDepth.disconnect(voice.osc2.detune); } catch (err) {}
-            [
-                voice.osc1, voice.osc2, voice.osc1Gain, voice.osc2Gain,
-                voice.inputGain, voice.pitchInputGain, voice.noiseSource,
-                voice.noiseInputGain, ...(voice.pitchOscs || [])
-            ].forEach(node => {
-                try { if (node && node.disconnect) node.disconnect(); } catch (err) {}
-            });
-        }, cleanupDelay);
-    }
-
-    start(params = null) {
-        if(this.activeVoice) this.stopVoice(this.activeVoice, this.fastReleaseTime);
-        if(params) this.params = { ...this.params, ...params };
-
-        const voice = this.createVoice();
-        this.activeVoice = voice;
-        this.osc1 = voice.osc1;
-        this.osc2 = voice.osc2;
-        this.osc1Gain = voice.osc1Gain;
-        this.osc2Gain = voice.osc2Gain;
-        this.pitchOscs = voice.pitchOscs;
-        this.noiseSource = voice.noiseSource;
-
-        this.applyParams(this.params);
-
-        this.osc1Gain.gain.value = 1; 
-        this.osc2Gain.gain.value = this.params.subvol / 100;
-
-        voice.osc1.start();
-        voice.osc2.start();
-        voice.pitchOscs.forEach(o => o.start());
-        voice.noiseSource.start();
-
-        const t = this.ctx.currentTime;
-        this.masterGain.gain.cancelScheduledValues(t);
-        this.masterGain.gain.setTargetAtTime(AppSettings.getGameGain(), t, 0.015);
-        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
-            g.gain.cancelScheduledValues(t);
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(1, t + this.attackTime);
-        });
-
-        this.isPlaying = true;
-    }
-
-    startNote(noteId, freq, params = null) {
-        if (params) this.params = { ...this.params, ...params };
-        if (this.keyboardVoices.has(noteId)) this.stopNote(noteId, true);
-
-        const voice = this.createVoice(freq);
-        this.keyboardVoices.set(noteId, voice);
-        this.applyParams(this.params);
-        this.applyVoiceOscParams(voice, this.params, freq);
-        voice.osc1Gain.gain.value = 1;
-        voice.osc2Gain.gain.value = this.params.subvol / 100;
-
-        voice.osc1.start();
-        voice.osc2.start();
-        voice.pitchOscs.forEach(o => o.start());
-        voice.noiseSource.start();
-
-        const t = this.ctx.currentTime;
-        this.masterGain.gain.cancelScheduledValues(t);
-        this.masterGain.gain.setTargetAtTime(AppSettings.getGameGain(), t, 0.015);
-        [voice.inputGain, voice.pitchInputGain, voice.noiseInputGain].forEach(g => {
-            g.gain.cancelScheduledValues(t);
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(1, t + this.attackTime);
-        });
-
-        this.isPlaying = true;
-    }
-
-    stopNote(noteId, immediate = false) {
-        const voice = this.keyboardVoices.get(noteId);
-        if (!voice) return;
-        this.keyboardVoices.delete(noteId);
-        this.stopVoice(voice, immediate ? this.fastReleaseTime : this.releaseTime);
-        this.isPlaying = !!this.activeVoice || this.keyboardVoices.size > 0;
-    }
-
-    stopAllNotes(immediate = false) {
-        Array.from(this.keyboardVoices.keys()).forEach(noteId => this.stopNote(noteId, immediate));
-    }
-
-    stopMain(immediate = false) {
-        if (!this.activeVoice) return;
-        const voice = this.activeVoice;
-        this.activeVoice = null;
-        this.osc1 = null;
-        this.osc2 = null;
-        this.osc1Gain = null;
-        this.osc2Gain = null;
-        this.pitchOscs = null;
-        this.noiseSource = null;
-        this.stopVoice(voice, immediate ? this.fastReleaseTime : this.releaseTime);
-        this.isPlaying = this.keyboardVoices.size > 0;
-    }
-
-    stop(immediate = false) {
-        if(!this.activeVoice && !this.keyboardVoices.size) return;
-        this.stopMain(immediate);
-        this.stopAllNotes(immediate);
-        this.isPlaying = false;
-    }
-}
-
-const AudioMgr = {
-    ctx: null, targetSynth: null, playerSynth: null, drawId: null,
-
-    init() {
-        if (this.ctx) return;
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        this.targetSynth = new ModularSynth(this.ctx);
-        this.playerSynth = new ModularSynth(this.ctx);
-        this.startDrawLoop();
-    },
-
-    startTarget(params) {
-        this.init();
-        if(this.ctx.state === 'suspended') this.ctx.resume();
-        this.playerSynth.stop(true);
-        if(!this.targetSynth.isPlaying) this.targetSynth.start(params);
-    },
-    stopTarget() {
-        if(this.targetSynth && this.targetSynth.isPlaying) this.targetSynth.stop();
-    },
-
-    startPlayer(params) {
-        this.init();
-        if(this.ctx.state === 'suspended') this.ctx.resume();
-        this.targetSynth.stop(true);
-        if(!this.playerSynth.activeVoice) this.playerSynth.start(params);
-    },
-    stopPlayerMain() {
-        if(this.playerSynth) this.playerSynth.stopMain();
-    },
-    stopPlayer() {
-        if(this.playerSynth && this.playerSynth.isPlaying) this.playerSynth.stop();
-    },
-
-    startKeyboardNote(noteId, freq, params) {
-        this.init();
-        if(this.ctx.state === 'suspended') this.ctx.resume();
-        this.targetSynth.stop(true);
-        this.playerSynth.startNote(noteId, freq, params);
-    },
-    stopKeyboardNote(noteId) {
-        if(this.playerSynth) this.playerSynth.stopNote(noteId);
-    },
-    stopKeyboardNotes(immediate = false) {
-        if(this.playerSynth) this.playerSynth.stopAllNotes(immediate);
-    },
-
-    async loadIRFile(file) {
-        if (!file) return;
-        this.init();
-        if (this.ctx.state === 'suspended') await this.ctx.resume();
-        try {
-            const arrayBuffer = await file.arrayBuffer();
-            const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer.slice(0));
-            this.targetSynth.setIRBuffer(audioBuffer);
-            this.playerSynth.setIRBuffer(audioBuffer);
-            game.logMsg(`IR LOADED: ${file.name}`);
-            game.speakOpponent('IRを読み込んだ。Convolution IR を上げると畳み込み残響が出る。');
-        } catch (err) {
-            console.error(err);
-            game.logMsg('IR LOAD FAILED: 読み込めない音声ファイル。', true);
-            game.speakOpponent('そのIRファイルは読めなかった。WAVなどの音声ファイルで試しなさい。', true);
-        }
-    },
-
-    updatePlayerParam(key, val) {
-        if (this.playerSynth && this.playerSynth.isPlaying) {
-            this.playerSynth.applyParams({ [key]: val });
-        }
-    },
-
-    applyVolumeSettings() {
-        if (!this.ctx) return;
-        const gain = AppSettings.getGameGain();
-        [this.targetSynth, this.playerSynth].forEach(synth => {
-            if (synth && synth.isPlaying && synth.masterGain) {
-                synth.masterGain.gain.setTargetAtTime(gain, this.ctx.currentTime, 0.02);
-            }
-        });
-    },
-
-    startDrawLoop() {
-        const dataTarget = new Uint8Array(2048);
-        const dataPlayer = new Uint8Array(2048);
-        const dataAvatarTarget = new Uint8Array(this.targetSynth.analyserOsc.frequencyBinCount);
-        const dataAvatarPlayer = new Uint8Array(this.playerSynth.analyserOsc.frequencyBinCount);
-        
-        const draw = () => {
-            this.drawId = requestAnimationFrame(draw);
-            this.drawCanvas('canvas-target-osc', this.targetSynth.analyserOsc, dataTarget, '#f7768e');
-            this.drawCanvas('canvas-player-osc', this.playerSynth.analyserOsc, dataPlayer, '#7dcfff');
-            this.drawAvatarFFT('canvas-opponent-avatar', this.targetSynth.analyserOsc, dataAvatarTarget, {
-                icon: (game.currentOpponent && game.currentOpponent.icon) ? game.currentOpponent.icon : '👾',
-                primary: '#f7768e',
-                secondary: '#7dcfff',
-                glow: 'rgba(247, 118, 142, 0.45)',
-                label: 'OPPONENT FFT'
-            });
-            this.drawAvatarFFT('canvas-player-avatar', this.playerSynth.analyserOsc, dataAvatarPlayer, {
-                icon: '🎛️',
-                primary: '#7dcfff',
-                secondary: '#9ece6a',
-                glow: 'rgba(125, 207, 255, 0.45)',
-                label: 'PLAYER FFT'
-            });
-        };
-        draw();
-    },
-
-    drawCanvas(canvasId, analyser, dataArray, color) {
-        const canvas = document.getElementById(canvasId);
-        if(!canvas || canvas.offsetWidth === 0) return;
-        
-        if(canvas.width !== canvas.offsetWidth) canvas.width = canvas.offsetWidth;
-        if(canvas.height !== canvas.offsetHeight) canvas.height = canvas.offsetHeight;
-
-        const ctx = canvas.getContext('2d');
-        analyser.getByteTimeDomainData(dataArray);
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-
-        let startIdx = 0;
-        for (let i = 0; i < analyser.frequencyBinCount - 1; i++) {
-            if (dataArray[i] < 128 && dataArray[i+1] >= 128) {
-                startIdx = i;
-                break;
-            }
-        }
-
-        const drawLen = analyser.frequencyBinCount - startIdx;
-        let sliceW = canvas.width * 1.0 / (analyser.frequencyBinCount / 2);
-        let x = 0;
-        
-        let padding = 15; 
-        let drawHeight = canvas.height - padding * 2;
-
-        for(let i = 0; i < drawLen; i++) {
-            let v = (dataArray[startIdx + i] / 128.0) - 1.0; 
-            let y = (v * (drawHeight / 2)) + (canvas.height / 2);
-            
-            if(i === 0) ctx.moveTo(x, y); 
-            else ctx.lineTo(x, y);
-            
-            x += sliceW;
-            if (x > canvas.width) break;
-        }
-        ctx.stroke();
-    },
-
-    drawAvatarFFT(canvasId, analyser, dataArray, config) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas || canvas.offsetWidth === 0) return;
-
-        if (canvas.width !== canvas.offsetWidth) canvas.width = canvas.offsetWidth;
-        if (canvas.height !== canvas.offsetHeight) canvas.height = canvas.offsetHeight;
-
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w / 2;
-        const cy = h / 2;
-        const baseRadius = Math.min(w, h) * 0.18;
-        const primary = config.primary;
-        const secondary = config.secondary;
-        const glow = config.glow;
-        const icon = config.icon;
-        const label = config.label;
-
-        analyser.getByteFrequencyData(dataArray);
-        const samples = 72;
-        let energy = 0;
-        const now = performance.now();
-        const phase = now * 0.00055;
-
-        ctx.clearRect(0, 0, w, h);
-
-        const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.65);
-        bg.addColorStop(0, 'rgba(44, 24, 62, 0.42)');
-        bg.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, w, h);
-
-        for (let i = 0; i < samples; i++) energy += dataArray[i];
-        energy = samples ? (energy / samples) / 255 : 0;
-
-        const wobbleX = Math.sin(now * 0.008) * (3 + energy * 8);
-        const wobbleY = Math.cos(now * 0.0065) * (2 + energy * 6);
-        const wobbleRot = Math.sin(now * 0.0052) * (0.04 + energy * 0.09);
-        const pulse = 1 + energy * 0.2 + Math.sin(now * 0.003) * 0.015;
-
-        ctx.save();
-        ctx.translate(cx + wobbleX, cy + wobbleY);
-        ctx.rotate(phase + wobbleRot);
-
-        for (let i = 0; i < samples; i++) {
-            const idx = Math.floor((i / samples) * Math.min(dataArray.length, 240));
-            const amp = dataArray[idx] / 255;
-            const angle = (i / samples) * Math.PI * 2;
-            const inner = baseRadius * 1.25;
-            const outer = inner + 8 + amp * Math.min(w, h) * 0.18;
-            const x1 = Math.cos(angle) * inner;
-            const y1 = Math.sin(angle) * inner;
-            const x2 = Math.cos(angle) * outer;
-            const y2 = Math.sin(angle) * outer;
-
-            ctx.lineWidth = 2.2;
-            ctx.strokeStyle = amp > 0.45 ? primary : secondary;
-            ctx.globalAlpha = 0.28 + amp * 0.95;
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-        }
-
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = `${secondary}66`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(0, 0, baseRadius * 1.22, 0, Math.PI * 2);
-        ctx.stroke();
-
-        const halo = ctx.createRadialGradient(0, 0, baseRadius * 0.1, 0, 0, baseRadius * 1.25 * pulse);
-        halo.addColorStop(0, primary === '#f7768e' ? 'rgba(247, 118, 142, 0.42)' : 'rgba(125, 207, 255, 0.42)');
-        halo.addColorStop(0.55, secondary === '#9ece6a' ? 'rgba(158, 206, 106, 0.22)' : 'rgba(125, 207, 255, 0.22)');
-        halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(0, 0, baseRadius * 1.2 * pulse, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(cx + wobbleX, cy + wobbleY);
-        ctx.rotate(wobbleRot * 1.2);
-
-        ctx.fillStyle = 'rgba(10, 10, 15, 0.86)';
-        ctx.beginPath();
-        ctx.arc(0, 0, baseRadius * pulse, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = primary;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, baseRadius * pulse, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = `bold ${Math.max(42, baseRadius * 0.95)}px Segoe UI Emoji, Apple Color Emoji, sans-serif`;
-        ctx.shadowColor = glow;
-        ctx.shadowBlur = 18 + energy * 10;
-        ctx.fillStyle = '#f0f4ff';
-        ctx.fillText(icon, 0, -4 + Math.sin(now * 0.009) * (2 + energy * 5));
-        ctx.shadowBlur = 0;
-        ctx.restore();
-
-        ctx.font = '11px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(192, 202, 245, 0.9)';
-        ctx.fillText(label, cx, h - 18);
-    }};
-
-const game = {
-    mode: 'game',
-    freeMode: 'keyboard',
+const state = {
+    settings: loadSettings(),
+    audioCtx: null,
+    mode: "challenge",
     level: 1,
     score: 0,
-    timeLeft: 300,
-    timerId: null,
-    activeParams: [],
-    targetParams: {},
-    currentParams: {},
-    currentOpponent: null,
-    playerMaxHp: 100,
-    playerHp: 100,
-    enemyMaxHp: 100,
-    enemyHp: 100,
-    battleTurn: 1,
-    isResolving: false,
-    lastEvaluation: null,
-    keyboardOctave: 4,
-    keyboardKeyCount: 18,
-    keyboardHeld: new Set(),
-    midiHeld: new Set(),
-    keyboardLayout: [
-        { code: 'KeyZ', label: 'Z' }, { code: 'KeyS', label: 'S' }, { code: 'KeyX', label: 'X' },
-        { code: 'KeyD', label: 'D' }, { code: 'KeyC', label: 'C' }, { code: 'KeyV', label: 'V' },
-        { code: 'KeyG', label: 'G' }, { code: 'KeyB', label: 'B' }, { code: 'KeyH', label: 'H' },
-        { code: 'KeyN', label: 'N' }, { code: 'KeyJ', label: 'J' }, { code: 'KeyM', label: 'M' },
-        { code: 'Comma', label: ',' }, { code: 'KeyL', label: 'L' }, { code: 'Period', label: '.' },
-        { code: 'Semicolon', label: ';' }, { code: 'Slash', label: '/' }, { code: 'KeyQ', label: 'Q' },
-        { code: 'Digit2', label: '2' }, { code: 'KeyW', label: 'W' }, { code: 'Digit3', label: '3' },
-        { code: 'KeyE', label: 'E' }, { code: 'KeyR', label: 'R' }, { code: 'Digit5', label: '5' }
-    ],
-    noteNames: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+    combo: 0,
+    maxCombo: 0,
+    asked: 0,
+    correct: 0,
+    current: null,
+    selectedRoot: null,
+    selectedQuality: null,
+    answered: false,
+    roundComplete: false,
+    playCount: 0,
+    questionStartedAt: 0,
+    lastPc: null,
+    lastTrainingPc: 0
+};
 
-    enemyRoster: [
-        { name: 'Wave Slime', icon: '🫧', cls: 'Basic Tone Mimic', minLevel: 1, hp: 70, atk: 8 },
-        { name: 'Square Bat', icon: '🦇', cls: 'Pulse Wing', minLevel: 2, hp: 82, atk: 10 },
-        { name: 'Filter Fox', icon: '🦊', cls: 'Cutoff Trickster', minLevel: 5, hp: 96, atk: 12 },
-        { name: 'Drive Golem', icon: '🪨', cls: 'Distortion Tank', minLevel: 10, hp: 118, atk: 14 },
-        { name: 'Sub Hydra', icon: '🐉', cls: 'Dual Osc Beast', minLevel: 20, hp: 142, atk: 17 },
-        { name: 'Reso Mantis', icon: '🦗', cls: 'Q Resonator', minLevel: 30, hp: 166, atk: 20 },
-        { name: 'Bit Phantom', icon: '👾', cls: 'Crusher Specter', minLevel: 40, hp: 192, atk: 23 },
-        { name: 'LFO Chimera', icon: '🐲', cls: 'Modulation Lord', minLevel: 60, hp: 230, atk: 27 },
-        { name: 'Master Synthrex', icon: '⚡', cls: 'Perfect Edition Boss', minLevel: 80, hp: 280, atk: 32 }
-    ],
+const els = {};
 
-    paramDefs: {
-        type: { def: 'sine', type: 'string', name: '波形(Waveform)' },
-        freq: { def: 440, min: 100, max: 1000, step: 10, tol: 10, name: '周波数(Freq)' },
-        subvol: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'サブ音量(Sub Vol)' },
-        detune: { def: 0, min: -50, max: 50, step: 5, tol: 5, name: 'デチューン(Detune)' },
-        lpf: { def: 5000, min: 200, max: 5000, step: 100, tol: 200, name: 'LPF(フィルター)' },
-        res: { def: 1, min: 0, max: 20, step: 1, tol: 2, name: 'レゾナンス(Q)' },
-        hpf: { def: 20, min: 20, max: 1000, step: 20, tol: 50, name: 'HPF' },
-        dist: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: '歪み(Distortion)' },
-        bits: { def: 16, min: 4, max: 16, step: 1, tol: 0, name: 'ビット(BitCrush)' },
-        delay: { def: 0, min: 0, max: 0.5, step: 0.1, tol: 0.05, name: 'ディレイ(Delay)' },
-        tremolo: { def: 0, min: 0, max: 20, step: 2, tol: 2, name: 'トレモロ(Tremolo)' },
-        reverb: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'リバーブ(Reverb)' },
-        chorus: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'コーラス(Chorus)' },
-        flanger: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'フランジャー(Flanger)' },
-        phaser: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'フェイザー(Phaser)' },
-        autopan: { def: 0, min: 0, max: 12, step: 1, tol: 1, name: 'オートパン(Auto Pan)' },
-        vibrato: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ビブラート(Vibrato)' },
-        ringmod: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'リングモジュレータ(Ring Mod)' },
-        overdrive: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'オーバードライブ(Overdrive)' },
-        fuzz: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ファズ(Fuzz)' },
-        saturation: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'サチュレーション(Saturation)' },
-        wavefold: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ウェーブフォルダー(Wavefolder)' },
-        samplerate: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'サンプルレート低下(SRR)' },
-        bpf: { def: 0, min: 0, max: 5000, step: 200, tol: 250, name: 'BPF' },
-        notch: { def: 0, min: 0, max: 5000, step: 200, tol: 250, name: 'Notch' },
-        compressor: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'コンプレッサー(Comp)' },
-        gate: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ゲート(Gate)' },
-        noise: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ノイズ(Noise)' },
-        stereo: { def: 40, min: 0, max: 100, step: 10, tol: 10, name: 'ステレオ幅(Stereo)' },
-        vocoder: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ボコーダー(Vocoder)' },
-        granular: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'グラニュラー(Granular)' },
-        spectral: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'スペクトルモーフ(Spectral)' },
-        convir: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: '畳み込みIR(Convolution)' },
-        polypitch: { def: 0, min: 0, max: 100, step: 10, tol: 10, name: 'ポリピッチ(Poly Pitch)' },
-        pitchspread: { def: 12, min: 3, max: 24, step: 1, tol: 2, name: 'ピッチ幅(Pitch Spread)' }
-    },
+document.addEventListener("DOMContentLoaded", () => {
+    cacheElements();
+    buildNoteButtons();
+    buildQualityButtons();
+    buildPiano();
+    buildTraining();
+    bindEvents();
+    applySettingsToInputs();
+    drawIdle(els.scope, []);
+    drawIdle(els.trainingScope, []);
+});
 
-    start() {
-        UISfx.play('start');
-        this.mode = 'game';
-        let lv = parseInt(document.getElementById('input-level').value);
-        this.level = clamp(isNaN(lv) ? 1 : lv, 1, 100);
-        AppSettings.setLastLevel(this.level);
-        this.score = 0;
-        this.setupLevel();
-        this.showScreen('game-screen');
-    },
+function cacheElements() {
+    els.startScreen = document.getElementById("start-screen");
+    els.gameScreen = document.getElementById("game-screen");
+    els.trainingScreen = document.getElementById("training-screen");
+    els.homeBtn = document.getElementById("home-btn");
+    els.settingsBtn = document.getElementById("settings-btn");
+    els.settingsModal = document.getElementById("settings-modal");
+    els.closeSettings = document.getElementById("close-settings");
+    els.noteGrid = document.getElementById("note-grid");
+    els.qualityGrid = document.getElementById("quality-grid");
+    els.submitBtn = document.getElementById("submit-btn");
+    els.nextBtn = document.getElementById("next-btn");
+    els.playBtn = document.getElementById("play-btn");
+    els.questionKind = document.getElementById("question-kind");
+    els.stagePrompt = document.getElementById("stage-prompt");
+    els.answerMode = document.getElementById("answer-mode");
+    els.resultMain = document.getElementById("result-main");
+    els.resultSub = document.getElementById("result-sub");
+    els.scope = document.getElementById("scope");
+    els.whiteKeys = document.getElementById("white-keys");
+    els.blackKeys = document.getElementById("black-keys");
+    els.statLevel = document.getElementById("stat-level");
+    els.statScore = document.getElementById("stat-score");
+    els.statCombo = document.getElementById("stat-combo");
+    els.statAccuracy = document.getElementById("stat-accuracy");
+    els.statBest = document.getElementById("stat-best");
+    els.volume = document.getElementById("volume");
+    els.a4 = document.getElementById("a4");
+    els.waveform = document.getElementById("waveform");
+    els.roundSize = document.getElementById("round-size");
+    els.trainingKeys = document.getElementById("training-keys");
+    els.trainingOctave = document.getElementById("training-octave");
+    els.trainingQuality = document.getElementById("training-quality");
+    els.trainingPlay = document.getElementById("training-play");
+    els.trainingReadout = document.getElementById("training-readout");
+    els.trainingSub = document.getElementById("training-sub");
+    els.trainingScope = document.getElementById("training-scope");
+}
 
-    nextLevel() {
-        UISfx.play('start');
-        this.level++;
-        if (this.level > 100) this.level = 100;
-        AppSettings.setLastLevel(this.level);
-        document.getElementById('input-level').value = this.level;
-        this.setupLevel();
-        this.showScreen('game-screen');
-    },
+function bindEvents() {
+    document.querySelectorAll("[data-start]").forEach(btn => {
+        btn.addEventListener("click", () => startMode(btn.dataset.start));
+    });
+    els.homeBtn.addEventListener("click", showStart);
+    els.settingsBtn.addEventListener("click", () => els.settingsModal.classList.add("active"));
+    els.closeSettings.addEventListener("click", () => els.settingsModal.classList.remove("active"));
+    els.settingsModal.addEventListener("click", e => {
+        if (e.target === els.settingsModal) els.settingsModal.classList.remove("active");
+    });
+    els.playBtn.addEventListener("click", playCurrent);
+    els.submitBtn.addEventListener("click", submitAnswer);
+    els.nextBtn.addEventListener("click", () => {
+        if (state.roundComplete) startMode(state.mode);
+        else nextQuestion();
+    });
+    els.volume.addEventListener("input", saveFromInputs);
+    els.a4.addEventListener("change", saveFromInputs);
+    els.waveform.addEventListener("change", saveFromInputs);
+    els.roundSize.addEventListener("change", saveFromInputs);
+    els.trainingOctave.addEventListener("change", updateTrainingReadout);
+    els.trainingQuality.addEventListener("change", updateTrainingReadout);
+    els.trainingPlay.addEventListener("click", () => playTraining(state.lastTrainingPc));
+    document.addEventListener("keydown", handleKeys);
+}
 
-    showTitle() {
-        UISfx.play('back');
-        this.stopAllAudio();
-        this.showScreen('start-screen');
-    },
+function showScreen(screen) {
+    [els.startScreen, els.gameScreen, els.trainingScreen].forEach(el => el.classList.remove("active"));
+    screen.classList.add("active");
+}
 
-    showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-    },
+function showStart() {
+    showScreen(els.startScreen);
+}
 
-    isFreeMode() {
-        return this.mode === 'free';
-    },
+function startMode(mode) {
+    if (mode === "training") {
+        showScreen(els.trainingScreen);
+        updateTrainingReadout();
+        return;
+    }
+    state.mode = mode;
+    state.level = getInitialLevel(mode);
+    state.score = 0;
+    state.combo = 0;
+    state.maxCombo = 0;
+    state.asked = 0;
+    state.correct = 0;
+    state.roundComplete = false;
+    showScreen(els.gameScreen);
+    nextQuestion();
+}
 
-    isKeyboardMode() {
-        return this.mode === 'free' && this.freeMode === 'keyboard';
-    },
+function getInitialLevel(mode) {
+    if (mode === "easy") return 1;
+    if (mode === "normal") return 6;
+    if (mode === "chord") return 25;
+    return 1;
+}
 
-    setParamControlEnabled(param, enabled) {
-        const el = document.getElementById(`p-${param}`);
-        if (!el) return;
-        el.disabled = !enabled;
-        const item = el.closest('.control-item');
-        if (item) item.classList.toggle('inactive', !enabled);
-    },
-
-    setModeUI(mode) {
-        const free = mode === 'free';
-        const keyboard = free;
-        const targetBtn = document.getElementById('btn-target');
-        const playerBtn = document.getElementById('btn-player');
-        const submitBtn = document.getElementById('btn-submit');
-        const submitMain = document.getElementById('submit-main-label');
-        const submitSub = document.getElementById('submit-sub-label');
-        const playerMain = document.getElementById('player-main-label');
-        const playerSub = document.getElementById('player-sub-label');
-        const targetTitle = document.getElementById('target-monitor-title');
-        const playerTitle = document.getElementById('player-monitor-title');
-        const keyboardPanel = document.getElementById('keyboard-panel');
-
-        if (targetBtn) targetBtn.disabled = free;
-        if (playerBtn) playerBtn.disabled = false;
-        if (submitBtn) submitBtn.disabled = free;
-        if (submitMain) submitMain.textContent = free ? 'FREE MODE' : 'CHECK / 判定';
-        if (submitSub) submitSub.textContent = free ? 'Keyboard / MIDI live' : 'Shortcut: Enter';
-        if (playerMain) playerMain.textContent = free ? 'Frequency の音' : '押している間 自分の音';
-        if (playerSub) playerSub.textContent = 'Hold: Space';
-        if (targetTitle) targetTitle.textContent = free ? 'FREE MODE: TARGET DISABLED' : 'TARGET SIGNAL (マゼンタ)';
-        if (playerTitle) playerTitle.textContent = free ? 'KEYBOARD / MIDI PATCH SIGNAL (シアン)' : 'YOUR SIGNAL (シアン)';
-        if (keyboardPanel) keyboardPanel.classList.toggle('hidden', !keyboard);
-        if (keyboard) this.renderKeyboard();
-    },
-
-    startFreeMode(kind = 'keyboard') {
-        UISfx.play('start');
-        this.mode = 'free';
-        this.freeMode = 'keyboard';
-        this.stopAllAudio();
-        clearInterval(this.timerId);
-        this.isResolving = false;
-        this.level = 0;
-        this.score = 0;
-        this.timeLeft = 0;
-        this.currentOpponent = { name: 'Keyboard Lab', icon: '🎹', cls: 'Playable Patch' };
-        this.activeParams = Object.keys(this.paramDefs);
-        this.targetParams = {};
-        this.currentParams = {};
-
-        document.getElementById('hud-level').textContent = 'KEYS';
-        document.getElementById('time-display').textContent = '--:--';
-        document.getElementById('score-display').textContent = '—';
-
-        ['mod-osc2', 'mod-filter', 'mod-fx', 'mod-corefx', 'mod-heavyfx'].forEach(id => { const el = document.getElementById(id); if (el) { el.classList.remove('disabled'); el.classList.remove('collapsed'); } });
-        for (let p in this.paramDefs) {
-            const def = this.paramDefs[p];
-            this.currentParams[p] = def.def;
-            this.targetParams[p] = def.def;
-            const el = document.getElementById(`p-${p}`);
-            if (el) {
-                el.value = def.def;
-                this.setParamControlEnabled(p, true);
-                this.updateValDisplay(p, def.def);
-            }
-        }
-
-        this.refreshBattleUI();
-        this.setModeUI('free');
-        this.showScreen('game-screen');
-        this.logMsg('FREE PLAY: Space は Frequency、PC鍵盤とMIDIは音階で演奏できる。');
-        this.speakOpponent('フリープレイよ。SpaceでFrequency、キーボードやMIDIで音階を鳴らしながら音色を作りなさい。');
-    },
-
-    midiToFreq(midi) {
-        return 440 * Math.pow(2, (midi - 69) / 12);
-    },
-
-    getKeyboardNote(index) {
-        const semitone = index % 12;
-        const octave = this.keyboardOctave + Math.floor(index / 12);
-        const midi = (this.keyboardOctave + 1) * 12 + index;
+function getConfig() {
+    const level = state.level;
+    if (state.mode === "easy") {
         return {
-            index,
-            midi,
-            freq: this.midiToFreq(midi),
-            note: `${this.noteNames[semitone]}${octave}`,
-            isBlack: [1, 3, 6, 8, 10].includes(semitone)
+            kind: "note",
+            roots: WHITE_PCS,
+            minMidi: 60,
+            maxMidi: 71,
+            duration: 1.2,
+            qualities: []
         };
-    },
-
-    getKeyboardNoteForCode(code) {
-        const activeLayout = this.keyboardLayout.slice(0, this.keyboardKeyCount);
-        const index = activeLayout.findIndex(k => k.code === code);
-        if (index < 0) return null;
-        return { ...this.getKeyboardNote(index), code, label: activeLayout[index].label };
-    },
-
-    renderKeyboard() {
-        const keys = document.getElementById('keyboard-keys');
-        const map = document.getElementById('keyboard-map');
-        const octaveSelect = document.getElementById('keyboard-octave');
-        const countSelect = document.getElementById('keyboard-key-count');
-        if (!keys) return;
-        if (octaveSelect) octaveSelect.value = String(this.keyboardOctave);
-        if (countSelect) countSelect.value = String(this.keyboardKeyCount);
-        keys.style.setProperty('--key-count', this.keyboardKeyCount);
-        const activeLayout = this.keyboardLayout.slice(0, this.keyboardKeyCount);
-        keys.innerHTML = activeLayout.map((key, index) => {
-            const note = this.getKeyboardNote(index);
-            return `
-                <button type="button" class="keyboard-key ${note.isBlack ? 'is-black' : ''}" data-code="${key.code}" data-freq="${note.freq}">
-                    <span class="keyboard-note">${note.note}</span>
-                    <span class="keyboard-code">${key.label}</span>
-                </button>
-            `;
-        }).join('');
-        if (map) {
-            map.innerHTML = activeLayout.map((key, index) => {
-                const note = this.getKeyboardNote(index);
-                return `<div class="keyboard-map-chip"><span class="keycap">${key.label}</span><span>${note.note}</span></div>`;
-            }).join('');
-        }
-    },
-
-    setKeyboardOption(key, value) {
-        this.releaseAllKeyboardNotes();
-        if (key === 'octave') this.keyboardOctave = clamp(parseInt(value, 10) || 4, 2, 6);
-        if (key === 'count') this.keyboardKeyCount = clamp(parseInt(value, 10) || 18, 12, 24);
-        this.renderKeyboard();
-        this.logMsg(`FREE KEYBOARD: ${this.keyboardKeyCount} keys / C${this.keyboardOctave}`);
-    },
-
-    pressKeyboardCode(code, freqOverride = null) {
-        if (!this.isKeyboardMode() || this.keyboardHeld.has(code)) return;
-        const note = this.getKeyboardNoteForCode(code);
-        if (!note && !freqOverride) return;
-        const freq = freqOverride || note.freq;
-        this.keyboardHeld.add(code);
-        AudioMgr.startKeyboardNote(code, freq, this.currentParams);
-        document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.add('active'));
-        this.logMsg(`FREE KEYBOARD: ${note ? note.note : Math.round(freq) + 'Hz'} を再生中。`);
-    },
-
-    pressMidiNote(noteNumber, velocity = 100, channel = 0) {
-        if (!this.isKeyboardMode()) return;
-        const code = `MIDI-${channel}-${noteNumber}`;
-        if (this.midiHeld.has(code)) return;
-        this.midiHeld.add(code);
-        const freq = this.midiToFreq(noteNumber);
-        this.pressKeyboardCode(code, freq);
-        this.logMsg(`MIDI CH${channel + 1}: ${noteNumber} / ${Math.round(freq)}Hz を再生中。`);
-    },
-
-    releaseMidiNote(noteNumber, channel = 0) {
-        const code = `MIDI-${channel}-${noteNumber}`;
-        this.midiHeld.delete(code);
-        this.releaseKeyboardCode(code);
-    },
-
-    releaseKeyboardCode(code) {
-        if (!this.keyboardHeld.has(code)) return;
-        this.keyboardHeld.delete(code);
-        AudioMgr.stopKeyboardNote(code);
-        document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.remove('active'));
-    },
-
-    releaseAllKeyboardNotes() {
-        this.keyboardHeld.forEach(code => {
-            AudioMgr.stopKeyboardNote(code);
-            document.querySelectorAll(`.keyboard-key[data-code="${code}"]`).forEach(el => el.classList.remove('active'));
-        });
-        this.keyboardHeld.clear();
-        this.midiHeld.clear();
-    },
-
-    setupLevel() {
-        this.stopAllAudio();
-        clearInterval(this.timerId);
-        this.isResolving = false;
-        this.battleTurn = 1;
-        this.timeLeft = 300;
-
-        document.getElementById('hud-level').textContent = this.level;
-        document.getElementById('score-display').textContent = this.score;
-        this.setModeUI('game');
-
-        this.activeParams = ['freq'];
-        const mods = { 'mod-osc2': false, 'mod-filter': false, 'mod-fx': false, 'mod-corefx': false, 'mod-heavyfx': false };
-
-        if (this.level >= 2) this.activeParams.push('type');
-        if (this.level >= 5) { mods['mod-filter'] = true; this.activeParams.push('lpf'); }
-        if (this.level >= 10) { mods['mod-fx'] = true; this.activeParams.push('dist', 'delay'); }
-        if (this.level >= 15) { mods['mod-corefx'] = true; this.activeParams.push('reverb', 'chorus'); }
-        if (this.level >= 20) { mods['mod-osc2'] = true; this.activeParams.push('subvol', 'detune'); }
-        if (this.level >= 25) { mods['mod-corefx'] = true; this.activeParams.push('flanger', 'phaser', 'autopan'); }
-        if (this.level >= 30) this.activeParams.push('res', 'hpf');
-        if (this.level >= 35) { mods['mod-corefx'] = true; this.activeParams.push('overdrive', 'saturation', 'wavefold'); }
-        if (this.level >= 40) this.activeParams.push('bits', 'tremolo');
-        if (this.level >= 45) { mods['mod-corefx'] = true; this.activeParams.push('fuzz', 'ringmod', 'vibrato', 'noise'); }
-        if (this.level >= 55) { mods['mod-corefx'] = true; this.activeParams.push('samplerate', 'bpf', 'notch', 'compressor', 'gate', 'stereo'); }
-        if (this.level >= 65) { mods['mod-heavyfx'] = true; this.activeParams.push('convir', 'granular'); }
-        if (this.level >= 75) { mods['mod-heavyfx'] = true; this.activeParams.push('vocoder', 'spectral'); }
-        if (this.level >= 85) { mods['mod-heavyfx'] = true; this.activeParams.push('polypitch', 'pitchspread'); }
-
-        for (let [id, active] of Object.entries(mods)) {
-            const el = document.getElementById(id);
-            if (active) el.classList.remove('disabled'); else el.classList.add('disabled');
-        }
-
-        this.pickOpponent();
-        this.generateRound(true);
-        this.refreshBattleUI();
-        this.startTimer();
-        this.logMsg(`${this.currentOpponent.name} の音色シグネチャを解析しろ。制限時間内なら何度でも再調整できる。`);
-        this.speakOpponent(`私は ${this.currentOpponent.name}。まずは私の音を聞いて、差が大きいツマミから詰めてきなさい。`);
-    },
-
-    pickOpponent() {
-        const available = this.enemyRoster.filter(e => this.level >= e.minLevel);
-        const tierIndex = Math.min(available.length - 1, Math.floor((this.level - 1) / 10));
-        this.currentOpponent = available[Math.max(0, tierIndex)] || this.enemyRoster[0];
-    },
-
-    setupBattleStats() {
-        const foe = this.currentOpponent || this.enemyRoster[0];
-        this.enemyMaxHp = Math.round(foe.hp + this.level * 2.4);
-        this.enemyHp = this.enemyMaxHp;
-        this.playerMaxHp = Math.round(100 + Math.floor(this.level / 10) * 10);
-        this.playerHp = this.playerMaxHp;
-    },
-
-    generateRound(resetCurrent = true) {
-        this.stopAllAudio();
-        this.targetParams = {};
-        if (resetCurrent) this.currentParams = {};
-
-        const types = ['sine', 'square', 'sawtooth', 'triangle'];
-
-        for (let p in this.paramDefs) {
-            const def = this.paramDefs[p];
-
-            if (resetCurrent || !(p in this.currentParams)) {
-                this.currentParams[p] = def.def;
-            }
-
-            if (this.activeParams.includes(p)) {
-                if (def.type === 'string') {
-                    this.targetParams[p] = types[Math.floor(Math.random() * types.length)];
-                } else {
-                    const steps = Math.floor((def.max - def.min) / def.step);
-                    this.targetParams[p] = def.min + Math.floor(Math.random() * (steps + 1)) * def.step;
-                }
-            } else {
-                this.targetParams[p] = def.def;
-            }
-
-            const el = document.getElementById(`p-${p}`);
-            if (el) {
-                el.value = this.currentParams[p];
-                const enabled = this.activeParams.includes(p);
-                this.setParamControlEnabled(p, enabled);
-                this.updateValDisplay(p, this.currentParams[p]);
-            }
-        }
-    },
-
-    refreshBattleUI() {
-        if (!this.currentOpponent) return;
-
-        const enemyName = document.getElementById('enemy-name');
-        const enemyClass = document.getElementById('enemy-class');
-        const playerClass = document.getElementById('player-class');
-        const playerName = document.getElementById('player-name');
-
-        if (enemyName) enemyName.textContent = this.currentOpponent.name;
-        if (enemyClass) enemyClass.textContent = this.currentOpponent.cls;
-
-        let rank = 'Signal Apprentice';
-        if (this.level >= 10) rank = 'Patch Ranger';
-        if (this.level >= 25) rank = 'Rack Operator';
-        if (this.level >= 40) rank = 'Wave Hunter';
-        if (this.level >= 60) rank = 'Modulation Ace';
-        if (this.level >= 80) rank = 'Synth Master';
-
-        if (playerName) playerName.textContent = 'Patch Tuner';
-        if (playerClass) playerClass.textContent = rank;
-    },
-
-    updateValDisplay(param, val) {
-        const d = document.getElementById(`v-${param}`);
-        if (d) {
-            if (param === 'delay') d.textContent = parseFloat(val).toFixed(2);
-            else if (param === 'res') d.textContent = parseFloat(val).toFixed(1);
-            else if (param === 'bpf' || param === 'notch') d.textContent = parseFloat(val) <= 0 ? 'OFF' : Math.round(parseFloat(val));
-            else if (param === 'pitchspread') d.textContent = Math.round(parseFloat(val));
-            else d.textContent = val;
-        }
-    },
-
-    onInputChanged(param, val) {
-        UISfx.play('knob');
-        const parsedVal = this.paramDefs[param].type === 'string' ? val : parseFloat(val);
-        this.currentParams[param] = parsedVal;
-        this.updateValDisplay(param, parsedVal);
-        AudioMgr.updatePlayerParam(param, parsedVal);
-    },
-
-    startTimer() {
-        clearInterval(this.timerId);
-        document.getElementById('time-display').textContent = formatTime(this.timeLeft);
-        this.timerId = setInterval(() => {
-            if (this.isResolving) return;
-            this.timeLeft--;
-            document.getElementById('time-display').textContent = formatTime(this.timeLeft);
-            if (this.timeLeft <= 0) this.submit(true);
-        }, 1000);
-    },
-
-    stopAllAudio() {
-        this.releaseAllKeyboardNotes();
-        AudioMgr.stopKeyboardNotes(true);
-        AudioMgr.stopPlayer();
-        AudioMgr.stopTarget();
-        document.getElementById('btn-player').classList.remove('active');
-        document.getElementById('btn-target').classList.remove('active');
-    },
-
-    logMsg(text, isError = false) {
-        const el = document.getElementById('msg-log');
-        const body = String(text).replace(/^SYSTEM:\s*/i, '');
-        el.textContent = `SYSTEM: ${body}`;
-        el.style.color = isError ? 'var(--acc-magenta)' : 'var(--acc-yellow)';
-    },
-
-    speakOpponent(text, isError = false) {
-        const el = document.getElementById('opponent-bubble');
-        if (!el) return;
-        el.textContent = text;
-        el.classList.toggle('error', !!isError);
-    },
-
-    formatParamValue(key, value) {
-        const def = this.paramDefs[key];
-        if (def.type === 'string') return String(value);
-        if (key === 'freq' || key === 'lpf' || key === 'hpf') return `${Math.round(value)} Hz`;
-        if (key === 'subvol') return `${Math.round(value)} %`;
-        if (['reverb','chorus','flanger','phaser','ringmod','overdrive','fuzz','saturation','wavefold','samplerate','compressor','gate','noise','stereo'].includes(key)) return `${Math.round(value)} %`;
-        if (['bpf','notch'].includes(key)) return value <= 0 ? 'OFF' : `${Math.round(value)} Hz`;
-        if (key === 'autopan') return `${Math.round(value)} Hz`;
-        if (key === 'vibrato') return `${Math.round(value)} ct`;
-        if (key === 'detune') return `${Math.round(value)} ct`;
-        if (key === 'dist') return `${Math.round(value)} %`;
-        if (key === 'delay') return `${Number(value).toFixed(2)} s`;
-        if (key === 'res') return Number(value).toFixed(1);
-        if (key === 'bits') return `${Math.round(value)} bit`;
-        if (key === 'tremolo') return `${Math.round(value)} Hz`;
-        if (key === 'pitchspread') return `${Math.round(value)} st`;
-        if (['vocoder', 'granular', 'spectral', 'convir', 'polypitch'].includes(key)) return `${Math.round(value)} %`;
-        return String(value);
-    },
-
-    renderResultComparison() {
-        const table = document.getElementById('result-compare-table');
-        if (!table) return;
-        const tolMult = this.level > 50 ? 0.5 : (this.level > 25 ? 0.8 : 1.0);
-        const rows = [];
-        rows.push(`<div class="result-compare-row result-compare-head"><div>Param</div><div>Target</div><div>Player</div><div>Diff</div></div>`);
-        for (const key of this.activeParams) {
-            const def = this.paramDefs[key];
-            const targetV = this.targetParams[key];
-            const currentV = this.currentParams[key];
-            let diffText = '—';
-            let ok = true;
-            if (def.type === 'string') {
-                ok = targetV === currentV;
-                diffText = ok ? '一致' : '不一致';
-            } else {
-                const diff = Math.abs(targetV - currentV);
-                const allowed = def.tol * tolMult;
-                ok = diff <= allowed;
-                diffText = `Δ ${this.formatParamValue(key, diff)}`;
-            }
-            rows.push(`
-                <div class="result-compare-row ${ok ? 'good' : 'bad'}">
-                    <div class="result-name">${def.name || key}</div>
-                    <div class="result-val">${this.formatParamValue(key, targetV)}</div>
-                    <div class="result-val">${this.formatParamValue(key, currentV)}</div>
-                    <div class="result-status ${ok ? 'good' : 'bad'}">${diffText}</div>
-                </div>
-            `);
-        }
-        table.innerHTML = rows.join('');
-    },
-
-    splashAtParam(paramKey) {
-        const control = document.querySelector(`[data-param="${paramKey}"]`);
-        if (!control) return;
-        const item = control.closest('.control-item') || control;
-        item.classList.remove('param-splash');
-        void item.offsetWidth;
-        item.classList.add('param-splash');
-        setTimeout(() => item.classList.remove('param-splash'), 600);
-        const rect = item.getBoundingClientRect();
-        createParticles(false, rect.left + rect.width / 2, rect.top + rect.height / 2);
-    },
-
-    evaluateMatch() {
-        const tolMult = this.level > 50 ? 0.5 : (this.level > 25 ? 0.8 : 1.0);
-        let worstParam = null;
-        let worstKey = null;
-        let maxDiffRatio = 0;
-        let hint = "";
-        let typeFailed = false;
-        const details = [];
-
-        for (let p of this.activeParams) {
-            const def = this.paramDefs[p];
-            const targetV = this.targetParams[p];
-            const currentV = this.currentParams[p];
-
-            if (def.type === 'string') {
-                const ok = targetV === currentV;
-                details.push({ key: p, name: def.name || p, targetV, currentV, ok, diff: ok ? 0 : 1 });
-                if (!ok) {
-                    typeFailed = true;
-                    worstKey = p;
-                    worstParam = def.name || 'Waveform';
-                    hint = '合わせろ';
-                    break;
-                }
-            } else {
-                const diff = Math.abs(targetV - currentV);
-                const allowed = def.tol * tolMult;
-                const ok = diff <= allowed;
-                details.push({ key: p, name: def.name || p, targetV, currentV, ok, diff, allowed });
-                if (!ok) {
-                    const range = def.max - def.min || 1;
-                    const diffRatio = diff / range;
-                    if (diffRatio > maxDiffRatio) {
-                        maxDiffRatio = diffRatio;
-                        worstKey = p;
-                        worstParam = def.name;
-                        hint = currentV > targetV ? "下げろ" : "上げろ";
-                    }
-                }
-            }
-        }
-
-        const result = { ok: !typeFailed && !worstParam, typeFailed, worstParam, worstKey, hint, details };
-        this.lastEvaluation = result;
-        return result;
-    },
-
-    submit(isTimeUp = false) {
-        if (this.mode === 'free') { UISfx.play('disabled'); return; }
-        if (!isTimeUp) UISfx.play('submit');
-        if (this.isResolving) return;
-
-        if (isTimeUp) {
-            UISfx.play('error');
-            this.isResolving = true;
-            this.logMsg("TIME UP... 解析失敗。もう少しで届いたかもしれない。", true);
-            this.speakOpponent('時間切れ。比較表を見て、どこが遠かったか確認しなさい。', true);
-            this.showResult(false);
-            return;
-        }
-
-        const result = this.evaluateMatch();
-
-        if (result.ok) {
-            this.handlePlayerAttack();
-        } else if (result.typeFailed) {
-            this.handleEnemyAttack(`[ERROR] 波形(Waveform)が違う。まず波形タイプを合わせろ。`, result.worstKey || 'type');
-        } else {
-            this.handleEnemyAttack(`[ERROR] ${result.worstParam} がズレている。もっと数値を${result.hint}。`, result.worstKey);
-        }
-    },
-
-    handlePlayerAttack() {
-        UISfx.play('success');
-        this.isResolving = true;
-        this.stopAllAudio();
-
-        const speedBonus = Math.floor(this.timeLeft / 6);
-        const levelBonus = this.level * 30;
-        this.score += 1000 + speedBonus * 10 + levelBonus;
-        document.getElementById('score-display').textContent = this.score;
-        this.flashBattler('enemy', 'attack-pop');
-        createParticles(true);
-
-        this.logMsg(`MATCH! ${this.currentOpponent.name} の音色再現に成功。`);
-        this.speakOpponent('悪くないわね。結果画面で差分を確認しておきなさい。');
-        setTimeout(() => this.showResult(true), 820);
-    },
-
-    handleEnemyAttack(message, paramKey = null) {
-        UISfx.play('error');
-        this.isResolving = true;
-        this.stopAllAudio();
-
-        this.timeLeft = Math.max(1, this.timeLeft - 5);
-        document.getElementById('time-display').textContent = formatTime(this.timeLeft);
-        this.flashBattler('player', 'damage-pop');
-        this.flashBattler('enemy', 'damage-pop');
-        if (paramKey) this.splashAtParam(paramKey); else createParticles(false);
-
-        this.logMsg(`${message} 残り時間を 5 秒失ったが、やり直しは可能。`, true);
-        this.speakOpponent(message.replace(/^\[ERROR\]\s*/, '') + ' そこを見直しなさい。', true);
-
-        setTimeout(() => {
-            this.isResolving = false;
-        }, 420);
-    },
-
-    flashBattler(side, className) {
-        const selector = side === 'enemy' ? '#avatar-opponent-card' : '#avatar-player-card';
-        const el = document.querySelector(selector);
-        if (!el) return;
-        el.classList.remove(className);
-        void el.offsetWidth;
-        el.classList.add(className);
-        setTimeout(() => el.classList.remove(className), 420);
-    },
-
-    showResult(isClear) {
-        clearInterval(this.timerId);
-        this.stopAllAudio();
-        this.isResolving = false;
-
-        const foeName = this.currentOpponent ? this.currentOpponent.name : 'Opponent';
-        AppSettings.updateBestScore(this.score);
-        if (isClear) AppSettings.setLastLevel(Math.min(100, this.level + 1));
-        document.getElementById('result-title').textContent = isClear ? `CLEARED` : `TIME UP`;
-        document.getElementById('result-title').style.color = isClear ? "var(--acc-green)" : "var(--acc-magenta)";
-        document.getElementById('result-desc').textContent = isClear ? `${foeName} の音色シグネチャを再現した。` : `${foeName} の音色シグネチャを解析しきれなかった。`;
-        document.getElementById('result-score').textContent = `SCORE: ${this.score}`;
-        this.renderResultComparison();
-        this.showScreen('result-screen');
     }
-};
-
-const MidiMgr = {
-    access: null,
-    enabled: false,
-
-    setStatus(text) {
-        const status = document.getElementById('midi-status');
-        if (status) status.textContent = text;
-    },
-
-    async connect() {
-        if (!navigator.requestMIDIAccess) {
-            this.setStatus('not supported');
-            UISfx.play('error');
-            return;
-        }
-        try {
-            this.access = await navigator.requestMIDIAccess();
-            this.enabled = true;
-            this.bindInputs();
-            this.access.onstatechange = () => this.bindInputs();
-            UISfx.play('success');
-        } catch (err) {
-            console.warn('MIDI access failed', err);
-            this.setStatus('blocked');
-            UISfx.play('error');
-        }
-    },
-
-    bindInputs() {
-        if (!this.access) return;
-        const inputs = Array.from(this.access.inputs.values());
-        inputs.forEach(input => {
-            input.onmidimessage = event => this.handleMessage(event);
-        });
-        this.setStatus(inputs.length ? `${inputs.length} input${inputs.length > 1 ? 's' : ''}` : 'no input');
-    },
-
-    handleMessage(event) {
-        const [status, note, velocity] = event.data;
-        const type = status & 0xf0;
-        const channel = status & 0x0f;
-        if (type === 0x90 && velocity > 0) {
-            game.pressMidiNote(note, velocity, channel);
-        } else if (type === 0x80 || (type === 0x90 && velocity === 0)) {
-            game.releaseMidiNote(note, channel);
-        }
+    if (state.mode === "normal") {
+        return {
+            kind: "note",
+            roots: [...Array(12).keys()],
+            minMidi: 60,
+            maxMidi: 71,
+            duration: 1.05,
+            qualities: []
+        };
     }
-};
-
-
-document.querySelectorAll('input[type=range], select').forEach(el => {
-    el.addEventListener('input', (e) => {
-        const param = e.target.getAttribute('data-param');
-        if (param) game.onInputChanged(param, e.target.value);
-    });
-});
-
-const btnTarget = document.getElementById('btn-target');
-const btnPlayer = document.getElementById('btn-player');
-
-const onTargetDown = (e) => { e.preventDefault(); if (game.isFreeMode()) { UISfx.play('disabled'); game.logMsg('FREE MODE: ターゲット音は無効。自分の音だけ鳴らせる。'); return; } UISfx.play('transport'); AudioMgr.startTarget(game.targetParams); btnTarget.classList.add('active'); game.logMsg("ターゲット音を再生中..."); game.speakOpponent("よく聞きなさい。私の音の癖は外周の揺れにも出る。"); };
-const onTargetUp = (e) => { e.preventDefault(); UISfx.play('release'); AudioMgr.stopTarget(); btnTarget.classList.remove('active'); game.logMsg("Ready."); };
-
-const onPlayerDown = (e) => { e.preventDefault(); UISfx.play('transport'); AudioMgr.startPlayer(game.currentParams); btnPlayer.classList.add('active'); game.logMsg(game.isFreeMode() ? `Frequency ${Math.round(game.currentParams.freq || 0)}Hz を再生中...` : "プレイヤー音を再生中..."); if (game.isFreeMode()) game.speakOpponent("Space は Frequency の周波数。鍵盤とMIDIは音階で重ねられるわ。"); else game.speakOpponent("自分の音と見比べて、差が大きいところを詰めなさい。"); };
-const onPlayerUp = (e) => { e.preventDefault(); UISfx.play('release'); AudioMgr.stopPlayerMain(); btnPlayer.classList.remove('active'); game.logMsg("Ready."); };
-
-btnTarget.addEventListener('mousedown', onTargetDown);
-btnTarget.addEventListener('touchstart', onTargetDown, {passive: false});
-btnTarget.addEventListener('mouseup', onTargetUp);
-btnTarget.addEventListener('mouseleave', onTargetUp);
-btnTarget.addEventListener('touchend', onTargetUp);
-
-btnPlayer.addEventListener('mousedown', onPlayerDown);
-btnPlayer.addEventListener('touchstart', onPlayerDown, {passive: false});
-btnPlayer.addEventListener('mouseup', onPlayerUp);
-btnPlayer.addEventListener('mouseleave', onPlayerUp);
-btnPlayer.addEventListener('touchend', onPlayerUp);
-
-const keyboardKeys = document.getElementById('keyboard-keys');
-if (keyboardKeys) {
-    keyboardKeys.addEventListener('pointerdown', (e) => {
-        const key = e.target.closest('.keyboard-key');
-        if (!key) return;
-        e.preventDefault();
-        key.setPointerCapture?.(e.pointerId);
-        game.pressKeyboardCode(key.dataset.code, parseFloat(key.dataset.freq));
-    });
-    keyboardKeys.addEventListener('pointerup', (e) => {
-        const key = e.target.closest('.keyboard-key');
-        if (!key) return;
-        e.preventDefault();
-        game.releaseKeyboardCode(key.dataset.code);
-    });
-    keyboardKeys.addEventListener('pointercancel', (e) => {
-        const key = e.target.closest('.keyboard-key');
-        if (key) game.releaseKeyboardCode(key.dataset.code);
-    });
-    keyboardKeys.addEventListener('pointerleave', (e) => {
-        const key = e.target.closest('.keyboard-key');
-        if (key) game.releaseKeyboardCode(key.dataset.code);
-    });
+    if (state.mode === "chord") {
+        return {
+            kind: "chord",
+            roots: [...Array(12).keys()],
+            minMidi: 48,
+            maxMidi: 59,
+            duration: 1.45,
+            qualities: ["maj", "min", "dim", "aug", "sus4", "dom7", "maj7", "min7"],
+            inversion: true
+        };
+    }
+    if (level < 5) {
+        return {
+            kind: "note",
+            roots: WHITE_PCS,
+            minMidi: 60,
+            maxMidi: 71,
+            duration: 1.25,
+            qualities: []
+        };
+    }
+    if (level < 15) {
+        return {
+            kind: "note",
+            roots: [...Array(12).keys()],
+            minMidi: level < 10 ? 60 : 48,
+            maxMidi: level < 10 ? 71 : 83,
+            duration: 1.05,
+            qualities: []
+        };
+    }
+    if (level < 25) {
+        return {
+            kind: "chord",
+            roots: WHITE_PCS,
+            minMidi: 48,
+            maxMidi: 59,
+            duration: 1.5,
+            qualities: ["maj", "min"],
+            inversion: false
+        };
+    }
+    if (level < 40) {
+        return {
+            kind: "chord",
+            roots: [...Array(12).keys()],
+            minMidi: 48,
+            maxMidi: 59,
+            duration: 1.35,
+            qualities: ["maj", "min", "dim", "aug", "sus4"],
+            inversion: level >= 32
+        };
+    }
+    return {
+        kind: "chord",
+        roots: [...Array(12).keys()],
+        minMidi: 36,
+        maxMidi: 59,
+        duration: 1.1,
+        qualities: ["maj", "min", "dim", "aug", "sus4", "dom7", "maj7", "min7"],
+        inversion: true
+    };
 }
 
-const keyboardOctave = document.getElementById('keyboard-octave');
-const keyboardKeyCount = document.getElementById('keyboard-key-count');
-if (keyboardOctave) keyboardOctave.addEventListener('change', (e) => game.setKeyboardOption('octave', e.target.value));
-if (keyboardKeyCount) keyboardKeyCount.addEventListener('change', (e) => game.setKeyboardOption('count', e.target.value));
-const midiConnect = document.getElementById('midi-connect');
-if (midiConnect) midiConnect.addEventListener('click', () => MidiMgr.connect());
-
-let keyTHeld = false;
-let keySpaceHeld = false;
-
-function isFormControl(target) {
-    return ['INPUT', 'SELECT', 'TEXTAREA'].includes(target?.tagName);
-}
-
-function isPlaybackKey(code) {
-    if (code === 'Space' || code === 'KeyT') return true;
-    return game.isKeyboardMode() && !!game.getKeyboardNoteForCode(code);
-}
-
-function shouldBypassFormKeyGuard(code) {
-    return code === 'Enter' || isPlaybackKey(code);
-}
-
-document.addEventListener('keydown', (e) => {
-    const settingsOpen = !document.getElementById('settings-overlay')?.classList.contains('hidden');
-    if (settingsOpen) {
-        if (e.code === 'Escape') closeSettings();
+function nextQuestion() {
+    if (state.asked >= Number(state.settings.roundSize)) {
+        finishRound();
         return;
     }
-    if (isFormControl(e.target) && !shouldBypassFormKeyGuard(e.code)) return;
-    if ((e.target.id === 'input-level' || String(e.target.id || '').startsWith('settings-')) && !shouldBypassFormKeyGuard(e.code)) return;
+    state.roundComplete = false;
+    state.answered = false;
+    state.selectedRoot = null;
+    state.selectedQuality = null;
+    state.playCount = 0;
+    state.questionStartedAt = performance.now();
+    state.current = createQuestion(getConfig());
+    renderQuestion();
+    clearSelections();
+    playCurrent();
+}
 
-    if (isPlaybackKey(e.code) || e.code === 'Enter') {
-        if (e.target.id !== 'input-level') e.preventDefault();
+function createQuestion(config) {
+    if (config.kind === "note") {
+        const candidates = midiRange(config.minMidi, config.maxMidi)
+            .filter(midi => config.roots.includes(midi % 12));
+        let midi = pick(candidates);
+        if (candidates.length > 1) {
+            let guard = 0;
+            while (midi % 12 === state.lastPc && guard < 10) {
+                midi = pick(candidates);
+                guard += 1;
+            }
+        }
+        state.lastPc = midi % 12;
+        return {
+            kind: "note",
+            midi,
+            pc: midi % 12,
+            notes: [midi],
+            label: noteWithOctave(midi),
+            config
+        };
     }
 
-    if(document.getElementById('game-screen').classList.contains('hidden')) {
-        if(e.code === 'Enter' && !document.getElementById('start-screen').classList.contains('hidden')) game.start();
+    const rootPc = pick(config.roots);
+    const qualityId = pick(config.qualities);
+    const quality = QUALITY_MAP[qualityId];
+    const rootMidi = firstMidiForPc(rootPc, config.minMidi, config.maxMidi);
+    let notes = quality.intervals.map(interval => rootMidi + interval);
+    if (config.inversion) {
+        const turns = Math.floor(Math.random() * Math.min(3, notes.length));
+        for (let i = 0; i < turns; i += 1) {
+            notes[i] += 12;
+        }
+        notes.sort((a, b) => a - b);
+    }
+    state.lastPc = rootPc;
+    return {
+        kind: "chord",
+        rootPc,
+        qualityId,
+        notes,
+        label: NOTE_SHORT[rootPc] + quality.suffix,
+        config
+    };
+}
+
+function renderQuestion() {
+    const current = state.current;
+    const isChord = current.kind === "chord";
+    els.questionKind.textContent = isChord ? "CHORD" : "NOTE";
+    els.stagePrompt.textContent = isChord ? "Root and chord type" : "Note name";
+    els.answerMode.textContent = isChord ? "Chord name" : "Note name";
+    els.qualityGrid.classList.toggle("hidden", !isChord);
+    els.submitBtn.disabled = isChord;
+    els.nextBtn.disabled = true;
+    els.resultMain.className = "result-main";
+    els.resultMain.textContent = "Ready";
+    els.resultSub.textContent = isChord ? "Choose root and quality." : "Choose the note name.";
+    renderAvailability();
+    updateStats();
+    drawIdle(els.scope, current.notes);
+    lightPiano([]);
+}
+
+function renderAvailability() {
+    const cfg = state.current.config;
+    document.querySelectorAll(".note-btn").forEach(btn => {
+        const pc = Number(btn.dataset.pc);
+        btn.disabled = !cfg.roots.includes(pc);
+        btn.classList.remove("selected", "correct", "wrong");
+    });
+    document.querySelectorAll(".quality-btn").forEach(btn => {
+        btn.disabled = state.current.kind !== "chord" || !cfg.qualities.includes(btn.dataset.quality);
+        btn.classList.remove("selected", "correct", "wrong");
+    });
+}
+
+function submitAnswer(rootPc = state.selectedRoot, qualityId = state.selectedQuality) {
+    if (!state.current || state.answered) return;
+    const current = state.current;
+    if (current.kind === "note") {
+        if (rootPc === null || rootPc === undefined) return;
+        gradeAnswer(rootPc === current.pc, rootPc, null);
         return;
     }
-
-    if(game.isKeyboardMode()) {
-        const note = game.getKeyboardNoteForCode(e.code);
-        if (note) {
-            e.preventDefault();
-            game.pressKeyboardCode(e.code);
-            return;
-        }
-    }
-    
-    if(e.code === 'KeyT' && !keyTHeld) {
-        keyTHeld = true;
-        onTargetDown(e);
-    }
-    if(e.code === 'Space' && !keySpaceHeld) {
-        keySpaceHeld = true;
-        onPlayerDown(e);
-    }
-    if(e.code === 'Enter' && !game.isFreeMode()) {
-        document.getElementById('btn-submit').click(); 
-    }
-});
-
-document.addEventListener('keyup', (e) => {
-    const settingsOpen = !document.getElementById('settings-overlay')?.classList.contains('hidden');
-    if (settingsOpen) return;
-    if (game.isKeyboardMode()) {
-        const note = game.getKeyboardNoteForCode(e.code);
-        if (note) {
-            e.preventDefault();
-            game.releaseKeyboardCode(e.code);
-            return;
-        }
-    }
-    if (isFormControl(e.target) && !shouldBypassFormKeyGuard(e.code)) return;
-    if ((e.target.id === 'input-level' || String(e.target.id || '').startsWith('settings-')) && !shouldBypassFormKeyGuard(e.code)) return;
-
-    if(e.code === 'KeyT') {
-        e.preventDefault();
-        keyTHeld = false;
-        onTargetUp(e);
-    }
-    if(e.code === 'Space') {
-        e.preventDefault();
-        keySpaceHeld = false;
-        onPlayerUp(e);
-    }
-});
-
-document.getElementById('btn-submit').addEventListener('click', () => game.submit());
-
-const irFileInput = document.getElementById('ir-file');
-if (irFileInput) irFileInput.addEventListener('change', () => UISfx.play('toggle'));
-
-const settingsGameVolume = document.getElementById('settings-game-volume');
-const settingsUiVolume = document.getElementById('settings-ui-volume');
-if (settingsGameVolume) settingsGameVolume.addEventListener('input', (e) => AppSettings.setGameVolume(e.target.value));
-if (settingsUiVolume) settingsUiVolume.addEventListener('input', (e) => AppSettings.setUiVolume(e.target.value));
-const settingsOverlay = document.getElementById('settings-overlay');
-if (settingsOverlay) {
-    settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) closeSettings(); });
+    if (rootPc === null || !qualityId) return;
+    gradeAnswer(rootPc === current.rootPc && qualityId === current.qualityId, rootPc, qualityId);
 }
-AppSettings.syncUI();
 
-function createParticles(isSuccess, originX = null, originY = null) {
-    const canvas = document.getElementById('particles-js');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const particles = [], colors = isSuccess ? ['#9ece6a', '#7dcfff', '#fff'] : ['#f7768e', '#ff3333', '#550'];
-    const ox = originX ?? (canvas.width / 2);
-    const oy = originY ?? (canvas.height / 2 + 100);
-    const count = isSuccess ? 80 : 54;
-
-    for(let i=0; i<count; i++) {
-        const speed = isSuccess ? 20 : 12;
-        particles.push({
-            x: ox, y: oy,
-            vx: (Math.random() - 0.5) * speed, vy: (Math.random() - 1) * speed,
-            size: Math.random() * 5 + 2, color: colors[Math.floor(Math.random() * colors.length)],
-            life: 1.0, decay: Math.random() * 0.02 + 0.02
-        });
+function gradeAnswer(isCorrect, rootPc, qualityId) {
+    const current = state.current;
+    state.answered = true;
+    state.asked += 1;
+    if (isCorrect) {
+        state.correct += 1;
+        state.combo += 1;
+        state.maxCombo = Math.max(state.maxCombo, state.combo);
+        const elapsed = performance.now() - state.questionStartedAt;
+        const timeBonus = Math.max(0, Math.round(80 - elapsed / 120));
+        const playPenalty = Math.max(0, (state.playCount - 1) * 15);
+        const comboBonus = state.combo * 10;
+        const gained = Math.max(50, 100 + state.level * 4 + timeBonus + comboBonus - playPenalty);
+        state.score += gained;
+        els.resultMain.className = "result-main good";
+        els.resultMain.textContent = "Correct +" + gained;
+        maybeLevelUp();
+    } else {
+        state.combo = 0;
+        els.resultMain.className = "result-main bad";
+        els.resultMain.textContent = "Miss";
     }
 
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let alive = false;
-        particles.forEach(p => {
-            if(p.life > 0) {
-                alive = true;
-                p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.life -= p.decay;
-                ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
+    if (current.kind === "note") {
+        els.resultSub.textContent = "Answer: " + NOTE_NAMES[current.pc] + " (" + current.label + ")";
+    } else {
+        els.resultSub.textContent = "Answer: " + current.label + " / " + current.notes.map(noteWithOctave).join(" ");
+    }
+    markAnswer(rootPc, qualityId, isCorrect);
+    lightPiano(current.notes.map(m => m % 12));
+    els.nextBtn.disabled = false;
+    els.submitBtn.disabled = true;
+    updateStats();
+    saveBest();
+}
+
+function maybeLevelUp() {
+    if (state.mode !== "challenge") return;
+    if (state.correct > 0 && state.correct % 3 === 0) {
+        state.level = Math.min(50, state.level + 1);
+    }
+}
+
+function finishRound() {
+    state.roundComplete = true;
+    const rate = state.asked ? Math.round((state.correct / state.asked) * 100) : 0;
+    state.current = null;
+    els.resultMain.className = "result-main good";
+    els.resultMain.textContent = "Round Complete";
+    els.resultSub.textContent = "Score " + state.score + " / Accuracy " + rate + "% / Max combo " + state.maxCombo;
+    els.playBtn.disabled = true;
+    els.submitBtn.disabled = true;
+    els.nextBtn.disabled = false;
+    els.nextBtn.textContent = "RESTART";
+    saveBest();
+}
+
+function markAnswer(rootPc, qualityId, isCorrect) {
+    document.querySelectorAll(".note-btn").forEach(btn => {
+        const pc = Number(btn.dataset.pc);
+        if (state.current.kind === "note" && pc === state.current.pc) btn.classList.add("correct");
+        if (state.current.kind === "chord" && pc === state.current.rootPc) btn.classList.add("correct");
+        if (!isCorrect && pc === rootPc) btn.classList.add("wrong");
+    });
+    document.querySelectorAll(".quality-btn").forEach(btn => {
+        if (state.current.kind !== "chord") return;
+        if (btn.dataset.quality === state.current.qualityId) btn.classList.add("correct");
+        if (!isCorrect && btn.dataset.quality === qualityId) btn.classList.add("wrong");
+    });
+}
+
+function clearSelections() {
+    els.nextBtn.textContent = "NEXT";
+    els.playBtn.disabled = false;
+    document.querySelectorAll(".selected, .correct, .wrong").forEach(el => {
+        el.classList.remove("selected", "correct", "wrong");
+    });
+}
+
+function updateStats() {
+    const accuracy = state.asked ? Math.round((state.correct / state.asked) * 100) : 0;
+    els.statLevel.textContent = state.level;
+    els.statScore.textContent = state.score;
+    els.statCombo.textContent = state.combo;
+    els.statAccuracy.textContent = accuracy + "%";
+    els.statBest.textContent = state.settings.best || 0;
+}
+
+function playCurrent() {
+    if (!state.current) return;
+    state.playCount += 1;
+    playNotes(state.current.notes, state.current.config.duration);
+    animateScope(els.scope, state.current.notes, state.current.config.duration);
+}
+
+function playTraining(pc) {
+    state.lastTrainingPc = pc;
+    const octave = Number(els.trainingOctave.value);
+    const rootMidi = (octave + 1) * 12 + pc;
+    const qualityId = els.trainingQuality.value;
+    let notes = [rootMidi];
+    if (qualityId !== "single") {
+        notes = QUALITY_MAP[qualityId].intervals.map(interval => rootMidi + interval);
+    }
+    playNotes(notes, 1.35);
+    animateScope(els.trainingScope, notes, 1.35);
+    updateTrainingReadout();
+}
+
+function playNotes(notes, duration) {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime((state.settings.volume / 100) * 0.22, now + 0.025);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.08);
+    master.connect(ctx.destination);
+
+    notes.forEach((midi, index) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const wave = resolveWaveform();
+        osc.type = wave;
+        osc.frequency.setValueAtTime(midiToFreq(midi), now);
+        gain.gain.setValueAtTime(1 / Math.sqrt(notes.length), now);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(now + index * 0.006);
+        osc.stop(now + duration + 0.12);
+    });
+}
+
+function getAudioContext() {
+    if (!state.audioCtx) {
+        state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (state.audioCtx.state === "suspended") {
+        state.audioCtx.resume();
+    }
+    return state.audioCtx;
+}
+
+function resolveWaveform() {
+    if (state.settings.waveform !== "random") return state.settings.waveform;
+    return pick(["sine", "triangle", "square", "sawtooth"]);
+}
+
+function midiToFreq(midi) {
+    return state.settings.a4 * Math.pow(2, (midi - 69) / 12);
+}
+
+function noteWithOctave(midi) {
+    return NOTE_SHORT[midi % 12] + (Math.floor(midi / 12) - 1);
+}
+
+function midiRange(min, max) {
+    const out = [];
+    for (let i = min; i <= max; i += 1) out.push(i);
+    return out;
+}
+
+function firstMidiForPc(pc, min, max) {
+    for (let midi = min; midi <= max + 12; midi += 1) {
+        if (midi % 12 === pc) return midi;
+    }
+    return min;
+}
+
+function pick(list) {
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+function buildNoteButtons() {
+    NOTE_NAMES.forEach((name, pc) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "note-btn " + (BLACK_PCS.includes(pc) ? "black" : "white");
+        btn.dataset.pc = pc;
+        btn.textContent = name;
+        btn.addEventListener("click", () => {
+            if (!state.current || state.answered) return;
+            state.selectedRoot = pc;
+            document.querySelectorAll(".note-btn").forEach(el => el.classList.remove("selected"));
+            btn.classList.add("selected");
+            if (state.current.kind === "note") {
+                submitAnswer(pc, null);
+            } else {
+                els.submitBtn.disabled = !state.selectedQuality;
             }
         });
-        if(alive) requestAnimationFrame(animate);
-        else ctx.clearRect(0,0,canvas.width, canvas.height);
+        els.noteGrid.appendChild(btn);
+    });
+}
+
+function buildQualityButtons() {
+    QUALITIES.forEach(quality => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "quality-btn";
+        btn.dataset.quality = quality.id;
+        btn.textContent = quality.label;
+        btn.addEventListener("click", () => {
+            if (!state.current || state.answered || state.current.kind !== "chord") return;
+            state.selectedQuality = quality.id;
+            document.querySelectorAll(".quality-btn").forEach(el => el.classList.remove("selected"));
+            btn.classList.add("selected");
+            els.submitBtn.disabled = state.selectedRoot === null;
+        });
+        els.qualityGrid.appendChild(btn);
+    });
+}
+
+function buildPiano() {
+    WHITE_LABELS.forEach(note => {
+        const key = document.createElement("div");
+        key.className = "white-key";
+        key.dataset.pc = note.pc;
+        key.textContent = note.name;
+        els.whiteKeys.appendChild(key);
+    });
+    BLACK_PCS.forEach(pc => {
+        const key = document.createElement("div");
+        key.className = "black-key";
+        key.dataset.pc = pc;
+        key.textContent = NOTE_SHORT[pc];
+        els.blackKeys.appendChild(key);
+    });
+}
+
+function lightPiano(pcs) {
+    document.querySelectorAll(".white-key, .black-key").forEach(key => {
+        key.classList.toggle("key-lit", pcs.includes(Number(key.dataset.pc)));
+    });
+}
+
+function buildTraining() {
+    const single = document.createElement("option");
+    single.value = "single";
+    single.textContent = "Single note";
+    els.trainingQuality.appendChild(single);
+    QUALITIES.forEach(quality => {
+        const opt = document.createElement("option");
+        opt.value = quality.id;
+        opt.textContent = quality.label;
+        els.trainingQuality.appendChild(opt);
+    });
+    NOTE_NAMES.forEach((name, pc) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = BLACK_PCS.includes(pc) ? "note-btn black" : "note-btn white";
+        btn.textContent = name;
+        btn.addEventListener("click", () => playTraining(pc));
+        els.trainingKeys.appendChild(btn);
+    });
+}
+
+function updateTrainingReadout() {
+    const pc = state.lastTrainingPc;
+    const octave = Number(els.trainingOctave.value);
+    const midi = (octave + 1) * 12 + pc;
+    const quality = els.trainingQuality.value;
+    const label = quality === "single"
+        ? noteWithOctave(midi)
+        : NOTE_SHORT[pc] + QUALITY_MAP[quality].suffix;
+    els.trainingReadout.textContent = label + " / " + midiToFreq(midi).toFixed(2) + "Hz";
+    els.trainingSub.textContent = "Current: " + NOTE_NAMES[pc] + " / octave " + octave;
+}
+
+function drawIdle(canvas, notes) {
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#131720";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(244,240,232,0.12)";
+    ctx.lineWidth = 1;
+    for (let y = 72; y <= 288; y += 36) {
+        ctx.beginPath();
+        ctx.moveTo(42, y);
+        ctx.lineTo(w - 42, y);
+        ctx.stroke();
     }
-    animate();
+    const pcs = notes.map(n => n % 12);
+    pcs.forEach((pc, i) => {
+        const x = 90 + (pc / 11) * (w - 180);
+        const y = h / 2 + (i - (pcs.length - 1) / 2) * 34;
+        ctx.fillStyle = i % 2 ? "#f2b84b" : "#48d7c4";
+        ctx.beginPath();
+        ctx.ellipse(x, y, 24, 17, -0.18, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+function animateScope(canvas, notes, duration) {
+    const ctx = canvas.getContext("2d");
+    const start = performance.now();
+    const total = duration * 1000;
+    const freqs = notes.map(midiToFreq);
+    function frame(now) {
+        const t = Math.min(1, (now - start) / total);
+        drawIdle(canvas, notes);
+        ctx.strokeStyle = "#7bd972";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let x = 34; x < canvas.width - 34; x += 3) {
+            const nx = x / canvas.width;
+            const wave = freqs.reduce((sum, freq, i) => {
+                return sum + Math.sin((nx * 18 + t * 4) * Math.PI * 2 * (1 + i * 0.12) + freq * 0.002);
+            }, 0) / freqs.length;
+            const y = canvas.height / 2 + wave * 42 * (1 - t * 0.35);
+            if (x === 34) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}
+
+function handleKeys(e) {
+    if (els.gameScreen.classList.contains("active")) {
+        if (e.code === "Space") {
+            e.preventDefault();
+            playCurrent();
+        }
+        if (e.code === "Enter") {
+            e.preventDefault();
+            if (state.roundComplete) startMode(state.mode);
+            else if (!els.nextBtn.disabled) nextQuestion();
+            else submitAnswer();
+        }
+    }
+}
+
+function loadSettings() {
+    try {
+        const saved = JSON.parse(localStorage.getItem("perfectPitchQuizSettings"));
+        return { ...DEFAULT_SETTINGS, ...(saved || {}) };
+    } catch (err) {
+        return { ...DEFAULT_SETTINGS };
+    }
+}
+
+function applySettingsToInputs() {
+    els.volume.value = state.settings.volume;
+    els.a4.value = state.settings.a4;
+    els.waveform.value = state.settings.waveform;
+    els.roundSize.value = state.settings.roundSize;
+}
+
+function saveFromInputs() {
+    state.settings.volume = Number(els.volume.value);
+    state.settings.a4 = Number(els.a4.value) || 440;
+    state.settings.waveform = els.waveform.value;
+    state.settings.roundSize = Number(els.roundSize.value);
+    persistSettings();
+    updateTrainingReadout();
+}
+
+function saveBest() {
+    if (state.score > (state.settings.best || 0)) {
+        state.settings.best = state.score;
+        persistSettings();
+    }
+}
+
+function persistSettings() {
+    localStorage.setItem("perfectPitchQuizSettings", JSON.stringify(state.settings));
 }
 </script>
 </body>
