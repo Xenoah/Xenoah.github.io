@@ -2166,6 +2166,7 @@ const game = {
     showTitle() {
         UISfx.play('back');
         this.stopAllAudio();
+        this.clearPressureUI();
         this.showScreen('start-screen');
     },
 
@@ -2223,6 +2224,7 @@ const game = {
         this.freeMode = 'keyboard';
         this.stopAllAudio();
         clearInterval(this.timerId);
+        this.clearPressureUI();
         this.isResolving = false;
         this.level = 0;
         this.score = 0;
@@ -2361,9 +2363,12 @@ const game = {
     setupLevel() {
         this.stopAllAudio();
         clearInterval(this.timerId);
+        this.clearPressureUI();
         this.isResolving = false;
         this.battleTurn = 1;
-        this.timeLeft = 300;
+        this.timeLeft = 0;
+        this.warnedThirty = false;
+        this.warnedTen = false;
 
         document.getElementById('hud-level').textContent = this.level;
         document.getElementById('score-display').textContent = this.score;
@@ -2386,6 +2391,7 @@ const game = {
         if (this.level >= 65) { mods['mod-heavyfx'] = true; this.activeParams.push('convir', 'granular'); }
         if (this.level >= 75) { mods['mod-heavyfx'] = true; this.activeParams.push('vocoder', 'spectral'); }
         if (this.level >= 85) { mods['mod-heavyfx'] = true; this.activeParams.push('polypitch', 'pitchspread'); }
+        this.setRoundTime(this.getRoundTimeLimit());
 
         for (let [id, active] of Object.entries(mods)) {
             const el = document.getElementById(id);
@@ -2396,6 +2402,11 @@ const game = {
         this.generateRound(true);
         this.refreshBattleUI();
         this.startTimer();
+        setTimeout(() => {
+            if (!document.getElementById('game-screen')?.classList.contains('hidden')) {
+                this.showRushBanner('MATCH IT!', `${this.activeParams.length} controls / ${this.timeLeft} sec`, 'warn');
+            }
+        }, 80);
         this.logMsg(`${this.currentOpponent.name} の音色シグネチャを解析しろ。制限時間内なら何度でも再調整できる。`);
         this.speakOpponent(`私は ${this.currentOpponent.name}。まずは私の音を聞いて、差が大きいツマミから詰めてきなさい。`);
     },
@@ -2412,6 +2423,48 @@ const game = {
         this.enemyHp = this.enemyMaxHp;
         this.playerMaxHp = Math.round(100 + Math.floor(this.level / 10) * 10);
         this.playerHp = this.playerMaxHp;
+    },
+
+    getRoundTimeLimit() {
+        const paramPressure = Math.max(0, this.activeParams.length - 1) * 7;
+        const levelPressure = Math.floor(this.level * 0.35);
+        return clamp(85 + paramPressure - levelPressure, 55, 180);
+    },
+
+    setRoundTime(value) {
+        this.timeLeft = Math.max(0, Math.round(value));
+        const timeDisplay = document.getElementById('time-display');
+        if (timeDisplay) timeDisplay.textContent = formatTime(this.timeLeft);
+        this.updatePressureUI();
+    },
+
+    updatePressureUI() {
+        const screen = document.getElementById('game-screen');
+        if (!screen || this.mode !== 'game') return;
+        const warning = this.timeLeft <= 30 && this.timeLeft > 10;
+        const danger = this.timeLeft <= 10 && this.timeLeft > 0;
+        screen.classList.toggle('time-warning', warning || danger);
+        screen.classList.toggle('time-danger', danger);
+    },
+
+    clearPressureUI() {
+        const screen = document.getElementById('game-screen');
+        if (!screen) return;
+        screen.classList.remove('time-warning', 'time-danger');
+    },
+
+    showRushBanner(word, sub = '', tone = 'warn') {
+        const banner = document.getElementById('rush-banner');
+        const wordEl = document.getElementById('rush-word');
+        const subEl = document.getElementById('rush-sub');
+        if (!banner || !wordEl || !subEl) return;
+        clearTimeout(this.rushBannerTimer);
+        wordEl.textContent = word;
+        subEl.textContent = sub;
+        banner.className = `rush-banner ${tone}`;
+        void banner.offsetWidth;
+        banner.classList.add('show');
+        this.rushBannerTimer = setTimeout(() => banner.classList.remove('show'), 760);
     },
 
     generateRound(resetCurrent = true) {
@@ -2492,11 +2545,20 @@ const game = {
 
     startTimer() {
         clearInterval(this.timerId);
-        document.getElementById('time-display').textContent = formatTime(this.timeLeft);
+        this.setRoundTime(this.timeLeft);
         this.timerId = setInterval(() => {
             if (this.isResolving) return;
-            this.timeLeft--;
-            document.getElementById('time-display').textContent = formatTime(this.timeLeft);
+            this.setRoundTime(this.timeLeft - 1);
+            if (this.timeLeft === 30 && !this.warnedThirty) {
+                this.warnedThirty = true;
+                UISfx.play('toggle');
+                this.showRushBanner('HURRY!', '30 sec left', 'warn');
+            }
+            if (this.timeLeft === 10 && !this.warnedTen) {
+                this.warnedTen = true;
+                UISfx.play('error');
+                this.showRushBanner('NOW!', '10 sec left', 'bad');
+            }
             if (this.timeLeft <= 0) this.submit(true);
         }, 1000);
     },
@@ -2644,9 +2706,10 @@ const game = {
         if (isTimeUp) {
             UISfx.play('error');
             this.isResolving = true;
+            this.showRushBanner('TIME UP!', 'check the diff', 'bad');
             this.logMsg("TIME UP... 解析失敗。もう少しで届いたかもしれない。", true);
             this.speakOpponent('時間切れ。比較表を見て、どこが遠かったか確認しなさい。', true);
-            this.showResult(false);
+            setTimeout(() => this.showResult(false), 680);
             return;
         }
 
@@ -2668,10 +2731,12 @@ const game = {
 
         const speedBonus = Math.floor(this.timeLeft / 6);
         const levelBonus = this.level * 30;
-        this.score += 1000 + speedBonus * 10 + levelBonus;
+        const gained = 1000 + speedBonus * 10 + levelBonus;
+        this.score += gained;
         document.getElementById('score-display').textContent = this.score;
         this.flashBattler('enemy', 'attack-pop');
         createParticles(true);
+        this.showRushBanner('MATCH!', `+${gained} score`, 'good');
 
         this.logMsg(`MATCH! ${this.currentOpponent.name} の音色再現に成功。`);
         this.speakOpponent('悪くないわね。結果画面で差分を確認しておきなさい。');
@@ -2683,11 +2748,11 @@ const game = {
         this.isResolving = true;
         this.stopAllAudio();
 
-        this.timeLeft = Math.max(1, this.timeLeft - 5);
-        document.getElementById('time-display').textContent = formatTime(this.timeLeft);
+        this.setRoundTime(Math.max(1, this.timeLeft - 5));
         this.flashBattler('player', 'damage-pop');
         this.flashBattler('enemy', 'damage-pop');
         if (paramKey) this.splashAtParam(paramKey); else createParticles(false);
+        this.showRushBanner('MISS!', '-5 sec', 'bad');
 
         this.logMsg(`${message} 残り時間を 5 秒失ったが、やり直しは可能。`, true);
         this.speakOpponent(message.replace(/^\[ERROR\]\s*/, '') + ' そこを見直しなさい。', true);
@@ -2710,6 +2775,7 @@ const game = {
     showResult(isClear) {
         clearInterval(this.timerId);
         this.stopAllAudio();
+        this.clearPressureUI();
         this.isResolving = false;
 
         const foeName = this.currentOpponent ? this.currentOpponent.name : 'Opponent';
