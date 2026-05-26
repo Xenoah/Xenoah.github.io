@@ -34,6 +34,7 @@ body {
 body {
     margin: 0;
     background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 28%),
         linear-gradient(135deg, rgba(72, 215, 196, 0.10), transparent 28%),
         linear-gradient(315deg, rgba(242, 184, 75, 0.09), transparent 30%),
         var(--bg);
@@ -190,6 +191,251 @@ button:disabled {
     border: 36px solid rgba(72, 215, 196, 0.10);
 }
 
+.piano-mascot {
+    width: 168px;
+    height: 150px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.34));
+}
+
+.title-mascot {
+    margin-top: 26px;
+}
+
+.mini-mascot {
+    width: 72px;
+    height: 64px;
+    flex: 0 0 auto;
+}
+
+.mini-mascot .mascot-body {
+    inset: 8px 4px 8px;
+    border-width: 2px;
+    border-radius: 8px 8px 6px 6px;
+}
+
+.mini-mascot .mascot-face {
+    width: 34px;
+    height: 18px;
+}
+
+.mini-mascot .mascot-eye {
+    top: 4px;
+    width: 6px;
+    height: 6px;
+}
+
+.mini-mascot .mascot-eye.left {
+    left: 5px;
+}
+
+.mini-mascot .mascot-eye.right {
+    right: 5px;
+}
+
+.mini-mascot .mascot-mouth {
+    width: 12px;
+    height: 6px;
+    border-bottom-width: 2px;
+}
+
+.mini-mascot .mascot-blush {
+    top: 12px;
+    width: 6px;
+    height: 3px;
+}
+
+.mini-mascot .mascot-keys {
+    gap: 1px;
+}
+
+.mini-mascot .mascot-arm {
+    top: 29px;
+    width: 17px;
+    height: 4px;
+}
+
+.mini-mascot .mascot-leg {
+    bottom: 3px;
+    width: 7px;
+    height: 8px;
+}
+
+.mini-mascot .mascot-leg.left {
+    left: 21px;
+}
+
+.mini-mascot .mascot-leg.right {
+    right: 21px;
+}
+
+.mascot-body {
+    position: absolute;
+    inset: 18px 10px 18px;
+    border-radius: 18px 18px 12px 12px;
+    background: linear-gradient(180deg, #f8f2e8 0%, #ddd5c9 100%);
+    border: 4px solid #141820;
+    overflow: hidden;
+}
+
+.mascot-top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 46%;
+    background: #151922;
+}
+
+.mascot-face {
+    position: absolute;
+    left: 50%;
+    top: 28%;
+    width: 78px;
+    height: 36px;
+    transform: translateX(-50%);
+}
+
+.mascot-eye {
+    position: absolute;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 12px rgba(72, 215, 196, 0.75);
+}
+
+.mascot-eye.left {
+    left: 12px;
+}
+
+.mascot-eye.right {
+    right: 12px;
+}
+
+.mascot-mouth {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 24px;
+    height: 12px;
+    border-bottom: 4px solid var(--amber);
+    border-radius: 0 0 24px 24px;
+    transform: translateX(-50%);
+}
+
+.mascot-blush {
+    position: absolute;
+    top: 23px;
+    width: 14px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(239, 111, 123, 0.85);
+}
+
+.mascot-blush.left {
+    left: 0;
+}
+
+.mascot-blush.right {
+    right: 0;
+}
+
+.mascot-keys {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    height: 34%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+.mascot-key {
+    border-radius: 0 0 4px 4px;
+    background: #fff8eb;
+    border: 1px solid rgba(20, 24, 32, 0.22);
+}
+
+.mascot-key.black {
+    height: 60%;
+    background: #11151c;
+}
+
+.mascot-arm,
+.mascot-leg {
+    position: absolute;
+    background: #141820;
+}
+
+.mascot-arm {
+    top: 66px;
+    width: 36px;
+    height: 8px;
+    border-radius: 999px;
+}
+
+.mascot-arm.left {
+    left: -6px;
+    transform: rotate(-24deg);
+}
+
+.mascot-arm.right {
+    right: -6px;
+    transform: rotate(24deg);
+}
+
+.mascot-leg {
+    bottom: 7px;
+    width: 16px;
+    height: 18px;
+    border-radius: 0 0 999px 999px;
+}
+
+.mascot-leg.left {
+    left: 48px;
+}
+
+.mascot-leg.right {
+    right: 48px;
+}
+
+.piano-mascot.idle {
+    animation: mascotBounce 1.2s ease-in-out infinite;
+}
+
+.piano-mascot.happy {
+    animation: mascotHappy 0.72s ease;
+}
+
+.piano-mascot.happy .mascot-mouth {
+    width: 34px;
+    height: 16px;
+}
+
+.piano-mascot.sad .mascot-mouth {
+    border-bottom: 0;
+    border-top: 4px solid var(--rose);
+    border-radius: 24px 24px 0 0;
+    bottom: 0;
+}
+
+.piano-mascot.time .mascot-eye {
+    background: var(--amber);
+    box-shadow: 0 0 12px rgba(242, 184, 75, 0.8);
+}
+
+.piano-mascot.time .mascot-mouth {
+    width: 18px;
+    height: 18px;
+    border: 4px solid var(--amber);
+    border-radius: 50%;
+}
+
 h1 {
     margin: 0;
     font-size: clamp(40px, 7vw, 86px);
@@ -319,10 +565,14 @@ h1 {
     font-weight: 900;
 }
 
+.stat.combo-pop {
+    animation: pop 0.34s ease;
+}
+
 .sound-panel {
     min-height: 520px;
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: auto auto 1fr auto auto;
     gap: 14px;
 }
 
@@ -348,6 +598,58 @@ h1 {
 .prompt {
     color: var(--muted);
     font-weight: 700;
+}
+
+.rhythm-hud {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(18, 22, 29, 0.82);
+}
+
+.beat-dots {
+    display: flex;
+    gap: 7px;
+}
+
+.beat-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: #2c3440;
+}
+
+.beat-dot.active {
+    background: var(--amber);
+    box-shadow: 0 0 18px rgba(242, 184, 75, 0.75);
+    transform: scale(1.18);
+}
+
+.timer-track {
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #0d1117;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.timer-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--teal), var(--amber));
+    transform-origin: left center;
+}
+
+.tempo-text {
+    min-width: 74px;
+    color: var(--muted);
+    font-weight: 900;
+    text-align: right;
 }
 
 .scope {
@@ -376,6 +678,10 @@ canvas {
     letter-spacing: 0;
 }
 
+.play-btn.beat-pulse {
+    animation: beatPulse 0.24s ease;
+}
+
 .result-box {
     min-height: 88px;
     padding: 12px;
@@ -401,9 +707,35 @@ canvas {
     color: var(--rose);
 }
 
+.result-main.time {
+    color: var(--amber);
+}
+
 .result-sub {
     color: var(--muted);
     line-height: 1.45;
+}
+
+.judgement {
+    position: fixed;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 40;
+    padding: 16px 24px;
+    border-radius: 8px;
+    background: rgba(8, 10, 13, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--text);
+    font-size: clamp(32px, 7vw, 86px);
+    font-weight: 1000;
+    letter-spacing: 0;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.judgement.show {
+    animation: judgementPop 0.72s ease;
 }
 
 .answer-panel {
@@ -443,6 +775,12 @@ canvas {
     color: var(--text);
     border: 1px solid var(--line);
     font-weight: 900;
+    transition: transform 0.09s ease, border-color 0.09s ease, background 0.09s ease;
+}
+
+.note-btn:hover:not(:disabled),
+.quality-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
 }
 
 .note-btn.black {
@@ -520,6 +858,8 @@ canvas {
     padding-bottom: 8px;
     font-size: 12px;
     font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.08s ease, outline-color 0.08s ease, filter 0.08s ease;
 }
 
 .white-key {
@@ -541,6 +881,7 @@ canvas {
     background: var(--black-key);
     color: var(--blue);
     border-color: #050609;
+    pointer-events: auto;
 }
 
 .black-key[data-pc="1"] { left: 9%; }
@@ -551,6 +892,35 @@ canvas {
 
 .key-lit {
     outline: 4px solid var(--amber);
+    outline-offset: -4px;
+}
+
+.white-key:disabled,
+.black-key:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.8) brightness(0.62);
+}
+
+.white-key:hover:not(:disabled),
+.black-key:hover:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.white-key.selected,
+.black-key.selected {
+    outline: 4px solid var(--amber);
+    outline-offset: -4px;
+}
+
+.white-key.correct,
+.black-key.correct {
+    outline: 4px solid var(--green);
+    outline-offset: -4px;
+}
+
+.white-key.wrong,
+.black-key.wrong {
+    outline: 4px solid var(--rose);
     outline-offset: -4px;
 }
 
@@ -610,6 +980,37 @@ canvas {
     place-items: center;
     z-index: 50;
     padding: 18px;
+}
+
+@keyframes beatPulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.025); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes judgementPop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.84); }
+    18% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+    72% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes mascotBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes mascotHappy {
+    0% { transform: translateY(0) rotate(0deg); }
+    28% { transform: translateY(-12px) rotate(-4deg); }
+    56% { transform: translateY(-4px) rotate(4deg); }
+    100% { transform: translateY(0) rotate(0deg); }
 }
 
 .modal.active {
@@ -712,6 +1113,31 @@ canvas {
                     <div>
                         <h1>PERFECT<br>PITCH<br>QUIZ</h1>
                         <p class="lead">単音から始まり、レベルが上がると和音、コードネーム当てへ進む音感クイズ。</p>
+                        <div class="piano-mascot title-mascot idle" aria-label="ピアノキャラクター">
+                            <div class="mascot-arm left"></div>
+                            <div class="mascot-arm right"></div>
+                            <div class="mascot-body">
+                                <div class="mascot-top"></div>
+                                <div class="mascot-face">
+                                    <span class="mascot-eye left"></span>
+                                    <span class="mascot-eye right"></span>
+                                    <span class="mascot-mouth"></span>
+                                    <span class="mascot-blush left"></span>
+                                    <span class="mascot-blush right"></span>
+                                </div>
+                                <div class="mascot-keys">
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                </div>
+                            </div>
+                            <div class="mascot-leg left"></div>
+                            <div class="mascot-leg right"></div>
+                        </div>
                     </div>
                     <div class="level-strip" aria-label="level flow">
                         <div class="level-chip">
@@ -737,34 +1163,48 @@ canvas {
                     </div>
                 </div>
 
-                <div class="mode-panel panel">
-                    <button class="mode-card" type="button" data-start="challenge">
+                <div class="mode-panel panel" aria-label="start level select">
+                    <button class="mode-card" type="button" data-level="1">
                         <span>
-                            <span class="mode-name">Challenge</span>
-                            <span class="mode-note">正解を重ねるほど単音からコードへ進行</span>
-                        </span>
-                        <span class="mode-mark">GO</span>
-                    </button>
-                    <button class="mode-card" type="button" data-start="easy">
-                        <span>
-                            <span class="mode-name">Easy</span>
-                            <span class="mode-note">白鍵単音だけで音名を確認</span>
+                            <span class="mode-name">Lv.1 Beginner</span>
+                            <span class="mode-note">白鍵だけの単音からスタート</span>
                         </span>
                         <span class="mode-mark">C</span>
                     </button>
-                    <button class="mode-card" type="button" data-start="normal">
+                    <button class="mode-card" type="button" data-level="5">
                         <span>
-                            <span class="mode-name">Normal</span>
-                            <span class="mode-note">12音単音の基本クイズ</span>
+                            <span class="mode-name">Lv.5 Basic</span>
+                            <span class="mode-note">12音の単音クイズからスタート</span>
                         </span>
                         <span class="mode-mark">12</span>
                     </button>
-                    <button class="mode-card" type="button" data-start="chord">
+                    <button class="mode-card" type="button" data-level="10">
                         <span>
-                            <span class="mode-name">Chord</span>
-                            <span class="mode-note">ルートとコード種を当てる</span>
+                            <span class="mode-name">Lv.10 Wide</span>
+                            <span class="mode-note">広い音域の単音からスタート</span>
+                        </span>
+                        <span class="mode-mark">C3</span>
+                    </button>
+                    <button class="mode-card" type="button" data-level="15">
+                        <span>
+                            <span class="mode-name">Lv.15 Chord Intro</span>
+                            <span class="mode-note">Major / Minor のコード当てからスタート</span>
                         </span>
                         <span class="mode-mark">Cm</span>
+                    </button>
+                    <button class="mode-card" type="button" data-level="25">
+                        <span>
+                            <span class="mode-name">Lv.25 Chord Mix</span>
+                            <span class="mode-note">dim / aug / sus4 も混ざるコード当て</span>
+                        </span>
+                        <span class="mode-mark">sus</span>
+                    </button>
+                    <button class="mode-card" type="button" data-level="40">
+                        <span>
+                            <span class="mode-name">Lv.40 Expert</span>
+                            <span class="mode-note">転回形と7thコード込みでスタート</span>
+                        </span>
+                        <span class="mode-mark">7th</span>
                     </button>
                     <button class="mode-card" type="button" data-start="training">
                         <span>
@@ -805,12 +1245,51 @@ canvas {
                 <section class="panel sound-panel">
                     <div class="stage-row">
                         <span class="badge" id="question-kind">NOTE</span>
+                        <div class="piano-mascot mini-mascot idle" aria-label="ピアノキャラクター">
+                            <div class="mascot-arm left"></div>
+                            <div class="mascot-arm right"></div>
+                            <div class="mascot-body">
+                                <div class="mascot-top"></div>
+                                <div class="mascot-face">
+                                    <span class="mascot-eye left"></span>
+                                    <span class="mascot-eye right"></span>
+                                    <span class="mascot-mouth"></span>
+                                    <span class="mascot-blush left"></span>
+                                    <span class="mascot-blush right"></span>
+                                </div>
+                                <div class="mascot-keys">
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                    <span class="mascot-key black"></span>
+                                    <span class="mascot-key"></span>
+                                </div>
+                            </div>
+                            <div class="mascot-leg left"></div>
+                            <div class="mascot-leg right"></div>
+                        </div>
                         <span class="prompt" id="stage-prompt">Listen and answer</span>
+                    </div>
+                    <div class="rhythm-hud" aria-label="rhythm timer">
+                        <div class="beat-dots" id="beat-dots">
+                            <span class="beat-dot active"></span>
+                            <span class="beat-dot"></span>
+                            <span class="beat-dot"></span>
+                            <span class="beat-dot"></span>
+                            <span class="beat-dot"></span>
+                            <span class="beat-dot"></span>
+                        </div>
+                        <div class="timer-track">
+                            <div class="timer-fill" id="timer-fill"></div>
+                        </div>
+                        <div class="tempo-text" id="tempo-text">4 BEAT</div>
                     </div>
                     <div class="scope">
                         <canvas id="scope" width="720" height="360" aria-label="sound visual"></canvas>
                     </div>
-                    <button class="play-btn" id="play-btn" type="button">PLAY</button>
+                    <button class="play-btn" id="play-btn" type="button">REPLAY</button>
                     <div class="result-box">
                         <div class="result-main" id="result-main">Ready</div>
                         <div class="result-sub" id="result-sub">Level 1 starts with single white-key notes.</div>
@@ -880,6 +1359,8 @@ canvas {
     </main>
 </div>
 
+<div class="judgement" id="judgement">READY</div>
+
 <div class="modal" id="settings-modal">
     <div class="modal-panel">
         <div class="modal-head">
@@ -906,11 +1387,29 @@ canvas {
                 </select>
             </div>
             <div class="field">
+                <label for="note-notation">Note Names</label>
+                <select id="note-notation">
+                    <option value="latin">C D E</option>
+                    <option value="solfege">ド レ ミ</option>
+                    <option value="japanese">ハ ニ ホ ヘ ト イ ロ</option>
+                    <option value="german">German C D E F G A H</option>
+                </select>
+            </div>
+            <div class="field">
                 <label for="round-size">Round Size</label>
                 <select id="round-size">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="30">30</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="answer-time">Answer Time</label>
+                <select id="answer-time">
+                    <option value="relaxed">Relaxed x0.85</option>
+                    <option value="standard">Standard x1.00</option>
+                    <option value="fast">Fast x1.25</option>
+                    <option value="blitz">Blitz x1.55</option>
                 </select>
             </div>
         </div>
@@ -920,6 +1419,24 @@ canvas {
 <script>
 const NOTE_NAMES = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"];
 const NOTE_SHORT = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const NOTE_NOTATIONS = {
+    latin: {
+        names: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"],
+        short: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    },
+    solfege: {
+        names: ["ド", "ド#/レ♭", "レ", "レ#/ミ♭", "ミ", "ファ", "ファ#/ソ♭", "ソ", "ソ#/ラ♭", "ラ", "ラ#/シ♭", "シ"],
+        short: ["ド", "ド#", "レ", "レ#", "ミ", "ファ", "ファ#", "ソ", "ソ#", "ラ", "ラ#", "シ"]
+    },
+    japanese: {
+        names: ["ハ", "ハ#/ニ♭", "ニ", "ニ#/ホ♭", "ホ", "ヘ", "ヘ#/ト♭", "ト", "ト#/イ♭", "イ", "イ#/ロ♭", "ロ"],
+        short: ["ハ", "ハ#", "ニ", "ニ#", "ホ", "ヘ", "ヘ#", "ト", "ト#", "イ", "イ#", "ロ"]
+    },
+    german: {
+        names: ["C", "Cis/Des", "D", "Dis/Es", "E", "F", "Fis/Ges", "G", "Gis/As", "A", "Ais/B", "H"],
+        short: ["C", "Cis", "D", "Dis", "E", "F", "Fis", "G", "Gis", "A", "Ais", "H"]
+    }
+};
 const WHITE_PCS = [0, 2, 4, 5, 7, 9, 11];
 const BLACK_PCS = [1, 3, 6, 8, 10];
 const WHITE_LABELS = [
@@ -947,14 +1464,27 @@ const DEFAULT_SETTINGS = {
     volume: 70,
     a4: 440,
     waveform: "sine",
+    noteNotation: "latin",
     roundSize: 10,
+    answerTime: "standard",
+    startLevel: 1,
     best: 0
 };
 
+const ANSWER_TIME_OPTIONS = {
+    relaxed: { label: "RELAXED", extraMs: 1600, multiplier: 0.85 },
+    standard: { label: "STANDARD", extraMs: 0, multiplier: 1 },
+    fast: { label: "FAST", extraMs: -900, multiplier: 1.25 },
+    blitz: { label: "BLITZ", extraMs: -1700, multiplier: 1.55 }
+};
+
+const initialSettings = loadSettings();
+
 const state = {
-    settings: loadSettings(),
+    settings: initialSettings,
     audioCtx: null,
     mode: "challenge",
+    startLevel: initialSettings.startLevel || 1,
     level: 1,
     score: 0,
     combo: 0,
@@ -966,6 +1496,13 @@ const state = {
     selectedQuality: null,
     answered: false,
     roundComplete: false,
+    locked: false,
+    questionMs: 4200,
+    deadline: 0,
+    timerRaf: null,
+    beatTimer: null,
+    autoTimer: null,
+    beatIndex: 0,
     playCount: 0,
     questionStartedAt: 0,
     lastPc: null,
@@ -982,11 +1519,13 @@ document.addEventListener("DOMContentLoaded", () => {
     buildTraining();
     bindEvents();
     applySettingsToInputs();
+    refreshNoteLabels();
     drawIdle(els.scope, []);
     drawIdle(els.trainingScope, []);
 });
 
 function cacheElements() {
+    els.mascots = Array.from(document.querySelectorAll(".piano-mascot"));
     els.startScreen = document.getElementById("start-screen");
     els.gameScreen = document.getElementById("game-screen");
     els.trainingScreen = document.getElementById("training-screen");
@@ -999,6 +1538,10 @@ function cacheElements() {
     els.submitBtn = document.getElementById("submit-btn");
     els.nextBtn = document.getElementById("next-btn");
     els.playBtn = document.getElementById("play-btn");
+    els.timerFill = document.getElementById("timer-fill");
+    els.beatDots = Array.from(document.querySelectorAll("#beat-dots .beat-dot"));
+    els.tempoText = document.getElementById("tempo-text");
+    els.judgement = document.getElementById("judgement");
     els.questionKind = document.getElementById("question-kind");
     els.stagePrompt = document.getElementById("stage-prompt");
     els.answerMode = document.getElementById("answer-mode");
@@ -1015,7 +1558,9 @@ function cacheElements() {
     els.volume = document.getElementById("volume");
     els.a4 = document.getElementById("a4");
     els.waveform = document.getElementById("waveform");
+    els.noteNotation = document.getElementById("note-notation");
     els.roundSize = document.getElementById("round-size");
+    els.answerTime = document.getElementById("answer-time");
     els.trainingKeys = document.getElementById("training-keys");
     els.trainingOctave = document.getElementById("training-octave");
     els.trainingQuality = document.getElementById("training-quality");
@@ -1026,6 +1571,9 @@ function cacheElements() {
 }
 
 function bindEvents() {
+    document.querySelectorAll("[data-level]").forEach(btn => {
+        btn.addEventListener("click", () => startLevel(Number(btn.dataset.level)));
+    });
     document.querySelectorAll("[data-start]").forEach(btn => {
         btn.addEventListener("click", () => startMode(btn.dataset.start));
     });
@@ -1038,13 +1586,15 @@ function bindEvents() {
     els.playBtn.addEventListener("click", playCurrent);
     els.submitBtn.addEventListener("click", submitAnswer);
     els.nextBtn.addEventListener("click", () => {
-        if (state.roundComplete) startMode(state.mode);
+        if (state.roundComplete) startLevel(state.startLevel);
         else nextQuestion();
     });
     els.volume.addEventListener("input", saveFromInputs);
     els.a4.addEventListener("change", saveFromInputs);
     els.waveform.addEventListener("change", saveFromInputs);
+    els.noteNotation.addEventListener("change", saveFromInputs);
     els.roundSize.addEventListener("change", saveFromInputs);
+    els.answerTime.addEventListener("change", saveFromInputs);
     els.trainingOctave.addEventListener("change", updateTrainingReadout);
     els.trainingQuality.addEventListener("change", updateTrainingReadout);
     els.trainingPlay.addEventListener("click", () => playTraining(state.lastTrainingPc));
@@ -1057,23 +1607,35 @@ function showScreen(screen) {
 }
 
 function showStart() {
+    clearRhythmTimers();
+    setMascotMood("idle");
     showScreen(els.startScreen);
 }
 
 function startMode(mode) {
+    clearRhythmTimers();
     if (mode === "training") {
         showScreen(els.trainingScreen);
         updateTrainingReadout();
         return;
     }
-    state.mode = mode;
-    state.level = getInitialLevel(mode);
+    startLevel(getInitialLevel(mode));
+}
+
+function startLevel(level) {
+    clearRhythmTimers();
+    state.mode = "challenge";
+    state.startLevel = level;
+    state.settings.startLevel = level;
+    persistSettings();
+    state.level = level;
     state.score = 0;
     state.combo = 0;
     state.maxCombo = 0;
     state.asked = 0;
     state.correct = 0;
     state.roundComplete = false;
+    state.locked = false;
     showScreen(els.gameScreen);
     nextQuestion();
 }
@@ -1172,12 +1734,14 @@ function getConfig() {
 }
 
 function nextQuestion() {
+    clearRhythmTimers();
     if (state.asked >= Number(state.settings.roundSize)) {
         finishRound();
         return;
     }
     state.roundComplete = false;
     state.answered = false;
+    state.locked = false;
     state.selectedRoot = null;
     state.selectedQuality = null;
     state.playCount = 0;
@@ -1186,6 +1750,7 @@ function nextQuestion() {
     renderQuestion();
     clearSelections();
     playCurrent();
+    startRhythmTimer();
 }
 
 function createQuestion(config) {
@@ -1229,7 +1794,7 @@ function createQuestion(config) {
         rootPc,
         qualityId,
         notes,
-        label: NOTE_SHORT[rootPc] + quality.suffix,
+        label: noteLabel(rootPc, true) + quality.suffix,
         config
     };
 }
@@ -1243,11 +1808,16 @@ function renderQuestion() {
     els.qualityGrid.classList.toggle("hidden", !isChord);
     els.submitBtn.disabled = isChord;
     els.nextBtn.disabled = true;
+    els.playBtn.textContent = "REPLAY";
     els.resultMain.className = "result-main";
-    els.resultMain.textContent = "Ready";
-    els.resultSub.textContent = isChord ? "Choose root and quality." : "Choose the note name.";
+    els.resultMain.textContent = "GO";
+    els.resultSub.textContent = isChord ? "Beat the bar: choose root and quality." : "Beat the bar: choose the note name.";
+    setMascotMood("idle");
     renderAvailability();
     updateStats();
+    updateBeatDots(0);
+    updateTimerFill(1);
+    els.tempoText.textContent = getAnswerTimeOption().label + " " + getBeatCount() + " BEAT";
     drawIdle(els.scope, current.notes);
     lightPiano([]);
 }
@@ -1259,6 +1829,11 @@ function renderAvailability() {
         btn.disabled = !cfg.roots.includes(pc);
         btn.classList.remove("selected", "correct", "wrong");
     });
+    document.querySelectorAll(".white-key, .black-key").forEach(key => {
+        const pc = Number(key.dataset.pc);
+        key.disabled = !cfg.roots.includes(pc);
+        key.classList.remove("selected", "correct", "wrong");
+    });
     document.querySelectorAll(".quality-btn").forEach(btn => {
         btn.disabled = state.current.kind !== "chord" || !cfg.qualities.includes(btn.dataset.quality);
         btn.classList.remove("selected", "correct", "wrong");
@@ -1266,7 +1841,7 @@ function renderAvailability() {
 }
 
 function submitAnswer(rootPc = state.selectedRoot, qualityId = state.selectedQuality) {
-    if (!state.current || state.answered) return;
+    if (!state.current || state.answered || state.locked) return;
     const current = state.current;
     if (current.kind === "note") {
         if (rootPc === null || rootPc === undefined) return;
@@ -1277,8 +1852,24 @@ function submitAnswer(rootPc = state.selectedRoot, qualityId = state.selectedQua
     gradeAnswer(rootPc === current.rootPc && qualityId === current.qualityId, rootPc, qualityId);
 }
 
-function gradeAnswer(isCorrect, rootPc, qualityId) {
+function chooseRoot(pc, sourceEl = null) {
+    if (!state.current || state.answered || state.locked) return;
+    state.selectedRoot = pc;
+    document.querySelectorAll(".note-btn, .white-key, .black-key").forEach(el => el.classList.remove("selected"));
+    document.querySelectorAll(`[data-pc="${pc}"]`).forEach(el => el.classList.add("selected"));
+    if (sourceEl) sourceEl.classList.add("selected");
+    if (state.current.kind === "note") {
+        submitAnswer(pc, null);
+    } else {
+        els.submitBtn.disabled = !state.selectedQuality;
+    }
+}
+
+function gradeAnswer(isCorrect, rootPc, qualityId, reason = "") {
     const current = state.current;
+    if (!current || state.answered) return;
+    clearRhythmTimers();
+    state.locked = true;
     state.answered = true;
     state.asked += 1;
     if (isCorrect) {
@@ -1286,31 +1877,44 @@ function gradeAnswer(isCorrect, rootPc, qualityId) {
         state.combo += 1;
         state.maxCombo = Math.max(state.maxCombo, state.combo);
         const elapsed = performance.now() - state.questionStartedAt;
-        const timeBonus = Math.max(0, Math.round(80 - elapsed / 120));
+        const remainingRatio = Math.max(0, (state.deadline - performance.now()) / state.questionMs);
+        const timeBonus = Math.round(120 * remainingRatio);
         const playPenalty = Math.max(0, (state.playCount - 1) * 15);
         const comboBonus = state.combo * 10;
-        const gained = Math.max(50, 100 + state.level * 4 + timeBonus + comboBonus - playPenalty);
+        const timeOption = getAnswerTimeOption();
+        const rawScore = 100 + state.level * 4 + timeBonus + comboBonus - playPenalty;
+        const gained = Math.max(50, Math.round(rawScore * timeOption.multiplier));
         state.score += gained;
+        const judgement = getJudgement(remainingRatio);
         els.resultMain.className = "result-main good";
-        els.resultMain.textContent = "Correct +" + gained;
+        els.resultMain.textContent = judgement + " +" + gained + " x" + timeOption.multiplier.toFixed(2);
+        showJudgement(judgement);
+        setMascotMood("happy");
+        pulseCombo();
         maybeLevelUp();
     } else {
         state.combo = 0;
-        els.resultMain.className = "result-main bad";
-        els.resultMain.textContent = "Miss";
+        els.resultMain.className = reason === "timeout" ? "result-main time" : "result-main bad";
+        els.resultMain.textContent = reason === "timeout" ? "Time Up" : "Miss";
+        showJudgement(reason === "timeout" ? "TIME UP" : "MISS");
+        setMascotMood(reason === "timeout" ? "time" : "sad");
     }
 
     if (current.kind === "note") {
-        els.resultSub.textContent = "Answer: " + NOTE_NAMES[current.pc] + " (" + current.label + ")";
+        els.resultSub.textContent = "Answer: " + noteLabel(current.pc) + " (" + current.label + ")";
     } else {
+        current.label = noteLabel(current.rootPc, true) + QUALITY_MAP[current.qualityId].suffix;
         els.resultSub.textContent = "Answer: " + current.label + " / " + current.notes.map(noteWithOctave).join(" ");
     }
     markAnswer(rootPc, qualityId, isCorrect);
     lightPiano(current.notes.map(m => m % 12));
     els.nextBtn.disabled = false;
     els.submitBtn.disabled = true;
+    els.playBtn.textContent = "LOCKED";
+    els.playBtn.disabled = true;
     updateStats();
     saveBest();
+    state.autoTimer = window.setTimeout(nextQuestion, isCorrect ? 760 : 1080);
 }
 
 function maybeLevelUp() {
@@ -1321,6 +1925,7 @@ function maybeLevelUp() {
 }
 
 function finishRound() {
+    clearRhythmTimers();
     state.roundComplete = true;
     const rate = state.asked ? Math.round((state.correct / state.asked) * 100) : 0;
     state.current = null;
@@ -1331,6 +1936,7 @@ function finishRound() {
     els.submitBtn.disabled = true;
     els.nextBtn.disabled = false;
     els.nextBtn.textContent = "RESTART";
+    updateTimerFill(0);
     saveBest();
 }
 
@@ -1340,6 +1946,12 @@ function markAnswer(rootPc, qualityId, isCorrect) {
         if (state.current.kind === "note" && pc === state.current.pc) btn.classList.add("correct");
         if (state.current.kind === "chord" && pc === state.current.rootPc) btn.classList.add("correct");
         if (!isCorrect && pc === rootPc) btn.classList.add("wrong");
+    });
+    document.querySelectorAll(".white-key, .black-key").forEach(key => {
+        const pc = Number(key.dataset.pc);
+        if (state.current.kind === "note" && pc === state.current.pc) key.classList.add("correct");
+        if (state.current.kind === "chord" && pc === state.current.rootPc) key.classList.add("correct");
+        if (!isCorrect && pc === rootPc) key.classList.add("wrong");
     });
     document.querySelectorAll(".quality-btn").forEach(btn => {
         if (state.current.kind !== "chord") return;
@@ -1351,6 +1963,7 @@ function markAnswer(rootPc, qualityId, isCorrect) {
 function clearSelections() {
     els.nextBtn.textContent = "NEXT";
     els.playBtn.disabled = false;
+    els.playBtn.textContent = "REPLAY";
     document.querySelectorAll(".selected, .correct, .wrong").forEach(el => {
         el.classList.remove("selected", "correct", "wrong");
     });
@@ -1365,8 +1978,107 @@ function updateStats() {
     els.statBest.textContent = state.settings.best || 0;
 }
 
+function startRhythmTimer() {
+    state.questionMs = getQuestionMs();
+    state.deadline = performance.now() + state.questionMs;
+    state.beatIndex = 0;
+    updateBeatDots(0);
+    updateTimerFill(1);
+    const beatMs = state.questionMs / getBeatCount();
+    state.beatTimer = window.setInterval(() => {
+        state.beatIndex = (state.beatIndex + 1) % getBeatCount();
+        updateBeatDots(state.beatIndex);
+        els.playBtn.classList.remove("beat-pulse");
+        void els.playBtn.offsetWidth;
+        els.playBtn.classList.add("beat-pulse");
+    }, beatMs);
+
+    const tick = () => {
+        if (state.answered || state.roundComplete || !state.current) return;
+        const remaining = Math.max(0, state.deadline - performance.now());
+        updateTimerFill(remaining / state.questionMs);
+        if (remaining <= 0) {
+            gradeAnswer(false, null, null, "timeout");
+            return;
+        }
+        state.timerRaf = requestAnimationFrame(tick);
+    };
+    state.timerRaf = requestAnimationFrame(tick);
+}
+
+function clearRhythmTimers() {
+    if (state.timerRaf) cancelAnimationFrame(state.timerRaf);
+    if (state.beatTimer) window.clearInterval(state.beatTimer);
+    if (state.autoTimer) window.clearTimeout(state.autoTimer);
+    state.timerRaf = null;
+    state.beatTimer = null;
+    state.autoTimer = null;
+}
+
+function getBeatCount() {
+    if (!state.current) return 4;
+    return state.current.kind === "chord" ? 6 : 4;
+}
+
+function getQuestionMs() {
+    if (!state.current) return 4200;
+    const chordBonus = state.current.kind === "chord" ? 1700 : 0;
+    const levelPressure = Math.min(1800, state.level * 34);
+    return Math.max(1500, 5000 + chordBonus - levelPressure + getAnswerTimeOption().extraMs);
+}
+
+function getAnswerTimeOption() {
+    return ANSWER_TIME_OPTIONS[state.settings.answerTime] || ANSWER_TIME_OPTIONS.standard;
+}
+
+function updateTimerFill(ratio) {
+    const clamped = Math.max(0, Math.min(1, ratio));
+    els.timerFill.style.transform = "scaleX(" + clamped + ")";
+    if (clamped < 0.25) {
+        els.timerFill.style.background = "linear-gradient(90deg, var(--rose), var(--amber))";
+    } else {
+        els.timerFill.style.background = "linear-gradient(90deg, var(--green), var(--teal), var(--amber))";
+    }
+}
+
+function updateBeatDots(index) {
+    const count = getBeatCount();
+    els.beatDots.forEach((dot, i) => {
+        dot.style.display = i < count ? "" : "none";
+        dot.classList.toggle("active", i === index % count);
+    });
+}
+
+function getJudgement(remainingRatio) {
+    if (remainingRatio >= 0.72) return "PERFECT";
+    if (remainingRatio >= 0.45) return "GREAT";
+    if (remainingRatio >= 0.22) return "GOOD";
+    return "COOL";
+}
+
+function showJudgement(text) {
+    els.judgement.textContent = text;
+    els.judgement.classList.remove("show");
+    void els.judgement.offsetWidth;
+    els.judgement.classList.add("show");
+}
+
+function setMascotMood(mood) {
+    els.mascots.forEach(mascot => {
+        mascot.classList.remove("idle", "happy", "sad", "time");
+        mascot.classList.add(mood);
+    });
+}
+
+function pulseCombo() {
+    const comboStat = els.statCombo.closest(".stat");
+    comboStat.classList.remove("combo-pop");
+    void comboStat.offsetWidth;
+    comboStat.classList.add("combo-pop");
+}
+
 function playCurrent() {
-    if (!state.current) return;
+    if (!state.current || state.locked) return;
     state.playCount += 1;
     playNotes(state.current.notes, state.current.config.duration);
     animateScope(els.scope, state.current.notes, state.current.config.duration);
@@ -1429,7 +2141,28 @@ function midiToFreq(midi) {
 }
 
 function noteWithOctave(midi) {
-    return NOTE_SHORT[midi % 12] + (Math.floor(midi / 12) - 1);
+    return noteLabel(midi % 12, true) + (Math.floor(midi / 12) - 1);
+}
+
+function noteLabel(pc, short = false) {
+    const notation = NOTE_NOTATIONS[state.settings.noteNotation] || NOTE_NOTATIONS.latin;
+    return (short ? notation.short : notation.names)[pc];
+}
+
+function refreshNoteLabels() {
+    document.querySelectorAll(".note-btn").forEach(btn => {
+        btn.textContent = noteLabel(Number(btn.dataset.pc));
+    });
+    document.querySelectorAll(".white-key, .black-key").forEach(key => {
+        key.textContent = noteLabel(Number(key.dataset.pc), true);
+    });
+    document.querySelectorAll(".training-keys .note-btn").forEach(btn => {
+        btn.textContent = noteLabel(Number(btn.dataset.pc));
+    });
+    if (state.current && state.current.kind === "chord") {
+        state.current.label = noteLabel(state.current.rootPc, true) + QUALITY_MAP[state.current.qualityId].suffix;
+    }
+    updateTrainingReadout();
 }
 
 function midiRange(min, max) {
@@ -1455,17 +2188,9 @@ function buildNoteButtons() {
         btn.type = "button";
         btn.className = "note-btn " + (BLACK_PCS.includes(pc) ? "black" : "white");
         btn.dataset.pc = pc;
-        btn.textContent = name;
+        btn.textContent = noteLabel(pc);
         btn.addEventListener("click", () => {
-            if (!state.current || state.answered) return;
-            state.selectedRoot = pc;
-            document.querySelectorAll(".note-btn").forEach(el => el.classList.remove("selected"));
-            btn.classList.add("selected");
-            if (state.current.kind === "note") {
-                submitAnswer(pc, null);
-            } else {
-                els.submitBtn.disabled = !state.selectedQuality;
-            }
+            chooseRoot(pc, btn);
         });
         els.noteGrid.appendChild(btn);
     });
@@ -1479,7 +2204,7 @@ function buildQualityButtons() {
         btn.dataset.quality = quality.id;
         btn.textContent = quality.label;
         btn.addEventListener("click", () => {
-            if (!state.current || state.answered || state.current.kind !== "chord") return;
+            if (!state.current || state.answered || state.locked || state.current.kind !== "chord") return;
             state.selectedQuality = quality.id;
             document.querySelectorAll(".quality-btn").forEach(el => el.classList.remove("selected"));
             btn.classList.add("selected");
@@ -1491,17 +2216,21 @@ function buildQualityButtons() {
 
 function buildPiano() {
     WHITE_LABELS.forEach(note => {
-        const key = document.createElement("div");
+        const key = document.createElement("button");
+        key.type = "button";
         key.className = "white-key";
         key.dataset.pc = note.pc;
-        key.textContent = note.name;
+        key.textContent = noteLabel(note.pc, true);
+        key.addEventListener("click", () => chooseRoot(note.pc, key));
         els.whiteKeys.appendChild(key);
     });
     BLACK_PCS.forEach(pc => {
-        const key = document.createElement("div");
+        const key = document.createElement("button");
+        key.type = "button";
         key.className = "black-key";
         key.dataset.pc = pc;
-        key.textContent = NOTE_SHORT[pc];
+        key.textContent = noteLabel(pc, true);
+        key.addEventListener("click", () => chooseRoot(pc, key));
         els.blackKeys.appendChild(key);
     });
 }
@@ -1527,7 +2256,8 @@ function buildTraining() {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = BLACK_PCS.includes(pc) ? "note-btn black" : "note-btn white";
-        btn.textContent = name;
+        btn.dataset.pc = pc;
+        btn.textContent = noteLabel(pc);
         btn.addEventListener("click", () => playTraining(pc));
         els.trainingKeys.appendChild(btn);
     });
@@ -1540,9 +2270,9 @@ function updateTrainingReadout() {
     const quality = els.trainingQuality.value;
     const label = quality === "single"
         ? noteWithOctave(midi)
-        : NOTE_SHORT[pc] + QUALITY_MAP[quality].suffix;
+        : noteLabel(pc, true) + QUALITY_MAP[quality].suffix;
     els.trainingReadout.textContent = label + " / " + midiToFreq(midi).toFixed(2) + "Hz";
-    els.trainingSub.textContent = "Current: " + NOTE_NAMES[pc] + " / octave " + octave;
+    els.trainingSub.textContent = "Current: " + noteLabel(pc) + " / octave " + octave;
 }
 
 function drawIdle(canvas, notes) {
@@ -1605,7 +2335,7 @@ function handleKeys(e) {
         }
         if (e.code === "Enter") {
             e.preventDefault();
-            if (state.roundComplete) startMode(state.mode);
+            if (state.roundComplete) startLevel(state.startLevel);
             else if (!els.nextBtn.disabled) nextQuestion();
             else submitAnswer();
         }
@@ -1625,15 +2355,20 @@ function applySettingsToInputs() {
     els.volume.value = state.settings.volume;
     els.a4.value = state.settings.a4;
     els.waveform.value = state.settings.waveform;
+    els.noteNotation.value = state.settings.noteNotation;
     els.roundSize.value = state.settings.roundSize;
+    els.answerTime.value = state.settings.answerTime;
 }
 
 function saveFromInputs() {
     state.settings.volume = Number(els.volume.value);
     state.settings.a4 = Number(els.a4.value) || 440;
     state.settings.waveform = els.waveform.value;
+    state.settings.noteNotation = els.noteNotation.value;
     state.settings.roundSize = Number(els.roundSize.value);
+    state.settings.answerTime = els.answerTime.value;
     persistSettings();
+    refreshNoteLabels();
     updateTrainingReadout();
 }
 
