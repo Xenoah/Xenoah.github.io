@@ -134,6 +134,10 @@ canvas {
     display: block;
 }
 
+.touch-controls {
+    display: none;
+}
+
 .overlay {
     position: absolute;
     inset: 0;
@@ -410,6 +414,174 @@ canvas {
     font-size: 10px;
     line-height: 1.45;
 }
+
+.studio-card {
+    display: grid;
+    gap: 10px;
+}
+
+.tab-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.tab-btn {
+    min-height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.tab-btn.active {
+    color: #06211f;
+    background: var(--cyan);
+    border-color: var(--cyan);
+}
+
+.studio-tab {
+    display: none;
+    gap: 9px;
+}
+
+.studio-tab.active {
+    display: grid;
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.field {
+    display: grid;
+    gap: 5px;
+}
+
+.field label,
+.check-row {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.field select,
+.field textarea {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.22);
+    color: var(--text);
+    font: inherit;
+}
+
+.field select {
+    min-height: 34px;
+    padding: 0 9px;
+}
+
+.field textarea {
+    min-height: 68px;
+    padding: 8px;
+    resize: vertical;
+}
+
+.palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.chip {
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chip:has(input:checked) {
+    color: #09201d;
+    background: var(--gold);
+    border-color: var(--gold);
+}
+
+.tool-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.mini-btn {
+    min-height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.mini-btn:hover {
+    border-color: var(--cyan);
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 28px;
+}
+
+.info-line {
+    min-height: 28px;
+    padding: 7px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.achievement-list {
+    display: grid;
+    gap: 6px;
+}
+
+.achievement {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.035);
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.achievement.done {
+    color: #d9f6d0;
+    border-color: rgba(148, 223, 100, 0.45);
+}
 .flow {
     display: flex;
     flex-wrap: wrap;
@@ -506,6 +678,152 @@ canvas {
     .rank-grid { grid-template-columns: 1fr; }
     .game-wrap { min-height: 420px; }
 }
+
+body.touch-device {
+    overflow: auto;
+    overscroll-behavior: none;
+}
+
+body.touch-device .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    min-height: 48px;
+    padding: 7px 10px;
+}
+
+body.touch-device .brand-sub {
+    display: none;
+}
+
+body.touch-device .brand-title {
+    font-size: 16px;
+}
+
+body.touch-device .top-actions {
+    gap: 6px;
+}
+
+body.touch-device .icon-btn,
+body.touch-device .text-btn,
+body.touch-device .primary-btn {
+    min-height: 36px;
+    border-radius: 8px;
+}
+
+body.touch-device .stage {
+    width: min(100vw - 10px, 720px);
+    margin: 6px auto 10px;
+    gap: 8px;
+}
+
+body.touch-device .game-wrap {
+    height: min(62svh, 560px);
+    min-height: 360px;
+    border-radius: 8px;
+    touch-action: none;
+}
+
+body.touch-device .overlay {
+    z-index: 8;
+}
+
+body.touch-device canvas {
+    touch-action: none;
+}
+
+body.touch-device .meter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+body.touch-device .meter {
+    min-height: 48px;
+    padding: 7px;
+}
+
+body.touch-device .meter-value {
+    font-size: 17px;
+}
+
+body.touch-device .chord-card {
+    min-height: 106px;
+    gap: 7px;
+}
+
+body.touch-device .chord-name {
+    font-size: 32px;
+}
+
+body.touch-device .deal,
+body.touch-device .info-line,
+body.touch-device .achievement {
+    min-height: 32px;
+}
+
+body.touch-device .log {
+    max-height: 140px;
+}
+
+body.touch-device .dialog {
+    width: min(520px, calc(100vw - 24px));
+    max-height: calc(100svh - 70px);
+    overflow: auto;
+    padding: 18px;
+}
+
+body.touch-device .dialog h1 {
+    font-size: clamp(30px, 11vw, 46px);
+}
+
+body.touch-device .dialog p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+body.touch-device .touch-controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    z-index: 6;
+    display: grid;
+    grid-template-columns: 88px 1fr 88px;
+    align-items: end;
+    gap: 10px;
+    padding: 0 12px;
+    pointer-events: none;
+}
+
+body.touch-device .touch-btn {
+    min-height: 74px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(24, 27, 34, 0.58);
+    color: var(--text);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(8px);
+    font-size: 28px;
+    font-weight: 950;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+body.touch-device .touch-btn.center {
+    justify-self: center;
+    width: min(180px, 100%);
+    min-height: 54px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #06211f;
+    background: rgba(89, 216, 208, 0.86);
+}
+
+body.touch-device .touch-btn:active,
+body.touch-device .touch-btn.active {
+    transform: translateY(2px);
+    filter: brightness(1.12);
+}
 </style>
 </head>
 <body>
@@ -526,6 +844,11 @@ canvas {
         <section class="game-wrap">
             <canvas id="game" width="960" height="720"></canvas>
             <div class="toast" id="toast"></div>
+            <div class="touch-controls" id="touchControls" aria-hidden="true">
+                <button class="touch-btn" type="button" data-touch-key="ArrowLeft">←</button>
+                <button class="touch-btn center" type="button" id="touchStartBtn">START / PAUSE</button>
+                <button class="touch-btn" type="button" data-touch-key="ArrowRight">→</button>
+            </div>
             <div class="overlay" id="overlay">
                 <div class="dialog">
                     <h1>CHORD BREAKER</h1>
@@ -576,6 +899,14 @@ canvas {
                     <div class="meter-label">COMBO</div>
                     <div class="meter-value" id="combo">0</div>
                 </div>
+                <div class="meter">
+                    <div class="meter-label">KEY</div>
+                    <div class="meter-value" id="keyMeter">C</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">BPM</div>
+                    <div class="meter-value" id="bpmMeter">96</div>
+                </div>
             </section>
 
             <section class="panel chord-card">
@@ -597,6 +928,59 @@ canvas {
                 <div class="source-note" id="dealSource">研究ベースの確率を読込中</div>
             </section>
 
+            <section class="panel studio-card">
+                <div class="tab-row">
+                    <button class="tab-btn active" type="button" data-studio-tab="compose">COMPOSE</button>
+                    <button class="tab-btn" type="button" data-studio-tab="learn">LEARN</button>
+                    <button class="tab-btn" type="button" data-studio-tab="achieve">BADGE</button>
+                </div>
+
+                <div class="studio-tab active" id="studio-compose">
+                    <div class="control-grid">
+                        <div class="field">
+                            <label for="keySelect">KEY</label>
+                            <select id="keySelect"></select>
+                        </div>
+                        <div class="field">
+                            <label for="genreSelect">GENRE</label>
+                            <select id="genreSelect">
+                                <option value="jpop">J-POP</option>
+                                <option value="edm">EDM</option>
+                                <option value="jazz">Jazz</option>
+                                <option value="lofi">Lo-fi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="check-row"><input type="checkbox" id="badChallenge"> bad進行チャレンジ</label>
+                    <div class="small-label">CHORD PALETTE</div>
+                    <div class="palette-grid" id="paletteGrid"></div>
+                    <div class="tool-row">
+                        <button class="mini-btn" type="button" id="replayBtn">進行再生</button>
+                        <button class="mini-btn" type="button" id="copyBtn">進行コピー</button>
+                        <button class="mini-btn" type="button" id="midiBtn">MIDI保存</button>
+                        <button class="mini-btn" type="button" id="resultImageBtn">結果画像</button>
+                    </div>
+                    <div class="field">
+                        <label for="noteArea">作曲メモ</label>
+                        <textarea id="noteArea" placeholder="気に入った進行や音色メモ"></textarea>
+                    </div>
+                    <div class="info-line" id="dailyMission"></div>
+                    <div class="info-line" id="bassLine">Bass: C</div>
+                </div>
+
+                <div class="studio-tab" id="studio-learn">
+                    <label class="check-row"><input type="checkbox" id="learnToggle" checked> 学習ヒント</label>
+                    <div class="info-line" id="learnLine">進行を叩くと理由を表示します。</div>
+                    <div class="info-line" id="voiceLine">Voice leading: --</div>
+                    <div class="info-line" id="rhythmLine">Rhythm: beatに近いほどボーナス</div>
+                    <div class="info-line" id="unlockLine">Extensions: まだ未解放</div>
+                </div>
+
+                <div class="studio-tab" id="studio-achieve">
+                    <div class="achievement-list" id="achievementList"></div>
+                </div>
+            </section>
+
             <section class="panel log" id="log"></section>
         </aside>
     </main>
@@ -610,6 +994,8 @@ canvas {
     const ctx = canvas.getContext("2d");
     const overlay = document.getElementById("overlay");
     const toast = document.getElementById("toast");
+    const touchControls = document.getElementById("touchControls");
+    const touchStartBtn = document.getElementById("touchStartBtn");
     const resultPanel = document.getElementById("resultPanel");
     const startBtn = document.getElementById("startBtn");
     const launchBtn = document.getElementById("launchBtn");
@@ -622,12 +1008,31 @@ canvas {
     const tensionEl = document.getElementById("tension");
     const collapseEl = document.getElementById("collapse");
     const comboEl = document.getElementById("combo");
+    const keyMeterEl = document.getElementById("keyMeter");
+    const bpmMeterEl = document.getElementById("bpmMeter");
     const chordNameEl = document.getElementById("chordName");
     const romanEl = document.getElementById("roman");
     const toneEl = document.getElementById("tone");
     const flowEl = document.getElementById("flow");
     const dealListEl = document.getElementById("dealList");
     const dealSourceEl = document.getElementById("dealSource");
+    const keySelect = document.getElementById("keySelect");
+    const genreSelect = document.getElementById("genreSelect");
+    const badChallengeEl = document.getElementById("badChallenge");
+    const paletteGrid = document.getElementById("paletteGrid");
+    const replayBtn = document.getElementById("replayBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const midiBtn = document.getElementById("midiBtn");
+    const resultImageBtn = document.getElementById("resultImageBtn");
+    const noteArea = document.getElementById("noteArea");
+    const dailyMissionEl = document.getElementById("dailyMission");
+    const bassLineEl = document.getElementById("bassLine");
+    const learnToggle = document.getElementById("learnToggle");
+    const learnLineEl = document.getElementById("learnLine");
+    const voiceLineEl = document.getElementById("voiceLine");
+    const rhythmLineEl = document.getElementById("rhythmLine");
+    const unlockLineEl = document.getElementById("unlockLine");
+    const achievementListEl = document.getElementById("achievementList");
     const logEl = document.getElementById("log");
 
     const W = 960;
@@ -652,6 +1057,35 @@ canvas {
         jazz: ["C", "Dm7", "G7", "Em7", "E7", "Am", "F", "Dbmaj7"],
         chaos: ["C", "Dbmaj7", "Bb", "E7", "Ab", "G7", "Am", "F"]
     };
+
+    const allChordNames = chordMap.map(chord => chord.name);
+    const keyCenters = [
+        { name: "C", offset: 0 }, { name: "Db", offset: 1 }, { name: "D", offset: 2 },
+        { name: "Eb", offset: 3 }, { name: "E", offset: 4 }, { name: "F", offset: 5 },
+        { name: "Gb", offset: 6 }, { name: "G", offset: 7 }, { name: "Ab", offset: 8 },
+        { name: "A", offset: 9 }, { name: "Bb", offset: 10 }, { name: "B", offset: 11 }
+    ];
+    const genreProfiles = {
+        jpop: { label: "J-POP", boost: { "C>Am": 0.1, "Am>F": 0.12, "F>G7": 0.1, "G7>C": 0.08 }, comfort: 0.02 },
+        edm: { label: "EDM", boost: { "C>C": 0.08, "Am>Am": 0.08, "F>F": 0.08, "C>F": 0.05, "F>C": 0.05 }, comfort: 0.01 },
+        jazz: { label: "Jazz", boost: { "Dm7>G7": 0.15, "G7>C": 0.12, "Em7>Am": 0.1, "E7>Am": 0.12 }, comfort: -0.01 },
+        lofi: { label: "Lo-fi", boost: { "C>Am": 0.06, "F>Dbmaj7": 0.1, "Bb>F": 0.08, "Ab>C": 0.08 }, comfort: 0.03 }
+    };
+    const achievementsCatalog = [
+        { id: "firstCombo", name: "初コンボ", text: "good進行を3回つなぐ" },
+        { id: "cadence", name: "解決職人", text: "G7 -> C を決める" },
+        { id: "iiV", name: "ii-V-I入口", text: "Dm7 -> G7 を決める" },
+        { id: "survivor", name: "作曲継続", text: "スコア3000到達" },
+        { id: "badPilot", name: "禁則乗り", text: "bad進行を5回踏む" },
+        { id: "exporter", name: "DAW行き", text: "MIDIを書き出す" }
+    ];
+    const missionSeeds = [
+        ["C", "Am", "F", "G7"],
+        ["Dm7", "G7", "C"],
+        ["Em7", "Am", "F"],
+        ["E7", "Am", "Dm7", "G7"],
+        ["Bb", "F", "C"]
+    ];
 
     const fallbackHarmonyData = {
         version: 1,
@@ -719,6 +1153,22 @@ canvas {
     const chordByName = new Map(chordMap.map(chord => [chord.name, chord]));
 
     let mode = "pop";
+    let genre = "jpop";
+    let activePalette = new Set(modes.pop);
+    let badChallenge = false;
+    let currentKeyIndex = 0;
+    let keyChanges = 0;
+    let nextKeyScore = 1800;
+    let bpm = 96;
+    let beatPhase = 0;
+    let rhythmStreak = 0;
+    let rhythmBonus = 1;
+    let extensionsUnlocked = false;
+    let chordFlairUntil = 0;
+    let lastVoiceScore = 0;
+    let dailyMission = [];
+    let dailyProgress = 0;
+    let achievements = new Set();
     let audioCtx = null;
     let muted = false;
     let running = false;
@@ -739,6 +1189,7 @@ canvas {
     let particles = [];
     let keys = new Set();
     let pointerX = null;
+    let touchDevice = false;
     let shake = 0;
     let harmonyData = fallbackHarmonyData;
     let harmonySource = "fallback";
@@ -755,6 +1206,61 @@ canvas {
         return `${from}>${to}`;
     }
 
+    function currentKey() {
+        return keyCenters[currentKeyIndex] || keyCenters[0];
+    }
+
+    function getActiveNames() {
+        const names = [...activePalette].filter(name => chordByName.has(name));
+        if (names.length >= 3) return names;
+        return modes[mode];
+    }
+
+    function displayChordName(chord) {
+        return extensionsUnlocked && chord.quality === "maj" && chord.name !== "Bb" && chord.name !== "Ab"
+            ? `${chord.name}add9`
+            : chord.name;
+    }
+
+    function applyGenreToRule(rule) {
+        const profile = genreProfiles[genre] || genreProfiles.jpop;
+        const key = transitionKey(rule.from, rule.to);
+        const boost = profile.boost[key] || 0;
+        return {
+            ...rule,
+            pleasantness: clamp(rule.pleasantness + boost + profile.comfort, 0.05, 0.99),
+            tag: boost > 0 ? `${profile.label} ${rule.tag}` : rule.tag
+        };
+    }
+
+    function voiceLeadingScore(fromChord, toChord) {
+        const fromNotes = chordIntervals(fromChord.quality).map(interval => (fromChord.degree + interval) % 12);
+        const toNotes = chordIntervals(toChord.quality).map(interval => (toChord.degree + interval) % 12);
+        const shared = toNotes.filter(note => fromNotes.includes(note)).length;
+        const rootStep = chordDistance(fromChord, toChord);
+        return clamp(Math.round(shared * 24 + (6 - rootStep) * 7), 0, 100);
+    }
+
+    function progressionText() {
+        return progression.map(displayChordName).join(" - ");
+    }
+
+    function unlockAchievement(id) {
+        if (achievements.has(id)) return;
+        achievements.add(id);
+        localStorage.setItem("chordBreakerAchievements", JSON.stringify([...achievements]));
+        showToast(`実績解除: ${achievementsCatalog.find(item => item.id === id)?.name || id}`);
+        renderAchievements();
+    }
+
+    function updateAchievements() {
+        if (maxCombo >= 3) unlockAchievement("firstCombo");
+        if (score >= 3000) unlockAchievement("survivor");
+        if (moveHistory.filter(item => item.awful).length >= 5) unlockAchievement("badPilot");
+        if (moveHistory.some(item => item.from === "G7" && item.to === "C")) unlockAchievement("cadence");
+        if (moveHistory.some(item => item.from === "Dm7" && item.to === "G7")) unlockAchievement("iiV");
+    }
+
     function buildTransitionTable() {
         transitionTable = new Map();
         (harmonyData.transitions || []).forEach(rule => {
@@ -764,33 +1270,33 @@ canvas {
 
     function getRule(fromChord, toChord) {
         const explicit = transitionTable.get(transitionKey(fromChord.name, toChord.name));
-        if (explicit) return explicit;
+        if (explicit) return applyGenreToRule(explicit);
 
         if (fromChord.name === toChord.name) {
             const pleasantness = clamp(0.58 + toChord.comfort * 0.025, 0.6, 0.82);
-            return {
+            return applyGenreToRule({
                 from: fromChord.name,
                 to: toChord.name,
                 pleasantness,
                 tag: "同音キープ",
                 healBase: clamp((pleasantness - 0.36) * 0.5, 0.08, 0.34)
-            };
+            });
         }
 
         const distance = chordDistance(fromChord, toChord);
         const comfort = toChord.comfort / 10;
         const pleasantness = clamp(0.24 + comfort * 0.42 - distance * 0.055, 0.08, 0.78);
-        return {
+        return applyGenreToRule({
             from: fromChord.name,
             to: toChord.name,
             pleasantness,
             tag: distance <= 2 ? "近接" : "未学習",
             healBase: clamp((pleasantness - 0.4) * 0.55, 0.02, 0.32)
-        };
+        });
     }
 
     function getRecommendations(fromChord = currentChord) {
-        const uniqueNames = [...new Set(modes[mode])];
+        const uniqueNames = [...new Set(getActiveNames())];
         return uniqueNames
             .map(name => {
                 const chord = chordByName.get(name);
@@ -807,7 +1313,7 @@ canvas {
         const sweetLimit = harmonyData.thresholds?.sweet ?? 0.72;
         const awfulLimit = harmonyData.thresholds?.awful ?? 0.28;
         const move = transitionKey(fromChord.name, toChord.name);
-        const sweet = pleasantness >= sweetLimit || sweetMoves.has(move);
+        const sweet = !badChallenge && (pleasantness >= sweetLimit || sweetMoves.has(move));
         const awful = pleasantness <= awfulLimit;
         const distance = chordDistance(fromChord, toChord);
         const roughness = Math.max(0, 7 - toChord.comfort) + Math.max(0, distance - 4) + Math.round((1 - pleasantness) * 4);
@@ -830,8 +1336,17 @@ canvas {
         ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
     }
 
+    function updateInputMode() {
+        const narrow = window.matchMedia("(max-width: 900px)").matches;
+        const coarse = window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+        touchDevice = narrow && coarse;
+        document.body.classList.toggle("touch-device", touchDevice);
+        touchControls.setAttribute("aria-hidden", touchDevice ? "false" : "true");
+        resizeCanvas();
+    }
+
     function createBlocks() {
-        const names = modes[mode];
+        const names = getActiveNames();
         const cols = 8;
         const rows = mode === "chaos" ? 6 : 5;
         const gap = 9;
@@ -843,7 +1358,8 @@ canvas {
 
         for (let row = 0; row < rows; row += 1) {
             for (let col = 0; col < cols; col += 1) {
-                const name = names[(row * 3 + col * 2 + row + col) % names.length];
+                const bossSlot = mode === "chaos" && row === 0 && col === cols - 1;
+                const name = bossSlot ? "Dbmaj7" : names[(row * 3 + col * 2 + row + col) % names.length];
                 const chord = chordByName.get(name);
                 blocks.push({
                     x: marginX + col * (bw + gap),
@@ -851,8 +1367,9 @@ canvas {
                     w: bw,
                     h: bh,
                     chord,
-                    maxHp: 3,
-                    hp: 3,
+                    maxHp: bossSlot ? 6 : 3,
+                    hp: bossSlot ? 6 : 3,
+                    boss: bossSlot,
                     pulse: Math.random() * Math.PI * 2
                 });
             }
@@ -867,6 +1384,16 @@ canvas {
         collapse = 0;
         combo = 0;
         maxCombo = 0;
+        keyChanges = 0;
+        nextKeyScore = 1800;
+        bpm = 96;
+        beatPhase = 0;
+        rhythmStreak = 0;
+        rhythmBonus = 1;
+        extensionsUnlocked = false;
+        chordFlairUntil = 0;
+        lastVoiceScore = 0;
+        dailyProgress = 0;
         previousChord = null;
         currentChord = chordByName.get("C");
         progression = [currentChord];
@@ -913,7 +1440,9 @@ canvas {
         tensionEl.textContent = String(Math.round(tension));
         collapseEl.textContent = String(Math.round(collapse));
         comboEl.textContent = String(combo);
-        chordNameEl.textContent = currentChord.name;
+        keyMeterEl.textContent = currentKey().name;
+        bpmMeterEl.textContent = String(Math.round(bpm));
+        chordNameEl.textContent = displayChordName(currentChord);
         romanEl.textContent = currentChord.roman;
         toneEl.textContent = currentChord.note;
         recommendations = getRecommendations(currentChord);
@@ -923,7 +1452,7 @@ canvas {
         progression.slice(-8).forEach((chord, index, array) => {
             const item = document.createElement("span");
             item.className = `pill${index === array.length - 1 ? " current" : ""}`;
-            item.textContent = chord.name;
+            item.textContent = displayChordName(chord);
             flowEl.appendChild(item);
         });
 
@@ -931,13 +1460,18 @@ canvas {
             const deal = document.createElement("div");
             deal.className = "deal";
             deal.innerHTML = `
-                <div class="deal-code">${item.chord.name}</div>
+                <div class="deal-code">${displayChordName(item.chord)}</div>
                 <div class="deal-tag">${index === 0 ? "最安" : "おすすめ"} / ${item.rule.tag || "近い響き"}</div>
                 <div class="deal-rate">${Math.round(item.rule.pleasantness * 100)}%</div>
             `;
             dealListEl.appendChild(deal);
         });
 
+        bassLineEl.textContent = `Bass: ${progression.slice(-8).map(chord => chord.name.replace(/m.*/, "")).join(" - ") || "C"}`;
+        rhythmLineEl.textContent = `Rhythm: ${rhythmStreak} streak / x${rhythmBonus.toFixed(2)}`;
+        voiceLineEl.textContent = `Voice leading: ${lastVoiceScore || "--"}`;
+        unlockLineEl.textContent = extensionsUnlocked ? "Extensions: add9解放中" : "Extensions: good進行8回で解放";
+        dailyMissionEl.textContent = `Daily: ${dailyMission.join(" - ")} / ${dailyProgress}/${dailyMission.length}`;
         dealSourceEl.textContent = harmonySource === "file"
             ? "chord-probabilities.json の研究ベース確率を使用中"
             : "内蔵フォールバック確率を使用中";
@@ -960,7 +1494,57 @@ canvas {
 
     function moveScore(chord, sweet) {
         const risk = Math.max(1, 10 - chord.comfort);
-        score += 80 + risk * 25 + (sweet ? 90 : 0) + Math.round(groove * 0.6);
+        const challenge = badChallenge && !sweet ? 1.55 : 1;
+        score += Math.round((80 + risk * 25 + (sweet ? 90 : 0) + Math.round(groove * 0.6)) * rhythmBonus * challenge);
+    }
+
+    function updateRhythmBonus() {
+        const distance = Math.min(beatPhase, 1 - beatPhase);
+        if (distance < 0.12) {
+            rhythmStreak += 1;
+            rhythmBonus = clamp(1 + rhythmStreak * 0.04, 1, 1.6);
+            showToast("ON BEAT bonus");
+        } else {
+            rhythmStreak = 0;
+            rhythmBonus = 1;
+        }
+    }
+
+    function maybeChangeKey() {
+        if (score < nextKeyScore) return;
+        keyChanges += 1;
+        currentKeyIndex = (currentKeyIndex + (mode === "chaos" ? 3 : 7)) % keyCenters.length;
+        keySelect.value = String(currentKeyIndex);
+        nextKeyScore += 2200 + keyChanges * 500;
+        tension = Math.min(100, tension + 10);
+        createBlocks();
+        showToast(`KEY CHANGE: ${currentKey().name}`);
+        addLog(`KEY CHANGE: ${currentKey().name}へ転調。音程も移動します。`, "easy");
+    }
+
+    function updateDailyMission(chord) {
+        if (!dailyMission.length || chord.name !== dailyMission[dailyProgress]) {
+            if (chord.name === dailyMission[0]) dailyProgress = 1;
+            return;
+        }
+        dailyProgress += 1;
+        if (dailyProgress >= dailyMission.length) {
+            score += 650;
+            dailyProgress = 0;
+            showToast("日替わり進行ミッション達成！");
+            addLog(`DAILY: ${dailyMission.join(" -> ")} を達成。`, "easy");
+        }
+    }
+
+    function updateLearning(fromChord, toChord, impact) {
+        if (!learnToggle.checked) return;
+        const resolution = fromChord.name === "G7" && toChord.name === "C";
+        const reason = resolution
+            ? "属七から主和音への解決で強い安定感があります。"
+            : impact.sweet
+                ? `${impact.rule.tag}。近い機能や期待の解決で操作が楽になります。`
+                : `${impact.rule.tag}。距離や未解決感が強く、緊張が上がります。`;
+        learnLineEl.textContent = `${fromChord.name} -> ${toChord.name}: ${reason}`;
     }
 
     function chordDistance(a, b) {
@@ -1104,15 +1688,20 @@ canvas {
         currentChord = chord;
         progression.push(chord);
         pushMoveHistory(previousChord, chord, impact);
+        lastVoiceScore = voiceLeadingScore(previousChord, chord);
+        updateDailyMission(chord);
+        updateLearning(previousChord, chord, impact);
 
         if (impact.sweet) {
             combo += 1;
             maxCombo = Math.max(maxCombo, combo);
+            if (combo >= 8) extensionsUnlocked = true;
             groove = Math.min(100, groove + 10 + chord.comfort);
             tension = Math.max(0, tension - 12 - Math.round(impact.pleasantness * 6));
             collapse = Math.max(0, collapse - 10 - combo);
             paddle.targetW = Math.min(210, paddle.targetW + 13);
             ball.speed = Math.max(330, ball.speed - 22);
+            chordFlairUntil = performance.now() + 520;
             showToast(impact.rank === 0 ? "特売コード直撃！HPを大きく削った" : "気持ちいい進行！操作が楽になる");
             addLog(`${previousChord.name} -> ${chord.name}: ${Math.round(impact.pleasantness * 100)}% の気持ちよさ。COMBO ${combo}。`, "easy");
             maybeRecover(impact);
@@ -1130,6 +1719,8 @@ canvas {
 
         if (collapse >= 100) witherBlocks();
         moveScore(chord, impact.sweet);
+        maybeChangeKey();
+        updateAchievements();
         normalizeBall();
         playChord(chord, impact.sweet);
         updateHud();
@@ -1140,6 +1731,7 @@ canvas {
         if (!block) return;
         const impact = evaluateMove(currentChord, block.chord);
         const damage = damageForImpact(impact);
+        updateRhythmBonus();
         block.hp -= damage;
         burst(block.x + block.w / 2, block.y + block.h / 2, block.chord.color);
         if (block.hp <= 0) blocks.splice(index, 1);
@@ -1201,15 +1793,17 @@ canvas {
         out.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
         out.connect(audioCtx.destination);
 
-        chordIntervals(chord.quality).forEach((interval, index) => {
+        const intervals = chordIntervals(chord.quality).concat(extensionsUnlocked && chord.quality === "maj" ? [14] : []);
+        intervals.forEach((interval, index) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = index === 0 ? "triangle" : "sine";
-            osc.frequency.value = semitoneToFreq(chord.degree + interval);
+            osc.frequency.value = semitoneToFreq(currentKey().offset + chord.degree + interval);
             gain.gain.value = index === 0 ? 0.7 : 0.45;
             osc.connect(gain);
             gain.connect(out);
-            osc.start(now + index * 0.018);
+            const startAt = now + (sweet ? index * 0.055 : index * 0.018);
+            osc.start(startAt);
             osc.stop(now + 0.78);
         });
     }
@@ -1233,6 +1827,8 @@ canvas {
 
     function update(dt) {
         if (!running) return;
+        bpm = clamp(96 + tension * 0.95 + keyChanges * 4 + (badChallenge ? 18 : 0), 78, 188);
+        beatPhase = (beatPhase + dt * bpm / 60) % 1;
 
         if (keys.has("ArrowLeft") || keys.has("a")) paddle.x -= paddle.speed * dt;
         if (keys.has("ArrowRight") || keys.has("d")) paddle.x += paddle.speed * dt;
@@ -1352,6 +1948,7 @@ canvas {
         drawBall();
         drawParticles();
         drawProgressionRibbon();
+        drawBeatAndKey();
         ctx.restore();
 
         requestAnimationFrame(loop);
@@ -1399,7 +1996,7 @@ canvas {
             ctx.font = "900 16px Segoe UI, Meiryo, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(block.chord.name, block.x + block.w / 2, block.y + 18);
+            ctx.fillText(displayChordName(block.chord), block.x + block.w / 2, block.y + 18);
             ctx.fillStyle = block.hp > 1 ? "#ffdde5" : "rgba(244, 240, 232, 0.65)";
             ctx.font = "800 10px Segoe UI, Meiryo, sans-serif";
             ctx.fillText(block.chord.roman, block.x + block.w / 2, block.y + 32);
@@ -1416,6 +2013,11 @@ canvas {
                 ctx.fillStyle = "#fff7fa";
                 ctx.font = "950 9px Segoe UI, Meiryo, sans-serif";
                 ctx.fillText("SALE", block.x + block.w - 21, block.y + 1);
+            }
+            if (block.boss) {
+                ctx.fillStyle = "#f2bd4f";
+                ctx.font = "950 9px Segoe UI, Meiryo, sans-serif";
+                ctx.fillText("BOSS", block.x + 24, block.y + 1);
             }
             ctx.restore();
         });
@@ -1481,6 +2083,36 @@ canvas {
         ctx.restore();
     }
 
+    function drawBeatAndKey() {
+        ctx.save();
+        const x = 28 + (W - 56) * beatPhase;
+        ctx.globalAlpha = 0.78;
+        ctx.strokeStyle = rhythmStreak > 0 ? "#94df64" : "#f2bd4f";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, H - 130);
+        ctx.lineTo(x, H - 62);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.34)";
+        roundRect(W - 166, 22, 138, 36, 8);
+        ctx.fill();
+        ctx.fillStyle = "#f4f0e8";
+        ctx.font = "900 15px Consolas, Courier New, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${currentKey().name} / ${Math.round(bpm)} BPM`, W - 97, 40);
+
+        if (performance.now() < chordFlairUntil) {
+            ctx.globalAlpha = 0.22;
+            ctx.fillStyle = currentChord.color;
+            ctx.beginPath();
+            ctx.arc(W / 2, H / 2, 210, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
     function roundRect(x, y, w, h, r) {
         const radius = Math.min(r, w / 2, h / 2);
         ctx.beginPath();
@@ -1520,9 +2152,222 @@ canvas {
         }
     }
 
+    function setTouchKey(button, active) {
+        const key = button.dataset.touchKey;
+        if (!key) return;
+        button.classList.toggle("active", active);
+        if (active) {
+            keys.add(key);
+        } else {
+            keys.delete(key);
+        }
+    }
+
+    function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function replayProgression() {
+        ensureAudio();
+        running = false;
+        launchBtn.textContent = "スタート";
+        for (const chord of progression.slice(-16)) {
+            playChord(chord, true);
+            chordFlairUntil = performance.now() + 360;
+            await wait(420);
+        }
+    }
+
+    async function copyProgression() {
+        const text = progressionText();
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast("コード進行をコピーしました");
+        } catch (error) {
+            showToast(text);
+        }
+    }
+
+    function encodeVarLen(value) {
+        let buffer = value & 0x7F;
+        const bytes = [];
+        while ((value >>= 7)) {
+            buffer <<= 8;
+            buffer |= ((value & 0x7F) | 0x80);
+        }
+        while (true) {
+            bytes.push(buffer & 0xFF);
+            if (buffer & 0x80) buffer >>= 8;
+            else break;
+        }
+        return bytes;
+    }
+
+    function makeMidiBytes() {
+        const ticks = 480;
+        const events = [];
+        const writeEvent = (delta, bytes) => {
+            events.push(...encodeVarLen(delta), ...bytes);
+        };
+        writeEvent(0, [0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20]);
+        progression.slice(0, 48).forEach(chord => {
+            const base = 60 + currentKey().offset + chord.degree;
+            const intervals = chordIntervals(chord.quality).concat(extensionsUnlocked && chord.quality === "maj" ? [14] : []);
+            const notes = intervals.slice(0, 5).map(interval => base + interval);
+            notes.forEach((note, index) => writeEvent(index === 0 ? 0 : 0, [0x90, note, 78]));
+            notes.forEach((note, index) => writeEvent(index === 0 ? ticks : 0, [0x80, note, 0]));
+        });
+        writeEvent(0, [0xFF, 0x2F, 0x00]);
+        const header = [0x4D,0x54,0x68,0x64,0x00,0x00,0x00,0x06,0x00,0x00,0x00,0x01,0x01,0xE0];
+        const len = events.length;
+        const track = [0x4D,0x54,0x72,0x6B,(len>>>24)&255,(len>>>16)&255,(len>>>8)&255,len&255,...events];
+        return new Uint8Array([...header, ...track]);
+    }
+
+    function downloadBlob(name, type, data) {
+        const blob = new Blob([data], { type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = name;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function exportMidi() {
+        downloadBlob("chord-breaker.mid", "audio/midi", makeMidiBytes());
+        unlockAchievement("exporter");
+    }
+
+    function exportResultImage() {
+        const img = document.createElement("canvas");
+        img.width = 1200;
+        img.height = 630;
+        const g = img.getContext("2d");
+        g.fillStyle = "#101116";
+        g.fillRect(0, 0, img.width, img.height);
+        g.fillStyle = "#59d8d0";
+        g.font = "900 64px Segoe UI, sans-serif";
+        g.fillText("CHORD BREAKER", 60, 100);
+        g.fillStyle = "#f4f0e8";
+        g.font = "900 38px Consolas, monospace";
+        g.fillText(`SCORE ${score} / MAX COMBO ${maxCombo}`, 60, 165);
+        g.fillStyle = "#aeb6c3";
+        g.font = "700 30px Segoe UI, sans-serif";
+        wrapText(g, progressionText(), 60, 240, 1080, 42);
+        const url = img.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "chord-breaker-result.png";
+        link.click();
+    }
+
+    function wrapText(g, text, x, y, maxWidth, lineHeight) {
+        const words = text.split(" ");
+        let line = "";
+        words.forEach(word => {
+            const test = line ? `${line} ${word}` : word;
+            if (g.measureText(test).width > maxWidth) {
+                g.fillText(line, x, y);
+                line = word;
+                y += lineHeight;
+            } else {
+                line = test;
+            }
+        });
+        if (line) g.fillText(line, x, y);
+    }
+
+    function renderPalette() {
+        paletteGrid.innerHTML = "";
+        allChordNames.forEach(name => {
+            const label = document.createElement("label");
+            label.className = "chip";
+            label.innerHTML = `<input type="checkbox" value="${name}" ${activePalette.has(name) ? "checked" : ""}>${name}`;
+            paletteGrid.appendChild(label);
+        });
+    }
+
+    function renderAchievements() {
+        achievementListEl.innerHTML = "";
+        achievementsCatalog.forEach(item => {
+            const row = document.createElement("div");
+            row.className = `achievement${achievements.has(item.id) ? " done" : ""}`;
+            row.innerHTML = `<span>${item.name}</span><span>${achievements.has(item.id) ? "DONE" : item.text}</span>`;
+            achievementListEl.appendChild(row);
+        });
+    }
+
+    function selectDailyMission() {
+        const day = Math.floor(Date.now() / 86400000);
+        dailyMission = missionSeeds[day % missionSeeds.length];
+    }
+
+    function initStudioControls() {
+        keySelect.innerHTML = keyCenters.map((key, index) => `<option value="${index}">${key.name}</option>`).join("");
+        keySelect.value = String(currentKeyIndex);
+        genreSelect.value = genre;
+        noteArea.value = localStorage.getItem("chordBreakerNotes") || "";
+        achievements = new Set(JSON.parse(localStorage.getItem("chordBreakerAchievements") || "[]"));
+        selectDailyMission();
+        renderPalette();
+        renderAchievements();
+    }
+
     startBtn.addEventListener("click", startGame);
     launchBtn.addEventListener("click", togglePause);
     resetBtn.addEventListener("click", () => resetGame(false));
+    document.querySelectorAll("[data-studio-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll("[data-studio-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+            document.querySelectorAll(".studio-tab").forEach(panel => panel.classList.toggle("active", panel.id === `studio-${button.dataset.studioTab}`));
+        });
+    });
+    keySelect.addEventListener("change", () => {
+        currentKeyIndex = Number(keySelect.value);
+        updateHud();
+    });
+    genreSelect.addEventListener("change", () => {
+        genre = genreSelect.value;
+        updateHud();
+    });
+    badChallengeEl.addEventListener("change", () => {
+        badChallenge = badChallengeEl.checked;
+        showToast(badChallenge ? "bad進行チャレンジ開始" : "通常スコアに戻しました");
+    });
+    paletteGrid.addEventListener("change", () => {
+        activePalette = new Set([...paletteGrid.querySelectorAll("input:checked")].map(input => input.value));
+        if (activePalette.size < 3) {
+            activePalette = new Set(modes[mode]);
+            renderPalette();
+            showToast("コードは3種類以上必要です");
+        }
+        createBlocks();
+        updateHud();
+    });
+    noteArea.addEventListener("input", () => localStorage.setItem("chordBreakerNotes", noteArea.value));
+    replayBtn.addEventListener("click", replayProgression);
+    copyBtn.addEventListener("click", copyProgression);
+    midiBtn.addEventListener("click", exportMidi);
+    resultImageBtn.addEventListener("click", exportResultImage);
+    touchStartBtn.addEventListener("pointerdown", event => {
+        event.preventDefault();
+        togglePause();
+    });
+    touchControls.querySelectorAll("[data-touch-key]").forEach(button => {
+        button.addEventListener("pointerdown", event => {
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId);
+            setTouchKey(button, true);
+            if (!running) startGame();
+        });
+        button.addEventListener("pointerup", event => {
+            event.preventDefault();
+            setTouchKey(button, false);
+        });
+        button.addEventListener("pointercancel", () => setTouchKey(button, false));
+        button.addEventListener("pointerleave", () => setTouchKey(button, false));
+    });
     muteBtn.addEventListener("click", () => {
         muted = !muted;
         muteBtn.textContent = muted ? "x" : "♪";
@@ -1531,6 +2376,8 @@ canvas {
         const button = event.target.closest(".mode-btn");
         if (!button) return;
         mode = button.dataset.mode;
+        activePalette = new Set(modes[mode]);
+        renderPalette();
         modeRow.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn === button));
         resetGame(false);
     });
@@ -1546,20 +2393,29 @@ canvas {
     });
     window.addEventListener("keyup", event => keys.delete(event.key));
     canvas.addEventListener("pointermove", event => {
+        if (touchDevice) event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         pointerX = ((event.clientX - rect.left) / rect.width) * W;
     });
     canvas.addEventListener("pointerleave", () => { pointerX = null; });
     canvas.addEventListener("pointerdown", event => {
+        if (touchDevice) event.preventDefault();
         canvas.setPointerCapture(event.pointerId);
         const rect = canvas.getBoundingClientRect();
         pointerX = ((event.clientX - rect.left) / rect.width) * W;
         if (!running) startGame();
     });
-    window.addEventListener("resize", resizeCanvas);
+    canvas.addEventListener("pointerup", () => {
+        if (touchDevice) pointerX = null;
+    });
+    window.addEventListener("resize", updateInputMode);
+    const pointerQuery = window.matchMedia("(pointer: coarse)");
+    if (pointerQuery.addEventListener) {
+        pointerQuery.addEventListener("change", updateInputMode);
+    }
 
     async function boot() {
-        resizeCanvas();
+        updateInputMode();
         try {
             const response = await fetch("chord-probabilities.json", { cache: "no-cache" });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1570,6 +2426,7 @@ canvas {
             harmonySource = "fallback";
         }
         buildTransitionTable();
+        initStudioControls();
         resetGame(false);
         requestAnimationFrame(loop);
     }
