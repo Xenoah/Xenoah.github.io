@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHORD BREAKER</title>
+<style>
+:root {
+    color-scheme: dark;
+    --bg: #101116;
+    --panel: #181b22;
+    --panel-2: #222733;
+    --line: #394151;
+    --text: #f4f0e8;
+    --muted: #aeb6c3;
+    --cyan: #59d8d0;
+    --lime: #94df64;
+    --gold: #f2bd4f;
+    --rose: #f47284;
+    --violet: #a895ff;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 24% 8%, rgba(89, 216, 208, 0.16), transparent 28%),
+        radial-gradient(circle at 78% 18%, rgba(242, 189, 79, 0.12), transparent 30%),
+        linear-gradient(145deg, #14151b, #0c0d12 64%, #151821);
+    color: var(--text);
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+    overflow: hidden;
+}
+
+button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+}
+
+.app {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.topbar {
+    min-height: 58px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(16, 17, 22, 0.88);
+    backdrop-filter: blur(10px);
+}
+
+.brand { min-width: 0; }
+.brand-title {
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+.brand-sub {
+    margin-top: 1px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-btn,
+.text-btn,
+.primary-btn {
+    min-height: 40px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 850;
+    color: var(--text);
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+}
+
+.icon-btn {
+    width: 42px;
+    padding: 0;
+    font-size: 18px;
+}
+
+.text-btn,
+.primary-btn { padding: 0 14px; }
+.primary-btn {
+    background: var(--cyan);
+    color: #06211f;
+    border-color: transparent;
+}
+.icon-btn:hover,
+.text-btn:hover { border-color: var(--cyan); }
+.primary-btn:hover { filter: brightness(1.05); }
+
+.stage {
+    width: min(1280px, calc(100vw - 24px));
+    height: calc(100vh - 76px);
+    margin: 10px auto 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 336px;
+    gap: 14px;
+    min-height: 0;
+}
+
+.game-wrap,
+.side { min-height: 0; }
+.game-wrap {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #08090d;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(8, 9, 13, 0.78);
+    backdrop-filter: blur(6px);
+    z-index: 5;
+}
+.overlay.hidden { display: none; }
+
+.dialog {
+    width: min(560px, 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(24, 27, 34, 0.96);
+    padding: 24px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+.dialog h1 {
+    margin: 0 0 8px;
+    font-size: clamp(32px, 6vw, 56px);
+    line-height: 0.95;
+}
+.dialog p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.mode-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 18px 0;
+}
+.mode-btn {
+    min-height: 72px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    text-align: left;
+}
+.mode-btn.active {
+    border-color: var(--cyan);
+    box-shadow: inset 0 0 0 1px var(--cyan);
+}
+.mode-name {
+    display: block;
+    font-weight: 900;
+    font-size: 14px;
+}
+.mode-detail {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.side {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 12px;
+}
+.panel {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(24, 27, 34, 0.9);
+    padding: 14px;
+}
+.meter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+.meter {
+    min-height: 68px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
+}
+.meter-label,
+.small-label {
+    color: var(--muted);
+    font-size: 11px;
+}
+.meter-value {
+    margin-top: 3px;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: Consolas, "Courier New", monospace;
+}
+.chord-card {
+    min-height: 142px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+.chord-name {
+    font-size: 42px;
+    line-height: 1;
+    font-weight: 950;
+}
+.roman {
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 900;
+}
+.tone {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+.flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.pill {
+    min-height: 28px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+.pill.current {
+    color: #09201d;
+    background: var(--cyan);
+    border-color: var(--cyan);
+}
+.log {
+    overflow: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.log-line {
+    padding: 8px 9px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    border-left: 3px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+.log-line.easy {
+    border-left-color: var(--lime);
+    color: #d9f6d0;
+}
+.log-line.hard {
+    border-left-color: var(--rose);
+    color: #ffd7df;
+}
+.toast {
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    transform: translateX(-50%);
+    min-width: min(420px, calc(100% - 32px));
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(24, 27, 34, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: center;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 4;
+}
+.toast.show { animation: toast 1.15s ease forwards; }
+
+@keyframes toast {
+    0% { opacity: 0; transform: translate(-50%, -10px); }
+    16% { opacity: 1; transform: translate(-50%, 0); }
+    82% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+@media (max-width: 980px) {
+    body { overflow: auto; }
+    .stage {
+        height: auto;
+        grid-template-columns: 1fr;
+        overflow: visible;
+    }
+    .game-wrap {
+        height: min(70vh, 720px);
+        min-height: 500px;
+    }
+    .side { grid-template-rows: auto; }
+}
+
+@media (max-width: 640px) {
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .top-actions { width: 100%; }
+    .text-btn,
+    .primary-btn { flex: 1; }
+    .mode-row { grid-template-columns: 1fr; }
+    .game-wrap { min-height: 420px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-title">CHORD BREAKER</div>
+            <div class="brand-sub">ブロックを割ってコード進行を作る音楽ブロック崩し</div>
+        </div>
+        <div class="top-actions">
+            <button class="icon-btn" id="muteBtn" type="button" aria-label="音のオンオフ" title="音のオンオフ">♪</button>
+            <button class="text-btn" id="resetBtn" type="button">リセット</button>
+            <button class="primary-btn" id="launchBtn" type="button">スタート</button>
+        </div>
+    </header>
+
+    <main class="stage">
+        <section class="game-wrap">
+            <canvas id="game" width="960" height="720"></canvas>
+            <div class="toast" id="toast"></div>
+            <div class="overlay" id="overlay">
+                <div class="dialog">
+                    <h1>CHORD BREAKER</h1>
+                    <p>当てたブロックのコードで進行が進みます。自然に気持ちよくつながるとパドルが広がり、ボールも落ち着きます。濁った借用和音や遠い転調を連打すると、ゲームは一気に速くなります。</p>
+                    <div class="mode-row" id="modeRow">
+                        <button class="mode-btn active" type="button" data-mode="pop">
+                            <span class="mode-name">POP</span>
+                            <span class="mode-detail">王道進行が多く、遊びやすい</span>
+                        </button>
+                        <button class="mode-btn" type="button" data-mode="jazz">
+                            <span class="mode-name">JAZZ</span>
+                            <span class="mode-detail">セブンス多めで少し忙しい</span>
+                        </button>
+                        <button class="mode-btn" type="button" data-mode="chaos">
+                            <span class="mode-name">CHAOS</span>
+                            <span class="mode-detail">遠いコードほど高得点で危険</span>
+                        </button>
+                    </div>
+                    <button class="primary-btn" id="startBtn" type="button">プレイ開始</button>
+                </div>
+            </div>
+        </section>
+
+        <aside class="side">
+            <section class="panel meter-grid">
+                <div class="meter">
+                    <div class="meter-label">SCORE</div>
+                    <div class="meter-value" id="score">0</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">LIVES</div>
+                    <div class="meter-value" id="lives">3</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">GROOVE</div>
+                    <div class="meter-value" id="groove">50</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">TENSION</div>
+                    <div class="meter-value" id="tension">0</div>
+                </div>
+            </section>
+
+            <section class="panel chord-card">
+                <div>
+                    <div class="small-label">CURRENT CHORD</div>
+                    <div class="chord-name" id="chordName">C</div>
+                    <div class="roman" id="roman">I</div>
+                </div>
+                <div class="tone" id="tone">気持ちいい着地。パドルが安定します。</div>
+                <div class="flow" id="flow"></div>
+            </section>
+
+            <section class="panel log" id="log"></section>
+        </aside>
+    </main>
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const toast = document.getElementById("toast");
+    const startBtn = document.getElementById("startBtn");
+    const launchBtn = document.getElementById("launchBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const muteBtn = document.getElementById("muteBtn");
+    const modeRow = document.getElementById("modeRow");
+    const scoreEl = document.getElementById("score");
+    const livesEl = document.getElementById("lives");
+    const grooveEl = document.getElementById("groove");
+    const tensionEl = document.getElementById("tension");
+    const chordNameEl = document.getElementById("chordName");
+    const romanEl = document.getElementById("roman");
+    const toneEl = document.getElementById("tone");
+    const flowEl = document.getElementById("flow");
+    const logEl = document.getElementById("log");
+
+    const W = 960;
+    const H = 720;
+    const rootFreq = 261.63;
+
+    const chordMap = [
+        { name: "C", roman: "I", degree: 0, quality: "maj", comfort: 9, color: "#59d8d0", note: "トニックの着地。安心して弾ける響きです。" },
+        { name: "Dm7", roman: "ii7", degree: 2, quality: "min7", comfort: 7, color: "#94df64", note: "次へ進みたくなる準備の和音。少し楽になります。" },
+        { name: "Em7", roman: "iii7", degree: 4, quality: "min7", comfort: 6, color: "#84b5ff", note: "浮遊感のあるつなぎ。速度は少しだけ上がります。" },
+        { name: "F", roman: "IV", degree: 5, quality: "maj", comfort: 8, color: "#f2bd4f", note: "明るく開くサブドミナント。パドルが広がります。" },
+        { name: "G7", roman: "V7", degree: 7, quality: "dom7", comfort: 6, color: "#ff9d5c", note: "解決したくなる緊張。次にIへ行くと大きく回復します。" },
+        { name: "Am", roman: "vi", degree: 9, quality: "min", comfort: 8, color: "#a895ff", note: "切なさが気持ちいい代理コード。グルーヴが伸びます。" },
+        { name: "Bb", roman: "bVII", degree: 10, quality: "maj", comfort: 4, color: "#f47284", note: "借用和音。かっこいいけれど少し荒れます。" },
+        { name: "Dbmaj7", roman: "bIImaj7", degree: 1, quality: "maj7", comfort: 2, color: "#ff6fb1", note: "遠い色の和音。高得点ですが難しくなります。" },
+        { name: "E7", roman: "V/vi", degree: 4, quality: "dom7", comfort: 3, color: "#ffcc66", note: "セカンダリードミナント。強く進み、速度も上がります。" },
+        { name: "Ab", roman: "bVI", degree: 8, quality: "maj", comfort: 4, color: "#c88cff", note: "ドラマチックな借用和音。盤面が少し不安定になります。" }
+    ];
+
+    const modes = {
+        pop: ["C", "Am", "F", "G7", "Em7", "Dm7"],
+        jazz: ["C", "Dm7", "G7", "Em7", "E7", "Am", "F", "Dbmaj7"],
+        chaos: ["C", "Dbmaj7", "Bb", "E7", "Ab", "G7", "Am", "F"]
+    };
+
+    const sweetMoves = new Set(["C>Am", "Am>F", "F>G7", "G7>C", "Dm7>G7", "Em7>Am", "Bb>F", "E7>Am", "Ab>Bb"]);
+    const chordByName = new Map(chordMap.map(chord => [chord.name, chord]));
+
+    let mode = "pop";
+    let audioCtx = null;
+    let muted = false;
+    let running = false;
+    let score = 0;
+    let lives = 3;
+    let groove = 50;
+    let tension = 0;
+    let lastTime = 0;
+    let currentChord = chordByName.get("C");
+    let previousChord = null;
+    let progression = [];
+    let blocks = [];
+    let particles = [];
+    let keys = new Set();
+    let pointerX = null;
+    let shake = 0;
+
+    const paddle = { x: W / 2 - 74, y: H - 58, w: 148, h: 15, targetW: 148, speed: 640 };
+    const ball = { x: W / 2, y: H - 92, r: 9, vx: 250, vy: -330, speed: 410 };
+
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+    }
+
+    function createBlocks() {
+        const names = modes[mode];
+        const cols = 8;
+        const rows = mode === "chaos" ? 6 : 5;
+        const gap = 9;
+        const marginX = 42;
+        const top = 72;
+        const bw = (W - marginX * 2 - gap * (cols - 1)) / cols;
+        const bh = 42;
+        blocks = [];
+
+        for (let row = 0; row < rows; row += 1) {
+            for (let col = 0; col < cols; col += 1) {
+                const name = names[(row * 3 + col * 2 + row + col) % names.length];
+                const chord = chordByName.get(name);
+                blocks.push({
+                    x: marginX + col * (bw + gap),
+                    y: top + row * (bh + gap),
+                    w: bw,
+                    h: bh,
+                    chord,
+                    hp: mode === "chaos" && chord.comfort <= 3 ? 2 : 1,
+                    pulse: Math.random() * Math.PI * 2
+                });
+            }
+        }
+    }
+
+    function resetGame(startRunning = false) {
+        score = 0;
+        lives = 3;
+        groove = 50;
+        tension = 0;
+        previousChord = null;
+        currentChord = chordByName.get("C");
+        progression = [currentChord];
+        particles = [];
+        shake = 0;
+        paddle.x = W / 2 - 74;
+        paddle.targetW = 148;
+        paddle.w = 148;
+        resetBall();
+        createBlocks();
+        logEl.innerHTML = "";
+        addLog("Iからスタート。狙うコードでゲームの手触りが変わります。", "easy");
+        running = startRunning;
+        overlay.classList.toggle("hidden", startRunning);
+        launchBtn.textContent = startRunning ? "一時停止" : "スタート";
+        updateHud();
+    }
+
+    function resetBall() {
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        ball.x = W / 2;
+        ball.y = H - 92;
+        ball.speed = 390 + tension * 4;
+        ball.vx = direction * 230;
+        ball.vy = -330;
+        normalizeBall();
+    }
+
+    function normalizeBall() {
+        const length = Math.hypot(ball.vx, ball.vy) || 1;
+        ball.vx = (ball.vx / length) * ball.speed;
+        ball.vy = (ball.vy / length) * ball.speed;
+    }
+
+    function updateHud() {
+        scoreEl.textContent = String(score);
+        livesEl.textContent = String(lives);
+        grooveEl.textContent = String(Math.round(groove));
+        tensionEl.textContent = String(Math.round(tension));
+        chordNameEl.textContent = currentChord.name;
+        romanEl.textContent = currentChord.roman;
+        toneEl.textContent = currentChord.note;
+        flowEl.innerHTML = "";
+
+        progression.slice(-8).forEach((chord, index, array) => {
+            const item = document.createElement("span");
+            item.className = `pill${index === array.length - 1 ? " current" : ""}`;
+            item.textContent = chord.name;
+            flowEl.appendChild(item);
+        });
+    }
+
+    function addLog(text, kind = "") {
+        const item = document.createElement("div");
+        item.className = `log-line ${kind}`;
+        item.textContent = text;
+        logEl.prepend(item);
+        while (logEl.children.length > 14) logEl.removeChild(logEl.lastChild);
+    }
+
+    function showToast(text) {
+        toast.textContent = text;
+        toast.classList.remove("show");
+        void toast.offsetWidth;
+        toast.classList.add("show");
+    }
+
+    function moveScore(chord, sweet) {
+        const risk = Math.max(1, 10 - chord.comfort);
+        score += 80 + risk * 25 + (sweet ? 90 : 0) + Math.round(groove * 0.6);
+    }
+
+    function chordDistance(a, b) {
+        if (!a || !b) return 0;
+        const raw = Math.abs(a.degree - b.degree) % 12;
+        return Math.min(raw, 12 - raw);
+    }
+
+    function applyChord(chord) {
+        previousChord = currentChord;
+        currentChord = chord;
+        progression.push(chord);
+
+        const move = previousChord ? `${previousChord.name}>${chord.name}` : "";
+        const sweet = sweetMoves.has(move);
+        const distance = chordDistance(previousChord, chord);
+        const roughness = Math.max(0, 7 - chord.comfort) + Math.max(0, distance - 4);
+
+        if (sweet || chord.comfort >= 8) {
+            groove = Math.min(100, groove + 10 + chord.comfort);
+            tension = Math.max(0, tension - 12);
+            paddle.targetW = Math.min(210, paddle.targetW + 13);
+            ball.speed = Math.max(330, ball.speed - 22);
+            showToast(sweet ? "気持ちいい進行！操作が楽になる" : "安定した響き！");
+            addLog(`${previousChord ? previousChord.name + " -> " : ""}${chord.name}: 気持ちいい流れ。難易度ダウン。`, "easy");
+        } else {
+            groove = Math.max(0, groove - 5 - roughness * 2);
+            tension = Math.min(100, tension + 8 + roughness * 4);
+            paddle.targetW = Math.max(88, paddle.targetW - roughness * 4);
+            ball.speed = Math.min(690, ball.speed + 24 + roughness * 5);
+            shake = Math.min(18, 4 + roughness);
+            showToast("攻めた進行！ボールが速くなる");
+            addLog(`${previousChord ? previousChord.name + " -> " : ""}${chord.name}: 緊張が増えた。高得点だが危険。`, "hard");
+        }
+
+        moveScore(chord, sweet);
+        normalizeBall();
+        playChord(chord, sweet);
+        updateHud();
+    }
+
+    function blockAt(index) {
+        const block = blocks[index];
+        if (!block) return;
+        block.hp -= 1;
+        burst(block.x + block.w / 2, block.y + block.h / 2, block.chord.color);
+        applyChord(block.chord);
+        if (block.hp <= 0) blocks.splice(index, 1);
+
+        if (blocks.length === 0) {
+            score += Math.round(1200 + groove * 10);
+            showToast("フルコーラス完成！");
+            addLog("全ブロックを破壊。新しいコーラスへ進みます。", "easy");
+            createBlocks();
+            ball.speed = Math.max(360, ball.speed - 42);
+            tension = Math.max(0, tension - 20);
+            updateHud();
+        }
+    }
+
+    function burst(x, y, color) {
+        for (let i = 0; i < 18; i += 1) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 80 + Math.random() * 220;
+            particles.push({
+                x,
+                y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 0.5 + Math.random() * 0.5,
+                max: 1,
+                color
+            });
+        }
+    }
+
+    function ensureAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    function semitoneToFreq(semitone) {
+        return rootFreq * Math.pow(2, semitone / 12);
+    }
+
+    function chordIntervals(quality) {
+        switch (quality) {
+            case "min": return [0, 3, 7, 12];
+            case "min7": return [0, 3, 7, 10];
+            case "dom7": return [0, 4, 7, 10];
+            case "maj7": return [0, 4, 7, 11];
+            default: return [0, 4, 7, 12];
+        }
+    }
+
+    function playChord(chord, sweet) {
+        if (muted) return;
+        ensureAudio();
+        const now = audioCtx.currentTime;
+        const out = audioCtx.createGain();
+        out.gain.setValueAtTime(0.0001, now);
+        out.gain.exponentialRampToValueAtTime(sweet ? 0.17 : 0.12, now + 0.025);
+        out.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+        out.connect(audioCtx.destination);
+
+        chordIntervals(chord.quality).forEach((interval, index) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = index === 0 ? "triangle" : "sine";
+            osc.frequency.value = semitoneToFreq(chord.degree + interval);
+            gain.gain.value = index === 0 ? 0.7 : 0.45;
+            osc.connect(gain);
+            gain.connect(out);
+            osc.start(now + index * 0.018);
+            osc.stop(now + 0.78);
+        });
+    }
+
+    function playBounce() {
+        if (muted) return;
+        ensureAudio();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(640, now);
+        osc.frequency.exponentialRampToValueAtTime(360, now + 0.08);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+    }
+
+    function update(dt) {
+        if (!running) return;
+
+        if (keys.has("ArrowLeft") || keys.has("a")) paddle.x -= paddle.speed * dt;
+        if (keys.has("ArrowRight") || keys.has("d")) paddle.x += paddle.speed * dt;
+        if (pointerX !== null) paddle.x += (pointerX - paddle.w / 2 - paddle.x) * Math.min(1, dt * 12);
+
+        paddle.w += (paddle.targetW - paddle.w) * Math.min(1, dt * 4);
+        paddle.x = Math.max(18, Math.min(W - paddle.w - 18, paddle.x));
+
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+
+        if (ball.x < ball.r) {
+            ball.x = ball.r;
+            ball.vx *= -1;
+            playBounce();
+        }
+        if (ball.x > W - ball.r) {
+            ball.x = W - ball.r;
+            ball.vx *= -1;
+            playBounce();
+        }
+        if (ball.y < ball.r) {
+            ball.y = ball.r;
+            ball.vy *= -1;
+            playBounce();
+        }
+
+        const paddleHit = ball.y + ball.r >= paddle.y &&
+            ball.y - ball.r <= paddle.y + paddle.h &&
+            ball.x >= paddle.x &&
+            ball.x <= paddle.x + paddle.w &&
+            ball.vy > 0;
+
+        if (paddleHit) {
+            const center = paddle.x + paddle.w / 2;
+            const offset = (ball.x - center) / (paddle.w / 2);
+            ball.y = paddle.y - ball.r;
+            ball.vx = offset * ball.speed * 0.82;
+            ball.vy = -Math.sqrt(Math.max(0, ball.speed * ball.speed - ball.vx * ball.vx));
+            groove = Math.min(100, groove + 1.5);
+            playBounce();
+            updateHud();
+        }
+
+        for (let i = blocks.length - 1; i >= 0; i -= 1) {
+            const b = blocks[i];
+            if (ball.x + ball.r < b.x || ball.x - ball.r > b.x + b.w ||
+                ball.y + ball.r < b.y || ball.y - ball.r > b.y + b.h) {
+                continue;
+            }
+
+            const overlapLeft = ball.x + ball.r - b.x;
+            const overlapRight = b.x + b.w - (ball.x - ball.r);
+            const overlapTop = ball.y + ball.r - b.y;
+            const overlapBottom = b.y + b.h - (ball.y - ball.r);
+            const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+            if (minOverlap === overlapLeft || minOverlap === overlapRight) {
+                ball.vx *= -1;
+            } else {
+                ball.vy *= -1;
+            }
+
+            blockAt(i);
+            break;
+        }
+
+        if (ball.y > H + 40) {
+            lives -= 1;
+            groove = Math.max(0, groove - 16);
+            tension = Math.min(100, tension + 10);
+            paddle.targetW = Math.max(92, paddle.targetW - 10);
+            addLog("ミス。グルーヴが落ち、少し不安定になります。", "hard");
+            if (lives <= 0) {
+                running = false;
+                overlay.classList.remove("hidden");
+                launchBtn.textContent = "スタート";
+                addLog(`GAME OVER: SCORE ${score}`, "hard");
+            }
+            resetBall();
+            updateHud();
+        }
+
+        particles.forEach(p => {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 220 * dt;
+            p.life -= dt;
+        });
+        particles = particles.filter(p => p.life > 0);
+
+        tension = Math.max(0, tension - dt * 1.8);
+        groove = Math.max(0, Math.min(100, groove - dt * Math.max(0, tension - 50) * 0.04));
+        shake = Math.max(0, shake - dt * 18);
+        updateHud();
+    }
+
+    function draw() {
+        ctx.save();
+        ctx.clearRect(0, 0, W, H);
+
+        if (shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, "#11151d");
+        bg.addColorStop(0.55, "#08090d");
+        bg.addColorStop(1, "#17151e");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        drawStaff();
+        drawBlocks();
+        drawPaddle();
+        drawBall();
+        drawParticles();
+        drawProgressionRibbon();
+        ctx.restore();
+
+        requestAnimationFrame(loop);
+    }
+
+    function drawStaff() {
+        ctx.save();
+        ctx.globalAlpha = 0.28;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        for (let y = 330; y < H - 128; y += 18) {
+            ctx.beginPath();
+            ctx.moveTo(28, y);
+            ctx.lineTo(W - 28, y);
+            ctx.stroke();
+        }
+        const bars = Math.floor(W / 120);
+        for (let i = 0; i <= bars; i += 1) {
+            const x = 42 + i * 120;
+            ctx.beginPath();
+            ctx.moveTo(x, 330);
+            ctx.lineTo(x, H - 146);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawBlocks() {
+        blocks.forEach(block => {
+            block.pulse += 0.025;
+            const glow = 0.16 + Math.sin(block.pulse) * 0.07;
+            ctx.save();
+            ctx.shadowColor = block.chord.color;
+            ctx.shadowBlur = 12 + tension * glow;
+            ctx.fillStyle = block.chord.color;
+            roundRect(block.x, block.y, block.w, block.h, 7);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "rgba(8, 9, 13, 0.72)";
+            roundRect(block.x + 4, block.y + 4, block.w - 8, block.h - 8, 5);
+            ctx.fill();
+            ctx.fillStyle = "#f7f2e8";
+            ctx.font = "900 16px Segoe UI, Meiryo, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(block.chord.name, block.x + block.w / 2, block.y + 18);
+            ctx.fillStyle = block.hp > 1 ? "#ffdde5" : "rgba(244, 240, 232, 0.65)";
+            ctx.font = "800 10px Segoe UI, Meiryo, sans-serif";
+            ctx.fillText(block.chord.roman, block.x + block.w / 2, block.y + 32);
+            ctx.restore();
+        });
+    }
+
+    function drawPaddle() {
+        const grad = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.w, paddle.y);
+        grad.addColorStop(0, "#59d8d0");
+        grad.addColorStop(0.5, groove >= 60 ? "#94df64" : "#f2bd4f");
+        grad.addColorStop(1, tension >= 60 ? "#f47284" : "#a895ff");
+        ctx.save();
+        ctx.shadowColor = groove >= 60 ? "#94df64" : "#59d8d0";
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = grad;
+        roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawBall() {
+        ctx.save();
+        const color = tension > 62 ? "#f47284" : "#f4f0e8";
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 22;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawParticles() {
+        particles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.life / p.max);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    function drawProgressionRibbon() {
+        const recent = progression.slice(-6);
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.36)";
+        roundRect(28, H - 112, W - 56, 40, 8);
+        ctx.fill();
+        ctx.font = "900 16px Consolas, Courier New, monospace";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        let x = 46;
+        recent.forEach((chord, index) => {
+            ctx.fillStyle = index === recent.length - 1 ? chord.color : "rgba(244, 240, 232, 0.72)";
+            ctx.fillText(chord.name, x, H - 92);
+            x += ctx.measureText(chord.name).width + 18;
+            if (index < recent.length - 1) {
+                ctx.fillStyle = "rgba(244, 240, 232, 0.35)";
+                ctx.fillText(">", x - 10, H - 92);
+            }
+        });
+        ctx.restore();
+    }
+
+    function roundRect(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + w, y, x + w, y + h, radius);
+        ctx.arcTo(x + w, y + h, x, y + h, radius);
+        ctx.arcTo(x, y + h, x, y, radius);
+        ctx.arcTo(x, y, x + w, y, radius);
+        ctx.closePath();
+    }
+
+    function loop(time) {
+        const dt = Math.min(0.033, (time - lastTime) / 1000 || 0);
+        lastTime = time;
+        update(dt);
+        draw();
+    }
+
+    function startGame() {
+        ensureAudio();
+        if (lives <= 0 || blocks.length === 0) {
+            resetGame(true);
+            return;
+        }
+        running = true;
+        overlay.classList.add("hidden");
+        launchBtn.textContent = "一時停止";
+    }
+
+    function togglePause() {
+        if (!running) {
+            startGame();
+        } else {
+            running = false;
+            launchBtn.textContent = "スタート";
+            overlay.classList.remove("hidden");
+        }
+    }
+
+    startBtn.addEventListener("click", startGame);
+    launchBtn.addEventListener("click", togglePause);
+    resetBtn.addEventListener("click", () => resetGame(false));
+    muteBtn.addEventListener("click", () => {
+        muted = !muted;
+        muteBtn.textContent = muted ? "x" : "♪";
+    });
+    modeRow.addEventListener("click", event => {
+        const button = event.target.closest(".mode-btn");
+        if (!button) return;
+        mode = button.dataset.mode;
+        modeRow.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn === button));
+        resetGame(false);
+    });
+    window.addEventListener("keydown", event => {
+        if (["ArrowLeft", "ArrowRight", "a", "d"].includes(event.key)) {
+            keys.add(event.key);
+            event.preventDefault();
+        }
+        if (event.key === " ") {
+            togglePause();
+            event.preventDefault();
+        }
+    });
+    window.addEventListener("keyup", event => keys.delete(event.key));
+    canvas.addEventListener("pointermove", event => {
+        const rect = canvas.getBoundingClientRect();
+        pointerX = ((event.clientX - rect.left) / rect.width) * W;
+    });
+    canvas.addEventListener("pointerleave", () => { pointerX = null; });
+    canvas.addEventListener("pointerdown", event => {
+        canvas.setPointerCapture(event.pointerId);
+        const rect = canvas.getBoundingClientRect();
+        pointerX = ((event.clientX - rect.left) / rect.width) * W;
+        if (!running) startGame();
+    });
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+    resetGame(false);
+    requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
