@@ -198,6 +198,99 @@ canvas {
     line-height: 1.35;
 }
 
+.result-panel {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.result-panel.hidden {
+    display: none;
+}
+
+.result-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.result-stat {
+    min-height: 58px;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.result-stat-label {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.result-stat-value {
+    margin-top: 3px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 19px;
+    font-weight: 950;
+}
+
+.rank-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.rank-box {
+    min-width: 0;
+}
+
+.rank-title {
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 950;
+}
+
+.rank-title.good { color: var(--lime); }
+.rank-title.bad { color: var(--rose); }
+
+.rank-list {
+    display: grid;
+    gap: 6px;
+}
+
+.rank-item {
+    min-height: 34px;
+    display: grid;
+    grid-template-columns: 22px 1fr 42px;
+    align-items: center;
+    gap: 7px;
+    padding: 7px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.16);
+}
+
+.rank-num {
+    color: var(--muted);
+    font-family: Consolas, "Courier New", monospace;
+    font-weight: 900;
+}
+
+.rank-move {
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.rank-score {
+    color: var(--gold);
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: right;
+}
+
 .side {
     display: grid;
     grid-template-rows: auto auto auto minmax(0, 1fr);
@@ -409,6 +502,8 @@ canvas {
     .text-btn,
     .primary-btn { flex: 1; }
     .mode-row { grid-template-columns: 1fr; }
+    .result-summary,
+    .rank-grid { grid-template-columns: 1fr; }
     .game-wrap { min-height: 420px; }
 }
 </style>
@@ -435,6 +530,7 @@ canvas {
                 <div class="dialog">
                     <h1>CHORD BREAKER</h1>
                     <p>当てたブロックのコードで進行が進みます。自然に気持ちよくつながるとパドルが広がり、ボールも落ち着きます。濁った借用和音や遠い転調を連打すると、ゲームは一気に速くなります。</p>
+                    <div class="result-panel hidden" id="resultPanel"></div>
                     <div class="mode-row" id="modeRow">
                         <button class="mode-btn active" type="button" data-mode="pop">
                             <span class="mode-name">POP</span>
@@ -514,6 +610,7 @@ canvas {
     const ctx = canvas.getContext("2d");
     const overlay = document.getElementById("overlay");
     const toast = document.getElementById("toast");
+    const resultPanel = document.getElementById("resultPanel");
     const startBtn = document.getElementById("startBtn");
     const launchBtn = document.getElementById("launchBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -631,10 +728,12 @@ canvas {
     let tension = 0;
     let collapse = 0;
     let combo = 0;
+    let maxCombo = 0;
     let lastTime = 0;
     let currentChord = chordByName.get("C");
     let previousChord = null;
     let progression = [];
+    let moveHistory = [];
     let recommendations = [];
     let blocks = [];
     let particles = [];
@@ -667,6 +766,17 @@ canvas {
         const explicit = transitionTable.get(transitionKey(fromChord.name, toChord.name));
         if (explicit) return explicit;
 
+        if (fromChord.name === toChord.name) {
+            const pleasantness = clamp(0.58 + toChord.comfort * 0.025, 0.6, 0.82);
+            return {
+                from: fromChord.name,
+                to: toChord.name,
+                pleasantness,
+                tag: "同音キープ",
+                healBase: clamp((pleasantness - 0.36) * 0.5, 0.08, 0.34)
+            };
+        }
+
         const distance = chordDistance(fromChord, toChord);
         const comfort = toChord.comfort / 10;
         const pleasantness = clamp(0.24 + comfort * 0.42 - distance * 0.055, 0.08, 0.78);
@@ -687,7 +797,6 @@ canvas {
                 const rule = getRule(fromChord, chord);
                 return { chord, rule };
             })
-            .filter(item => item.chord.name !== fromChord.name)
             .sort((a, b) => b.rule.pleasantness - a.rule.pleasantness)
             .slice(0, 3);
     }
@@ -757,9 +866,11 @@ canvas {
         tension = 0;
         collapse = 0;
         combo = 0;
+        maxCombo = 0;
         previousChord = null;
         currentChord = chordByName.get("C");
         progression = [currentChord];
+        moveHistory = [];
         recommendations = getRecommendations(currentChord);
         particles = [];
         shake = 0;
@@ -771,6 +882,9 @@ canvas {
         logEl.innerHTML = "";
         addLog("Iからスタート。狙うコードでゲームの手触りが変わります。", "easy");
         running = startRunning;
+        resultPanel.classList.add("hidden");
+        resultPanel.innerHTML = "";
+        startBtn.textContent = "プレイ開始";
         overlay.classList.toggle("hidden", startRunning);
         launchBtn.textContent = startRunning ? "一時停止" : "スタート";
         updateHud();
@@ -888,13 +1002,112 @@ canvas {
         addLog("COLLAPSE: 盤面のコードが絶えました。次の特売候補を逃さないで。", "hard");
     }
 
+    function pushMoveHistory(fromChord, toChord, impact) {
+        moveHistory.push({
+            from: fromChord.name,
+            to: toChord.name,
+            move: `${fromChord.name} -> ${toChord.name}`,
+            pleasantness: impact.pleasantness,
+            tag: impact.rule.tag || "",
+            sweet: impact.sweet,
+            awful: impact.awful
+        });
+    }
+
+    function summarizeMoves(direction) {
+        const table = new Map();
+        moveHistory.forEach(item => {
+            if (!table.has(item.move)) {
+                table.set(item.move, {
+                    move: item.move,
+                    total: 0,
+                    count: 0,
+                    tags: new Map()
+                });
+            }
+            const row = table.get(item.move);
+            row.total += item.pleasantness;
+            row.count += 1;
+            if (item.tag) row.tags.set(item.tag, (row.tags.get(item.tag) || 0) + 1);
+        });
+
+        return [...table.values()]
+            .map(row => {
+                const tag = [...row.tags.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "";
+                return {
+                    move: row.move,
+                    score: row.total / row.count,
+                    count: row.count,
+                    tag
+                };
+            })
+            .sort((a, b) => direction === "good" ? b.score - a.score : a.score - b.score)
+            .slice(0, 5);
+    }
+
+    function renderRankList(items, emptyText) {
+        if (items.length === 0) {
+            return `<div class="rank-item"><div class="rank-num">-</div><div class="rank-move">${emptyText}</div><div class="rank-score">--</div></div>`;
+        }
+
+        return items.map((item, index) => `
+            <div class="rank-item">
+                <div class="rank-num">${index + 1}</div>
+                <div class="rank-move">${item.move}<br><span class="deal-tag">${item.tag || "分析値"} x${item.count}</span></div>
+                <div class="rank-score">${Math.round(item.score * 100)}%</div>
+            </div>
+        `).join("");
+    }
+
+    function showGameOverResults() {
+        const good = summarizeMoves("good");
+        const bad = summarizeMoves("bad");
+        const sweetCount = moveHistory.filter(item => item.sweet).length;
+        const awfulCount = moveHistory.filter(item => item.awful).length;
+
+        resultPanel.innerHTML = `
+            <div class="result-summary">
+                <div class="result-stat">
+                    <div class="result-stat-label">SCORE</div>
+                    <div class="result-stat-value">${score}</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-label">MAX COMBO</div>
+                    <div class="result-stat-value">${maxCombo}</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-label">GOOD</div>
+                    <div class="result-stat-value">${sweetCount}</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-label">BAD</div>
+                    <div class="result-stat-value">${awfulCount}</div>
+                </div>
+            </div>
+            <div class="rank-grid">
+                <div class="rank-box">
+                    <div class="rank-title good">GOOD CODE PROGRESSION</div>
+                    <div class="rank-list">${renderRankList(good, "まだ進行がありません")}</div>
+                </div>
+                <div class="rank-box">
+                    <div class="rank-title bad">BAD CODE PROGRESSION</div>
+                    <div class="rank-list">${renderRankList(bad, "まだ進行がありません")}</div>
+                </div>
+            </div>
+        `;
+        resultPanel.classList.remove("hidden");
+        startBtn.textContent = "もう一度プレイ";
+    }
+
     function applyChord(chord, impact) {
         previousChord = currentChord;
         currentChord = chord;
         progression.push(chord);
+        pushMoveHistory(previousChord, chord, impact);
 
         if (impact.sweet) {
             combo += 1;
+            maxCombo = Math.max(maxCombo, combo);
             groove = Math.min(100, groove + 10 + chord.comfort);
             tension = Math.max(0, tension - 12 - Math.round(impact.pleasantness * 6));
             collapse = Math.max(0, collapse - 10 - combo);
@@ -1100,6 +1313,7 @@ canvas {
                 overlay.classList.remove("hidden");
                 launchBtn.textContent = "スタート";
                 addLog(`GAME OVER: SCORE ${score}`, "hard");
+                showGameOverResults();
             }
             resetBall();
             updateHud();

@@ -41,6 +41,17 @@
     }
   ],
   "transitions": [
+    { "from": "C", "to": "C", "pleasantness": 0.8, "tag": "同音キープ", "healBase": 0.32 },
+    { "from": "Am", "to": "Am", "pleasantness": 0.78, "tag": "同音キープ", "healBase": 0.3 },
+    { "from": "F", "to": "F", "pleasantness": 0.78, "tag": "同音キープ", "healBase": 0.3 },
+    { "from": "G7", "to": "G7", "pleasantness": 0.72, "tag": "同音キープ", "healBase": 0.24 },
+    { "from": "Dm7", "to": "Dm7", "pleasantness": 0.75, "tag": "同音キープ", "healBase": 0.26 },
+    { "from": "Em7", "to": "Em7", "pleasantness": 0.73, "tag": "同音キープ", "healBase": 0.24 },
+    { "from": "E7", "to": "E7", "pleasantness": 0.66, "tag": "同音キープ", "healBase": 0.16 },
+    { "from": "Bb", "to": "Bb", "pleasantness": 0.68, "tag": "同音キープ", "healBase": 0.18 },
+    { "from": "Ab", "to": "Ab", "pleasantness": 0.68, "tag": "同音キープ", "healBase": 0.18 },
+    { "from": "Dbmaj7", "to": "Dbmaj7", "pleasantness": 0.62, "tag": "同音キープ", "healBase": 0.1 },
+
     { "from": "C", "to": "Am", "pleasantness": 0.9, "tag": "王道代理", "healBase": 0.46 },
     { "from": "C", "to": "F", "pleasantness": 0.82, "tag": "開放", "healBase": 0.42 },
     { "from": "C", "to": "Dm7", "pleasantness": 0.72, "tag": "準備", "healBase": 0.34 },
