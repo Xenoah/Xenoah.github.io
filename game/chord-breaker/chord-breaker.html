@@ -200,7 +200,7 @@ canvas {
 
 .side {
     display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
     gap: 12px;
 }
 .panel {
@@ -252,6 +252,70 @@ canvas {
     color: var(--muted);
     font-size: 12px;
     line-height: 1.55;
+}
+
+.deal-card {
+    display: grid;
+    gap: 10px;
+}
+
+.deal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sale-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--rose);
+    color: #fff7fa;
+    font-size: 11px;
+    font-weight: 950;
+    transform: rotate(-3deg);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.28);
+}
+
+.deal-list {
+    display: grid;
+    gap: 7px;
+}
+
+.deal {
+    min-height: 42px;
+    display: grid;
+    grid-template-columns: 52px 1fr 42px;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.deal-code {
+    font-weight: 950;
+    color: var(--cyan);
+}
+
+.deal-tag {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.deal-rate {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--gold);
+    text-align: right;
+}
+
+.source-note {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.45;
 }
 .flow {
     display: flex;
@@ -397,7 +461,7 @@ canvas {
                     <div class="meter-value" id="score">0</div>
                 </div>
                 <div class="meter">
-                    <div class="meter-label">LIVES</div>
+                    <div class="meter-label">HP</div>
                     <div class="meter-value" id="lives">3</div>
                 </div>
                 <div class="meter">
@@ -407,6 +471,14 @@ canvas {
                 <div class="meter">
                     <div class="meter-label">TENSION</div>
                     <div class="meter-value" id="tension">0</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">COLLAPSE</div>
+                    <div class="meter-value" id="collapse">0</div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">COMBO</div>
+                    <div class="meter-value" id="combo">0</div>
                 </div>
             </section>
 
@@ -418,6 +490,15 @@ canvas {
                 </div>
                 <div class="tone" id="tone">気持ちいい着地。パドルが安定します。</div>
                 <div class="flow" id="flow"></div>
+            </section>
+
+            <section class="panel deal-card">
+                <div class="deal-head">
+                    <div class="small-label">NEXT BARGAIN</div>
+                    <div class="sale-badge">特売</div>
+                </div>
+                <div class="deal-list" id="dealList"></div>
+                <div class="source-note" id="dealSource">研究ベースの確率を読込中</div>
             </section>
 
             <section class="panel log" id="log"></section>
@@ -442,10 +523,14 @@ canvas {
     const livesEl = document.getElementById("lives");
     const grooveEl = document.getElementById("groove");
     const tensionEl = document.getElementById("tension");
+    const collapseEl = document.getElementById("collapse");
+    const comboEl = document.getElementById("combo");
     const chordNameEl = document.getElementById("chordName");
     const romanEl = document.getElementById("roman");
     const toneEl = document.getElementById("tone");
     const flowEl = document.getElementById("flow");
+    const dealListEl = document.getElementById("dealList");
+    const dealSourceEl = document.getElementById("dealSource");
     const logEl = document.getElementById("log");
 
     const W = 960;
@@ -471,6 +556,68 @@ canvas {
         chaos: ["C", "Dbmaj7", "Bb", "E7", "Ab", "G7", "Am", "F"]
     };
 
+    const fallbackHarmonyData = {
+        version: 1,
+        thresholds: { sweet: 0.72, awful: 0.28 },
+        references: [
+            { key: "krumhansl_kessler_1982", used_for: "Tonal hierarchy and tonic stability weights" },
+            { key: "lerdahl_2001_2005", used_for: "Pitch-space distance, attraction, and tension change" },
+            { key: "vega_2003", used_for: "Inverse relation between tension and attraction" },
+            { key: "huron_2006", used_for: "Expectation, surprise, and appraisal feedback" }
+        ],
+        transitions: [
+            { from: "C", to: "Am", pleasantness: 0.9, tag: "王道代理", healBase: 0.46 },
+            { from: "C", to: "F", pleasantness: 0.82, tag: "開放", healBase: 0.42 },
+            { from: "C", to: "Dm7", pleasantness: 0.72, tag: "準備", healBase: 0.34 },
+            { from: "C", to: "Em7", pleasantness: 0.68, tag: "浮遊", healBase: 0.28 },
+            { from: "C", to: "G7", pleasantness: 0.65, tag: "緊張準備", healBase: 0.22 },
+            { from: "C", to: "Bb", pleasantness: 0.42, tag: "借用", healBase: 0.12 },
+            { from: "C", to: "E7", pleasantness: 0.35, tag: "遠い支配", healBase: 0.08 },
+            { from: "C", to: "Ab", pleasantness: 0.28, tag: "暗転", healBase: 0.04 },
+            { from: "C", to: "Dbmaj7", pleasantness: 0.15, tag: "度し難い半音外", healBase: 0.02 },
+            { from: "Am", to: "F", pleasantness: 0.9, tag: "王道下降", healBase: 0.46 },
+            { from: "Am", to: "Dm7", pleasantness: 0.76, tag: "自然な準備", healBase: 0.36 },
+            { from: "Am", to: "C", pleasantness: 0.7, tag: "帰還", healBase: 0.3 },
+            { from: "Am", to: "G7", pleasantness: 0.55, tag: "押し出し", healBase: 0.16 },
+            { from: "Am", to: "E7", pleasantness: 0.48, tag: "逆向き支配", healBase: 0.1 },
+            { from: "Am", to: "Dbmaj7", pleasantness: 0.18, tag: "遠隔", healBase: 0.02 },
+            { from: "F", to: "G7", pleasantness: 0.88, tag: "定番接続", healBase: 0.44 },
+            { from: "F", to: "C", pleasantness: 0.84, tag: "着地", healBase: 0.42 },
+            { from: "F", to: "Dm7", pleasantness: 0.72, tag: "近縁", healBase: 0.32 },
+            { from: "F", to: "Am", pleasantness: 0.66, tag: "柔らかい横移動", healBase: 0.24 },
+            { from: "F", to: "Ab", pleasantness: 0.44, tag: "色替え", healBase: 0.1 },
+            { from: "F", to: "Dbmaj7", pleasantness: 0.24, tag: "重い借用", healBase: 0.02 },
+            { from: "G7", to: "C", pleasantness: 0.96, tag: "完全解決", healBase: 0.52 },
+            { from: "G7", to: "Am", pleasantness: 0.7, tag: "偽終止", healBase: 0.32 },
+            { from: "G7", to: "F", pleasantness: 0.48, tag: "後退", healBase: 0.1 },
+            { from: "G7", to: "Dbmaj7", pleasantness: 0.2, tag: "断崖", healBase: 0.02 },
+            { from: "Dm7", to: "G7", pleasantness: 0.93, tag: "ii-V", healBase: 0.5 },
+            { from: "Dm7", to: "C", pleasantness: 0.78, tag: "素直な着地", healBase: 0.38 },
+            { from: "Dm7", to: "F", pleasantness: 0.7, tag: "近縁", healBase: 0.26 },
+            { from: "Dm7", to: "E7", pleasantness: 0.46, tag: "横滑り", healBase: 0.1 },
+            { from: "Em7", to: "Am", pleasantness: 0.88, tag: "iii-vi", healBase: 0.44 },
+            { from: "Em7", to: "F", pleasantness: 0.75, tag: "半音上行", healBase: 0.34 },
+            { from: "Em7", to: "Dm7", pleasantness: 0.62, tag: "下降", healBase: 0.2 },
+            { from: "Em7", to: "Dbmaj7", pleasantness: 0.22, tag: "遠隔", healBase: 0.02 },
+            { from: "E7", to: "Am", pleasantness: 0.94, tag: "副属解決", healBase: 0.5 },
+            { from: "E7", to: "F", pleasantness: 0.58, tag: "半音解決", healBase: 0.18 },
+            { from: "E7", to: "C", pleasantness: 0.44, tag: "未解決", healBase: 0.08 },
+            { from: "E7", to: "Dbmaj7", pleasantness: 0.16, tag: "荒地", healBase: 0.02 },
+            { from: "Bb", to: "F", pleasantness: 0.84, tag: "借用から復帰", healBase: 0.38 },
+            { from: "Bb", to: "C", pleasantness: 0.62, tag: "ロック的上行", healBase: 0.2 },
+            { from: "Bb", to: "Ab", pleasantness: 0.55, tag: "借用連鎖", healBase: 0.12 },
+            { from: "Bb", to: "Dbmaj7", pleasantness: 0.26, tag: "濃すぎる", healBase: 0.02 },
+            { from: "Ab", to: "Bb", pleasantness: 0.72, tag: "借用上昇", healBase: 0.28 },
+            { from: "Ab", to: "C", pleasantness: 0.52, tag: "ドラマ着地", healBase: 0.14 },
+            { from: "Ab", to: "F", pleasantness: 0.46, tag: "色残り", healBase: 0.08 },
+            { from: "Ab", to: "Dbmaj7", pleasantness: 0.34, tag: "外側滞在", healBase: 0.04 },
+            { from: "Dbmaj7", to: "C", pleasantness: 0.46, tag: "半音帰還", healBase: 0.08 },
+            { from: "Dbmaj7", to: "F", pleasantness: 0.38, tag: "色彩転換", healBase: 0.05 },
+            { from: "Dbmaj7", to: "G7", pleasantness: 0.22, tag: "過剰緊張", healBase: 0.02 },
+            { from: "Dbmaj7", to: "E7", pleasantness: 0.14, tag: "度し難い遠隔", healBase: 0.01 }
+        ]
+    };
+
     const sweetMoves = new Set(["C>Am", "Am>F", "F>G7", "G7>C", "Dm7>G7", "Em7>Am", "Bb>F", "E7>Am", "Ab>Bb"]);
     const chordByName = new Map(chordMap.map(chord => [chord.name, chord]));
 
@@ -482,18 +629,89 @@ canvas {
     let lives = 3;
     let groove = 50;
     let tension = 0;
+    let collapse = 0;
+    let combo = 0;
     let lastTime = 0;
     let currentChord = chordByName.get("C");
     let previousChord = null;
     let progression = [];
+    let recommendations = [];
     let blocks = [];
     let particles = [];
     let keys = new Set();
     let pointerX = null;
     let shake = 0;
+    let harmonyData = fallbackHarmonyData;
+    let harmonySource = "fallback";
+    let transitionTable = new Map();
 
     const paddle = { x: W / 2 - 74, y: H - 58, w: 148, h: 15, targetW: 148, speed: 640 };
     const ball = { x: W / 2, y: H - 92, r: 9, vx: 250, vy: -330, speed: 410 };
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function transitionKey(from, to) {
+        return `${from}>${to}`;
+    }
+
+    function buildTransitionTable() {
+        transitionTable = new Map();
+        (harmonyData.transitions || []).forEach(rule => {
+            transitionTable.set(transitionKey(rule.from, rule.to), rule);
+        });
+    }
+
+    function getRule(fromChord, toChord) {
+        const explicit = transitionTable.get(transitionKey(fromChord.name, toChord.name));
+        if (explicit) return explicit;
+
+        const distance = chordDistance(fromChord, toChord);
+        const comfort = toChord.comfort / 10;
+        const pleasantness = clamp(0.24 + comfort * 0.42 - distance * 0.055, 0.08, 0.78);
+        return {
+            from: fromChord.name,
+            to: toChord.name,
+            pleasantness,
+            tag: distance <= 2 ? "近接" : "未学習",
+            healBase: clamp((pleasantness - 0.4) * 0.55, 0.02, 0.32)
+        };
+    }
+
+    function getRecommendations(fromChord = currentChord) {
+        const uniqueNames = [...new Set(modes[mode])];
+        return uniqueNames
+            .map(name => {
+                const chord = chordByName.get(name);
+                const rule = getRule(fromChord, chord);
+                return { chord, rule };
+            })
+            .filter(item => item.chord.name !== fromChord.name)
+            .sort((a, b) => b.rule.pleasantness - a.rule.pleasantness)
+            .slice(0, 3);
+    }
+
+    function evaluateMove(fromChord, toChord) {
+        const rule = getRule(fromChord, toChord);
+        const pleasantness = rule.pleasantness;
+        const sweetLimit = harmonyData.thresholds?.sweet ?? 0.72;
+        const awfulLimit = harmonyData.thresholds?.awful ?? 0.28;
+        const move = transitionKey(fromChord.name, toChord.name);
+        const sweet = pleasantness >= sweetLimit || sweetMoves.has(move);
+        const awful = pleasantness <= awfulLimit;
+        const distance = chordDistance(fromChord, toChord);
+        const roughness = Math.max(0, 7 - toChord.comfort) + Math.max(0, distance - 4) + Math.round((1 - pleasantness) * 4);
+        const rank = recommendations.findIndex(item => item.chord.name === toChord.name);
+        return { move, rule, sweet, awful, distance, roughness, pleasantness, rank };
+    }
+
+    function damageForImpact(impact) {
+        if (impact.rank === 0 && impact.pleasantness >= 0.78) return 3;
+        if (impact.rank >= 0 && impact.rank < 3) return 2;
+        if (impact.sweet) return 2;
+        return 1;
+    }
 
     function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
@@ -524,7 +742,8 @@ canvas {
                     w: bw,
                     h: bh,
                     chord,
-                    hp: mode === "chaos" && chord.comfort <= 3 ? 2 : 1,
+                    maxHp: 3,
+                    hp: 3,
                     pulse: Math.random() * Math.PI * 2
                 });
             }
@@ -536,9 +755,12 @@ canvas {
         lives = 3;
         groove = 50;
         tension = 0;
+        collapse = 0;
+        combo = 0;
         previousChord = null;
         currentChord = chordByName.get("C");
         progression = [currentChord];
+        recommendations = getRecommendations(currentChord);
         particles = [];
         shake = 0;
         paddle.x = W / 2 - 74;
@@ -575,10 +797,14 @@ canvas {
         livesEl.textContent = String(lives);
         grooveEl.textContent = String(Math.round(groove));
         tensionEl.textContent = String(Math.round(tension));
+        collapseEl.textContent = String(Math.round(collapse));
+        comboEl.textContent = String(combo);
         chordNameEl.textContent = currentChord.name;
         romanEl.textContent = currentChord.roman;
         toneEl.textContent = currentChord.note;
+        recommendations = getRecommendations(currentChord);
         flowEl.innerHTML = "";
+        dealListEl.innerHTML = "";
 
         progression.slice(-8).forEach((chord, index, array) => {
             const item = document.createElement("span");
@@ -586,6 +812,21 @@ canvas {
             item.textContent = chord.name;
             flowEl.appendChild(item);
         });
+
+        recommendations.forEach((item, index) => {
+            const deal = document.createElement("div");
+            deal.className = "deal";
+            deal.innerHTML = `
+                <div class="deal-code">${item.chord.name}</div>
+                <div class="deal-tag">${index === 0 ? "最安" : "おすすめ"} / ${item.rule.tag || "近い響き"}</div>
+                <div class="deal-rate">${Math.round(item.rule.pleasantness * 100)}%</div>
+            `;
+            dealListEl.appendChild(deal);
+        });
+
+        dealSourceEl.textContent = harmonySource === "file"
+            ? "chord-probabilities.json の研究ベース確率を使用中"
+            : "内蔵フォールバック確率を使用中";
     }
 
     function addLog(text, kind = "") {
@@ -614,46 +855,82 @@ canvas {
         return Math.min(raw, 12 - raw);
     }
 
-    function applyChord(chord) {
+    function maybeRecover(impact) {
+        if (!impact.sweet || combo < 3 || combo % 3 !== 0 || lives >= 3) return;
+
+        const modeTax = mode === "chaos" ? 0.22 : mode === "jazz" ? 0.12 : 0.04;
+        const difficultyTax = modeTax + tension / 260 + collapse / 340;
+        const chance = clamp((impact.rule.healBase ?? 0.24) - difficultyTax, 0.03, 0.66);
+
+        if (Math.random() < chance) {
+            lives = Math.min(3, lives + 1);
+            showToast("コンボ回復！HP +1");
+            addLog(`COMBO ${combo}: 回復成功。難しいほど確率は下がります。`, "easy");
+        } else {
+            addLog(`COMBO ${combo}: 回復抽選 ${Math.round(chance * 100)}% 失敗。`, "hard");
+        }
+    }
+
+    function witherBlocks() {
+        if (blocks.length <= 6) return;
+
+        const bargainNames = new Set(getRecommendations(currentChord).map(item => item.chord.name));
+        const removable = blocks
+            .map((block, index) => ({ block, index, weight: bargainNames.has(block.chord.name) ? 0.35 : 1 }))
+            .sort((a, b) => (Math.random() * b.weight) - (Math.random() * a.weight));
+        const count = Math.min(Math.max(3, Math.round(blocks.length * 0.18)), blocks.length - 6);
+        const removed = new Set(removable.slice(0, count).map(item => item.index));
+
+        blocks = blocks.filter((_, index) => !removed.has(index));
+        collapse = Math.max(28, collapse - 100);
+        shake = Math.max(shake, 14);
+        showToast("度し難い進行でブロックが絶えた");
+        addLog("COLLAPSE: 盤面のコードが絶えました。次の特売候補を逃さないで。", "hard");
+    }
+
+    function applyChord(chord, impact) {
         previousChord = currentChord;
         currentChord = chord;
         progression.push(chord);
 
-        const move = previousChord ? `${previousChord.name}>${chord.name}` : "";
-        const sweet = sweetMoves.has(move);
-        const distance = chordDistance(previousChord, chord);
-        const roughness = Math.max(0, 7 - chord.comfort) + Math.max(0, distance - 4);
-
-        if (sweet || chord.comfort >= 8) {
+        if (impact.sweet) {
+            combo += 1;
             groove = Math.min(100, groove + 10 + chord.comfort);
-            tension = Math.max(0, tension - 12);
+            tension = Math.max(0, tension - 12 - Math.round(impact.pleasantness * 6));
+            collapse = Math.max(0, collapse - 10 - combo);
             paddle.targetW = Math.min(210, paddle.targetW + 13);
             ball.speed = Math.max(330, ball.speed - 22);
-            showToast(sweet ? "気持ちいい進行！操作が楽になる" : "安定した響き！");
-            addLog(`${previousChord ? previousChord.name + " -> " : ""}${chord.name}: 気持ちいい流れ。難易度ダウン。`, "easy");
+            showToast(impact.rank === 0 ? "特売コード直撃！HPを大きく削った" : "気持ちいい進行！操作が楽になる");
+            addLog(`${previousChord.name} -> ${chord.name}: ${Math.round(impact.pleasantness * 100)}% の気持ちよさ。COMBO ${combo}。`, "easy");
+            maybeRecover(impact);
         } else {
-            groove = Math.max(0, groove - 5 - roughness * 2);
-            tension = Math.min(100, tension + 8 + roughness * 4);
-            paddle.targetW = Math.max(88, paddle.targetW - roughness * 4);
-            ball.speed = Math.min(690, ball.speed + 24 + roughness * 5);
-            shake = Math.min(18, 4 + roughness);
-            showToast("攻めた進行！ボールが速くなる");
-            addLog(`${previousChord ? previousChord.name + " -> " : ""}${chord.name}: 緊張が増えた。高得点だが危険。`, "hard");
+            combo = 0;
+            groove = Math.max(0, groove - 5 - impact.roughness * 2);
+            tension = Math.min(100, tension + 8 + impact.roughness * 4);
+            collapse = Math.min(160, collapse + (impact.awful ? 26 : 8) + impact.roughness * 3);
+            paddle.targetW = Math.max(88, paddle.targetW - impact.roughness * 4);
+            ball.speed = Math.min(690, ball.speed + 24 + impact.roughness * 5);
+            shake = Math.min(18, 4 + impact.roughness);
+            showToast(impact.awful ? "度し難い進行！崩壊ゲージ上昇" : "攻めた進行！ボールが速くなる");
+            addLog(`${previousChord.name} -> ${chord.name}: ${Math.round(impact.pleasantness * 100)}%。緊張が増えた。`, "hard");
         }
 
-        moveScore(chord, sweet);
+        if (collapse >= 100) witherBlocks();
+        moveScore(chord, impact.sweet);
         normalizeBall();
-        playChord(chord, sweet);
+        playChord(chord, impact.sweet);
         updateHud();
     }
 
     function blockAt(index) {
         const block = blocks[index];
         if (!block) return;
-        block.hp -= 1;
+        const impact = evaluateMove(currentChord, block.chord);
+        const damage = damageForImpact(impact);
+        block.hp -= damage;
         burst(block.x + block.w / 2, block.y + block.h / 2, block.chord.color);
-        applyChord(block.chord);
         if (block.hp <= 0) blocks.splice(index, 1);
+        applyChord(block.chord, impact);
 
         if (blocks.length === 0) {
             score += Math.round(1200 + groove * 10);
@@ -812,8 +1089,10 @@ canvas {
 
         if (ball.y > H + 40) {
             lives -= 1;
+            combo = 0;
             groove = Math.max(0, groove - 16);
             tension = Math.min(100, tension + 10);
+            collapse = Math.min(160, collapse + 8);
             paddle.targetW = Math.max(92, paddle.targetW - 10);
             addLog("ミス。グルーヴが落ち、少し不安定になります。", "hard");
             if (lives <= 0) {
@@ -887,12 +1166,14 @@ canvas {
     }
 
     function drawBlocks() {
+        const bargainNames = new Set(recommendations.map(item => item.chord.name));
         blocks.forEach(block => {
             block.pulse += 0.025;
             const glow = 0.16 + Math.sin(block.pulse) * 0.07;
+            const bargain = bargainNames.has(block.chord.name);
             ctx.save();
             ctx.shadowColor = block.chord.color;
-            ctx.shadowBlur = 12 + tension * glow;
+            ctx.shadowBlur = (bargain ? 24 : 12) + tension * glow;
             ctx.fillStyle = block.chord.color;
             roundRect(block.x, block.y, block.w, block.h, 7);
             ctx.fill();
@@ -908,6 +1189,20 @@ canvas {
             ctx.fillStyle = block.hp > 1 ? "#ffdde5" : "rgba(244, 240, 232, 0.65)";
             ctx.font = "800 10px Segoe UI, Meiryo, sans-serif";
             ctx.fillText(block.chord.roman, block.x + block.w / 2, block.y + 32);
+
+            for (let i = 0; i < block.maxHp; i += 1) {
+                ctx.fillStyle = i < block.hp ? "#f47284" : "rgba(255, 255, 255, 0.18)";
+                ctx.fillRect(block.x + 8 + i * 12, block.y + block.h - 8, 8, 3);
+            }
+
+            if (bargain) {
+                ctx.fillStyle = "#f47284";
+                roundRect(block.x + block.w - 38, block.y - 7, 34, 16, 4);
+                ctx.fill();
+                ctx.fillStyle = "#fff7fa";
+                ctx.font = "950 9px Segoe UI, Meiryo, sans-serif";
+                ctx.fillText("SALE", block.x + block.w - 21, block.y + 1);
+            }
             ctx.restore();
         });
     }
@@ -1049,9 +1344,23 @@ canvas {
     });
     window.addEventListener("resize", resizeCanvas);
 
-    resizeCanvas();
-    resetGame(false);
-    requestAnimationFrame(loop);
+    async function boot() {
+        resizeCanvas();
+        try {
+            const response = await fetch("chord-probabilities.json", { cache: "no-cache" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            harmonyData = await response.json();
+            harmonySource = "file";
+        } catch (error) {
+            harmonyData = fallbackHarmonyData;
+            harmonySource = "fallback";
+        }
+        buildTransitionTable();
+        resetGame(false);
+        requestAnimationFrame(loop);
+    }
+
+    boot();
 })();
 </script>
 </body>

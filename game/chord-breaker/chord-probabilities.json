@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "tonic": "C",
+  "description": "Game-tuned chord transition probabilities derived from tonal hierarchy, tonal pitch-space distance, harmonic tension, and expectation/release research.",
+  "thresholds": {
+    "sweet": 0.72,
+    "awful": 0.28
+  },
+  "references": [
+    {
+      "key": "krumhansl_kessler_1982",
+      "title": "Tracing the dynamic changes in perceived tonal organization in a spatial representation of musical keys",
+      "authors": "Carol L. Krumhansl; Edward J. Kessler",
+      "year": 1982,
+      "doi": "10.1037/0033-295X.89.4.334",
+      "used_for": "Tonal hierarchy and tonic stability weights"
+    },
+    {
+      "key": "lerdahl_2001_2005",
+      "title": "Tonal Pitch Space",
+      "authors": "Fred Lerdahl",
+      "year": 2001,
+      "doi": "10.1093/acprof:oso/9780195178296.001.0001",
+      "used_for": "Pitch-space distance, attraction, and tension change"
+    },
+    {
+      "key": "vega_2003",
+      "title": "A Perceptual Experiment on Harmonic Tension and Melodic Attraction in Lerdahl's Tonal Pitch Space",
+      "authors": "Diego Vega",
+      "year": 2003,
+      "doi": "10.1177/102986490300700103",
+      "used_for": "Inverse relation between tension and attraction; stepwise/repeated attraction"
+    },
+    {
+      "key": "huron_2006",
+      "title": "Sweet Anticipation: Music and the Psychology of Expectation",
+      "authors": "David Huron",
+      "year": 2006,
+      "publisher": "MIT Press",
+      "used_for": "Expectation, surprise, and appraisal as a game feedback model"
+    }
+  ],
+  "transitions": [
+    { "from": "C", "to": "Am", "pleasantness": 0.9, "tag": "王道代理", "healBase": 0.46 },
+    { "from": "C", "to": "F", "pleasantness": 0.82, "tag": "開放", "healBase": 0.42 },
+    { "from": "C", "to": "Dm7", "pleasantness": 0.72, "tag": "準備", "healBase": 0.34 },
+    { "from": "C", "to": "Em7", "pleasantness": 0.68, "tag": "浮遊", "healBase": 0.28 },
+    { "from": "C", "to": "G7", "pleasantness": 0.65, "tag": "緊張準備", "healBase": 0.22 },
+    { "from": "C", "to": "Bb", "pleasantness": 0.42, "tag": "借用", "healBase": 0.12 },
+    { "from": "C", "to": "E7", "pleasantness": 0.35, "tag": "遠い支配", "healBase": 0.08 },
+    { "from": "C", "to": "Ab", "pleasantness": 0.28, "tag": "暗転", "healBase": 0.04 },
+    { "from": "C", "to": "Dbmaj7", "pleasantness": 0.15, "tag": "度し難い半音外", "healBase": 0.02 },
+
+    { "from": "Am", "to": "F", "pleasantness": 0.9, "tag": "王道下降", "healBase": 0.46 },
+    { "from": "Am", "to": "Dm7", "pleasantness": 0.76, "tag": "自然な準備", "healBase": 0.36 },
+    { "from": "Am", "to": "C", "pleasantness": 0.7, "tag": "帰還", "healBase": 0.3 },
+    { "from": "Am", "to": "G7", "pleasantness": 0.55, "tag": "押し出し", "healBase": 0.16 },
+    { "from": "Am", "to": "E7", "pleasantness": 0.48, "tag": "逆向き支配", "healBase": 0.1 },
+    { "from": "Am", "to": "Dbmaj7", "pleasantness": 0.18, "tag": "遠隔", "healBase": 0.02 },
+
+    { "from": "F", "to": "G7", "pleasantness": 0.88, "tag": "定番接続", "healBase": 0.44 },
+    { "from": "F", "to": "C", "pleasantness": 0.84, "tag": "着地", "healBase": 0.42 },
+    { "from": "F", "to": "Dm7", "pleasantness": 0.72, "tag": "近縁", "healBase": 0.32 },
+    { "from": "F", "to": "Am", "pleasantness": 0.66, "tag": "柔らかい横移動", "healBase": 0.24 },
+    { "from": "F", "to": "Ab", "pleasantness": 0.44, "tag": "色替え", "healBase": 0.1 },
+    { "from": "F", "to": "Dbmaj7", "pleasantness": 0.24, "tag": "重い借用", "healBase": 0.02 },
+
+    { "from": "G7", "to": "C", "pleasantness": 0.96, "tag": "完全解決", "healBase": 0.52 },
+    { "from": "G7", "to": "Am", "pleasantness": 0.7, "tag": "偽終止", "healBase": 0.32 },
+    { "from": "G7", "to": "F", "pleasantness": 0.48, "tag": "後退", "healBase": 0.1 },
+    { "from": "G7", "to": "Dbmaj7", "pleasantness": 0.2, "tag": "断崖", "healBase": 0.02 },
+
+    { "from": "Dm7", "to": "G7", "pleasantness": 0.93, "tag": "ii-V", "healBase": 0.5 },
+    { "from": "Dm7", "to": "C", "pleasantness": 0.78, "tag": "素直な着地", "healBase": 0.38 },
+    { "from": "Dm7", "to": "F", "pleasantness": 0.7, "tag": "近縁", "healBase": 0.26 },
+    { "from": "Dm7", "to": "E7", "pleasantness": 0.46, "tag": "横滑り", "healBase": 0.1 },
+
+    { "from": "Em7", "to": "Am", "pleasantness": 0.88, "tag": "iii-vi", "healBase": 0.44 },
+    { "from": "Em7", "to": "F", "pleasantness": 0.75, "tag": "半音上行", "healBase": 0.34 },
+    { "from": "Em7", "to": "Dm7", "pleasantness": 0.62, "tag": "下降", "healBase": 0.2 },
+    { "from": "Em7", "to": "Dbmaj7", "pleasantness": 0.22, "tag": "遠隔", "healBase": 0.02 },
+
+    { "from": "E7", "to": "Am", "pleasantness": 0.94, "tag": "副属解決", "healBase": 0.5 },
+    { "from": "E7", "to": "F", "pleasantness": 0.58, "tag": "半音解決", "healBase": 0.18 },
+    { "from": "E7", "to": "C", "pleasantness": 0.44, "tag": "未解決", "healBase": 0.08 },
+    { "from": "E7", "to": "Dbmaj7", "pleasantness": 0.16, "tag": "荒地", "healBase": 0.02 },
+
+    { "from": "Bb", "to": "F", "pleasantness": 0.84, "tag": "借用から復帰", "healBase": 0.38 },
+    { "from": "Bb", "to": "C", "pleasantness": 0.62, "tag": "ロック的上行", "healBase": 0.2 },
+    { "from": "Bb", "to": "Ab", "pleasantness": 0.55, "tag": "借用連鎖", "healBase": 0.12 },
+    { "from": "Bb", "to": "Dbmaj7", "pleasantness": 0.26, "tag": "濃すぎる", "healBase": 0.02 },
+
+    { "from": "Ab", "to": "Bb", "pleasantness": 0.72, "tag": "借用上昇", "healBase": 0.28 },
+    { "from": "Ab", "to": "C", "pleasantness": 0.52, "tag": "ドラマ着地", "healBase": 0.14 },
+    { "from": "Ab", "to": "F", "pleasantness": 0.46, "tag": "色残り", "healBase": 0.08 },
+    { "from": "Ab", "to": "Dbmaj7", "pleasantness": 0.34, "tag": "外側滞在", "healBase": 0.04 },
+
+    { "from": "Dbmaj7", "to": "C", "pleasantness": 0.46, "tag": "半音帰還", "healBase": 0.08 },
+    { "from": "Dbmaj7", "to": "F", "pleasantness": 0.38, "tag": "色彩転換", "healBase": 0.05 },
+    { "from": "Dbmaj7", "to": "G7", "pleasantness": 0.22, "tag": "過剰緊張", "healBase": 0.02 },
+    { "from": "Dbmaj7", "to": "E7", "pleasantness": 0.14, "tag": "度し難い遠隔", "healBase": 0.01 }
+  ]
+}
