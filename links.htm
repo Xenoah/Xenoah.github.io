@@ -9,6 +9,32 @@
     text-align: center;
 }
 
+body {
+    --hover-logo: none;
+    --hover-logo-opacity: 0;
+    position: relative;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--hover-logo);
+    background-size: 115px 115px;
+    background-repeat: repeat;
+    background-position: center;
+    opacity: var(--hover-logo-opacity);
+    transition: opacity 0.22s ease;
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
 .link-box {
     display: block;
     width: 300px;
@@ -22,19 +48,24 @@
 }
 
 .link-box-inner {
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: 82px 1fr;
     align-items: center;
+    width: 100%;
+    min-height: 50px;
+    transition: transform 0.22s ease;
 }
 
 .link-box img {
     width: 50px;
     height: 50px;
-    margin-right: 12px;
-    object-fit: cover;
+    justify-self: center;
+    object-fit: contain;
 }
 
 .link-text {
     font-size: 14px;
+    line-height: 1.4;
     text-align: left;
 }
 
@@ -44,8 +75,42 @@
     color: #ffffff;            /* テキストを白に */
 }
 
+.link-box:hover .link-box-inner {
+    transform: scale(1.04);
+}
+
 .link-box:hover img {
     opacity: 0.9; /* 画像のコントラスト調整（任意） */
+}
+
+body:has(a[href*="x.com"]:hover) {
+    --hover-logo: url("images_links/logo_x_fillWhite.png");
+    --hover-logo-opacity: 0.05;
+}
+
+body:has(a[href*="github.com"]:hover) {
+    --hover-logo: url("images_links/logo_github_gray.png");
+    --hover-logo-opacity: 0.06;
+}
+
+body:has(a[href*="booth.pm"]:hover) {
+    --hover-logo: url("images_links/logo_booth.png");
+    --hover-logo-opacity: 0.055;
+}
+
+body:has(a[href*="vrchat.com"]:hover) {
+    --hover-logo: url("images_links/logo_vrchat_square.png");
+    --hover-logo-opacity: 0.075;
+}
+
+body:has(a[href*="discordapp.com"]:hover) {
+    --hover-logo: url("images_links/logo_Discord_Black.png");
+    --hover-logo-opacity: 0.055;
+}
+
+body:has(a[href*="note.com"]:hover) {
+    --hover-logo: url("images_links/logo_note_app_icon.png");
+    --hover-logo-opacity: 0.045;
 }
 </style>
 
