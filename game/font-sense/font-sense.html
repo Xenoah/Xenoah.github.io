@@ -303,23 +303,63 @@ button:disabled {
 .specimen-stack {
     position: relative;
     z-index: 1;
-    display: grid;
-    gap: 10px;
+    min-height: 260px;
+    border: 1px solid rgba(255, 255, 255, 0.50);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.10)),
+        rgba(255, 255, 255, 0.22);
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+    backdrop-filter: blur(12px);
 }
 
-.specimen-strip {
-    min-height: 62px;
-    padding: 10px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.62);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.46);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
-    backdrop-filter: blur(14px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    overflow: hidden;
+.specimen-stack::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 24% 24%, rgba(18, 170, 163, 0.13), transparent 24%),
+        radial-gradient(circle at 78% 62%, rgba(217, 155, 24, 0.12), transparent 28%);
+    pointer-events: none;
+}
+
+.font-flyer {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    color: rgba(32, 40, 51, 0.72);
+    font-size: var(--size);
+    line-height: 1;
+    white-space: nowrap;
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+    animation:
+        flyAcross var(--duration) linear var(--delay) infinite,
+        flyerFloat calc(var(--duration) * 0.42) ease-in-out var(--delay) infinite;
+    filter: drop-shadow(0 10px 18px rgba(18, 170, 163, 0.10));
+    opacity: 0.88;
+}
+
+.font-flyer:nth-child(3n) {
+    color: rgba(18, 170, 163, 0.72);
+}
+
+.font-flyer:nth-child(4n) {
+    color: rgba(217, 155, 24, 0.70);
+}
+
+.font-flyer:nth-child(5n) {
+    color: rgba(32, 40, 51, 0.48);
+}
+
+.font-flyer-name {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    color: rgba(32, 40, 51, 0.54);
+    font-size: 12px;
+    font-weight: 850;
+    z-index: 2;
 }
 
 .strip-big {
@@ -968,6 +1008,32 @@ button:disabled {
     }
     to {
         background-position: 42px 42px, 42px 42px;
+    }
+}
+
+@keyframes flyAcross {
+    0% {
+        translate: -44vw 0;
+        opacity: 0;
+    }
+    8% {
+        opacity: 0.86;
+    }
+    82% {
+        opacity: 0.86;
+    }
+    100% {
+        translate: 48vw 0;
+        opacity: 0;
+    }
+}
+
+@keyframes flyerFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(var(--rot));
+    }
+    50% {
+        transform: translateY(var(--float)) rotate(calc(var(--rot) * -0.35));
     }
 }
 
@@ -2048,16 +2114,27 @@ button:disabled {
 
     function renderHeroSamples() {
         els.heroSamples.innerHTML = "";
-        const picks = sample(availableFonts, Math.min(3, availableFonts.length));
+        const glyphs = ["Ag", "永", "Qq", "あ", "R", "字", "font", "Type", "漢", "Aa", "Gg", "明", "Sans", "Serif", "かな", "0123"];
+        const picks = sample(availableFonts, Math.min(18, availableFonts.length));
         picks.forEach((font, index) => {
-            const strip = document.createElement("div");
-            strip.className = "specimen-strip";
-            strip.innerHTML = `
-                <div class="strip-big" style='font-family: ${font.stack}'>${["Ag", "永字", "font"][index] || "Aa"}</div>
-                <div class="strip-name">${fontLabel(font)}</div>
-            `;
-            els.heroSamples.appendChild(strip);
+            const flyer = document.createElement("div");
+            flyer.className = "font-flyer";
+            flyer.textContent = glyphs[index % glyphs.length];
+            flyer.style.fontFamily = font.stack;
+            flyer.style.setProperty("--x", `${Math.round(Math.random() * 88)}%`);
+            flyer.style.setProperty("--y", `${Math.round(8 + Math.random() * 78)}%`);
+            flyer.style.setProperty("--size", `${Math.round(24 + Math.random() * 42)}px`);
+            flyer.style.setProperty("--rot", `${Math.round(-14 + Math.random() * 28)}deg`);
+            flyer.style.setProperty("--float", `${Math.round(-18 + Math.random() * 36)}px`);
+            flyer.style.setProperty("--duration", `${Math.round(12 + Math.random() * 12)}s`);
+            flyer.style.setProperty("--delay", `${Math.round(-24 + Math.random() * 6)}s`);
+            els.heroSamples.appendChild(flyer);
         });
+
+        const label = document.createElement("div");
+        label.className = "font-flyer-name";
+        label.textContent = currentLanguage() === "ja" ? "利用可能フォントが飛び交うオープニング" : "Flying typefaces from detected fonts";
+        els.heroSamples.appendChild(label);
     }
 
     function renderStartStats() {
