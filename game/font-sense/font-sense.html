@@ -7,10 +7,10 @@
 <style>
 :root {
     color-scheme: light;
-    --bg: #f5f8fb;
-    --panel: #ffffff;
-    --panel-2: #eef4f7;
-    --line: #c8d5df;
+    --bg: #eef7fb;
+    --panel: rgba(255, 255, 255, 0.58);
+    --panel-2: rgba(255, 255, 255, 0.44);
+    --line: rgba(125, 153, 170, 0.34);
     --text: #202833;
     --muted: #647386;
     --cyan: #12aaa3;
@@ -18,6 +18,18 @@
     --rose: #d95565;
     --green: #3d9b52;
     --ink: #111318;
+    --jp-size: clamp(27px, 4.4vw, 54px);
+    --en-size: clamp(23px, 3.8vw, 46px);
+}
+
+html[data-text-size="small"] {
+    --jp-size: clamp(21px, 3.4vw, 40px);
+    --en-size: clamp(18px, 3vw, 34px);
+}
+
+html[data-text-size="large"] {
+    --jp-size: clamp(34px, 5.5vw, 68px);
+    --en-size: clamp(29px, 4.8vw, 58px);
 }
 
 * { box-sizing: border-box; }
@@ -25,12 +37,25 @@ html, body { min-height: 100%; }
 body {
     margin: 0;
     background:
-        radial-gradient(circle at 18% 8%, rgba(18, 170, 163, 0.16), transparent 26%),
-        radial-gradient(circle at 78% 16%, rgba(217, 155, 24, 0.12), transparent 30%),
-        linear-gradient(150deg, #ffffff, #f5f8fb 58%, #edf4f8);
+        linear-gradient(115deg, rgba(18, 170, 163, 0.16), transparent 34%),
+        linear-gradient(245deg, rgba(217, 155, 24, 0.12), transparent 38%),
+        linear-gradient(150deg, #ffffff, #f1f9fb 56%, #e8f3f7);
     color: var(--text);
     font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
     overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(32, 40, 51, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(32, 40, 51, 0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 78%);
+    animation: gridDrift 18s linear infinite;
 }
 
 button,
@@ -53,6 +78,8 @@ button:disabled {
     min-height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr;
+    position: relative;
+    z-index: 1;
 }
 
 .topbar {
@@ -62,9 +89,9 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    border-bottom: 1px solid rgba(32, 40, 51, 0.10);
-    background: rgba(255, 255, 255, 0.86);
-    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(125, 153, 170, 0.30);
+    background: rgba(255, 255, 255, 0.54);
+    backdrop-filter: blur(18px) saturate(1.25);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -90,6 +117,32 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+}
+
+.size-control {
+    min-height: 40px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    display: inline-flex;
+    gap: 3px;
+    box-shadow: 0 10px 26px rgba(35, 72, 92, 0.08);
+}
+
+.size-btn {
+    min-width: 38px;
+    min-height: 32px;
+    border-radius: 6px;
+    color: var(--muted);
+    background: transparent;
+    font-weight: 900;
+}
+
+.size-btn.active {
+    color: #063432;
+    background: rgba(18, 170, 163, 0.24);
 }
 
 .icon-btn,
@@ -106,6 +159,8 @@ button:disabled {
     color: var(--text);
     border: 1px solid var(--line);
     background: var(--panel-2);
+    box-shadow: 0 10px 26px rgba(35, 72, 92, 0.08);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .icon-btn {
@@ -134,6 +189,8 @@ button:disabled {
 .text-btn:hover,
 .ghost-btn:hover {
     border-color: var(--cyan);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px rgba(18, 170, 163, 0.14);
 }
 
 .primary-btn:hover {
@@ -161,10 +218,16 @@ button:disabled {
 
 .hero,
 .panel {
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.62);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 22px 70px rgba(34, 63, 82, 0.12);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.36)),
+        var(--panel);
+    box-shadow:
+        0 22px 70px rgba(34, 63, 82, 0.13),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(20px) saturate(1.18);
+    animation: fadeLift 0.58s ease both;
 }
 
 .hero {
@@ -185,8 +248,9 @@ button:disabled {
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(150px, 24vw, 280px);
     line-height: 0.8;
-    color: rgba(18, 170, 163, 0.075);
+    color: rgba(18, 170, 163, 0.09);
     pointer-events: none;
+    animation: softFloat 7s ease-in-out infinite;
 }
 
 .hero h1 {
@@ -196,6 +260,7 @@ button:disabled {
     font-size: clamp(38px, 6vw, 78px);
     line-height: 0.95;
     letter-spacing: 0;
+    text-shadow: 0 18px 48px rgba(18, 170, 163, 0.14);
 }
 
 .hero-copy {
@@ -217,9 +282,11 @@ button:disabled {
 .specimen-strip {
     min-height: 62px;
     padding: 10px 14px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.62);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.86);
+    background: rgba(255, 255, 255, 0.46);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(14px);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -266,11 +333,21 @@ button:disabled {
     text-align: left;
     display: grid;
     gap: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
 .mode-card.active {
     border-color: var(--cyan);
-    box-shadow: 0 0 0 2px rgba(88, 215, 208, 0.20);
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow:
+        0 0 0 2px rgba(18, 170, 163, 0.16),
+        0 18px 42px rgba(18, 170, 163, 0.12);
+}
+
+.mode-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(18, 170, 163, 0.55);
 }
 
 .mode-name {
@@ -302,9 +379,10 @@ button:disabled {
 .stat {
     min-height: 74px;
     padding: 12px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.58);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.78);
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
 }
 
 .stat-label {
@@ -340,9 +418,10 @@ button:disabled {
 
 .hud-item {
     padding: 10px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.58);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.78);
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
 }
 
 .hud-label {
@@ -369,18 +448,24 @@ button:disabled {
     border-radius: inherit;
     background: linear-gradient(90deg, var(--cyan), var(--gold));
     transition: width 0.1s linear;
+    animation: timerGlow 2.8s ease-in-out infinite;
 }
 
 .specimen-card {
     min-height: 320px;
     padding: clamp(18px, 4vw, 36px);
-    border: 1px solid rgba(32, 40, 51, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.72);
     border-radius: 8px;
     background:
         linear-gradient(135deg, rgba(18, 170, 163, 0.06), rgba(217, 155, 24, 0.045)),
-        #ffffff;
+        rgba(255, 255, 255, 0.78);
     color: var(--ink);
+    box-shadow:
+        0 24px 60px rgba(42, 76, 96, 0.13),
+        inset 0 1px 0 rgba(255, 255, 255, 0.74);
+    backdrop-filter: blur(16px) saturate(1.12);
     display: grid;
+    grid-template-columns: 1fr;
     align-content: center;
     gap: 18px;
     position: relative;
@@ -399,24 +484,65 @@ button:disabled {
 .sample-main {
     position: relative;
     z-index: 1;
-    font-size: clamp(54px, 9vw, 132px);
-    line-height: 0.95;
+    min-height: 132px;
+    padding: 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.46);
+    font-size: var(--jp-size);
+    line-height: 1.22;
     letter-spacing: 0;
     overflow-wrap: anywhere;
+    animation: sampleBreathe 4.8s ease-in-out infinite;
 }
 
 .sample-sub {
     position: relative;
     z-index: 1;
-    color: rgba(17, 19, 24, 0.72);
-    font-size: clamp(18px, 2.4vw, 30px);
-    line-height: 1.3;
+    min-height: 118px;
+    padding: 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.36);
+    color: rgba(17, 19, 24, 0.78);
+    font-size: var(--en-size);
+    line-height: 1.22;
+}
+
+.sample-main::before,
+.sample-sub::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(17, 19, 24, 0.46);
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.sample-source {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    color: rgba(17, 19, 24, 0.58);
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+    font-size: 13px;
+    text-align: right;
 }
 
 .choices {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+}
+
+.answer-flow {
+    display: grid;
+    gap: 10px;
+}
+
+.next-btn {
+    width: 100%;
+    min-height: 54px;
 }
 
 .choice {
@@ -431,10 +557,15 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .choice:hover {
     border-color: var(--cyan);
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.66);
+    box-shadow: 0 14px 34px rgba(18, 170, 163, 0.12);
 }
 
 .choice.correct {
@@ -476,9 +607,10 @@ button:disabled {
 .feedback {
     min-height: 118px;
     padding: 16px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.58);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.78);
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
 }
 
 .feedback-title {
@@ -494,6 +626,44 @@ button:disabled {
 
 .feedback.good .feedback-title { color: var(--green); }
 .feedback.bad .feedback-title { color: var(--rose); }
+
+.font-compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.compare-card {
+    min-height: 180px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.compare-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.compare-sample {
+    margin-top: 8px;
+    color: var(--text);
+    font-size: clamp(22px, 3vw, 38px);
+    line-height: 1.25;
+    display: grid;
+    gap: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.compare-name {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 850;
+}
 
 .font-meter {
     display: grid;
@@ -532,9 +702,10 @@ button:disabled {
 .font-card {
     min-height: 108px;
     padding: 12px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.58);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.78);
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
     overflow: hidden;
 }
 
@@ -578,9 +749,10 @@ button:disabled {
 .weak-row {
     min-height: 52px;
     padding: 10px 12px;
-    border: 1px solid rgba(32, 40, 51, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.58);
     border-radius: 8px;
-    background: rgba(238, 244, 247, 0.78);
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -589,6 +761,120 @@ button:disabled {
 
 .hidden {
     display: none !important;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    padding: 18px;
+    background: rgba(232, 243, 247, 0.62);
+    backdrop-filter: blur(18px) saturate(1.18);
+    display: grid;
+    place-items: center;
+}
+
+.modal-window {
+    width: min(980px, 100%);
+    max-height: min(760px, calc(100vh - 36px));
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.68);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.58)),
+        rgba(255, 255, 255, 0.66);
+    box-shadow:
+        0 30px 90px rgba(34, 63, 82, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(22px) saturate(1.16);
+    animation: fadeLift 0.22s ease both;
+}
+
+.modal-head,
+.modal-actions {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-head {
+    border-bottom: 1px solid rgba(125, 153, 170, 0.24);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 20px;
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+.modal-actions {
+    border-top: 1px solid rgba(125, 153, 170, 0.24);
+    justify-content: flex-end;
+}
+
+@keyframes fadeLift {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes softFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-1deg);
+    }
+    50% {
+        transform: translate3d(-10px, -8px, 0) rotate(1deg);
+    }
+}
+
+@keyframes sampleBreathe {
+    0%, 100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 14px 24px rgba(18, 170, 163, 0.06));
+    }
+    50% {
+        transform: translateY(-3px);
+        filter: drop-shadow(0 18px 28px rgba(18, 170, 163, 0.12));
+    }
+}
+
+@keyframes timerGlow {
+    0%, 100% {
+        filter: saturate(1);
+    }
+    50% {
+        filter: saturate(1.25) brightness(1.08);
+    }
+}
+
+@keyframes gridDrift {
+    from {
+        background-position: 0 0, 0 0;
+    }
+    to {
+        background-position: 42px 42px, 42px 42px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+    }
 }
 
 @media (max-width: 920px) {
@@ -625,6 +911,7 @@ button:disabled {
     .mode-grid,
     .stats-row,
     .choices,
+    .font-compare,
     .gallery,
     .side-panel {
         grid-template-columns: 1fr;
@@ -637,6 +924,11 @@ button:disabled {
     .sample-main {
         font-size: clamp(44px, 15vw, 76px);
     }
+
+    .sample-main,
+    .sample-sub {
+        min-height: 136px;
+    }
 }
 </style>
 </head>
@@ -648,6 +940,11 @@ button:disabled {
             <div class="brand-sub">絶対フォント感を鍛えるゲーム</div>
         </div>
         <div class="top-actions">
+            <div class="size-control" aria-label="文字サイズ">
+                <button class="size-btn" data-size="small" type="button">小</button>
+                <button class="size-btn" data-size="medium" type="button">中</button>
+                <button class="size-btn" data-size="large" type="button">大</button>
+            </div>
             <button class="text-btn" id="homeBtn" type="button">HOME</button>
             <button class="text-btn" id="restartBtn" type="button">RESTART</button>
         </div>
@@ -722,11 +1019,15 @@ button:disabled {
                     </div>
 
                     <div class="specimen-card" id="specimenCard">
-                        <div class="sample-main" id="sampleMain">Aa</div>
-                        <div class="sample-sub" id="sampleSub">The quick brown fox jumps over 0123456789</div>
+                        <div class="sample-main" id="sampleMain" data-label="日本語">吾輩は猫である。</div>
+                        <div class="sample-sub" id="sampleSub" data-label="English">I am a cat.</div>
+                        <div class="sample-source" id="sampleSource">夏目漱石『吾輩は猫である』</div>
                     </div>
 
-                    <div class="choices" id="choices"></div>
+                    <div class="answer-flow">
+                        <div class="choices" id="choices"></div>
+                        <button class="primary-btn next-btn hidden" id="nextBtn" type="button">NEXT</button>
+                    </div>
                 </div>
 
                 <aside class="panel side-panel">
@@ -734,7 +1035,6 @@ button:disabled {
                         <h2 class="feedback-title" id="feedbackTitle">READY</h2>
                         <p class="feedback-text" id="feedbackText">STARTで出題します。</p>
                     </div>
-                    <button class="primary-btn hidden" id="nextBtn" type="button">NEXT</button>
                     <div>
                         <h2 class="panel-title">FONT RADAR</h2>
                         <div class="font-meter" id="fontMeter"></div>
@@ -782,6 +1082,22 @@ button:disabled {
             </div>
         </section>
     </main>
+
+    <div class="modal-backdrop hidden" id="compareModal" role="dialog" aria-modal="true" aria-labelledby="compareTitle">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h2 class="modal-title" id="compareTitle">フォント比較</h2>
+                <button class="icon-btn" id="compareCloseBtn" type="button" aria-label="閉じる">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="font-compare" id="fontCompare"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="ghost-btn" id="compareBackBtn" type="button">CLOSE</button>
+                <button class="primary-btn" id="compareNextBtn" type="button">NEXT</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -814,13 +1130,107 @@ button:disabled {
         expert: { label: "EXPERT", rounds: 18, choices: 6, seconds: 14, pool: 18, points: 180 }
     };
 
-    const SAMPLE_SETS = [
-        { main: "Ag", sub: "Hamburgefonstiv 0123456789" },
-        { main: "font", sub: "The quick brown fox jumps over lazy type" },
-        { main: "永字", sub: "春夏秋冬 かな カナ ABC 123" },
-        { main: "R42", sub: "Vector rhythm, soft curves, hard edges" },
-        { main: "海風", sub: "Typography training stage" },
-        { main: "Qq", sub: "Minimum, maximum, modular motion" }
+    const QUOTE_SETS = [
+        { jp: "吾輩は猫である。", en: "I am a cat.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "名前はまだ無い。", en: "I do not yet have a name.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "どこで生れたかとんと見当がつかぬ。", en: "I have no idea where I was born.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。", en: "I only remember mewing in some dim, damp place.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "吾輩はここで始めて人間というものを見た。", en: "It was there that I first saw a human being.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "この書生というのは時々我々を捕えて煮て食うという話である。", en: "They say these students sometimes catch us, boil us, and eat us.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "しかしその当時は何という考もなかったから別段恐しいとも思わなかった。", en: "But at the time I had no such thoughts, so I was not especially afraid.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", en: "I only felt something airy when I was lifted on his palm.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "この時妙なものだと思った感じが今でも残っている。", en: "The feeling that it was a strange thing still remains with me.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", en: "First of all, a face that ought to be adorned with fur was smooth like a kettle.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "のみならず顔の真中があまりに突起している。", en: "Moreover, the middle of the face protrudes far too much.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "そうしてその穴の中から時々ぷうぷうと煙を吹く。", en: "And from those holes it sometimes puffs out smoke.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "どうも咽せぽくて実に弱った。", en: "It was choking, and I was truly troubled.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "ふと気が付いて見ると書生はいない。", en: "When I suddenly came to, the student was gone.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "たくさんおった兄弟が一疋も見えぬ。", en: "Not one of my many siblings was in sight.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "肝心の母親さえ姿を隠してしまった。", en: "Even my all-important mother had disappeared.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "その上今までの所とは違って無暗に明るい。", en: "On top of that, unlike before, it was terribly bright.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "眼を明いていられぬくらいだ。", en: "It was so bright I could hardly keep my eyes open.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "はてな何でも容子がおかしいと、のそのそ這い出して見ると非常に痛い。", en: "Thinking something was odd, I crawled out and found it terribly painful.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "吾輩は藁の上から急に笹原の中へ棄てられたのである。", en: "I had suddenly been thrown from the straw into a bamboo thicket.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "ようやくの思いで笹原を這い出すと向うに大きな池がある。", en: "After great effort I crawled out, and there was a large pond ahead.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "吾輩は池の前に坐ってどうしたらよかろうと考えて見た。", en: "I sat before the pond and wondered what I should do.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "別にこれという分別も出ない。", en: "No particular good idea came to me.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "しばらくして泣いたら書生がまた迎に来てくれるかと考え付いた。", en: "After a while I thought the student might come back if I cried.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "ニャー、ニャーと試みにやって見たが誰も来ない。", en: "I tried mewing, but no one came.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "そのうち池の上をさらさらと風が渡って日が暮れかかる。", en: "Soon a light wind crossed the pond, and evening began to fall.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "腹が非常に減って来た。", en: "I became terribly hungry.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "泣きたくても声が出ない。", en: "Even though I wanted to cry, no voice came out.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "仕方がない、何でもよいから食物のある所まであるこうと決心をしてそろりそろりと池を左りに廻り始めた。", en: "With no choice, I resolved to walk somewhere with food and slowly circled left around the pond.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "どうも非常に苦しい。", en: "It was all terribly hard.", source: "夏目漱石『吾輩は猫である』" },
+        { jp: "親譲りの無鉄砲で小供の時から損ばかりしている。", en: "With a reckless nature inherited from my parents, I had suffered losses since childhood.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。", en: "When I was in elementary school, I once jumped from the second floor and hurt my back for about a week.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "なぜそんな無闇をしたと聞く人があるかも知れぬ。", en: "Some may ask why I did such a rash thing.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "別段深い理由でもない。", en: "There was no especially deep reason.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "弱虫やーい。", en: "Coward, coward!", source: "夏目漱石『坊っちゃん』" },
+        { jp: "と囃したからである。", en: "That was because he jeered at me.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "この次は抜かさずに飛んで見せますと答えた。", en: "I answered that next time I would jump without hurting myself.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "親類のものから西洋製のナイフを貰って奇麗な刃を日に翳して、友達に見せていた。", en: "I received a Western knife from a relative and showed its shining blade to my friends in the sun.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "一人が光る事は光るが切れそうもないと云った。", en: "One of them said it shone, but did not look sharp.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "切れぬ事があるか、何でも切ってみせると受け合った。", en: "I insisted it could cut, and promised to cut anything.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "そんなら君の指を切ってみろと注文した。", en: "Then he told me to cut my own finger.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "何だ指ぐらいこの通りだと右の手の親指の甲をはすに切り込んだ。", en: "Saying a finger was nothing, I sliced diagonally into the back of my right thumb.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "幸いナイフが小さいのと、親指の骨が堅かったので、今だに親指は手に付いている。", en: "Luckily, the knife was small and the thumb bone was hard, so the thumb is still attached.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "しかし創痕は死ぬまで消えぬ。", en: "But the scar will remain until I die.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "庭を東へ二十歩に行き尽すと、南上がりにいささかばかりの菜園があった。", en: "Twenty steps east across the garden, there was a small vegetable patch rising to the south.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "真中に栗の木が一本立っている。", en: "In the middle stood a single chestnut tree.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "これは命より大事な栗だ。", en: "Those chestnuts were dearer than life.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "実の熟する時分は起き抜けに背戸を出て落ちた奴を拾ってきて、学校で食う。", en: "When the nuts ripened, I went out as soon as I woke, picked up the fallen ones, and ate them at school.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "勘太郎は無論弱虫である。", en: "Kantaro was, of course, a coward.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "弱虫の癖に四つ目垣を乗りこえて、栗を盗みにくる。", en: "Coward though he was, he climbed over the fence to steal chestnuts.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "ある日の夕方折戸の蔭に隠れて、とうとう勘太郎を捕まえてやった。", en: "One evening I hid behind the folding gate and finally caught Kantaro.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "その時勘太郎は逃げ路を失って、一生懸命に飛びかかってきた。", en: "Then Kantaro lost his escape route and leapt at me with all his might.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "向うは二つばかり年上である。", en: "He was about two years older than I was.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "弱虫だが力は強い。", en: "He was a coward, but he was strong.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "痛かったから勘太郎を垣根へ押しつけておいて、足搦をかけて向うへ倒してやった。", en: "It hurt, so I shoved Kantaro against the fence, tripped him, and knocked him over.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "勘太郎は四つ目垣を半分崩して、自分の領分へ真逆様に落ちた。", en: "Kantaro half-broke the fence and fell headfirst into his own territory.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "この外いたずらは大分やった。", en: "Besides that, I played many pranks.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "人参の芽が出揃わぬ処へ藁が一面に敷いてあった。", en: "Straw had been spread over the field before the carrot sprouts came up.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "その上で三人が半日相撲をとりつづけに取ったら、人参がみんな踏みつぶされてしまった。", en: "When the three of us wrestled on it for half a day, all the carrots were trampled flat.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "その時分はどんな仕掛か知らぬ。", en: "At that time I did not know what sort of device it was.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "石や棒ちぎれをぎゅうぎゅう井戸の中へ挿し込んだ。", en: "I jammed stones and bits of sticks into the well.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "水が出なくなったのを見届けて、うちへ帰って飯を食っていた。", en: "After making sure the water had stopped, I went home and was eating.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "おやじはちっともおれを可愛がってくれなかった。", en: "My father never showed me the least affection.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "母は兄ばかり贔屓にしていた。", en: "My mother favored only my elder brother.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "なるほど碌なものにはならない。", en: "Indeed, I did not turn into anything respectable.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "ご覧の通りの始末である。", en: "As you can see, this is how things turned out.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "行く先が案じられたのも無理はない。", en: "It was no wonder they worried about my future.", source: "夏目漱石『坊っちゃん』" },
+        { jp: "二人の若い紳士が、すっかりイギリスの兵隊のかたちをして、だいぶ山奥をあるいておりました。", en: "Two young gentlemen, dressed quite like English soldiers, were walking deep in the mountains.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ぜんたい、ここらの山は怪しからんね。", en: "These mountains are really outrageous.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "鳥も獣も一疋も居やがらん。", en: "There is not a single bird or beast here.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "それはだいぶの山奥でした。", en: "It was very deep in the mountains.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "案内してきた専門の鉄砲打ちも、ちょっとまごついて、どこかへ行ってしまったくらいの山奥でした。", en: "It was so deep that even their professional guide had lost his way and gone off somewhere.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ぼくはもう戻ろうと思う。", en: "I think I will go back now.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "さあ、ぼくもちょうど寒くはなったし腹は空いてきたし戻ろうと思う。", en: "Well, I am cold now, and hungry too, so I think I will go back.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "兎もでていたねえ。", en: "There were rabbits around, too.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ところがどうも困ったことは、どっちへ行けば戻れるのか、いっこう見当がつかなくなっていました。", en: "The trouble was that they had no idea which way would take them back.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "風がどうと吹いてきて、草はざわざわ、木の葉はかさかさ、木はごとんごとんと鳴りました。", en: "The wind blew hard; the grass rustled, the leaves rattled, and the trees thudded.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "どうも腹が空いた。", en: "I am terribly hungry.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ぼくもそうだ。", en: "So am I.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "もうあんまりあるきたくないな。", en: "I really do not want to walk anymore.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "二人の紳士は、ざわざわ鳴るすすきの中で、こんなことを云いました。", en: "The two gentlemen said these things among the rustling pampas grass.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "その時ふとうしろを見ますと、立派な一軒の西洋造りの家がありました。", en: "Then, suddenly looking behind them, they saw a splendid Western-style house.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "山猫軒という札がでていました。", en: "There was a sign that read Wildcat House.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "君、ちょうどいい。", en: "Look, this is perfect.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ここはこれでなかなか開けてるんだ。", en: "This place is rather civilized after all.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "おや、こんなとこにおかしいね。", en: "Well, how strange to find it in a place like this.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "しかしとにかく何か食事ができるんだろう。", en: "But at any rate, we can get something to eat.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "もちろんできるさ。", en: "Of course we can.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "看板にそう書いてあるじゃないか。", en: "The sign says so, does it not?", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "二人は玄関に立ちました。", en: "The two stood at the entrance.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "玄関は白い瀬戸の煉瓦で組んで、実に立派なもんです。", en: "The entrance was built of white porcelain bricks and was truly splendid.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "どなたもどうかお入りください。", en: "Everyone, please come in.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "決してご遠慮はありません。", en: "There is absolutely no need to hesitate.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "二人はそこで、ひどくよろこんで言いました。", en: "At that, the two were delighted and spoke.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "こいつはどうだ、やっぱり世の中はうまくできてるねえ。", en: "How about this? The world really is well arranged.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "どうもそうらしい。", en: "It certainly seems so.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "二人は戸を押して、なかへ入りました。", en: "The two pushed the door open and went inside.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "そこはすぐ廊下になっていました。", en: "Inside, there was immediately a corridor.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "ことに肥ったお方や若いお方は、大歓迎いたします。", en: "We especially welcome those who are plump or young.", source: "宮沢賢治『注文の多い料理店』" },
+        { jp: "二人は大歓迎というので、もう大よろこびです。", en: "Being warmly welcomed, the two were overjoyed.", source: "宮沢賢治『注文の多い料理店』" }
     ];
 
     const $ = (selector) => document.querySelector(selector);
@@ -839,6 +1249,7 @@ button:disabled {
         galleryBtn: $("#galleryBtn"),
         homeBtn: $("#homeBtn"),
         restartBtn: $("#restartBtn"),
+        sizeBtns: document.querySelectorAll(".size-btn"),
         roundText: $("#roundText"),
         scoreText: $("#scoreText"),
         comboText: $("#comboText"),
@@ -848,10 +1259,16 @@ button:disabled {
         specimenCard: $("#specimenCard"),
         sampleMain: $("#sampleMain"),
         sampleSub: $("#sampleSub"),
+        sampleSource: $("#sampleSource"),
         choices: $("#choices"),
         feedback: $("#feedback"),
         feedbackTitle: $("#feedbackTitle"),
         feedbackText: $("#feedbackText"),
+        compareModal: $("#compareModal"),
+        fontCompare: $("#fontCompare"),
+        compareCloseBtn: $("#compareCloseBtn"),
+        compareBackBtn: $("#compareBackBtn"),
+        compareNextBtn: $("#compareNextBtn"),
         nextBtn: $("#nextBtn"),
         fontMeter: $("#fontMeter"),
         galleryList: $("#galleryList"),
@@ -883,6 +1300,16 @@ button:disabled {
 
     function writeSave() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+    }
+
+    function applyTextSize(size) {
+        const normalized = ["small", "medium", "large"].includes(size) ? size : "medium";
+        document.documentElement.dataset.textSize = normalized;
+        save.textSize = normalized;
+        els.sizeBtns.forEach((button) => {
+            button.classList.toggle("active", button.dataset.size === normalized);
+        });
+        writeSave();
     }
 
     function detectFonts() {
@@ -937,6 +1364,7 @@ button:disabled {
 
     function init() {
         availableFonts = detectFonts();
+        applyTextSize(save.textSize || "medium");
         renderModeGrid();
         renderHeroSamples();
         renderStartStats();
@@ -1022,6 +1450,8 @@ button:disabled {
     function nextQuestion() {
         clearInterval(timerId);
         els.nextBtn.classList.add("hidden");
+        closeCompareModal();
+        els.fontCompare.innerHTML = "";
         els.feedback.className = "feedback";
         els.feedbackTitle.textContent = "QUESTION";
         els.feedbackText.textContent = "Choose the matching font.";
@@ -1034,7 +1464,7 @@ button:disabled {
         state.round += 1;
         const target = pickTargetFont();
         const options = buildOptions(target);
-        const sampleSet = SAMPLE_SETS[Math.floor(Math.random() * SAMPLE_SETS.length)];
+        const sampleSet = QUOTE_SETS[Math.floor(Math.random() * QUOTE_SETS.length)];
         question = {
             target,
             options,
@@ -1065,8 +1495,9 @@ button:disabled {
 
     function renderQuestion() {
         const expertNoise = selectedMode === "expert";
-        els.sampleMain.textContent = question.sampleSet.main;
-        els.sampleSub.textContent = question.sampleSet.sub;
+        els.sampleMain.textContent = question.sampleSet.jp;
+        els.sampleSub.textContent = question.sampleSet.en;
+        els.sampleSource.textContent = question.sampleSet.source;
         els.sampleMain.style.fontFamily = question.target.stack;
         els.sampleSub.style.fontFamily = question.target.stack;
         els.sampleMain.style.fontWeight = expertNoise ? String(sample([400, 500, 600, 700], 1)[0]) : "500";
@@ -1131,9 +1562,46 @@ button:disabled {
         els.feedbackText.textContent = isCorrect
             ? `${question.target.name} / ${question.target.group}`
             : `Answer: ${question.target.name} / ${question.target.group}`;
+        renderCompare(fontName, isCorrect);
         els.nextBtn.classList.remove("hidden");
         updateHud();
         renderFontMeter();
+    }
+
+    function renderCompare(fontName, isCorrect) {
+        els.fontCompare.innerHTML = "";
+        if (isCorrect || !fontName) return;
+
+        const selected = question.options.find((font) => font.name === fontName);
+        if (!selected) return;
+
+        els.fontCompare.innerHTML = `
+            <div class="compare-card">
+                <div class="compare-label">SELECTED</div>
+                <div class="compare-sample" style='font-family: ${selected.stack}'>
+                    <span>${question.sampleSet.jp}</span>
+                    <span>${question.sampleSet.en}</span>
+                </div>
+                <div class="compare-name">${selected.name}</div>
+            </div>
+            <div class="compare-card">
+                <div class="compare-label">CORRECT</div>
+                <div class="compare-sample" style='font-family: ${question.target.stack}'>
+                    <span>${question.sampleSet.jp}</span>
+                    <span>${question.sampleSet.en}</span>
+                </div>
+                <div class="compare-name">${question.target.name}</div>
+            </div>
+        `;
+        openCompareModal();
+    }
+
+    function openCompareModal() {
+        els.compareModal.classList.remove("hidden");
+    }
+
+    function closeCompareModal() {
+        els.compareModal.classList.add("hidden");
     }
 
     function updateHud() {
@@ -1212,16 +1680,37 @@ button:disabled {
     function bindEvents() {
         els.startBtn.addEventListener("click", startGame);
         els.galleryBtn.addEventListener("click", () => showScreen(els.galleryScreen));
+        els.sizeBtns.forEach((button) => {
+            button.addEventListener("click", () => applyTextSize(button.dataset.size));
+        });
         els.homeBtn.addEventListener("click", () => {
             clearInterval(timerId);
+            closeCompareModal();
             showScreen(els.startScreen);
         });
         els.restartBtn.addEventListener("click", startGame);
         els.nextBtn.addEventListener("click", nextQuestion);
+        els.compareCloseBtn.addEventListener("click", closeCompareModal);
+        els.compareBackBtn.addEventListener("click", closeCompareModal);
+        els.compareNextBtn.addEventListener("click", () => {
+            closeCompareModal();
+            nextQuestion();
+        });
         els.againBtn.addEventListener("click", startGame);
-        els.toStartBtn.addEventListener("click", () => showScreen(els.startScreen));
+        els.toStartBtn.addEventListener("click", () => {
+            closeCompareModal();
+            showScreen(els.startScreen);
+        });
 
         document.addEventListener("keydown", (event) => {
+            if (!els.compareModal.classList.contains("hidden")) {
+                if (event.key === "Escape") closeCompareModal();
+                if (event.key === "Enter") {
+                    closeCompareModal();
+                    nextQuestion();
+                }
+                return;
+            }
             if (els.gameScreen.classList.contains("active")) {
                 if (event.key === "Enter" && !els.nextBtn.classList.contains("hidden")) nextQuestion();
                 const index = Number(event.key) - 1;
@@ -1231,6 +1720,7 @@ button:disabled {
             }
             if (event.key === "Escape") {
                 clearInterval(timerId);
+                closeCompareModal();
                 showScreen(els.startScreen);
             }
         });
