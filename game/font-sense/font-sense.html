@@ -1122,6 +1122,7 @@ button:disabled {
                 <button class="size-btn" data-size="medium" type="button">中</button>
                 <button class="size-btn" data-size="large" type="button">大</button>
             </div>
+            <button class="text-btn" id="languageBtn" type="button">JP</button>
             <button class="text-btn" id="sfxBtn" type="button">SFX ON</button>
             <button class="text-btn" id="homeBtn" type="button">HOME</button>
             <button class="text-btn" id="restartBtn" type="button">RESTART</button>
@@ -1268,10 +1269,14 @@ button:disabled {
     <div class="modal-backdrop hidden" id="compareModal" role="dialog" aria-modal="true" aria-labelledby="compareTitle">
         <div class="modal-window">
             <div class="modal-head">
-                <h2 class="modal-title" id="compareTitle">フォント比較</h2>
+                <h2 class="modal-title" id="compareTitle">判定</h2>
                 <button class="icon-btn" id="compareCloseBtn" type="button" aria-label="閉じる">×</button>
             </div>
             <div class="modal-body">
+                <div class="result-banner" id="modalResultBanner">
+                    <div class="result-main" id="modalResultMain">正解 / CORRECT</div>
+                    <div class="result-detail" id="modalResultDetail">Answer</div>
+                </div>
                 <div class="font-compare" id="fontCompare"></div>
             </div>
             <div class="modal-actions">
@@ -1389,9 +1394,141 @@ button:disabled {
     ];
 
     const MODES = {
-        easy: { label: "EASY", rounds: 10, choices: 4, seconds: 24, pool: 18, points: 100 },
-        normal: { label: "NORMAL", rounds: 14, choices: 4, seconds: 18, pool: 42, points: 130 },
-        expert: { label: "EXPERT", rounds: 18, choices: 6, seconds: 14, pool: 88, points: 180 }
+        easy: { label: "EASY", rounds: 10, choices: 4, seconds: 24, pool: 18, points: 100, note: "Major fonts / distinct shapes" },
+        normal: { label: "NORMAL", rounds: 14, choices: 4, seconds: 18, pool: 42, points: 130, note: "Common fonts + similar choices" },
+        expert: { label: "EXPERT", rounds: 18, choices: 6, seconds: 14, pool: 88, points: 180, note: "Minor fonts / close variants" }
+    };
+
+    const MAJOR_FONT_NAMES = new Set([
+        "Arial", "Arial Black", "Calibri", "Cambria", "Century Gothic", "Comic Sans MS",
+        "Consolas", "Courier New", "Georgia", "Impact", "Meiryo", "MS Gothic",
+        "MS Mincho", "Segoe UI", "Tahoma", "Times New Roman", "Trebuchet MS",
+        "Verdana", "Yu Gothic", "Yu Mincho"
+    ]);
+
+    const CONFUSABLE_GROUPS = [
+        ["Arial", "Microsoft Sans Serif", "Tahoma", "Verdana"],
+        ["Arial", "Arial Narrow", "Calibri", "Aptos"],
+        ["Calibri", "Aptos", "Candara", "Corbel"],
+        ["Cambria", "Constantia", "Georgia", "Sitka Text"],
+        ["Times New Roman", "Cambria", "Georgia", "Palatino Linotype"],
+        ["Garamond", "Georgia", "Palatino Linotype", "Times New Roman"],
+        ["Consolas", "Courier New", "Lucida Console", "Aptos Mono"],
+        ["Segoe UI", "Segoe UI Light", "Segoe UI Semibold", "Segoe UI Semilight"],
+        ["Segoe UI", "Leelawadee UI", "Nirmala UI", "Yu Gothic UI", "Meiryo UI"],
+        ["Yu Gothic", "Yu Gothic Medium", "Yu Gothic Light", "Meiryo", "MS PGothic"],
+        ["Yu Gothic UI", "Yu Gothic UI Light", "Yu Gothic UI Semibold", "Yu Gothic UI Semilight", "Meiryo UI"],
+        ["MS Gothic", "MS PGothic", "MS UI Gothic", "BIZ UDGothic", "BIZ UDPGothic"],
+        ["Yu Mincho", "Yu Mincho Demibold", "MS Mincho", "MS PMincho"],
+        ["BIZ UDMincho", "BIZ UDPMincho", "Yu Mincho", "MS PMincho"],
+        ["UD Digi Kyokasho N-R", "UD Digi Kyokasho NK-R", "UD Digi Kyokasho NP-R", "UD Digi Kyokasho N-B"],
+        ["HGPMinchoE", "HGPMinchoB", "HGMinchoE", "MS PMincho"],
+        ["HGPothicE", "HGPothicM", "HGGothicE", "MS PGothic"],
+        ["Segoe Print", "Segoe Script", "Ink Free", "Comic Sans MS"],
+        ["Aptos", "Aptos Display", "Aptos Serif", "Aptos Mono"]
+    ];
+
+    const FONT_JA_NAMES = {
+        "Arial": "エリアル",
+        "Arial Black": "エリアル ブラック",
+        "Arial Narrow": "エリアル ナロー",
+        "Aptos": "アプトス",
+        "Aptos Display": "アプトス ディスプレイ",
+        "Aptos Mono": "アプトス モノ",
+        "Aptos Serif": "アプトス セリフ",
+        "Bahnschrift": "バーンシュリフト",
+        "Calibri": "カリブリ",
+        "Calibri Light": "カリブリ ライト",
+        "Cambria": "カンブリア",
+        "Cambria Math": "カンブリア Math",
+        "Candara": "キャンダラ",
+        "Candara Light": "キャンダラ ライト",
+        "Century Gothic": "センチュリー ゴシック",
+        "Comic Sans MS": "コミック サンズ MS",
+        "Consolas": "コンソラス",
+        "Constantia": "コンスタンシア",
+        "Corbel": "コーベル",
+        "Corbel Light": "コーベル ライト",
+        "Courier New": "クーリエ ニュー",
+        "Ebrima": "エブリマ",
+        "Franklin Gothic Medium": "フランクリン ゴシック Medium",
+        "Gabriola": "ガブリオラ",
+        "Gadugi": "ガドゥギ",
+        "Garamond": "ギャラモン",
+        "Georgia": "ジョージア",
+        "Gill Sans MT": "ギル サンズ MT",
+        "Impact": "インパクト",
+        "Ink Free": "インク フリー",
+        "Javanese Text": "ジャワニーズ Text",
+        "Leelawadee UI": "リーラワディー UI",
+        "Leelawadee UI Semilight": "リーラワディー UI セミライト",
+        "Lucida Console": "ルシーダ コンソール",
+        "Lucida Sans Unicode": "ルシーダ サンズ Unicode",
+        "Malgun Gothic": "マルグン ゴシック",
+        "Microsoft Himalaya": "Microsoft ヒマラヤ",
+        "Microsoft JhengHei": "Microsoft JhengHei",
+        "Microsoft JhengHei UI": "Microsoft JhengHei UI",
+        "Microsoft New Tai Lue": "Microsoft New Tai Lue",
+        "Microsoft PhagsPa": "Microsoft PhagsPa",
+        "Microsoft Sans Serif": "Microsoft サンズ セリフ",
+        "Microsoft Tai Le": "Microsoft Tai Le",
+        "Microsoft YaHei": "Microsoft YaHei",
+        "Microsoft YaHei UI": "Microsoft YaHei UI",
+        "Microsoft Yi Baiti": "Microsoft Yi Baiti",
+        "MingLiU-ExtB": "MingLiU-ExtB",
+        "Mongolian Baiti": "モンゴリアン Baiti",
+        "Myanmar Text": "ミャンマー Text",
+        "Nirmala UI": "ニルマラ UI",
+        "Palatino Linotype": "パラティーノ ライノタイプ",
+        "Segoe Print": "Segoe プリント",
+        "Segoe Script": "Segoe スクリプト",
+        "Segoe UI": "Segoe UI",
+        "Segoe UI Black": "Segoe UI ブラック",
+        "Segoe UI Historic": "Segoe UI ヒストリック",
+        "Segoe UI Light": "Segoe UI ライト",
+        "Segoe UI Semibold": "Segoe UI セミボールド",
+        "Segoe UI Semilight": "Segoe UI セミライト",
+        "Sitka Text": "シトカ Text",
+        "Sylfaen": "シルフェン",
+        "Tahoma": "タホマ",
+        "Times New Roman": "タイムズ ニュー ローマン",
+        "Trebuchet MS": "トレビュシェット MS",
+        "Verdana": "ヴァーダナ",
+        "Yu Gothic": "游ゴシック",
+        "Yu Gothic UI": "游ゴシック UI",
+        "Yu Gothic Light": "游ゴシック Light",
+        "Yu Gothic Medium": "游ゴシック Medium",
+        "Yu Gothic UI Light": "游ゴシック UI Light",
+        "Yu Gothic UI Semibold": "游ゴシック UI Semibold",
+        "Yu Gothic UI Semilight": "游ゴシック UI Semilight",
+        "Yu Mincho": "游明朝",
+        "Yu Mincho Demibold": "游明朝 Demibold",
+        "Meiryo": "メイリオ",
+        "Meiryo UI": "メイリオ UI",
+        "MS Gothic": "MS ゴシック",
+        "MS PGothic": "MS Pゴシック",
+        "MS UI Gothic": "MS UI ゴシック",
+        "MS Mincho": "MS 明朝",
+        "MS PMincho": "MS P明朝",
+        "BIZ UDGothic": "BIZ UDゴシック",
+        "BIZ UDPGothic": "BIZ UDPゴシック",
+        "BIZ UDMincho": "BIZ UD明朝",
+        "BIZ UDPMincho": "BIZ UDP明朝",
+        "UD Digi Kyokasho N-R": "UDデジタル教科書体 N-R",
+        "UD Digi Kyokasho NK-R": "UDデジタル教科書体 NK-R",
+        "UD Digi Kyokasho NP-R": "UDデジタル教科書体 NP-R",
+        "UD Digi Kyokasho N-B": "UDデジタル教科書体 N-B",
+        "HGSoeiKakugothicUB": "HG創英角ゴシックUB",
+        "HGSoeiPresenceEB": "HG創英プレゼンスEB",
+        "HGPMinchoE": "HGP明朝E",
+        "HGPMinchoB": "HGP明朝B",
+        "HGPothicE": "HGPゴシックE",
+        "HGPothicM": "HGPゴシックM",
+        "HGMaruGothicMPRO": "HG丸ゴシックM-PRO",
+        "HGKyokashotai": "HG教科書体",
+        "HGGyoshotai": "HG行書体",
+        "HGGothicE": "HGゴシックE",
+        "HGMinchoE": "HG明朝E"
     };
 
     const QUOTE_SETS = [
@@ -1511,6 +1648,7 @@ button:disabled {
         fontStatus: $("#fontStatus"),
         startBtn: $("#startBtn"),
         galleryBtn: $("#galleryBtn"),
+        languageBtn: $("#languageBtn"),
         sfxBtn: $("#sfxBtn"),
         homeBtn: $("#homeBtn"),
         restartBtn: $("#restartBtn"),
@@ -1533,6 +1671,10 @@ button:disabled {
         feedbackTitle: $("#feedbackTitle"),
         feedbackText: $("#feedbackText"),
         compareModal: $("#compareModal"),
+        compareTitle: $("#compareTitle"),
+        modalResultBanner: $("#modalResultBanner"),
+        modalResultMain: $("#modalResultMain"),
+        modalResultDetail: $("#modalResultDetail"),
         fontCompare: $("#fontCompare"),
         compareCloseBtn: $("#compareCloseBtn"),
         compareBackBtn: $("#compareBackBtn"),
@@ -1583,6 +1725,64 @@ button:disabled {
 
     function isSfxEnabled() {
         return save.sfxEnabled !== false;
+    }
+
+    function currentLanguage() {
+        return save.language === "en" ? "en" : "ja";
+    }
+
+    function fontLabel(font) {
+        if (!font) return "";
+        if (currentLanguage() === "ja") {
+            return FONT_JA_NAMES[font.name] || font.name;
+        }
+        return font.name;
+    }
+
+    function fontSubLabel(font) {
+        if (!font || currentLanguage() !== "ja") return "";
+        const label = fontLabel(font);
+        return label === font.name ? "" : font.name;
+    }
+
+    function renderLanguageButton() {
+        els.languageBtn.textContent = currentLanguage() === "ja" ? "JP" : "EN";
+    }
+
+    function toggleLanguage() {
+        save.language = currentLanguage() === "ja" ? "en" : "ja";
+        writeSave();
+        renderLanguageButton();
+        renderGallery();
+        renderHeroSamples();
+        if (question) {
+            if (question.answered) {
+                refreshAnsweredLabels();
+            } else {
+                renderQuestion();
+            }
+        }
+    }
+
+    function refreshChoiceLabels() {
+        [...els.choices.children].forEach((button) => {
+            const font = question.options.find((item) => item.name === button.dataset.fontName);
+            const label = button.querySelector(".choice-name");
+            if (font && label) label.textContent = fontLabel(font);
+        });
+    }
+
+    function refreshAnsweredLabels() {
+        refreshChoiceLabels();
+        const selected = question.options.find((font) => font.name === question.selectedFontName) || null;
+        els.feedbackText.textContent = question.isCorrect
+            ? `${fontLabel(question.target)} / ${question.target.group}`
+            : `Answer: ${fontLabel(question.target)} / ${question.target.group}`;
+        renderResultBanner(question.isCorrect, question.selectedFontName);
+        if (!els.compareModal.classList.contains("hidden")) {
+            renderCompare(question.selectedFontName, question.isCorrect);
+        }
+        renderFontMeter();
     }
 
     function renderSfxButton() {
@@ -1679,6 +1879,95 @@ button:disabled {
         return shuffle(items).slice(0, count);
     }
 
+    function uniqueFonts(fonts) {
+        const seen = new Set();
+        return fonts.filter((font) => {
+            if (!font || seen.has(font.name)) return false;
+            seen.add(font.name);
+            return true;
+        });
+    }
+
+    function isMajorFont(font) {
+        return MAJOR_FONT_NAMES.has(font.name);
+    }
+
+    function familyRoot(name) {
+        return name
+            .replace(/\b(UI|Light|Semilight|Semibold|Medium|Black|Narrow|Display|Mono|Serif|Demibold|Math)\b/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function confusableNames(name) {
+        return uniqueFonts(CONFUSABLE_GROUPS
+            .filter((group) => group.includes(name))
+            .flatMap((group) => group.map((fontName) => ({ name: fontName }))))
+            .map((font) => font.name)
+            .filter((fontName) => fontName !== name);
+    }
+
+    function installedConfusables(font, pool = availableFonts) {
+        const names = new Set(confusableNames(font.name));
+        return pool.filter((candidate) => names.has(candidate.name));
+    }
+
+    function hasInstalledConfusables(font, pool = availableFonts) {
+        return installedConfusables(font, pool).length > 0;
+    }
+
+    function sampleBalanced(fonts, count) {
+        const buckets = new Map();
+        shuffle(fonts).forEach((font) => {
+            const key = font.group;
+            if (!buckets.has(key)) buckets.set(key, []);
+            buckets.get(key).push(font);
+        });
+
+        const result = [];
+        while (result.length < count && buckets.size) {
+            [...buckets.keys()].forEach((key) => {
+                const bucket = buckets.get(key);
+                if (!bucket || !bucket.length) {
+                    buckets.delete(key);
+                    return;
+                }
+                if (result.length < count) result.push(bucket.shift());
+            });
+        }
+        return result;
+    }
+
+    function fillModePool(seedFonts, allFonts, count) {
+        const combined = uniqueFonts([...seedFonts, ...sample(allFonts, allFonts.length)]);
+        return combined.slice(0, Math.min(count, combined.length));
+    }
+
+    function buildModePool(modeKey, mode) {
+        const readable = availableFonts;
+        if (!readable.length) return [];
+
+        if (modeKey === "easy") {
+            const majors = readable.filter(isMajorFont);
+            const easyPool = sampleBalanced(majors.length ? majors : readable, mode.pool);
+            return fillModePool(easyPool, readable.filter((font) => !hasInstalledConfusables(font, readable)), mode.pool);
+        }
+
+        if (modeKey === "normal") {
+            const standard = readable.filter((font) => isMajorFont(font) || hasInstalledConfusables(font, readable));
+            const normalPool = sampleBalanced(standard.length ? standard : readable, mode.pool);
+            return fillModePool(normalPool, readable, mode.pool);
+        }
+
+        const minor = readable.filter((font) => !isMajorFont(font));
+        const hard = uniqueFonts([
+            ...readable.filter((font) => hasInstalledConfusables(font, readable)),
+            ...minor,
+            ...readable
+        ]);
+        return fillModePool(sample(hard, mode.pool), readable, mode.pool);
+    }
+
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -1690,6 +1979,7 @@ button:disabled {
     function init() {
         availableFonts = detectFonts();
         applyTextSize(save.textSize || "medium");
+        renderLanguageButton();
         renderSfxButton();
         renderModeGrid();
         renderHeroSamples();
@@ -1709,6 +1999,7 @@ button:disabled {
                 <span class="mode-name">${mode.label}</span>
                 <span class="mode-meta">${mode.rounds} rounds / ${mode.choices} choices / ${mode.seconds}s</span>
                 <span class="mode-meta">${mode.pool} font pool</span>
+                <span class="mode-meta">${mode.note}</span>
             `;
             button.addEventListener("click", () => {
                 selectedMode = key;
@@ -1728,7 +2019,7 @@ button:disabled {
             strip.className = "specimen-strip";
             strip.innerHTML = `
                 <div class="strip-big" style='font-family: ${font.stack}'>${["Ag", "永字", "font"][index] || "Aa"}</div>
-                <div class="strip-name">${font.name}</div>
+                <div class="strip-name">${fontLabel(font)}</div>
             `;
             els.heroSamples.appendChild(strip);
         });
@@ -1748,7 +2039,7 @@ button:disabled {
             card.className = "font-card";
             card.innerHTML = `
                 <div class="font-preview" style='font-family: ${font.stack}'>Ag 永</div>
-                <div class="font-name">${font.name} / ${font.group}</div>
+                <div class="font-name">${fontLabel(font)}${fontSubLabel(font) ? ` / ${fontSubLabel(font)}` : ""} / ${font.group}</div>
             `;
             els.galleryList.appendChild(card);
         });
@@ -1758,9 +2049,10 @@ button:disabled {
         unlockAudio();
         playSfx("click");
         const mode = MODES[selectedMode];
-        const roundPool = sample(availableFonts, Math.min(mode.pool, availableFonts.length));
+        const roundPool = buildModePool(selectedMode, mode);
         state = {
             mode,
+            modeKey: selectedMode,
             pool: roundPool.length >= mode.choices ? roundPool : availableFonts,
             round: 0,
             score: 0,
@@ -1812,15 +2104,66 @@ button:disabled {
     function pickTargetFont() {
         const recent = state.history.slice(-2);
         const candidates = state.pool.filter((font) => !recent.includes(font.name));
-        return sample(candidates.length ? candidates : state.pool, 1)[0];
+        const pool = candidates.length ? candidates : state.pool;
+
+        if (state.modeKey === "easy") {
+            const majors = pool.filter(isMajorFont);
+            return sample(majors.length ? majors : pool, 1)[0];
+        }
+
+        if (state.modeKey === "normal" && state.round % 2 === 0) {
+            const similar = pool.filter((font) => isMajorFont(font) && hasInstalledConfusables(font, state.pool));
+            return sample(similar.length ? similar : pool, 1)[0];
+        }
+
+        if (state.modeKey === "expert") {
+            const hard = pool.filter((font) => !isMajorFont(font) || hasInstalledConfusables(font, state.pool));
+            return sample(hard.length ? hard : pool, 1)[0];
+        }
+
+        return sample(pool, 1)[0];
     }
 
     function buildOptions(target) {
+        const need = state.mode.choices - 1;
         const sameGroup = state.pool.filter((font) => font.name !== target.name && font.group === target.group);
-        const others = state.pool.filter((font) => font.name !== target.name && font.group !== target.group);
-        const distractors = sample(sameGroup, Math.min(2, state.mode.choices - 1));
-        const remaining = state.mode.choices - 1 - distractors.length;
-        return shuffle([target, ...distractors, ...sample(others, remaining)]);
+        const confusables = installedConfusables(target, state.pool);
+        const sameFamily = state.pool.filter((font) => {
+            return font.name !== target.name && familyRoot(font.name) && familyRoot(font.name) === familyRoot(target.name);
+        });
+        const differentGroup = state.pool.filter((font) => font.name !== target.name && font.group !== target.group);
+        let distractors = [];
+
+        if (state.modeKey === "easy") {
+            distractors = uniqueFonts([
+                ...sample(differentGroup.filter((font) => !confusables.some((item) => item.name === font.name)), need),
+                ...sample(sameGroup, 1),
+                ...sample(state.pool.filter((font) => font.name !== target.name), need)
+            ]).slice(0, need);
+        } else if (state.modeKey === "normal") {
+            distractors = uniqueFonts([
+                ...sample(confusables, 1),
+                ...sample(sameGroup, Math.min(2, need)),
+                ...sample(differentGroup, need),
+                ...sample(state.pool.filter((font) => font.name !== target.name), need)
+            ]).slice(0, need);
+        } else {
+            distractors = uniqueFonts([
+                ...sample(confusables, need),
+                ...sample(sameFamily, need),
+                ...sample(sameGroup, need),
+                ...sample(state.pool.filter((font) => font.name !== target.name), need)
+            ]).slice(0, need);
+        }
+
+        if (distractors.length < need) {
+            distractors = uniqueFonts([
+                ...distractors,
+                ...sample(availableFonts.filter((font) => font.name !== target.name), availableFonts.length)
+            ]).slice(0, need);
+        }
+
+        return shuffle([target, ...distractors]);
     }
 
     function renderQuestion() {
@@ -1840,7 +2183,7 @@ button:disabled {
             button.className = "choice";
             button.dataset.fontName = font.name;
             button.innerHTML = `
-                <span class="choice-name">${font.name}</span>
+                <span class="choice-name">${fontLabel(font)}</span>
                 <span class="choice-index">${index + 1}</span>
             `;
             button.addEventListener("click", () => answer(font.name));
@@ -1872,6 +2215,8 @@ button:disabled {
         clearInterval(timerId);
 
         const isCorrect = fontName === question.target.name;
+        question.selectedFontName = fontName;
+        question.isCorrect = isCorrect;
         state.answered += 1;
         state.history.push(question.target.name);
 
@@ -1897,8 +2242,8 @@ button:disabled {
         els.feedback.className = `feedback ${isCorrect ? "good" : "bad"}`;
         els.feedbackTitle.textContent = isCorrect ? "CORRECT" : "MISS";
         els.feedbackText.textContent = isCorrect
-            ? `${question.target.name} / ${question.target.group}`
-            : `Answer: ${question.target.name} / ${question.target.group}`;
+            ? `${fontLabel(question.target)} / ${question.target.group}`
+            : `Answer: ${fontLabel(question.target)} / ${question.target.group}`;
         playSfx(isCorrect ? "correct" : "wrong");
         renderResultBanner(isCorrect, fontName);
         flashSpecimen(isCorrect);
@@ -1911,9 +2256,10 @@ button:disabled {
     function renderResultBanner(isCorrect, fontName) {
         els.resultBanner.className = `result-banner ${isCorrect ? "correct" : "wrong"}`;
         els.resultMain.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
+        const selected = question.options.find((font) => font.name === fontName);
         els.resultDetail.textContent = isCorrect
             ? `+${state.mode.points} base / Combo ${state.combo}`
-            : `Selected: ${fontName || "TIME UP"} / Answer: ${question.target.name}`;
+            : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selected ? fontLabel(selected) : "TIME UP"} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${fontLabel(question.target)}`;
     }
 
     function flashSpecimen(isCorrect) {
@@ -1924,27 +2270,30 @@ button:disabled {
 
     function renderCompare(fontName, isCorrect) {
         els.fontCompare.innerHTML = "";
-        if (isCorrect || !fontName) return;
-
-        const selected = question.options.find((font) => font.name === fontName);
-        if (!selected) return;
+        const selected = question.options.find((font) => font.name === fontName) || null;
+        els.compareTitle.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
+        els.modalResultBanner.className = `result-banner ${isCorrect ? "correct" : "wrong"}`;
+        els.modalResultMain.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
+        els.modalResultDetail.textContent = isCorrect
+            ? `${fontLabel(question.target)} / ${question.target.group}`
+            : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selected ? fontLabel(selected) : "TIME UP"} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${fontLabel(question.target)}`;
 
         els.fontCompare.innerHTML = `
             <div class="compare-card">
-                <div class="compare-label">SELECTED</div>
-                <div class="compare-sample" style='font-family: ${selected.stack}'>
+                <div class="compare-label">${isCorrect ? (currentLanguage() === "ja" ? "回答" : "ANSWER") : (currentLanguage() === "ja" ? "選択" : "SELECTED")}</div>
+                <div class="compare-sample" style='font-family: ${selected ? selected.stack : "inherit"}'>
                     <span>${question.sampleSet.jp}</span>
                     <span>${question.sampleSet.en}</span>
                 </div>
-                <div class="compare-name">${selected.name}</div>
+                <div class="compare-name">${selected ? `${fontLabel(selected)}${fontSubLabel(selected) ? ` / ${fontSubLabel(selected)}` : ""}` : "TIME UP"}</div>
             </div>
             <div class="compare-card">
-                <div class="compare-label">CORRECT</div>
+                <div class="compare-label">${currentLanguage() === "ja" ? "正解" : "CORRECT"}</div>
                 <div class="compare-sample" style='font-family: ${question.target.stack}'>
                     <span>${question.sampleSet.jp}</span>
                     <span>${question.sampleSet.en}</span>
                 </div>
-                <div class="compare-name">${question.target.name}</div>
+                <div class="compare-name">${fontLabel(question.target)}${fontSubLabel(question.target) ? ` / ${fontSubLabel(question.target)}` : ""}</div>
             </div>
         `;
         openCompareModal();
@@ -1983,7 +2332,7 @@ button:disabled {
             row.className = "meter-row";
             const value = count ? Math.max(12, Math.round((count / Math.max(1, state.round)) * 100)) : 0;
             row.innerHTML = `
-                <span>${font.name}</span>
+                <span>${fontLabel(font)}</span>
                 <span class="meter-bar"><span class="meter-fill" style="width: ${value}%"></span></span>
                 <span>${miss ? `-${miss}` : count}</span>
             `;
@@ -2024,7 +2373,7 @@ button:disabled {
             const row = document.createElement("div");
             row.className = "weak-row";
             row.innerHTML = `
-                <span style='font-family: ${font ? font.stack : "inherit"}'>${name}</span>
+                <span style='font-family: ${font ? font.stack : "inherit"}'>${font ? fontLabel(font) : name}</span>
                 <strong>${count}</strong>
             `;
             els.weakList.appendChild(row);
@@ -2034,6 +2383,7 @@ button:disabled {
     function bindEvents() {
         els.startBtn.addEventListener("click", startGame);
         els.galleryBtn.addEventListener("click", () => showScreen(els.galleryScreen));
+        els.languageBtn.addEventListener("click", toggleLanguage);
         els.sfxBtn.addEventListener("click", toggleSfx);
         els.sizeBtns.forEach((button) => {
             button.addEventListener("click", () => applyTextSize(button.dataset.size));
