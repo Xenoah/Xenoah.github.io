@@ -706,6 +706,10 @@ button:disabled {
     gap: 10px;
 }
 
+.font-compare.single {
+    grid-template-columns: 1fr;
+}
+
 .compare-card {
     min-height: 180px;
     padding: 12px;
@@ -1755,6 +1759,9 @@ button:disabled {
         renderLanguageButton();
         renderGallery();
         renderHeroSamples();
+        if (state && els.resultScreen.classList.contains("active")) {
+            renderWeakList();
+        }
         if (question) {
             if (question.answered) {
                 refreshAnsweredLabels();
@@ -2046,6 +2053,9 @@ button:disabled {
     }
 
     function startGame() {
+        clearInterval(timerId);
+        closeCompareModal();
+        question = null;
         unlockAudio();
         playSfx("click");
         const mode = MODES[selectedMode];
@@ -2278,6 +2288,22 @@ button:disabled {
             ? `${fontLabel(question.target)} / ${question.target.group}`
             : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selected ? fontLabel(selected) : "TIME UP"} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${fontLabel(question.target)}`;
 
+        els.fontCompare.className = `font-compare ${isCorrect ? "single" : ""}`;
+        if (isCorrect) {
+            els.fontCompare.innerHTML = `
+                <div class="compare-card">
+                    <div class="compare-label">${currentLanguage() === "ja" ? "正解" : "CORRECT"}</div>
+                    <div class="compare-sample" style='font-family: ${question.target.stack}'>
+                        <span>${question.sampleSet.jp}</span>
+                        <span>${question.sampleSet.en}</span>
+                    </div>
+                    <div class="compare-name">${fontLabel(question.target)}${fontSubLabel(question.target) ? ` / ${fontSubLabel(question.target)}` : ""}</div>
+                </div>
+            `;
+            openCompareModal();
+            return;
+        }
+
         els.fontCompare.innerHTML = `
             <div class="compare-card">
                 <div class="compare-label">${isCorrect ? (currentLanguage() === "ja" ? "回答" : "ANSWER") : (currentLanguage() === "ja" ? "選択" : "SELECTED")}</div>
@@ -2342,6 +2368,7 @@ button:disabled {
 
     function finishGame() {
         clearInterval(timerId);
+        closeCompareModal();
         const accuracy = state.answered ? state.correct / state.answered : 0;
         const grade = accuracy >= 0.95 ? "S" : accuracy >= 0.82 ? "A" : accuracy >= 0.68 ? "B" : accuracy >= 0.5 ? "C" : "D";
         save.bestScore = Math.max(save.bestScore || 0, state.score);
@@ -2356,6 +2383,7 @@ button:disabled {
         renderWeakList();
         renderStartStats();
         showScreen(els.resultScreen);
+        question = null;
     }
 
     function renderWeakList() {
@@ -2391,6 +2419,8 @@ button:disabled {
         els.homeBtn.addEventListener("click", () => {
             clearInterval(timerId);
             closeCompareModal();
+            state = null;
+            question = null;
             showScreen(els.startScreen);
         });
         els.restartBtn.addEventListener("click", startGame);
@@ -2404,6 +2434,8 @@ button:disabled {
         els.againBtn.addEventListener("click", startGame);
         els.toStartBtn.addEventListener("click", () => {
             closeCompareModal();
+            state = null;
+            question = null;
             showScreen(els.startScreen);
         });
 
@@ -2426,6 +2458,8 @@ button:disabled {
             if (event.key === "Escape") {
                 clearInterval(timerId);
                 closeCompareModal();
+                state = null;
+                question = null;
                 showScreen(els.startScreen);
             }
         });
