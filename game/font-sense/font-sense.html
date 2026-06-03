@@ -830,6 +830,14 @@ button:disabled {
     font-weight: 850;
 }
 
+.choice-name.reverse-specimen {
+    font-size: 26px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .side-panel {
     min-height: 0;
     display: grid;
@@ -1688,9 +1696,17 @@ button:disabled {
     ];
 
     const MODES = {
-        easy: { label: "EASY", rounds: 10, choices: 4, seconds: 36, pool: 18, points: 100, note: "Major fonts / distinct shapes" },
-        normal: { label: "NORMAL", rounds: 14, choices: 4, seconds: 28, pool: 42, points: 130, note: "Common fonts + similar choices" },
-        expert: { label: "EXPERT", rounds: 18, choices: 6, seconds: 22, pool: 88, points: 180, note: "Minor fonts / close variants" }
+        easy: { label: "EASY", difficulty: "easy", rounds: 10, choices: 4, seconds: 36, pool: 18, points: 100, note: "Major fonts / distinct shapes" },
+        normal: { label: "NORMAL", difficulty: "normal", rounds: 14, choices: 4, seconds: 28, pool: 42, points: 130, note: "Common fonts + similar choices" },
+        expert: { label: "EXPERT", difficulty: "expert", rounds: 18, choices: 6, seconds: 22, pool: 88, points: 180, note: "Minor fonts / close variants" },
+        practice: { label: "PRACTICE", difficulty: "normal", rounds: 12, choices: 4, seconds: 0, pool: 60, points: 0, practice: true, note: "No timer / no record — just learn" },
+        endless: { label: "ENDLESS", difficulty: "normal", rounds: Infinity, choices: 4, seconds: 26, pool: 60, points: 120, endless: true, note: "One miss ends it — chase a streak" },
+        jp: { label: "JP ONLY", difficulty: "normal", rounds: 14, choices: 4, seconds: 28, pool: 42, points: 130, langFilter: "ja", note: "Japanese typefaces only" },
+        en: { label: "EN ONLY", difficulty: "normal", rounds: 14, choices: 4, seconds: 28, pool: 42, points: 130, langFilter: "en", note: "Western typefaces only" },
+        twins: { label: "TWINS", difficulty: "expert", rounds: 14, choices: 4, seconds: 30, pool: 60, points: 170, twins: true, note: "Look-alikes only — spot the twin" },
+        category: { label: "CATEGORY", difficulty: "normal", rounds: 12, choices: 4, seconds: 26, pool: 60, points: 90, category: true, note: "Name the style, not the font" },
+        reverse: { label: "REVERSE", difficulty: "normal", rounds: 14, choices: 4, seconds: 30, pool: 42, points: 140, reverse: true, note: "Name shown — pick the matching glyphs" },
+        daily: { label: "DAILY", difficulty: "normal", rounds: 12, choices: 4, seconds: 28, pool: 48, points: 130, daily: true, note: "Same puzzle for everyone today" }
     };
 
     const MAJOR_FONT_NAMES = new Set([
@@ -1846,6 +1862,29 @@ button:disabled {
         const note = font && GROUP_NOTES[font.group];
         if (!note) return "";
         return currentLanguage() === "ja" ? note.ja : note.en;
+    }
+
+    const GROUP_LABELS = {
+        "Sans": { ja: "サンセリフ", en: "Sans-serif" },
+        "Serif": { ja: "セリフ", en: "Serif" },
+        "Mono": { ja: "等幅", en: "Monospace" },
+        "Display": { ja: "ディスプレイ", en: "Display" },
+        "Geometric": { ja: "幾何学サンセリフ", en: "Geometric sans" },
+        "Handwriting": { ja: "手書き", en: "Handwriting" },
+        "UI": { ja: "UI サンセリフ", en: "UI sans-serif" },
+        "Japanese": { ja: "和文ゴシック", en: "Japanese gothic" },
+        "Japanese UI": { ja: "和文ゴシック UI", en: "Japanese gothic UI" },
+        "Japanese Serif": { ja: "和文明朝", en: "Japanese mincho" },
+        "Japanese Mono": { ja: "和文等幅", en: "Japanese monospace" },
+        "Japanese Display": { ja: "和文ディスプレイ", en: "Japanese display" },
+        "Japanese Rounded": { ja: "和文丸ゴシック", en: "Japanese rounded" },
+        "Japanese Brush": { ja: "和文筆書体", en: "Japanese brush" }
+    };
+
+    function groupLabel(group) {
+        const label = GROUP_LABELS[group];
+        if (!label) return group;
+        return currentLanguage() === "ja" ? label.ja : label.en;
     }
 
     const QUOTE_SETS = [
@@ -2029,6 +2068,29 @@ button:disabled {
     let timerId = 0;
     let questionStartedAt = 0;
     let audioContext = null;
+    let rngFn = Math.random;
+
+    const REVERSE_SAMPLE = "Ag 永 12";
+
+    function makeRng(seed) {
+        let s = seed >>> 0;
+        return function () {
+            s += 0x6D2B79F5;
+            let t = s;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    function dateSeed() {
+        const now = new Date();
+        return Number(`${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`) >>> 0;
+    }
+
+    function rng() {
+        return rngFn();
+    }
 
     function loadSave() {
         try {
@@ -2097,22 +2159,21 @@ button:disabled {
     }
 
     function refreshChoiceLabels() {
+        if (state.mode.reverse) return;
         [...els.choices.children].forEach((button) => {
-            const font = question.options.find((item) => item.name === button.dataset.fontName);
+            const item = question.choiceItems.find((entry) => entry.value === button.dataset.value);
             const label = button.querySelector(".choice-name");
-            if (font && label) label.textContent = fontLabel(font);
+            if (item && label) label.textContent = item.font ? fontLabel(item.font) : groupLabel(item.value);
         });
     }
 
     function refreshAnsweredLabels() {
         refreshChoiceLabels();
-        const selected = question.options.find((font) => font.name === question.selectedFontName) || null;
-        els.feedbackText.textContent = question.isCorrect
-            ? `${fontLabel(question.target)} / ${question.target.group}`
-            : `Answer: ${fontLabel(question.target)} / ${question.target.group}`;
-        renderResultBanner(question.isCorrect, question.selectedFontName);
+        if (state.mode.reverse) renderReversePrompt();
+        els.feedbackText.textContent = question.isCorrect ? answerDetailText() : `Answer: ${answerLabel()}`;
+        renderResultBanner(question.isCorrect, question.selectedValue);
         if (!els.compareModal.classList.contains("hidden")) {
-            renderCompare(question.selectedFontName, question.isCorrect);
+            renderCompare(question.selectedValue, question.isCorrect);
         }
         renderFontMeter();
     }
@@ -2384,7 +2445,7 @@ button:disabled {
     }
 
     function shuffle(items) {
-        return items.map((item) => ({ item, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ item }) => item);
+        return items.map((item) => ({ item, sort: rng() })).sort((a, b) => a.sort - b.sort).map(({ item }) => item);
     }
 
     function sample(items, count) {
@@ -2455,11 +2516,36 @@ button:disabled {
         return combined.slice(0, Math.min(count, combined.length));
     }
 
-    function buildModePool(modeKey, mode) {
-        const readable = availableFonts;
+    function isJapaneseFont(font) {
+        return /Japanese/.test(font.group);
+    }
+
+    function scopeFor(mode) {
+        if (mode.langFilter === "ja") {
+            const jp = availableFonts.filter(isJapaneseFont);
+            return jp.length ? jp : availableFonts;
+        }
+        if (mode.langFilter === "en") {
+            const en = availableFonts.filter((font) => !isJapaneseFont(font));
+            return en.length ? en : availableFonts;
+        }
+        return availableFonts;
+    }
+
+    function hasTimer(mode) {
+        return !mode.practice && mode.seconds > 0;
+    }
+
+    function buildModePool(mode, readable) {
         if (!readable.length) return [];
 
-        if (modeKey === "easy") {
+        if (mode.twins) {
+            const capable = readable.filter((font) => hasInstalledConfusables(font, readable));
+            const seed = capable.length >= mode.choices ? capable : readable;
+            return fillModePool(sampleBalanced(seed, mode.pool), readable, mode.pool);
+        }
+
+        if (mode.difficulty === "easy") {
             const distinct = readable.filter((font) => !hasInstalledConfusables(font, readable));
             const distinctMajors = readable.filter((font) => isMajorFont(font) && !hasInstalledConfusables(font, readable));
             const seed = distinctMajors.length ? distinctMajors
@@ -2469,7 +2555,7 @@ button:disabled {
             return fillModePool(easyPool, distinct.length ? distinct : readable, mode.pool);
         }
 
-        if (modeKey === "normal") {
+        if (mode.difficulty === "normal") {
             const standard = readable.filter((font) => isMajorFont(font) || hasInstalledConfusables(font, readable));
             const normalPool = sampleBalanced(standard.length ? standard : readable, mode.pool);
             return fillModePool(normalPool, readable, mode.pool);
@@ -2511,16 +2597,19 @@ button:disabled {
     function renderModeGrid() {
         els.modeGrid.innerHTML = "";
         Object.entries(MODES).forEach(([key, mode]) => {
-            const effectivePool = Math.min(mode.pool, availableFonts.length);
-            const capped = availableFonts.length > 0 && effectivePool < mode.pool;
-            const disabled = availableFonts.length < mode.choices;
+            const scopeSize = scopeFor(mode).length;
+            const effectivePool = Math.min(mode.pool, scopeSize);
+            const capped = scopeSize > 0 && effectivePool < mode.pool;
+            const disabled = scopeSize < mode.choices;
+            const roundsText = mode.endless ? "∞" : mode.rounds;
+            const timerText = hasTimer(mode) ? `${mode.seconds}s` : "no timer";
             const button = document.createElement("button");
             button.type = "button";
             button.disabled = disabled;
             button.className = `mode-card ${selectedMode === key ? "active" : ""}`;
             button.innerHTML = `
                 <span class="mode-name">${mode.label}</span>
-                <span class="mode-meta">${mode.rounds} rounds / ${mode.choices} choices / ${mode.seconds}s</span>
+                <span class="mode-meta">${roundsText} rounds / ${mode.choices} choices / ${timerText}</span>
                 <span class="mode-meta">${effectivePool} font pool${capped ? " (max)" : ""}</span>
                 <span class="mode-meta">${disabled ? "Not enough fonts detected" : mode.note}</span>
             `;
@@ -2589,8 +2678,8 @@ button:disabled {
         question = null;
         unlockAudio();
         playSfx("click");
-        if (availableFonts.length < MODES[selectedMode].choices) {
-            const playable = Object.keys(MODES).find((key) => availableFonts.length >= MODES[key].choices);
+        if (scopeFor(MODES[selectedMode]).length < MODES[selectedMode].choices) {
+            const playable = Object.keys(MODES).find((key) => scopeFor(MODES[key]).length >= MODES[key].choices);
             if (!playable) return;
             selectedMode = playable;
             save.mode = playable;
@@ -2598,11 +2687,16 @@ button:disabled {
             renderModeGrid();
         }
         const mode = MODES[selectedMode];
-        const roundPool = buildModePool(selectedMode, mode);
+        rngFn = mode.daily ? makeRng(dateSeed()) : Math.random;
+        const scope = mode.daily
+            ? [...scopeFor(mode)].sort((a, b) => a.name.localeCompare(b.name))
+            : scopeFor(mode);
+        const roundPool = buildModePool(mode, scope);
         state = {
             mode,
             modeKey: selectedMode,
-            pool: roundPool.length >= mode.choices ? roundPool : availableFonts,
+            scope,
+            pool: roundPool.length >= mode.choices ? roundPool : scope,
             round: 0,
             score: 0,
             correct: 0,
@@ -2610,7 +2704,8 @@ button:disabled {
             combo: 0,
             maxCombo: 0,
             misses: {},
-            history: []
+            history: [],
+            gameOver: false
         };
         showScreen(els.gameScreen);
         nextQuestion();
@@ -2627,26 +2722,33 @@ button:disabled {
         els.feedbackTitle.textContent = "QUESTION";
         els.feedbackText.textContent = "Choose the matching font.";
 
-        if (state.round >= state.mode.rounds) {
+        if (state.gameOver || state.round >= state.mode.rounds) {
             finishGame();
             return;
         }
 
         state.round += 1;
         const target = pickTargetFont();
-        const options = buildOptions(target);
-        const sampleSet = QUOTE_SETS[Math.floor(Math.random() * QUOTE_SETS.length)];
+        const options = state.mode.category ? [] : buildOptions(target);
+        const sampleSet = QUOTE_SETS[Math.floor(rng() * QUOTE_SETS.length)];
         question = {
             target,
             options,
             sampleSet,
             answered: false,
-            remaining: state.mode.seconds
+            remaining: state.mode.seconds,
+            answerValue: state.mode.category ? target.group : target.name,
+            choiceItems: buildChoiceItems(target, options)
         };
 
         renderQuestion();
-        questionStartedAt = performance.now();
-        timerId = setInterval(tickTimer, 100);
+        if (hasTimer(state.mode)) {
+            questionStartedAt = performance.now();
+            els.timerFill.style.width = "100%";
+            timerId = setInterval(tickTimer, 100);
+        } else {
+            els.timerFill.style.width = "100%";
+        }
         updateHud();
     }
 
@@ -2667,20 +2769,29 @@ button:disabled {
         const candidates = state.pool.filter((font) => !recent.includes(font.name));
         const pool = candidates.length ? candidates : state.pool;
 
-        const review = pickReviewFont(pool);
-        if (review) return review;
+        if (state.mode.twins) {
+            const capable = pool.filter((font) => hasInstalledConfusables(font, state.pool));
+            return sample(capable.length ? capable : pool, 1)[0];
+        }
 
-        if (state.modeKey === "easy") {
+        if (!state.mode.daily) {
+            const review = pickReviewFont(pool);
+            if (review) return review;
+        }
+
+        const difficulty = state.mode.difficulty;
+
+        if (difficulty === "easy") {
             const majors = pool.filter(isMajorFont);
             return sample(majors.length ? majors : pool, 1)[0];
         }
 
-        if (state.modeKey === "normal" && state.round % 2 === 0) {
+        if (difficulty === "normal" && state.round % 2 === 0) {
             const similar = pool.filter((font) => isMajorFont(font) && hasInstalledConfusables(font, state.pool));
             return sample(similar.length ? similar : pool, 1)[0];
         }
 
-        if (state.modeKey === "expert") {
+        if (difficulty === "expert") {
             const hard = pool.filter((font) => !isMajorFont(font) || hasInstalledConfusables(font, state.pool));
             return sample(hard.length ? hard : pool, 1)[0];
         }
@@ -2698,13 +2809,19 @@ button:disabled {
         const differentGroup = state.pool.filter((font) => font.name !== target.name && font.group !== target.group);
         let distractors = [];
 
-        if (state.modeKey === "easy") {
+        if (state.mode.twins) {
+            distractors = uniqueFonts([
+                ...sample(confusables, need),
+                ...sample(sameFamily, need),
+                ...sample(sameGroup, need)
+            ]).slice(0, need);
+        } else if (state.mode.difficulty === "easy") {
             distractors = uniqueFonts([
                 ...sample(differentGroup.filter((font) => !confusables.some((item) => item.name === font.name)), need),
                 ...sample(sameGroup, 1),
                 ...sample(state.pool.filter((font) => font.name !== target.name), need)
             ]).slice(0, need);
-        } else if (state.modeKey === "normal") {
+        } else if (state.mode.difficulty === "normal") {
             distractors = uniqueFonts([
                 ...sample(confusables, 1),
                 ...sample(sameGroup, Math.min(2, need)),
@@ -2721,36 +2838,93 @@ button:disabled {
         }
 
         if (distractors.length < need) {
+            const fallback = state.scope || availableFonts;
             distractors = uniqueFonts([
                 ...distractors,
-                ...sample(availableFonts.filter((font) => font.name !== target.name), availableFonts.length)
+                ...sample(fallback.filter((font) => font.name !== target.name), fallback.length)
             ]).slice(0, need);
         }
 
         return shuffle([target, ...distractors]);
     }
 
+    function buildCategoryChoices(target) {
+        const groups = [...new Set(state.pool.map((font) => font.group))];
+        const others = shuffle(groups.filter((group) => group !== target.group));
+        const need = Math.min(state.mode.choices - 1, others.length);
+        const chosen = [target.group, ...others.slice(0, need)];
+        return shuffle(chosen).map((group) => ({ value: group, label: groupLabel(group), font: null }));
+    }
+
+    function buildChoiceItems(target, options) {
+        if (state.mode.category) return buildCategoryChoices(target);
+        return options.map((font) => ({ value: font.name, label: fontLabel(font), font }));
+    }
+
+    function answerLabel() {
+        return state.mode.category ? groupLabel(question.target.group) : fontLabel(question.target);
+    }
+
+    function answerDetailText() {
+        return state.mode.category
+            ? `${groupLabel(question.target.group)} (${fontLabel(question.target)})`
+            : `${fontLabel(question.target)} / ${question.target.group}`;
+    }
+
+    function selectedValueLabel(value) {
+        if (value == null) return "TIME UP";
+        if (state.mode.category) return groupLabel(value);
+        const selected = question.options.find((font) => font.name === value);
+        return selected ? fontLabel(selected) : value;
+    }
+
+    function renderReversePrompt() {
+        const ja = currentLanguage() === "ja";
+        els.sampleMain.dataset.label = ja ? "フォント名" : "FONT NAME";
+        els.sampleSub.dataset.label = ja ? "字形を選ぶ" : "PICK A SPECIMEN";
+        els.sampleMain.textContent = `${fontLabel(question.target)}${fontSubLabel(question.target) ? ` / ${fontSubLabel(question.target)}` : ""}`;
+        els.sampleSub.textContent = ja ? "この名前のフォントの字形を選んでください。" : "Choose the specimen rendered in this font.";
+        els.sampleSource.textContent = groupLabel(question.target.group);
+        els.sampleMain.style.fontFamily = "\"Segoe UI\", Meiryo, system-ui, sans-serif";
+        els.sampleSub.style.fontFamily = "\"Segoe UI\", Meiryo, system-ui, sans-serif";
+        els.sampleMain.style.fontWeight = "800";
+        els.sampleSub.style.letterSpacing = "0";
+    }
+
     function renderQuestion() {
-        const expertNoise = selectedMode === "expert";
-        els.sampleMain.textContent = question.sampleSet.jp;
-        els.sampleSub.textContent = question.sampleSet.en;
-        els.sampleSource.textContent = question.sampleSet.source;
-        els.sampleMain.style.fontFamily = question.target.stack;
-        els.sampleSub.style.fontFamily = question.target.stack;
-        els.sampleMain.style.fontWeight = expertNoise ? String(sample([400, 500, 600, 700], 1)[0]) : "500";
-        els.sampleSub.style.letterSpacing = expertNoise ? `${sample([0, 0.5, 1, 1.5], 1)[0]}px` : "0";
+        const expertNoise = state.mode.difficulty === "expert";
+        if (state.mode.reverse) {
+            renderReversePrompt();
+        } else {
+            els.sampleMain.dataset.label = "日本語";
+            els.sampleSub.dataset.label = "English";
+            els.sampleMain.textContent = question.sampleSet.jp;
+            els.sampleSub.textContent = question.sampleSet.en;
+            els.sampleSource.textContent = question.sampleSet.source;
+            els.sampleMain.style.fontFamily = question.target.stack;
+            els.sampleSub.style.fontFamily = question.target.stack;
+            els.sampleMain.style.fontWeight = expertNoise ? String(sample([400, 500, 600, 700], 1)[0]) : "500";
+            els.sampleSub.style.letterSpacing = expertNoise ? `${sample([0, 0.5, 1, 1.5], 1)[0]}px` : "0";
+        }
         els.choices.innerHTML = "";
 
-        question.options.forEach((font, index) => {
+        question.choiceItems.forEach((item, index) => {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "choice";
-            button.dataset.fontName = font.name;
-            button.innerHTML = `
-                <span class="choice-name">${fontLabel(font)}</span>
-                <span class="choice-index">${index + 1}</span>
-            `;
-            button.addEventListener("click", () => answer(font.name));
+            button.dataset.value = item.value;
+            if (state.mode.reverse && item.font) {
+                button.innerHTML = `
+                    <span class="choice-name reverse-specimen" style='font-family: ${item.font.stack}'>${REVERSE_SAMPLE}</span>
+                    <span class="choice-index">${index + 1}</span>
+                `;
+            } else {
+                button.innerHTML = `
+                    <span class="choice-name">${item.label}</span>
+                    <span class="choice-index">${index + 1}</span>
+                `;
+            }
+            button.addEventListener("click", () => answer(item.value));
             els.choices.appendChild(button);
         });
         renderFontMeter();
@@ -2773,13 +2947,13 @@ button:disabled {
         }
     }
 
-    function answer(fontName) {
+    function answer(value) {
         if (!question || question.answered) return;
         question.answered = true;
         clearInterval(timerId);
 
-        const isCorrect = fontName === question.target.name;
-        question.selectedFontName = fontName;
+        const isCorrect = value === question.answerValue;
+        question.selectedValue = value;
         question.isCorrect = isCorrect;
         state.answered += 1;
         state.history.push(question.target.name);
@@ -2788,43 +2962,46 @@ button:disabled {
             state.correct += 1;
             state.combo += 1;
             state.maxCombo = Math.max(state.maxCombo, state.combo);
-            const ratio = clamp(question.remaining / state.mode.seconds, 0, 1);
+            const ratio = hasTimer(state.mode) ? clamp(question.remaining / state.mode.seconds, 0, 1) : 0;
             const timeBonus = Math.round(Math.pow(ratio, 1.4) * 80);
             const comboBonus = Math.min(90, state.combo * 12);
             state.score += state.mode.points + timeBonus + comboBonus;
         } else {
             state.combo = 0;
             state.misses[question.target.name] = (state.misses[question.target.name] || 0) + 1;
+            if (state.mode.endless) state.gameOver = true;
         }
 
         [...els.choices.children].forEach((button) => {
-            const name = button.dataset.fontName;
+            const buttonValue = button.dataset.value;
             button.disabled = true;
-            if (name === question.target.name) button.classList.add("correct");
-            if (name === fontName && !isCorrect) button.classList.add("wrong");
+            if (buttonValue === question.answerValue) button.classList.add("correct");
+            if (buttonValue === value && !isCorrect) button.classList.add("wrong");
         });
 
         els.feedback.className = `feedback ${isCorrect ? "good" : "bad"}`;
         els.feedbackTitle.textContent = isCorrect ? "CORRECT" : "MISS";
-        els.feedbackText.textContent = isCorrect
-            ? `${fontLabel(question.target)} / ${question.target.group}`
-            : `Answer: ${fontLabel(question.target)} / ${question.target.group}`;
+        els.feedbackText.textContent = isCorrect ? answerDetailText() : `Answer: ${answerLabel()}`;
         playSfx(isCorrect ? "correct" : "wrong");
-        renderResultBanner(isCorrect, fontName);
+        renderResultBanner(isCorrect, value);
         flashSpecimen(isCorrect);
-        renderCompare(fontName, isCorrect);
+        renderCompare(value, isCorrect);
+        els.nextBtn.textContent = state.gameOver ? "RESULT / 結果" : "NEXT";
         els.nextBtn.classList.remove("hidden");
         updateHud();
         renderFontMeter();
     }
 
-    function renderResultBanner(isCorrect, fontName) {
+    function renderResultBanner(isCorrect, value) {
         els.resultBanner.className = `result-banner ${isCorrect ? "correct" : "wrong"}`;
         els.resultMain.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
-        const selected = question.options.find((font) => font.name === fontName);
-        els.resultDetail.textContent = isCorrect
-            ? `+${state.mode.points} base / Combo ${state.combo}`
-            : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selected ? fontLabel(selected) : "TIME UP"} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${fontLabel(question.target)}`;
+        if (isCorrect) {
+            els.resultDetail.textContent = state.mode.practice
+                ? answerDetailText()
+                : `+${state.mode.points} base / Combo ${state.combo}`;
+        } else {
+            els.resultDetail.textContent = `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selectedValueLabel(value)} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${answerLabel()}`;
+        }
     }
 
     function flashSpecimen(isCorrect) {
@@ -2833,15 +3010,32 @@ button:disabled {
         els.specimenCard.classList.add(isCorrect ? "correct-flash" : "wrong-flash");
     }
 
-    function renderCompare(fontName, isCorrect) {
+    function renderCompare(value, isCorrect) {
         els.fontCompare.innerHTML = "";
-        const selected = question.options.find((font) => font.name === fontName) || null;
+        const selected = question.options.find((font) => font.name === value) || null;
         els.compareTitle.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
         els.modalResultBanner.className = `result-banner ${isCorrect ? "correct" : "wrong"}`;
         els.modalResultMain.textContent = isCorrect ? "正解 / CORRECT" : "不正解 / MISS";
         els.modalResultDetail.textContent = isCorrect
-            ? `${fontLabel(question.target)} / ${question.target.group}`
-            : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selected ? fontLabel(selected) : "TIME UP"} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${fontLabel(question.target)}`;
+            ? answerDetailText()
+            : `${currentLanguage() === "ja" ? "選択" : "Selected"}: ${selectedValueLabel(value)} / ${currentLanguage() === "ja" ? "正解" : "Answer"}: ${answerLabel()}`;
+
+        if (state.mode.category) {
+            els.fontCompare.className = "font-compare single";
+            els.fontCompare.innerHTML = `
+                <div class="compare-card">
+                    <div class="compare-label">${currentLanguage() === "ja" ? "この字形" : "This specimen"}</div>
+                    <div class="compare-sample" style='font-family: ${question.target.stack}'>
+                        <span>${question.sampleSet.jp}</span>
+                        <span>${question.sampleSet.en}</span>
+                    </div>
+                    <div class="compare-name">${fontLabel(question.target)}</div>
+                    <div class="compare-note">${currentLanguage() === "ja" ? "正解カテゴリ" : "Category"}: ${groupLabel(question.target.group)} — ${groupNote(question.target)}</div>
+                </div>
+            `;
+            openCompareModal();
+            return;
+        }
 
         els.fontCompare.className = `font-compare ${isCorrect ? "single" : ""}`;
         if (isCorrect) {
@@ -2892,7 +3086,9 @@ button:disabled {
     }
 
     function updateHud() {
-        els.roundText.textContent = `${Math.min(state.round, state.mode.rounds)}/${state.mode.rounds}`;
+        els.roundText.textContent = state.mode.endless
+            ? `${state.round}/∞`
+            : `${Math.min(state.round, state.mode.rounds)}/${state.mode.rounds}`;
         els.scoreText.textContent = state.score;
         els.comboText.textContent = state.combo;
         els.accuracyText.textContent = state.answered ? percent(state.correct / state.answered) : "0%";
@@ -2933,10 +3129,14 @@ button:disabled {
     function finishGame() {
         clearInterval(timerId);
         closeCompareModal();
+        rngFn = Math.random;
+        els.nextBtn.textContent = "NEXT";
         const accuracy = state.answered ? state.correct / state.answered : 0;
         const grade = accuracy >= 0.95 ? "S" : accuracy >= 0.82 ? "A" : accuracy >= 0.68 ? "B" : accuracy >= 0.5 ? "C" : "D";
-        save.bestScore = Math.max(save.bestScore || 0, state.score);
-        save.bestCombo = Math.max(save.bestCombo || 0, state.maxCombo);
+        if (!state.mode.practice) {
+            save.bestScore = Math.max(save.bestScore || 0, state.score);
+            save.bestCombo = Math.max(save.bestCombo || 0, state.maxCombo);
+        }
 
         // 苦手書体を蓄積して次回以降の復習出題に反映する
         const weak = save.weakFonts || {};
@@ -3049,8 +3249,8 @@ button:disabled {
             if (els.gameScreen.classList.contains("active")) {
                 if (event.key === "Enter" && !els.nextBtn.classList.contains("hidden")) nextQuestion();
                 const digit = digitFromEvent(event);
-                if (digit && question && question.options[digit - 1]) {
-                    answer(question.options[digit - 1].name);
+                if (digit && question && question.choiceItems[digit - 1]) {
+                    answer(question.choiceItems[digit - 1].value);
                 }
             }
             if (event.key === "Escape") {
