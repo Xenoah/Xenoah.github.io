@@ -961,6 +961,8 @@ button:disabled {
     background: rgba(255, 255, 255, 0.44);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
     overflow: hidden;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 108px;
 }
 
 .font-preview {
@@ -1069,6 +1071,68 @@ button:disabled {
 .modal-actions {
     border-top: 1px solid rgba(125, 153, 170, 0.24);
     justify-content: flex-end;
+}
+
+.settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.settings-search {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+    background: var(--panel-2);
+}
+
+.settings-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 8px;
+    max-height: 46vh;
+    overflow: auto;
+    padding-right: 4px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    cursor: pointer;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 44px;
+}
+
+.settings-row input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    accent-color: var(--cyan);
+}
+
+.settings-row .s-preview {
+    flex: 0 0 auto;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.settings-row .s-name {
+    min-width: 0;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 @keyframes fadeLift {
@@ -1331,6 +1395,7 @@ button:disabled {
             </div>
             <button class="text-btn" id="languageBtn" type="button">JP</button>
             <button class="text-btn" id="sfxBtn" type="button">SFX ON</button>
+            <button class="text-btn" id="settingsBtn" type="button">⚙ FONTS</button>
             <button class="text-btn" id="homeBtn" type="button">HOME</button>
             <button class="text-btn" id="restartBtn" type="button">RESTART</button>
         </div>
@@ -1489,6 +1554,28 @@ button:disabled {
             <div class="modal-actions">
                 <button class="ghost-btn" id="compareBackBtn" type="button">CLOSE</button>
                 <button class="primary-btn" id="compareNextBtn" type="button">NEXT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h2 class="modal-title" id="settingsTitle">フォント設定 / FONTS</h2>
+                <button class="icon-btn" id="settingsCloseBtn" type="button" aria-label="閉じる">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="small-note" id="settingsStatus"></p>
+                <div class="settings-actions">
+                    <button class="primary-btn" id="loadAllFontsBtn" type="button">全フォントを読み込む</button>
+                    <button class="ghost-btn" id="selectAllFontsBtn" type="button">全て有効</button>
+                    <button class="ghost-btn" id="selectNoneFontsBtn" type="button">全て無効</button>
+                </div>
+                <input class="settings-search" id="settingsSearch" type="search" placeholder="フォント名で絞り込み / Search">
+                <div class="settings-list" id="settingsList"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="primary-btn" id="settingsDoneBtn" type="button">OK</button>
             </div>
         </div>
     </div>
@@ -1919,12 +2006,24 @@ button:disabled {
         resultCombo: $("#resultCombo"),
         weakList: $("#weakList"),
         againBtn: $("#againBtn"),
-        toStartBtn: $("#toStartBtn")
+        toStartBtn: $("#toStartBtn"),
+        settingsBtn: $("#settingsBtn"),
+        settingsModal: $("#settingsModal"),
+        settingsCloseBtn: $("#settingsCloseBtn"),
+        settingsDoneBtn: $("#settingsDoneBtn"),
+        settingsList: $("#settingsList"),
+        settingsSearch: $("#settingsSearch"),
+        settingsStatus: $("#settingsStatus"),
+        loadAllFontsBtn: $("#loadAllFontsBtn"),
+        selectAllFontsBtn: $("#selectAllFontsBtn"),
+        selectNoneFontsBtn: $("#selectNoneFontsBtn")
     };
 
     let save = loadSave();
+    let allFonts = [];
     let availableFonts = [];
     let selectedMode = save.mode || "normal";
+    let settingsQuery = "";
     let state = null;
     let question = null;
     let timerId = 0;
@@ -2122,6 +2221,162 @@ button:disabled {
         });
     }
 
+    const CURATED_BY_FAMILY = new Map(FONT_DEFS.map((font) => [font.family, font]));
+
+    function classifyFamily(name) {
+        const n = name.toLowerCase();
+        if (/(mono|console|consol|code|courier|terminal|typewriter|等幅|fixed)/.test(n)) return "Mono";
+        if (/(script|brush|hand|ink|comic|行書|草書|筆|gyosho)/.test(n)) return "Handwriting";
+        if (/(mincho|明朝|serif|times|georgia|garamond|roman|宋|song|ming|楷|kyokasho|教科書)/.test(n)) return "Serif";
+        if (/(round|maru|丸)/.test(n)) return "Japanese Rounded";
+        if (/(black|heavy|impact|display|poster|presence|創英)/.test(n)) return "Display";
+        return "Sans";
+    }
+
+    function buildFontEntry(family) {
+        const curated = CURATED_BY_FAMILY.get(family);
+        if (curated) return curated;
+        const safe = family.replace(/["\\]/g, "");
+        return { name: family, family, stack: `"${safe}", sans-serif`, group: classifyFamily(family) };
+    }
+
+    function applyFontFilter() {
+        const disabled = new Set(save.disabledFonts || []);
+        availableFonts = allFonts.filter((font) => !disabled.has(font.name));
+    }
+
+    function refreshFontUI() {
+        applyFontFilter();
+        renderModeGrid();
+        renderHeroSamples();
+        renderStartStats();
+        renderGallery();
+    }
+
+    function fontAccessSupported() {
+        return typeof window.queryLocalFonts === "function";
+    }
+
+    async function loadAllFonts() {
+        if (!fontAccessSupported()) return false;
+        let fonts;
+        try {
+            fonts = await window.queryLocalFonts();
+        } catch (error) {
+            if (!els.settingsModal.classList.contains("hidden")) {
+                els.settingsStatus.textContent = window.isSecureContext
+                    ? "フォントへのアクセスが許可されませんでした。ブラウザの権限設定をご確認ください。"
+                    : "全フォント取得には HTTPS（セキュアコンテキスト）が必要です。公開URLからアクセスしてください。";
+            }
+            return false;
+        }
+        const merged = new Map();
+        detectFonts().forEach((font) => merged.set(font.name, font));
+        const seen = new Set();
+        fonts.forEach((data) => {
+            const family = data && data.family;
+            if (!family || seen.has(family)) return;
+            seen.add(family);
+            const entry = buildFontEntry(family);
+            if (!merged.has(entry.name)) merged.set(entry.name, entry);
+        });
+        allFonts = [...merged.values()].sort((a, b) => a.name.localeCompare(b.name));
+        save.fontsLoaded = true;
+        writeSave();
+        refreshFontUI();
+        renderFontLoadAvailability();
+        if (!els.settingsModal.classList.contains("hidden")) renderSettings();
+        return true;
+    }
+
+    async function maybeAutoLoadAllFonts() {
+        if (!fontAccessSupported() || !navigator.permissions) return;
+        try {
+            const status = await navigator.permissions.query({ name: "local-fonts" });
+            if (status.state === "granted") loadAllFonts();
+        } catch (error) {
+            // 'local-fonts' を照会できないブラウザでは何もしない
+        }
+    }
+
+    function renderFontLoadAvailability() {
+        const supported = fontAccessSupported();
+        els.loadAllFontsBtn.disabled = !supported;
+        els.loadAllFontsBtn.textContent = save.fontsLoaded ? "再読み込み" : "全フォントを読み込む";
+        els.settingsStatus.textContent = supported
+            ? `有効 ${availableFonts.length} / 全 ${allFonts.length} ファミリー`
+            : "このブラウザは全フォント自動取得（Local Font Access API）に非対応です。Chrome / Edge をご利用ください。";
+    }
+
+    function renderSettings() {
+        renderFontLoadAvailability();
+        const disabled = new Set(save.disabledFonts || []);
+        const query = settingsQuery.trim().toLowerCase();
+        els.settingsList.innerHTML = "";
+        const list = allFonts.filter((font) => {
+            if (!query) return true;
+            return font.name.toLowerCase().includes(query)
+                || (FONT_JA_NAMES[font.name] || "").toLowerCase().includes(query);
+        });
+        if (!list.length) {
+            const empty = document.createElement("div");
+            empty.className = "small-note";
+            empty.textContent = "該当するフォントがありません。";
+            els.settingsList.appendChild(empty);
+            return;
+        }
+        list.forEach((font) => {
+            const row = document.createElement("label");
+            row.className = "settings-row";
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = !disabled.has(font.name);
+            checkbox.addEventListener("change", () => toggleFont(font.name, checkbox.checked));
+            const preview = document.createElement("span");
+            preview.className = "s-preview";
+            preview.style.fontFamily = font.stack;
+            preview.textContent = "Ag";
+            const label = document.createElement("span");
+            label.className = "s-name";
+            label.textContent = fontLabel(font);
+            row.append(checkbox, preview, label);
+            els.settingsList.appendChild(row);
+        });
+    }
+
+    function toggleFont(name, enabled) {
+        const disabled = new Set(save.disabledFonts || []);
+        if (enabled) disabled.delete(name);
+        else disabled.add(name);
+        save.disabledFonts = [...disabled];
+        writeSave();
+        applyFontFilter();
+        renderModeGrid();
+        renderStartStats();
+        renderFontLoadAvailability();
+    }
+
+    function setAllFonts(enabled) {
+        save.disabledFonts = enabled ? [] : allFonts.map((font) => font.name);
+        writeSave();
+        applyFontFilter();
+        renderSettings();
+        renderModeGrid();
+        renderStartStats();
+    }
+
+    function openSettings() {
+        settingsQuery = "";
+        els.settingsSearch.value = "";
+        renderSettings();
+        els.settingsModal.classList.remove("hidden");
+    }
+
+    function closeSettings() {
+        els.settingsModal.classList.add("hidden");
+        refreshFontUI();
+    }
+
     function showScreen(screen) {
         [els.startScreen, els.gameScreen, els.galleryScreen, els.resultScreen].forEach((element) => {
             element.classList.toggle("active", element === screen);
@@ -2238,16 +2493,19 @@ button:disabled {
     }
 
     function init() {
-        availableFonts = detectFonts();
+        allFonts = detectFonts();
+        applyFontFilter();
         applyTextSize(save.textSize || "medium");
         renderLanguageButton();
         renderSfxButton();
+        renderFontLoadAvailability();
         renderModeGrid();
         renderHeroSamples();
         renderStartStats();
         renderGallery();
         bindEvents();
         showScreen(els.startScreen);
+        maybeAutoLoadAllFonts();
     }
 
     function renderModeGrid() {
@@ -2307,7 +2565,9 @@ button:disabled {
         els.bestScore.textContent = save.bestScore || 0;
         els.bestCombo.textContent = save.bestCombo || 0;
         els.fontCount.textContent = availableFonts.length;
-        els.fontStatus.textContent = `${availableFonts.length} fonts loaded for this browser.`;
+        els.fontStatus.textContent = fontAccessSupported()
+            ? `有効 ${availableFonts.length} / 全 ${allFonts.length} ファミリー。⚙ FONTS で全フォント読み込み・選択。`
+            : `${availableFonts.length} fonts loaded for this browser.`;
     }
 
     function renderGallery() {
@@ -2747,6 +3007,16 @@ button:disabled {
             showScreen(els.startScreen);
         });
         els.restartBtn.addEventListener("click", startGame);
+        els.settingsBtn.addEventListener("click", openSettings);
+        els.settingsCloseBtn.addEventListener("click", closeSettings);
+        els.settingsDoneBtn.addEventListener("click", closeSettings);
+        els.loadAllFontsBtn.addEventListener("click", loadAllFonts);
+        els.selectAllFontsBtn.addEventListener("click", () => setAllFonts(true));
+        els.selectNoneFontsBtn.addEventListener("click", () => setAllFonts(false));
+        els.settingsSearch.addEventListener("input", () => {
+            settingsQuery = els.settingsSearch.value;
+            renderSettings();
+        });
         els.nextBtn.addEventListener("click", nextQuestion);
         els.compareCloseBtn.addEventListener("click", closeCompareModal);
         els.compareBackBtn.addEventListener("click", closeCompareModal);
@@ -2764,6 +3034,10 @@ button:disabled {
 
         document.addEventListener("keydown", (event) => {
             if (event.isComposing || event.keyCode === 229) return;
+            if (!els.settingsModal.classList.contains("hidden")) {
+                if (event.key === "Escape") closeSettings();
+                return;
+            }
             if (!els.compareModal.classList.contains("hidden")) {
                 if (event.key === "Escape") closeCompareModal();
                 if (event.key === "Enter") {

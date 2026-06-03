@@ -91,6 +91,24 @@
 
 ミスした書体は `localStorage`（`weakFonts`）にミス回数として蓄積され、次回以降のプレイで一定確率（約30%）で優先的に再出題されます。正解できた書体は重みが徐々に下がり、繰り返し誤答する書体ほど出やすくなります。
 
+## フォントの取得とオン/オフ設定
+
+出題対象フォントは2系統で集めます。
+
+1. **Canvas 検出（全ブラウザ）** — `FONT_DEFS`（約100件）のうち、`measureText` で実際に描画できる書体だけを初期候補にします。
+2. **全フォント自動取得（Chrome / Edge）** — Local Font Access API（`window.queryLocalFonts()`）で、PC にインストールされた全フォントファミリーを取得します。初回はブラウザの許可ダイアログが出ます。一度許可すると、次回以降は自動で読み込みます。非対応ブラウザでは 1 のみで動作します。
+
+自動取得したファミリーのうち、`FONT_DEFS` に定義済みのものは日本語名称・グループ・紛らわしい書体クラスタの情報を引き継ぎます。未定義のファミリーは名前からセリフ／サンセリフ／等幅／手書き等を推定して分類します。
+
+⚙ FONTS ボタンの設定パネルで、ファミリーごとに出題のオン/オフを切り替えられます。
+
+- 「全フォントを読み込む」: Local Font Access API で全フォントを取得
+- 「全て有効 / 全て無効」: 一括切替
+- 検索ボックス: フォント名・日本語名で絞り込み
+- 各行のチェックボックス: 個別のオン/オフ（`localStorage` に保存）
+
+大量のフォントを表示する設定パネルとフォント一覧は `content-visibility: auto` で画面外の描画を省き、表示負荷を抑えています。
+
 ## 表示テーマ
 
 OS の配色設定（`prefers-color-scheme`）に追従し、ライト／ダークの両テーマに対応します。
@@ -106,11 +124,14 @@ OS の配色設定（`prefers-color-scheme`）に追従し、ライト／ダー�
 - 言語設定（`language`）
 - 効果音 ON/OFF（`sfxEnabled`）
 - 苦手書体のミス回数（`weakFonts`、復習出題に使用）
+- 無効化したフォント（`disabledFonts`）
+- 全フォント読み込み済みフラグ（`fontsLoaded`）
 
 ## 技術構成
 
 - 依存ライブラリなしの単一 HTML ファイル（HTML / CSS / JavaScript を内包）
 - ローカルフォント検出に Canvas API、効果音に Web Audio API を使用
+- 全フォント自動取得に Local Font Access API（`queryLocalFonts` / Chrome・Edge、セキュアコンテキスト必須）。非対応ブラウザは Canvas 検出にフォールバック
 - `prefers-reduced-motion` に対応し、アニメーションを抑制
 - `prefers-color-scheme` に対応し、ライト／ダークテーマを自動切替
 - SEO 向けに OGP / Twitter Card / JSON-LD（`WebApplication`）メタデータを設定済み
