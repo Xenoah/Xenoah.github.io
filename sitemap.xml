@@ -2,33 +2,63 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://xenoah.github.io/</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://xenoah.github.io/top.htm</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://xenoah.github.io/sitemap.htm</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://xenoah.github.io/links.htm</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://xenoah.github.io/portfolio.htm</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/changelog.htm</loc>
+    <lastmod>2026-06-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/vrchat.htm</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/environment.htm</loc>
+    <lastmod>2025-12-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/archive-3dmodels/</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/archive-3dmodels/terms/</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://xenoah.github.io/game/font-sense/font-sense.html</loc>
@@ -55,9 +85,184 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://xenoah.github.io/XNH_GAME_SRF/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_HaikuRemixGenerator/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xenoah.github.io/blog/</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-05-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/blog/2026/05/08/blog-start/</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/blog/2026/05/05/vrchat/</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/tools/tools_AudioConvertor.htm</loc>
+    <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/tools/tools_Omni%20Sci-Calc.htm</loc>
+    <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_WEBAPP_QR/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_WEBAPP_pdf-editor/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_WEBAPP_SVG-Conv/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_WEBAPP_GIF-Conv/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_2DCAD/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_WEBAPP_DTMF/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_vj-fx-maker/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/intmath.html</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/arithmetic/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/trig_unit_circle/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/nd_coords/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/fourier/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/collatz/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/linear_algebra/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/calculus/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/chaos/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/probability/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/complex_analysis/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/factorization/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/intmath/lessons/primes/</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/study/sanrikutoku/</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_news-atlas/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/XNH_BBS/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>

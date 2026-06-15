@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>サイトマップ / ガイドマップ | xenoah.github.io</title>
-<meta name="description" content="xenoah.github.io のページ一覧・ガイドマップ。トップ、ブログ、ミニゲーム、便利ツール、学習コンテンツ、データベースへのリンクをまとめています。">
+<meta name="description" content="xenoah.github.io のページ一覧・ガイドマップ。トップ、ブログ、3Dモデル配布、ミニゲーム、便利ツール、学習コンテンツ、データベースへのリンクをまとめています。">
 <style>
 body {
     background: #E8E8FF url("bg.gif");
@@ -71,6 +71,102 @@ ul.map li {
     border-radius: 8px;
 }
 
+ul.map li.has-thumb {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+ul.map .thumb {
+    display: block;
+    width: 72px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #f4f4ff;
+    border: 1px solid #c4c4e0;
+    border-radius: 6px;
+}
+
+.archive-carousel {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    gap: 8px;
+    align-items: stretch;
+}
+
+ul.model-carousel {
+    display: flex;
+    grid-template-columns: none;
+    gap: 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    padding: 0 0 6px;
+}
+
+ul.model-carousel li {
+    flex: 0 0 clamp(190px, 42vw, 260px);
+    min-height: 190px;
+    scroll-snap-align: start;
+}
+
+ul.model-carousel li.has-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+ul.model-carousel .thumb {
+    width: 100%;
+    height: 118px;
+    aspect-ratio: auto;
+}
+
+.carousel-button {
+    border: 1px solid #c4c4e0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.78);
+    color: #2330a8;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    min-height: 100%;
+}
+
+.carousel-button:hover,
+.carousel-button:focus-visible {
+    background: #fff;
+    outline: 2px solid #9ea7ff;
+    outline-offset: 1px;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.carousel-dots button {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 1px solid #9fa4d9;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+}
+
+.carousel-dots button.is-active {
+    background: #2330a8;
+    border-color: #2330a8;
+}
+
 ul.map a {
     font-weight: 700;
     text-decoration: none;
@@ -87,6 +183,13 @@ ul.map .desc {
     font-size: 12px;
     color: #555;
     font-weight: 400;
+}
+
+.subhead {
+    margin: 12px 0 8px;
+    font-size: 13px;
+    color: #444;
+    font-weight: 700;
 }
 
 .ext::after {
@@ -113,10 +216,21 @@ footer {
     <h2>🔴 メイン</h2>
     <ul class="map">
         <li><a href="top.htm" target="right">トップ</a><span class="desc">サイトの入口・自己紹介</span></li>
+        <li><a href="sitemap.htm" target="right">サイトマップ</a><span class="desc">このページ。サイト全体への案内板</span></li>
         <li><a href="links.htm" target="right">リンク</a><span class="desc">関連リンク集</span></li>
         <li><a href="portfolio.htm" target="right">ポートフォリオ</a><span class="desc">制作物のまとめ</span></li>
         <li><a href="changelog.htm" target="right">更新履歴</a><span class="desc">サイトの変更ログ</span></li>
         <li><a href="blog/" target="right">Blog</a><span class="desc">日記・記事</span></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>📝 Blog記事</h2>
+    <ul class="map">
+        <li><a href="blog/2026/05/08/blog-start/" target="right">ブログ機能を追加しました</a><span class="desc">HTMLで記事を書いて公開できるブログ機能の最初の記事</span></li>
+        <li><a href="blog/2026/05/05/vrchat/" target="right">VRChatは私をどう変えたか?振り返った</a><span class="desc">出会い、創作、学び、居場所としてのVRChatの振り返り</span></li>
+        <li><a href="blog/editor.html" target="_blank" class="ext">Blog Editor</a><span class="desc">ブログ記事作成用の編集ツール</span></li>
+        <li><a href="blog/feed.xml" target="_blank" class="ext">Blog RSS</a><span class="desc">ブログのRSSフィード</span></li>
     </ul>
 </div>
 
@@ -126,6 +240,25 @@ footer {
         <li><a href="vrchat.htm" target="right">VRChatについて</a><span class="desc">メタバースでの活動</span></li>
         <li><a href="environment.htm" target="right">使用しているソフト一覧</a><span class="desc">愛用ツール・制作環境</span></li>
     </ul>
+</div>
+
+<div class="section">
+    <h2>🟣 3Dモデル配布</h2>
+    <ul class="map">
+        <li><a href="https://xenoah.github.io/archive-3dmodels/" target="_blank" class="ext">Xenoah 3Dモデル</a><span class="desc" id="archive-model-count">制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。最新件数を取得中</span></li>
+        <li><a href="https://xenoah.github.io/archive-3dmodels/terms/" target="_blank" class="ext">3Dモデル ライセンス規約</a><span class="desc">配布モデルの利用規約</span></li>
+    </ul>
+    <p class="subhead">最新モデルハイライト</p>
+    <div class="archive-carousel" id="archive-carousel">
+        <button class="carousel-button" type="button" data-carousel-dir="-1" aria-label="前のモデル">‹</button>
+        <ul class="map model-carousel" id="archive-latest-models">
+            <li><a href="https://xenoah.github.io/archive-3dmodels/2022%E6%AE%8B%E6%9A%91%E8%A6%8B%E8%88%9E%E3%81%84%E3%82%B9%E3%83%86%E3%83%B3%E3%82%B7%E3%83%AB-v6/" target="_blank" class="ext">2022残暑見舞いステンシル V6</a><span class="desc">最新モデルハイライト（2026-06-15時点）</span></li>
+            <li><a href="https://xenoah.github.io/archive-3dmodels/LCDtab-Stand-v7/" target="_blank" class="ext">LCDtab Stand V7</a><span class="desc">最新モデルハイライト</span></li>
+            <li><a href="https://xenoah.github.io/archive-3dmodels/mawa-hanger-joint-v11/" target="_blank" class="ext">Mawa Hanger Joint V11</a><span class="desc">最新モデルハイライト</span></li>
+        </ul>
+        <button class="carousel-button" type="button" data-carousel-dir="1" aria-label="次のモデル">›</button>
+    </div>
+    <div class="carousel-dots" id="archive-carousel-dots" aria-label="現在のモデル"></div>
 </div>
 
 <div class="section">
@@ -159,6 +292,18 @@ footer {
     <h2>📚 すたでぃー（学習）</h2>
     <ul class="map">
         <li><a href="study/intmath/intmath.html" target="_blank" class="ext">インタラクティブ数学</a><span class="desc">数学を可視化して学ぶ</span></li>
+        <li><a href="study/intmath/lessons/arithmetic/" target="_blank" class="ext">Arithmetic</a><span class="desc">四則演算・基礎計算</span></li>
+        <li><a href="study/intmath/lessons/trig_unit_circle/" target="_blank" class="ext">Trigonometry Unit Circle</a><span class="desc">三角関数と単位円</span></li>
+        <li><a href="study/intmath/lessons/nd_coords/" target="_blank" class="ext">N-D Coordinates</a><span class="desc">3D/4Dオブジェクトの2D投影</span></li>
+        <li><a href="study/intmath/lessons/fourier/" target="_blank" class="ext">Fourier</a><span class="desc">フーリエ解析の可視化</span></li>
+        <li><a href="study/intmath/lessons/collatz/" target="_blank" class="ext">Collatz</a><span class="desc">コラッツ予想の探索</span></li>
+        <li><a href="study/intmath/lessons/linear_algebra/" target="_blank" class="ext">Linear Algebra</a><span class="desc">線形代数の可視化</span></li>
+        <li><a href="study/intmath/lessons/calculus/" target="_blank" class="ext">Calculus</a><span class="desc">微積分の可視化</span></li>
+        <li><a href="study/intmath/lessons/chaos/" target="_blank" class="ext">Chaos</a><span class="desc">カオス系のシミュレーション</span></li>
+        <li><a href="study/intmath/lessons/probability/" target="_blank" class="ext">Probability</a><span class="desc">確率の可視化</span></li>
+        <li><a href="study/intmath/lessons/complex_analysis/" target="_blank" class="ext">Complex Analysis</a><span class="desc">複素解析の可視化</span></li>
+        <li><a href="study/intmath/lessons/factorization/" target="_blank" class="ext">Factorization</a><span class="desc">素因数分解・数の構造</span></li>
+        <li><a href="study/intmath/lessons/primes/" target="_blank" class="ext">Primes</a><span class="desc">素数の探索と可視化</span></li>
         <li><a href="study/sanrikutoku/index.html" target="_blank" class="ext">三陸特 過去問単語帳</a><span class="desc">第三級陸上特殊無線技士の学習</span></li>
     </ul>
 </div>
@@ -180,8 +325,238 @@ footer {
 </div>
 
 <footer>
-    機械可読のサイトマップ（検索エンジン向け）は <a href="sitemap.xml" target="_blank">sitemap.xml</a> にあります。
+    機械可読のサイトマップ（検索エンジン向け）は <a href="sitemap.xml" target="_blank">sitemap.xml</a> にあります。最終更新: 2026-06-15
 </footer>
+
+<script>
+(function () {
+    const latestList = document.getElementById("archive-latest-models");
+    const countText = document.getElementById("archive-model-count");
+    const carousel = document.getElementById("archive-carousel");
+    const dots = document.getElementById("archive-carousel-dots");
+    if (!latestList || !countText || !window.DOMParser) return;
+    let currentIndex = 0;
+    let autoTimer = null;
+    let realModelCount = 0;
+
+    function getItems() {
+        return Array.prototype.slice.call(latestList.querySelectorAll("li"));
+    }
+
+    function syncCurrentIndex() {
+        const items = getItems();
+        if (!items.length) return;
+        currentIndex = items.reduce(function (bestIndex, item, index) {
+            const bestDistance = Math.abs(items[bestIndex].offsetLeft - latestList.scrollLeft);
+            const distance = Math.abs(item.offsetLeft - latestList.scrollLeft);
+            return distance < bestDistance ? index : bestIndex;
+        }, 0);
+        updateDots();
+    }
+
+    function getRealIndex() {
+        if (!realModelCount) return 0;
+        return ((currentIndex % realModelCount) + realModelCount) % realModelCount;
+    }
+
+    function updateDots() {
+        if (!dots || !realModelCount) return;
+        const activeIndex = getRealIndex();
+        Array.prototype.forEach.call(dots.querySelectorAll("button"), function (dot, index) {
+            const active = index === activeIndex;
+            dot.classList.toggle("is-active", active);
+            dot.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+    }
+
+    function renderDots() {
+        if (!dots || !realModelCount) return;
+        dots.innerHTML = "";
+        for (let index = 0; index < realModelCount; index += 1) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.setAttribute("aria-label", "モデル " + (index + 1));
+            dot.setAttribute("aria-pressed", "false");
+            dot.addEventListener("click", function () {
+                scrollToModel(realModelCount + index);
+                restartAuto();
+            });
+            dots.appendChild(dot);
+        }
+        updateDots();
+    }
+
+    function jumpToModel(index) {
+        const items = getItems();
+        if (!items.length) return;
+        latestList.scrollTo({
+            left: items[index].offsetLeft,
+            behavior: "auto"
+        });
+        currentIndex = index;
+        updateDots();
+    }
+
+    function normalizeLoopPosition() {
+        if (!realModelCount) return;
+        if (currentIndex < realModelCount) {
+            jumpToModel(currentIndex + realModelCount);
+        } else if (currentIndex >= realModelCount * 2) {
+            jumpToModel(currentIndex - realModelCount);
+        }
+    }
+
+    function scrollToModel(index) {
+        const items = getItems();
+        if (!items.length) return;
+        currentIndex = Math.max(0, Math.min(index, items.length - 1));
+        latestList.scrollTo({
+            left: items[currentIndex].offsetLeft,
+            behavior: "smooth"
+        });
+        window.setTimeout(function () {
+            syncCurrentIndex();
+            normalizeLoopPosition();
+        }, 520);
+    }
+
+    function restartAuto() {
+        if (autoTimer) window.clearInterval(autoTimer);
+        autoTimer = window.setInterval(function () {
+            syncCurrentIndex();
+            scrollToModel(currentIndex + 1);
+        }, 3000);
+    }
+
+    if (carousel) {
+        Array.prototype.forEach.call(carousel.querySelectorAll("[data-carousel-dir]"), function (button) {
+            button.addEventListener("click", function () {
+                syncCurrentIndex();
+                scrollToModel(currentIndex + Number(button.getAttribute("data-carousel-dir")));
+                restartAuto();
+            });
+        });
+
+        carousel.addEventListener("mouseenter", function () {
+            if (autoTimer) window.clearInterval(autoTimer);
+        });
+        carousel.addEventListener("mouseleave", restartAuto);
+        carousel.addEventListener("focusin", function () {
+            if (autoTimer) window.clearInterval(autoTimer);
+        });
+        carousel.addEventListener("focusout", restartAuto);
+    }
+
+    latestList.addEventListener("scroll", function () {
+        window.clearTimeout(latestList._syncTimer);
+        latestList._syncTimer = window.setTimeout(function () {
+            syncCurrentIndex();
+            normalizeLoopPosition();
+        }, 160);
+    });
+    latestList.addEventListener("touchend", function () {
+        syncCurrentIndex();
+        normalizeLoopPosition();
+        restartAuto();
+    });
+
+    fetch("https://xenoah.github.io/archive-3dmodels/", { cache: "no-cache" })
+        .then(function (response) {
+            if (!response.ok) throw new Error("archive fetch failed");
+            return response.text();
+        })
+        .then(function (html) {
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            const cards = Array.prototype.slice.call(doc.querySelectorAll(".model-card"));
+            const latestCards = cards.sort(function (a, b) {
+                const uploaded = (b.dataset.uploaded || "").localeCompare(a.dataset.uploaded || "");
+                if (uploaded) return uploaded;
+                return (a.dataset.title || "").localeCompare(b.dataset.title || "", "ja");
+            }).slice(0, 10);
+
+            const models = latestCards.map(function (card) {
+                const link = card.querySelector(".card-main");
+                const image = card.querySelector(".thumb img");
+                return {
+                    href: link ? new URL(link.getAttribute("href"), "https://xenoah.github.io").href : "",
+                    title: card.dataset.title || (link ? link.textContent.trim() : ""),
+                    uploaded: card.dataset.uploaded || "",
+                    image: image ? new URL(image.getAttribute("src"), "https://xenoah.github.io").href : ""
+                };
+            }).filter(function (model) {
+                return model.href && model.title;
+            });
+
+            if (cards.length > 0) {
+                countText.textContent = "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。" + cards.length + "件公開中";
+            }
+            if (!models.length) return;
+
+            function appendModel(model) {
+                const item = document.createElement("li");
+                const textWrap = document.createElement("div");
+                const anchor = document.createElement("a");
+                const desc = document.createElement("span");
+
+                if (model.image) {
+                    const thumb = document.createElement("img");
+                    thumb.className = "thumb";
+                    thumb.src = model.image;
+                    thumb.alt = "";
+                    thumb.loading = "lazy";
+                    item.className = "has-thumb";
+                    item.appendChild(thumb);
+                }
+
+                anchor.href = model.href;
+                anchor.target = "_blank";
+                anchor.className = "ext";
+                anchor.textContent = model.title;
+
+                desc.className = "desc";
+                desc.textContent = model.uploaded ? "追加日: " + model.uploaded : "最新モデルハイライト（自動取得）";
+
+                textWrap.appendChild(anchor);
+                textWrap.appendChild(desc);
+                item.appendChild(textWrap);
+                latestList.appendChild(item);
+            }
+
+            latestList.innerHTML = "";
+            realModelCount = models.length;
+            [0, 1, 2].forEach(function () {
+                models.forEach(appendModel);
+            });
+            currentIndex = realModelCount;
+            renderDots();
+            window.requestAnimationFrame(function () {
+                jumpToModel(realModelCount);
+            });
+            restartAuto();
+        })
+        .catch(function () {
+            countText.textContent = "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。公開ページから確認できます";
+            const fallbackItems = getItems().map(function (item) {
+                return item.cloneNode(true);
+            });
+            if (fallbackItems.length) {
+                latestList.innerHTML = "";
+                realModelCount = fallbackItems.length;
+                [0, 1, 2].forEach(function () {
+                    fallbackItems.forEach(function (item) {
+                        latestList.appendChild(item.cloneNode(true));
+                    });
+                });
+                currentIndex = realModelCount;
+                renderDots();
+                window.requestAnimationFrame(function () {
+                    jumpToModel(realModelCount);
+                });
+            }
+            restartAuto();
+        });
+}());
+</script>
 
 </body>
 </html>

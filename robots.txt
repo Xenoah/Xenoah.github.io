@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://xenoah.github.io/sitemap.xml
+Sitemap: https://xenoah.github.io/archive-3dmodels/sitemap.xml
