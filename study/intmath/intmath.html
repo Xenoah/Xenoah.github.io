@@ -4,202 +4,1130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Interactive Learning</title>
+    <title>Math Raid - Score Attack</title>
     <link rel="stylesheet" href="shared/style.css">
     <style>
-        .lesson-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--spacing-lg);
-            padding: var(--spacing-lg);
-            width: 100%;
+        :root {
+            --raid-bg: #101014;
+            --raid-panel: rgba(255, 255, 255, 0.88);
+            --raid-ink: #18171c;
+            --raid-muted: #64606d;
+            --raid-line: rgba(24, 23, 28, 0.12);
+            --raid-red: #e84d4f;
+            --raid-blue: #1769e0;
+            --raid-green: #12996f;
+            --raid-yellow: #f2a51a;
+            --raid-violet: #7b4de8;
+            --raid-canvas: #f6f1e8;
+            --raid-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+            --border-radius: 8px;
         }
 
-        .lesson-card {
+        [data-theme="light"] {
+            --bg-color: #f1eee8;
+            --text-color: #18171c;
+            --text-muted: #64606d;
+            --glass-bg: rgba(255, 255, 255, 0.78);
+            --glass-border: rgba(24, 23, 28, 0.12);
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --accent-primary: #1769e0;
+            --accent-secondary: #12996f;
+            --accent-tertiary: #e84d4f;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #101014;
+            --text-color: #f9f4ea;
+            --text-muted: #bdb5a7;
+            --glass-bg: rgba(28, 28, 33, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --panel-bg: rgba(36, 35, 41, 0.9);
+            --accent-primary: #f2a51a;
+            --accent-secondary: #41c99a;
+            --accent-tertiary: #ff6b6d;
+            --raid-panel: rgba(35, 34, 40, 0.9);
+            --raid-ink: #f9f4ea;
+            --raid-muted: #bdb5a7;
+            --raid-line: rgba(255, 255, 255, 0.14);
+            --raid-canvas: #1a1a1f;
+        }
+
+        body {
+            min-height: 100vh;
+            height: auto;
+            overflow: auto;
+            background:
+                linear-gradient(135deg, rgba(232, 77, 79, 0.14), transparent 32%),
+                linear-gradient(315deg, rgba(18, 153, 111, 0.16), transparent 38%),
+                var(--bg-color);
+        }
+
+        body::before {
+            display: none;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            max-width: 1440px;
+            padding: 16px;
+            gap: 16px;
+        }
+
+        .sidebar {
+            width: 300px;
+            border-radius: 8px;
+            box-shadow: var(--raid-shadow);
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background:
+                linear-gradient(135deg, var(--raid-red), var(--raid-yellow) 48%, var(--raid-green));
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .brand-copy {
+            flex: 1;
+        }
+
+        .eyebrow {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .brand-copy h1 {
+            margin: 0;
+            font-size: 1.45rem;
+            letter-spacing: 0;
+            color: var(--text-color);
+        }
+
+        .mode-list,
+        .lesson-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .mode-btn,
+        .lesson-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(128, 128, 128, 0.08);
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font: inherit;
+            cursor: pointer;
+            min-height: 44px;
+        }
+
+        .mode-btn.active {
+            background: rgba(242, 165, 26, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .mode-meta {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .stat {
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(128, 128, 128, 0.07);
+        }
+
+        .stat span {
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.74rem;
+        }
+
+        .stat strong {
+            display: block;
+            margin-top: 2px;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .main-shell {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            grid-template-rows: auto minmax(360px, 1fr) auto;
+            gap: 16px;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 8px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-md);
-            transition: all 0.3s;
-            text-decoration: none;
-            color: var(--text-color);
+            box-shadow: var(--raid-shadow);
+        }
+
+        .hud-score {
             display: flex;
-            flex-direction: column;
-            height: 200px;
-            backdrop-filter: blur(12px);
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .score-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(128, 128, 128, 0.1);
+            border: 1px solid var(--glass-border);
+            font-family: var(--font-mono);
+        }
+
+        .score-chip b {
+            color: var(--accent-primary);
+        }
+
+        .arena-wrap {
             position: relative;
+            min-height: 360px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--raid-canvas);
+            box-shadow: var(--raid-shadow);
+        }
+
+        #arena {
+            width: 100%;
+            height: 100%;
+            min-height: 360px;
+            display: block;
+        }
+
+        .arena-overlay {
+            position: absolute;
+            inset: 16px;
+            pointer-events: none;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .topic-pill {
+            pointer-events: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.82);
+            color: #18171c;
+            border: 1px solid rgba(24, 23, 28, 0.1);
+            padding: 8px 10px;
+            font-weight: 800;
+        }
+
+        [data-theme="dark"] .topic-pill {
+            background: rgba(16, 16, 20, 0.72);
+            color: #f9f4ea;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .question-dock {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .question-card,
+        .answer-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            box-shadow: var(--raid-shadow);
+            padding: 16px;
+        }
+
+        .question-card {
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .question-text {
+            font-family: var(--font-mono);
+            color: var(--text-color);
+            font-size: clamp(1.35rem, 2.8vw, 2.35rem);
+            line-height: 1.15;
+            min-height: 2.5em;
+            display: flex;
+            align-items: center;
+            overflow-wrap: anywhere;
+        }
+
+        .timer-track,
+        .hp-track,
+        .boss-track {
+            height: 10px;
+            background: rgba(128, 128, 128, 0.18);
+            border-radius: 999px;
             overflow: hidden;
         }
 
-        .lesson-card:hover {
-            transform: translateY(-5px);
-            background: var(--panel-bg);
+        .timer-fill,
+        .hp-fill,
+        .boss-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: inherit;
+            transition: width 0.18s linear;
+        }
+
+        .timer-fill {
+            background: linear-gradient(90deg, var(--raid-green), var(--raid-yellow), var(--raid-red));
+        }
+
+        .hp-fill {
+            background: linear-gradient(90deg, var(--raid-red), var(--raid-yellow));
+        }
+
+        .boss-fill {
+            background: linear-gradient(90deg, var(--raid-blue), var(--raid-violet), var(--raid-red));
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .answer-btn {
+            min-height: 58px;
+            border-radius: 8px;
+            background: var(--raid-panel);
+            color: var(--raid-ink);
+            border: 1px solid var(--raid-line);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .answer-btn:hover,
+        .answer-btn:focus-visible {
             border-color: var(--accent-primary);
-            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+            transform: translateY(-1px);
         }
 
-        .lesson-card.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-            border-style: dashed;
+        .answer-btn.correct {
+            background: rgba(18, 153, 111, 0.24);
+            border-color: var(--raid-green);
         }
 
-        .lesson-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: var(--spacing-sm);
-            color: var(--text-color);
+        .answer-btn.wrong {
+            background: rgba(232, 77, 79, 0.22);
+            border-color: var(--raid-red);
         }
 
-        .lesson-card p {
-            font-size: 0.9rem;
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .primary-action {
+            background: var(--accent-primary);
+            color: #17130c;
+            border: 0;
+            font-weight: 900;
+        }
+
+        [data-theme="light"] .primary-action {
+            color: #fff;
+        }
+
+        .result-line {
+            min-height: 1.6em;
             color: var(--text-muted);
-            line-height: 1.4;
+            font-weight: 700;
         }
 
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: auto;
+        .lesson-link:hover {
+            border-color: var(--accent-primary);
             color: var(--accent-primary);
-            opacity: 0.8;
-            align-self: flex-end;
-            margin-top: auto;
         }
 
-        .hero {
-            text-align: center;
-            padding: 40px 20px;
+        .kbd-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
         }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(to right, var(--text-color), var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+        .kbd-row span {
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 3px 7px;
+            background: rgba(128, 128, 128, 0.08);
         }
 
-        .section-header {
-            grid-column: 1 / -1;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 0.5rem;
-            color: var(--accent-secondary);
+        @media (max-width: 980px) {
+            .app-container {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .main-shell {
+                grid-template-rows: auto 420px auto;
+            }
+
+            .question-dock {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .app-container {
+                padding: 10px;
+            }
+
+            .hud {
+                grid-template-columns: 1fr;
+            }
+
+            .answers {
+                grid-template-columns: 1fr;
+            }
+
+            .main-shell {
+                grid-template-rows: auto 360px auto;
+            }
+
+            .question-card,
+            .answer-card {
+                padding: 12px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <!-- Sidebar placeholder for globals -->
-        <div class="sidebar glass-panel">
-            <h1 data-i18n="menu_title">Menu</h1>
-            <div id="sidebar-content"></div>
-        </div>
-
-        <div style="flex: 1; display:flex; flex-direction:column; overflow-y:auto;">
-            <div class="hero">
-                <h1 data-i18n="hero_title">Interactive Math Concepts</h1>
-                <p data-i18n="hero_subtitle" style="color: var(--text-muted);">Explore mathematical principles through
-                    interactive visualizations</p>
+        <aside class="sidebar glass-panel">
+            <div class="brand-row">
+                <div class="brand-mark">M</div>
+                <div class="brand-copy">
+                    <div class="eyebrow" data-i18n="eyebrow">Score attack math</div>
+                    <h1 data-i18n="title">Math Raid</h1>
+                </div>
             </div>
 
-            <div class="lesson-grid" id="main-grid">
-                <!-- Injected via JS -->
+            <div class="control-group">
+                <h2 data-i18n="missionTitle">Pick a raid</h2>
+                <div class="mode-list" id="mode-list"></div>
             </div>
 
-            <footer style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
-                Math Learning Project
-            </footer>
-        </div>
+            <div class="control-group">
+                <h2 data-i18n="runTitle">Run stats</h2>
+                <div class="stat-grid">
+                    <div class="stat"><span data-i18n="bestLabel">Best</span><strong id="best-score">0</strong></div>
+                    <div class="stat"><span data-i18n="streakLabel">Streak</span><strong id="best-streak">0</strong></div>
+                    <div class="stat"><span data-i18n="todayLabel">Daily seed</span><strong id="daily-seed">--</strong></div>
+                    <div class="stat"><span data-i18n="rankLabel">Rank</span><strong id="rank">C</strong></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2 data-i18n="labTitle">Training labs</h2>
+                <div class="lesson-list" id="lesson-list"></div>
+            </div>
+        </aside>
+
+        <main class="main-shell">
+            <section class="hud">
+                <div class="hud-score">
+                    <div class="score-chip"><span data-i18n="score">Score</span><b id="score">0</b></div>
+                    <div class="score-chip"><span data-i18n="combo">Combo</span><b id="combo">0x</b></div>
+                    <div class="score-chip"><span data-i18n="time">Time</span><b id="time-left">90</b></div>
+                    <div class="score-chip"><span data-i18n="wave">Wave</span><b id="wave">1</b></div>
+                </div>
+                <div class="action-row">
+                    <button class="primary-action" id="start-btn" data-i18n="start">Start raid</button>
+                    <button id="pause-btn" data-i18n="pause">Pause</button>
+                    <button id="share-btn" data-i18n="share">Share result</button>
+                </div>
+            </section>
+
+            <section class="arena-wrap" aria-label="Math Raid arena">
+                <canvas id="arena"></canvas>
+                <div class="arena-overlay">
+                    <div class="topic-pill" id="topic-pill">Arithmetic</div>
+                    <div class="topic-pill" id="status-pill">Ready</div>
+                </div>
+            </section>
+
+            <section class="question-dock">
+                <div class="question-card">
+                    <div class="question-top">
+                        <span id="question-label">Incoming problem</span>
+                        <span id="threat-label">Threat 100%</span>
+                    </div>
+                    <div class="question-text" id="question">Press Start raid.</div>
+                    <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+                    <div class="hp-track"><div class="hp-fill" id="hp-fill"></div></div>
+                    <div class="boss-track"><div class="boss-fill" id="boss-fill"></div></div>
+                </div>
+
+                <div class="answer-card">
+                    <div class="answers" id="answers"></div>
+                    <p class="result-line" id="result-line"></p>
+                    <div class="kbd-row">
+                        <span>1-4: answer</span>
+                        <span>Space: pause</span>
+                        <span>Enter: start</span>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script type="module">
         import { Globals } from './shared/globals.js';
 
-        // Lesson Data
-        const CATEGORIES = [
-            { id: 'cat_elem', title_en: 'Origins (Elementary)', title_ja: '起源 (初等数学)' },
-            { id: 'cat_hs', title_en: 'Foundations (High School)', title_ja: '基礎 (高校数学)' },
-            { id: 'cat_univ', title_en: 'Advanced (University)', title_ja: '発展 (大学教養)' },
-            { id: 'cat_unsolved', title_en: 'The Frontier (Unsolved)', title_ja: '未解決問題' }
-        ];
-
-        const LESSONS = [
-            // Elementary
-            { cat: 'cat_elem', id: 'arithmetic', link: 'lessons/arithmetic/index.html', icon: '123', en: { t: 'Arithmetic', d: 'Number line, Blocks, Negatives' }, ja: { t: '算数', d: '数直線、ブロック、負の数' }, working: true },
-            { cat: 'cat_elem', id: 'primes', link: 'lessons/primes/index.html', icon: '#', en: { t: 'Prime Numbers', d: 'Sieve of Eratosthenes, Ulam Spiral' }, ja: { t: '素数', d: 'エラトステネスの篩、ウラムの螺旋' }, working: true },
-
-            // High School
-            { cat: 'cat_hs', id: 'trig', link: 'lessons/trig_unit_circle/index.html', icon: '○', en: { t: 'Trigonometry', d: 'Unit Circle, Sine, Cosine' }, ja: { t: '三角関数', d: '単位円、サイン、コサイン' }, working: true },
-            { cat: 'cat_hs', id: 'factor', link: 'lessons/factorization/index.html', icon: 'x²', en: { t: 'Factorization', d: 'Quadratic polynomials, roots' }, ja: { t: '因数分解', d: '二次多項式、根の配置' }, working: true },
-            { cat: 'cat_hs', id: 'calc', link: 'lessons/calculus/index.html', icon: '∫', en: { t: 'Calculus', d: 'Differentiation & Integration' }, ja: { t: '微分積分', d: '微分と積分の可視化' }, working: true },
-            { cat: 'cat_hs', id: 'fourier', link: 'lessons/fourier/index.html', icon: '∿', en: { t: 'Fourier Transform', d: 'Frequency decomposition' }, ja: { t: 'フーリエ変換', d: '周波数分解' }, working: true },
-            { cat: 'cat_hs', id: 'nd', link: 'lessons/nd_coords/index.html', icon: '⊡', en: { t: 'N-Dimensions', d: 'Projections & Rotations' }, ja: { t: '高次元', d: '射影と回転' }, working: true },
-
-            // University
-            { cat: 'cat_univ', id: 'linalg', link: 'lessons/linear_algebra/index.html', icon: '▦', en: { t: 'Linear Algebra', d: 'Matrix Transforms, Eigenvectors' }, ja: { t: '線形代数', d: '行列変換、固有ベクトル' }, working: true },
-            { cat: 'cat_univ', id: 'complex', link: 'lessons/complex_analysis/index.html', icon: 'ℂ', en: { t: 'Complex Analysis', d: 'Conformal Mappings' }, ja: { t: '複素解析', d: '等角写像' }, working: true },
-            { cat: 'cat_univ', id: 'chaos', link: 'lessons/chaos/index.html', icon: '∞', en: { t: 'Chaos Theory', d: 'Lorenz Attractor, Butterfly Effect' }, ja: { t: 'カオス理論', d: 'ローレンツ・アトラクタ' }, working: true },
-            { cat: 'cat_univ', id: 'fractal', link: 'lessons/fractals/index.html', icon: '❄', en: { t: 'Fractals', d: 'Mandelbrot & Julia Sets' }, ja: { t: 'フラクタル', d: 'マンデルブロ集合' }, working: true },
-            { cat: 'cat_univ', id: 'prob', link: 'lessons/probability/index.html', icon: '🎲', en: { t: 'Probability', d: 'Monte Carlo & CLT' }, ja: { t: '確率・統計', d: 'モンテカルロ法、中心極限定理' }, working: true },
-
-            // Unsolved
-            { cat: 'cat_unsolved', id: 'collatz', link: 'lessons/collatz/index.html', icon: '3n+1', en: { t: 'Collatz Conjecture', d: '3n+1 Problem visualization' }, ja: { t: 'コラッツ予想', d: '3n+1問題の可視化' }, working: true },
-            { cat: 'cat_unsolved', id: 'pnp', link: 'lessons/p_vs_np/index.html', icon: 'TSP', en: { t: 'P vs NP', d: 'Traveling Salesperson Problem' }, ja: { t: 'P vs NP問題', d: '巡回セールスマン問題' }, working: true },
-        ];
-
-        // Init UI
-        const grid = document.getElementById('main-grid');
-
-        CATEGORIES.forEach(cat => {
-            const header = document.createElement('h2');
-            header.className = 'section-header';
-            header.setAttribute('data-i18n', cat.id);
-            grid.appendChild(header);
-
-            const catLessons = LESSONS.filter(l => l.cat === cat.id);
-            catLessons.forEach(l => {
-                const card = document.createElement('a');
-                card.className = `lesson-card ${l.working ? '' : 'disabled'}`;
-                if (l.working) card.href = l.link;
-
-                card.innerHTML = `
-                    <h2 data-i18n="${l.id}_t">${l.en.t}</h2>
-                    <p data-i18n="${l.id}_d">${l.en.d}</p>
-                    <div class="card-icon">${l.icon}</div>
-                `;
-                grid.appendChild(card);
-            });
-        });
-
-        // Dictionary Construction
-        const dict = {
-            menu_title: { en: 'Menu', ja: 'メニュー' },
-            hero_title: { en: 'Interactive Math', ja: 'インタラクティブ数学' },
-            hero_subtitle: { en: 'From Arithmetic to Unsolved Problems', ja: '算数から未解決問題まで' },
+        const i18n = {
+            eyebrow: { en: 'Score attack math', ja: '\u30b9\u30b3\u30a2\u30a2\u30bf\u30c3\u30af\u6570\u5b66' },
+            title: { en: 'Math Raid', ja: '\u30de\u30b9\u30fb\u30ec\u30a4\u30c9' },
+            missionTitle: { en: 'Pick a raid', ja: '\u30ec\u30a4\u30c9\u9078\u629e' },
+            runTitle: { en: 'Run stats', ja: '\u6210\u7e3e' },
+            bestLabel: { en: 'Best', ja: '\u6700\u9ad8\u70b9' },
+            streakLabel: { en: 'Streak', ja: '\u6700\u9ad8\u9023\u9396' },
+            todayLabel: { en: 'Daily seed', ja: '\u4eca\u65e5\u306e\u30b7\u30fc\u30c9' },
+            rankLabel: { en: 'Rank', ja: '\u30e9\u30f3\u30af' },
+            labTitle: { en: 'Training labs', ja: '\u5fa9\u7fd2\u30e9\u30dc' },
+            score: { en: 'Score', ja: '\u30b9\u30b3\u30a2' },
+            combo: { en: 'Combo', ja: '\u9023\u9396' },
+            time: { en: 'Time', ja: '\u6642\u9593' },
+            wave: { en: 'Wave', ja: '\u30a6\u30a7\u30fc\u30d6' },
+            start: { en: 'Start raid', ja: '\u30ec\u30a4\u30c9\u958b\u59cb' },
+            pause: { en: 'Pause', ja: '\u4e00\u6642\u505c\u6b62' },
+            resume: { en: 'Resume', ja: '\u518d\u958b' },
+            share: { en: 'Share result', ja: '\u7d50\u679c\u3092\u5171\u6709' },
+            ready: { en: 'Ready', ja: '\u6e96\u5099\u5b8c\u4e86' },
+            running: { en: 'Raid live', ja: '\u6311\u6226\u4e2d' },
+            paused: { en: 'Paused', ja: '\u4e00\u6642\u505c\u6b62\u4e2d' },
+            done: { en: 'Run complete', ja: '\u7d42\u4e86' },
+            incoming: { en: 'Incoming problem', ja: '\u554f\u984c\u304c\u63a5\u8fd1\u4e2d' },
+            correct: { en: 'Clean hit. Combo up.', ja: '\u547d\u4e2d\u3002\u9023\u9396\u30a2\u30c3\u30d7\u3002' },
+            wrong: { en: 'Armor cracked. Read the pattern.', ja: '\u88c5\u7532\u7834\u640d\u3002\u30d1\u30bf\u30fc\u30f3\u3092\u8aad\u3082\u3046\u3002' },
+            timeout: { en: 'Too slow. The wave bites.', ja: '\u6642\u9593\u5207\u308c\u3002\u6ce2\u306b\u62bc\u3055\u308c\u305f\u3002' },
+            copied: { en: 'Result copied.', ja: '\u7d50\u679c\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f\u3002' }
         };
 
-        // Add categories
-        CATEGORIES.forEach(c => {
-            dict[c.id] = { en: c.title_en, ja: c.title_ja };
-        });
+        const modes = [
+            { id: 'core', name: { en: 'Exam Core', ja: '\u53d7\u9a13\u30b3\u30a2' }, meta: { en: '90 sec / mixed basics', ja: '90\u79d2 / \u57fa\u790e\u6df7\u5408' }, seconds: 90, damage: 11, topics: ['arithmetic', 'factor', 'trig', 'calc'] },
+            { id: 'daily', name: { en: 'Daily Raid', ja: '\u30c7\u30a4\u30ea\u30fc' }, meta: { en: 'same seed today', ja: '\u4eca\u65e5\u5171\u901a\u30b7\u30fc\u30c9' }, seconds: 75, damage: 13, topics: ['arithmetic', 'prob', 'factor', 'trig', 'calc'] },
+            { id: 'boss', name: { en: 'Boss Rush', ja: '\u30dc\u30b9\u30e9\u30c3\u30b7\u30e5' }, meta: { en: 'hard / high reward', ja: '\u96e3\u3057\u3081 / \u9ad8\u5831\u916c' }, seconds: 120, damage: 16, topics: ['factor', 'trig', 'calc', 'prob'] }
+        ];
 
-        // Add lessons
-        LESSONS.forEach(l => {
-            dict[`${l.id}_t`] = { en: l.en.t, ja: l.ja.t };
-            dict[`${l.id}_d`] = { en: l.en.d, ja: l.ja.d };
-        });
+        const lessons = [
+            { title: 'Arithmetic', href: 'lessons/arithmetic/index.html', tag: 'Number sense' },
+            { title: 'Factorization', href: 'lessons/factorization/index.html', tag: 'Quadratics' },
+            { title: 'Trigonometry', href: 'lessons/trig_unit_circle/index.html', tag: 'Unit circle' },
+            { title: 'Calculus', href: 'lessons/calculus/index.html', tag: 'Rate and area' },
+            { title: 'Probability', href: 'lessons/probability/index.html', tag: 'Chance' }
+        ];
 
-        Globals.subscribe(state => {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (dict[key]) {
-                    el.textContent = Globals.getText(key, dict[key].en, dict[key].ja);
+        const el = {
+            modeList: document.getElementById('mode-list'),
+            lessonList: document.getElementById('lesson-list'),
+            bestScore: document.getElementById('best-score'),
+            bestStreak: document.getElementById('best-streak'),
+            dailySeed: document.getElementById('daily-seed'),
+            rank: document.getElementById('rank'),
+            score: document.getElementById('score'),
+            combo: document.getElementById('combo'),
+            timeLeft: document.getElementById('time-left'),
+            wave: document.getElementById('wave'),
+            start: document.getElementById('start-btn'),
+            pause: document.getElementById('pause-btn'),
+            share: document.getElementById('share-btn'),
+            topic: document.getElementById('topic-pill'),
+            status: document.getElementById('status-pill'),
+            questionLabel: document.getElementById('question-label'),
+            threat: document.getElementById('threat-label'),
+            question: document.getElementById('question'),
+            timer: document.getElementById('timer-fill'),
+            hp: document.getElementById('hp-fill'),
+            boss: document.getElementById('boss-fill'),
+            answers: document.getElementById('answers'),
+            result: document.getElementById('result-line'),
+            canvas: document.getElementById('arena')
+        };
+
+        const ctx = el.canvas.getContext('2d');
+        const today = new Date();
+        const seed = Number(`${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`);
+        let rngState = seed;
+        let selectedMode = modes[0];
+        let running = false;
+        let paused = false;
+        let lastTime = performance.now();
+        let particles = [];
+        let enemies = [];
+        let questionStarted = 0;
+        let questionLimit = 11;
+        let pauseStarted = 0;
+
+        const game = {
+            score: 0,
+            combo: 0,
+            bestCombo: 0,
+            hp: 100,
+            bossHp: 100,
+            time: 90,
+            wave: 1,
+            current: null,
+            answered: false
+        };
+
+        function t(key) {
+            const item = i18n[key];
+            return item ? Globals.getText(key, item.en, item.ja) : key;
+        }
+
+        function dailyRand() {
+            rngState = (rngState * 1664525 + 1013904223) >>> 0;
+            return rngState / 4294967296;
+        }
+
+        function rand(min, max) {
+            return Math.floor(dailyRand() * (max - min + 1)) + min;
+        }
+
+        function choice(items) {
+            return items[Math.floor(dailyRand() * items.length)];
+        }
+
+        function shuffle(items) {
+            const copy = [...items];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(dailyRand() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function uniqueChoices(correct, pool) {
+            const values = [String(correct)];
+            shuffle(pool.map(String)).forEach(item => {
+                if (values.length < 4 && !values.includes(item)) values.push(item);
+            });
+            while (values.length < 4) {
+                const n = String(rand(-24, 36));
+                if (!values.includes(n)) values.push(n);
+            }
+            return shuffle(values);
+        }
+
+        function makeArithmetic(level) {
+            const a = rand(6 + level, 26 + level * 3);
+            const b = rand(3, 14 + level);
+            const c = rand(2, 9 + level);
+            const op = choice(['+', '-', '*']);
+            let text;
+            let answer;
+            if (op === '+') {
+                answer = a + b * c;
+                text = `${a} + ${b} x ${c}`;
+            } else if (op === '-') {
+                answer = a * b - c;
+                text = `${a} x ${b} - ${c}`;
+            } else {
+                answer = a * c;
+                text = `${a} x ${c}`;
+            }
+            return {
+                topic: 'Arithmetic',
+                prompt: text,
+                answer: String(answer),
+                choices: uniqueChoices(answer, [answer + 1, answer - 1, answer + b, answer - c, answer + 10, Math.abs(answer - 7)])
+            };
+        }
+
+        function makeFactor(level) {
+            const r1 = rand(-7 - level, 7 + level) || 2;
+            const r2 = rand(-7 - level, 7 + level) || -3;
+            const b = -(r1 + r2);
+            const c = r1 * r2;
+            const ask = choice([r1, r2]);
+            const bText = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+            const cText = c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`;
+            return {
+                topic: 'Factorization',
+                prompt: `One root of x^2 ${bText}x ${cText} = 0`,
+                answer: String(ask),
+                choices: uniqueChoices(ask, [r1, r2, -r1, -r2, r1 + r2, b, c])
+            };
+        }
+
+        function makeTrig() {
+            const table = [
+                ['sin 30 deg', '1/2'], ['sin 45 deg', 'sqrt(2)/2'], ['sin 60 deg', 'sqrt(3)/2'],
+                ['cos 30 deg', 'sqrt(3)/2'], ['cos 45 deg', 'sqrt(2)/2'], ['cos 60 deg', '1/2'],
+                ['tan 45 deg', '1'], ['tan 30 deg', 'sqrt(3)/3'], ['tan 60 deg', 'sqrt(3)']
+            ];
+            const item = choice(table);
+            return {
+                topic: 'Trigonometry',
+                prompt: item[0],
+                answer: item[1],
+                choices: uniqueChoices(item[1], ['0', '1', '1/2', 'sqrt(2)/2', 'sqrt(3)/2', 'sqrt(3)', 'sqrt(3)/3', '-1'])
+            };
+        }
+
+        function makeCalc(level) {
+            const a = rand(1, 5 + level);
+            const n = rand(2, 5);
+            const x = rand(1, 3 + Math.min(level, 2));
+            const answer = a * n * Math.pow(x, n - 1);
+            return {
+                topic: 'Calculus',
+                prompt: `d/dx ${a}x^${n} at x=${x}`,
+                answer: String(answer),
+                choices: uniqueChoices(answer, [answer + a, answer - a, a * Math.pow(x, n), n * x, answer + n, answer - n])
+            };
+        }
+
+        function makeProbability() {
+            const event = choice(['sum7', 'even', 'double', 'gt4']);
+            const map = {
+                sum7: ['P(two dice sum to 7)', '1/6', ['1/12', '5/36', '1/9', '1/6']],
+                even: ['P(one die is even)', '1/2', ['1/3', '2/3', '1/6', '1/2']],
+                double: ['P(two dice are doubles)', '1/6', ['1/12', '1/3', '1/18', '1/6']],
+                gt4: ['P(one die > 4)', '1/3', ['1/2', '1/6', '2/3', '1/3']]
+            };
+            const [prompt, answer, pool] = map[event];
+            return { topic: 'Probability', prompt, answer, choices: uniqueChoices(answer, pool) };
+        }
+
+        const generators = {
+            arithmetic: makeArithmetic,
+            factor: makeFactor,
+            trig: makeTrig,
+            calc: makeCalc,
+            prob: makeProbability
+        };
+
+        function makeQuestion() {
+            const level = Math.floor(game.wave / 3);
+            const topic = selectedMode.topics[(game.wave + game.combo) % selectedMode.topics.length];
+            const q = generators[topic](level);
+            questionLimit = Math.max(5.8, 11 - level * 0.7 - (selectedMode.id === 'boss' ? 1.3 : 0));
+            questionStarted = performance.now();
+            game.answered = false;
+            game.current = q;
+            el.topic.textContent = q.topic;
+            el.question.textContent = q.prompt;
+            el.questionLabel.textContent = t('incoming');
+            el.answers.innerHTML = '';
+            q.choices.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.type = 'button';
+                btn.textContent = `${index + 1}. ${answer}`;
+                btn.addEventListener('click', () => answerQuestion(answer, btn));
+                el.answers.appendChild(btn);
+            });
+            spawnEnemy(q.topic);
+        }
+
+        function spawnEnemy(topic) {
+            const color = {
+                Arithmetic: '#1769e0',
+                Factorization: '#e84d4f',
+                Trigonometry: '#f2a51a',
+                Calculus: '#7b4de8',
+                Probability: '#12996f'
+            }[topic] || '#1769e0';
+            enemies.push({
+                x: 80 + dailyRand() * Math.max(120, el.canvas.clientWidth - 180),
+                y: -40,
+                r: 22 + Math.min(18, game.wave * 1.2),
+                vy: 22 + game.wave * 2.8,
+                color,
+                label: topic.slice(0, 4).toUpperCase()
+            });
+            enemies = enemies.slice(-8);
+        }
+
+        function burst(x, y, color) {
+            for (let i = 0; i < 18; i++) {
+                particles.push({
+                    x, y,
+                    vx: (dailyRand() - 0.5) * 220,
+                    vy: (dailyRand() - 0.8) * 220,
+                    life: 0.7 + dailyRand() * 0.4,
+                    color
+                });
+            }
+        }
+
+        function answerQuestion(value, button) {
+            if (!running || paused || game.answered || !game.current) return;
+            game.answered = true;
+            const buttons = [...el.answers.querySelectorAll('button')];
+            const correct = String(value) === String(game.current.answer);
+            buttons.forEach(btn => {
+                const raw = btn.textContent.replace(/^\d+\.\s*/, '');
+                btn.disabled = true;
+                if (raw === game.current.answer) btn.classList.add('correct');
+            });
+            if (button && !correct) button.classList.add('wrong');
+
+            if (correct) {
+                game.combo += 1;
+                game.bestCombo = Math.max(game.bestCombo, game.combo);
+                game.score += 100 + game.combo * 18 + game.wave * 7;
+                game.bossHp = Math.max(0, game.bossHp - (12 + game.combo * 1.4));
+                el.result.textContent = t('correct');
+                const enemy = enemies[enemies.length - 1];
+                if (enemy) burst(enemy.x, enemy.y, enemy.color);
+                enemies.pop();
+                if (game.bossHp <= 0) {
+                    game.wave += 1;
+                    game.bossHp = 100;
+                    game.hp = Math.min(100, game.hp + 7);
+                }
+            } else {
+                game.combo = 0;
+                game.hp = Math.max(0, game.hp - selectedMode.damage);
+                el.result.textContent = t('wrong');
+                shakeCanvas();
+            }
+
+            updateHud();
+            if (game.hp <= 0) {
+                finishRun();
+                return;
+            }
+            setTimeout(() => {
+                if (running && !paused) makeQuestion();
+            }, correct ? 380 : 700);
+        }
+
+        function shakeCanvas() {
+            el.canvas.style.transform = 'translateX(5px)';
+            setTimeout(() => {
+                el.canvas.style.transform = '';
+            }, 90);
+        }
+
+        function startRun() {
+            rngState = selectedMode.id === 'daily' ? seed : (seed + Date.now()) >>> 0;
+            running = true;
+            paused = false;
+            game.score = 0;
+            game.combo = 0;
+            game.bestCombo = 0;
+            game.hp = 100;
+            game.bossHp = 100;
+            game.time = selectedMode.seconds;
+            game.wave = 1;
+            enemies = [];
+            particles = [];
+            el.result.textContent = '';
+            el.status.textContent = t('running');
+            el.pause.textContent = t('pause');
+            makeQuestion();
+            updateHud();
+        }
+
+        function finishRun() {
+            running = false;
+            paused = false;
+            el.status.textContent = t('done');
+            el.question.textContent = `Final score: ${game.score}`;
+            el.answers.innerHTML = '';
+            const best = Math.max(Number(localStorage.getItem('math-raid-best') || 0), game.score);
+            const streak = Math.max(Number(localStorage.getItem('math-raid-streak') || 0), game.bestCombo);
+            localStorage.setItem('math-raid-best', String(best));
+            localStorage.setItem('math-raid-streak', String(streak));
+            updateStoredStats();
+        }
+
+        function togglePause() {
+            if (!running) return;
+            paused = !paused;
+            el.status.textContent = paused ? t('paused') : t('running');
+            el.pause.textContent = paused ? t('resume') : t('pause');
+            if (paused) {
+                pauseStarted = performance.now();
+            } else {
+                questionStarted += performance.now() - pauseStarted;
+            }
+        }
+
+        function getQuestionRemaining() {
+            if (!game.current) return questionLimit;
+            const elapsed = (performance.now() - questionStarted) / 1000;
+            return Math.max(0, questionLimit - elapsed);
+        }
+
+        function updateHud() {
+            el.score.textContent = game.score;
+            el.combo.textContent = `${game.combo}x`;
+            el.timeLeft.textContent = Math.ceil(game.time);
+            el.wave.textContent = game.wave;
+            el.hp.style.width = `${game.hp}%`;
+            el.boss.style.width = `${game.bossHp}%`;
+            el.threat.textContent = `Threat ${Math.ceil(game.bossHp)}%`;
+            el.rank.textContent = getRank(game.score);
+        }
+
+        function getRank(score) {
+            if (score >= 9000) return 'S';
+            if (score >= 6000) return 'A';
+            if (score >= 3500) return 'B';
+            return 'C';
+        }
+
+        function updateStoredStats() {
+            el.bestScore.textContent = localStorage.getItem('math-raid-best') || '0';
+            el.bestStreak.textContent = localStorage.getItem('math-raid-streak') || '0';
+            el.dailySeed.textContent = String(seed).slice(-4);
+            el.rank.textContent = getRank(game.score);
+        }
+
+        function renderModes() {
+            el.modeList.innerHTML = '';
+            modes.forEach(mode => {
+                const button = document.createElement('button');
+                button.className = `mode-btn ${mode.id === selectedMode.id ? 'active' : ''}`;
+                button.type = 'button';
+                button.innerHTML = `<span>${Globals.getText(mode.id, mode.name.en, mode.name.ja)}</span><span class="mode-meta">${Globals.getText(`${mode.id}-meta`, mode.meta.en, mode.meta.ja)}</span>`;
+                button.addEventListener('click', () => {
+                    selectedMode = mode;
+                    renderModes();
+                    if (!running) {
+                        game.time = selectedMode.seconds;
+                        updateHud();
+                    }
+                });
+                el.modeList.appendChild(button);
+            });
+        }
+
+        function renderLessons() {
+            el.lessonList.innerHTML = '';
+            lessons.forEach(lesson => {
+                const link = document.createElement('a');
+                link.className = 'lesson-link';
+                link.href = lesson.href;
+                link.innerHTML = `<span>${lesson.title}</span><span class="mode-meta">${lesson.tag}</span>`;
+                el.lessonList.appendChild(link);
+            });
+        }
+
+        async function shareResult() {
+            const text = `Math Raid score ${game.score} / combo ${game.bestCombo} / rank ${getRank(game.score)}`;
+            try {
+                await navigator.clipboard.writeText(text);
+                el.result.textContent = t('copied');
+            } catch {
+                el.result.textContent = text;
+            }
+        }
+
+        function resizeCanvas() {
+            const rect = el.canvas.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            el.canvas.width = Math.floor(rect.width * dpr);
+            el.canvas.height = Math.floor(rect.height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function drawArena(dt) {
+            const w = el.canvas.clientWidth;
+            const h = el.canvas.clientHeight;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--raid-canvas').trim();
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--raid-line').trim();
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 48) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x + h * 0.35, h);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--raid-ink').trim();
+            ctx.globalAlpha = 0.06;
+            ctx.fillRect(0, h - 76, w, 76);
+            ctx.globalAlpha = 1;
+
+            enemies.forEach(enemy => {
+                if (running && !paused) enemy.y += enemy.vy * dt;
+                const pulse = 1 + Math.sin(performance.now() / 140 + enemy.x) * 0.05;
+                ctx.save();
+                ctx.translate(enemy.x, enemy.y);
+                ctx.scale(pulse, pulse);
+                ctx.fillStyle = enemy.color;
+                polygon(0, 0, enemy.r, 6);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = '800 11px system-ui';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(enemy.label, 0, 1);
+                ctx.restore();
+                if (enemy.y > h - 90 && running && !paused) {
+                    game.hp = Math.max(0, game.hp - 0.03);
                 }
             });
+
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.life -= dt;
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.vy += 260 * dt;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 5, 5);
+                ctx.globalAlpha = 1;
+            });
+
+            drawPlayer(w / 2, h - 48);
+        }
+
+        function polygon(x, y, radius, sides) {
+            ctx.beginPath();
+            for (let i = 0; i < sides; i++) {
+                const angle = -Math.PI / 2 + i * Math.PI * 2 / sides;
+                const px = x + Math.cos(angle) * radius;
+                const py = y + Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+        }
+
+        function drawPlayer(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.fillStyle = '#1769e0';
+            polygon(0, -8, 24, 3);
+            ctx.fill();
+            ctx.fillStyle = '#f2a51a';
+            ctx.fillRect(-18, 12, 36, 8);
+            ctx.restore();
+        }
+
+        function tick(now) {
+            const dt = Math.min(0.05, (now - lastTime) / 1000);
+            lastTime = now;
+            if (running && !paused) {
+                game.time = Math.max(0, game.time - dt);
+                const remaining = getQuestionRemaining();
+                el.timer.style.width = `${(remaining / questionLimit) * 100}%`;
+                if (remaining <= 0 && !game.answered) {
+                    game.answered = true;
+                    game.combo = 0;
+                    game.hp = Math.max(0, game.hp - selectedMode.damage);
+                    el.result.textContent = t('timeout');
+                    updateHud();
+                    if (game.hp <= 0) finishRun();
+                    else setTimeout(() => running && !paused && makeQuestion(), 480);
+                }
+                if (game.time <= 0 || game.hp <= 0) finishRun();
+                updateHud();
+            }
+            drawArena(dt);
+            requestAnimationFrame(tick);
+        }
+
+        function applyText() {
+            document.querySelectorAll('[data-i18n]').forEach(node => {
+                const key = node.getAttribute('data-i18n');
+                node.textContent = t(key);
+            });
+            renderModes();
+            el.questionLabel.textContent = t('incoming');
+            if (!running) el.status.textContent = t('ready');
+            else el.status.textContent = paused ? t('paused') : t('running');
+            el.pause.textContent = paused ? t('resume') : t('pause');
+        }
+
+        el.start.addEventListener('click', startRun);
+        el.pause.addEventListener('click', togglePause);
+        el.share.addEventListener('click', shareResult);
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('keydown', event => {
+            if (event.key === 'Enter') startRun();
+            if (event.key === ' ') {
+                event.preventDefault();
+                togglePause();
+            }
+            const index = Number(event.key) - 1;
+            const buttons = [...el.answers.querySelectorAll('button')];
+            if (buttons[index]) buttons[index].click();
         });
+
+        Globals.subscribe(applyText);
+        renderLessons();
+        updateStoredStats();
+        updateHud();
+        resizeCanvas();
+        requestAnimationFrame(tick);
     </script>
 </body>
 
