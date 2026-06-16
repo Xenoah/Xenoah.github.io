@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Painting Tool</title>
+<meta name="description" content="QRコードのバージョンとサイズを選び、ペンと消しゴムでモジュールを塗ってリアルタイムにデコードするツールです。">
+<style>
+:root {
+    color-scheme: light;
+    --page: #f5f7fb;
+    --panel: #ffffff;
+    --panel-strong: #eef4f8;
+    --ink: #1d2530;
+    --muted: #5f6f80;
+    --line: #ccd8e3;
+    --primary: #117a8b;
+    --primary-deep: #0a5665;
+    --accent: #c24f68;
+    --warn: #9a6a00;
+    --ok: #0f766e;
+    --shadow: 0 16px 42px rgba(39, 50, 66, 0.14);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,247,251,0.96)),
+        repeating-linear-gradient(90deg, rgba(17,122,139,0.07) 0 1px, transparent 1px 28px),
+        repeating-linear-gradient(0deg, rgba(194,79,104,0.05) 0 1px, transparent 1px 28px);
+    color: var(--ink);
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+button:hover,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid rgba(17, 122, 139, 0.42);
+    outline-offset: 2px;
+}
+
+button.primary,
+.tool-button.is-active {
+    border-color: var(--primary-deep);
+    background: var(--primary);
+    color: #fff;
+}
+
+button.danger {
+    border-color: rgba(194, 79, 104, 0.48);
+    color: var(--accent);
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.56;
+}
+
+.app {
+    width: min(1440px, 100%);
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.title-block h1 {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 40px);
+    line-height: 1.08;
+    letter-spacing: 0;
+}
+
+.title-block p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    max-width: 720px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.top-actions button {
+    min-height: 38px;
+    padding: 8px 12px;
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(320px, 1fr) minmax(280px, 380px);
+    gap: 16px;
+    align-items: start;
+}
+
+.panel {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(204, 216, 227, 0.9);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.panel h2 {
+    margin: 0;
+    padding: 14px 16px 10px;
+    font-size: 17px;
+    border-bottom: 1px solid var(--line);
+}
+
+.panel-body {
+    padding: 14px 16px 16px;
+}
+
+.control-grid {
+    display: grid;
+    gap: 13px;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+}
+
+.field label,
+.group-label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+select,
+input[type="text"],
+textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--ink);
+    padding: 9px 10px;
+}
+
+textarea {
+    min-height: 118px;
+    resize: vertical;
+}
+
+.segmented,
+.button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tool-button {
+    flex: 1 1 94px;
+    min-height: 40px;
+    padding: 8px 10px;
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 10px;
+    background: var(--panel-strong);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+}
+
+.toggle-row span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.toggle-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+.canvas-panel {
+    display: grid;
+    gap: 12px;
+}
+
+.canvas-wrap {
+    display: grid;
+    place-items: center;
+    min-height: 360px;
+    padding: 18px;
+    overflow: auto;
+}
+
+#qrCanvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    background: #fff;
+    border: 1px solid #aebdca;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(20, 28, 38, 0.16);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.canvas-status {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 16px 14px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.metric {
+    min-height: 72px;
+    padding: 10px;
+    background: var(--panel-strong);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+}
+
+.metric span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.metric strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 21px;
+    line-height: 1.15;
+}
+
+.decode-card {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+}
+
+.decode-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pill.ok {
+    border-color: rgba(15, 118, 110, 0.28);
+    background: rgba(15, 118, 110, 0.1);
+    color: var(--ok);
+}
+
+.pill.warn {
+    border-color: rgba(154, 106, 0, 0.32);
+    background: rgba(154, 106, 0, 0.1);
+    color: var(--warn);
+}
+
+.decode-output {
+    min-height: 84px;
+    padding: 10px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #f9fbfd;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 14px;
+}
+
+.hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.mini-log {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.mini-log code {
+    color: var(--primary-deep);
+    background: rgba(17, 122, 139, 0.08);
+    border-radius: 5px;
+    padding: 1px 5px;
+}
+
+@media (max-width: 1120px) {
+    .workspace {
+        grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+    }
+
+    .result-panel {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .app {
+        padding: 14px;
+    }
+
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        align-items: start;
+    }
+
+    .top-actions {
+        width: 100%;
+    }
+
+    .top-actions button {
+        flex: 1;
+    }
+
+    .canvas-wrap {
+        min-height: 260px;
+        padding: 10px;
+    }
+
+    .metrics {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<main class="app">
+    <header class="topbar">
+        <div class="title-block">
+            <h1>QR Painting Tool</h1>
+            <p>QRコードのテンプレートを選び、ペンと消しゴムでモジュールを塗る実験ツールです。パラメーターとデコード結果は編集に合わせて更新されます。</p>
+        </div>
+        <div class="top-actions">
+            <button type="button" id="resetTemplate">テンプレ再作成</button>
+            <button type="button" id="downloadPng" class="primary">PNG保存</button>
+        </div>
+    </header>
+
+    <section class="workspace">
+        <aside class="panel">
+            <h2>テンプレート</h2>
+            <div class="panel-body control-grid">
+                <div class="field">
+                    <label for="versionSelect">QRバージョン</label>
+                    <select id="versionSelect"></select>
+                </div>
+                <div class="field">
+                    <label for="eccSelect">誤り訂正レベル</label>
+                    <select id="eccSelect">
+                        <option value="L">L - 約7%</option>
+                        <option value="M" selected>M - 約15%</option>
+                        <option value="Q">Q - 約25%</option>
+                        <option value="H">H - 約30%</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="maskSelect">マスクパターン</label>
+                    <select id="maskSelect">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="sizeSelect">表示サイズ</label>
+                    <select id="sizeSelect">
+                        <option value="320">320 px</option>
+                        <option value="480" selected>480 px</option>
+                        <option value="640">640 px</option>
+                        <option value="800">800 px</option>
+                    </select>
+                </div>
+                <div class="toggle-row">
+                    <span>テンプレートを保護</span>
+                    <input type="checkbox" id="lockTemplate" checked>
+                </div>
+                <div class="toggle-row">
+                    <span>グリッド表示</span>
+                    <input type="checkbox" id="showGrid" checked>
+                </div>
+                <div class="button-row">
+                    <button type="button" id="clearData" class="danger">データ部クリア</button>
+                    <button type="button" id="invertData">データ部反転</button>
+                </div>
+                <p class="hint">位置検出、タイミング、形式情報、バージョン情報はテンプレート側で配置します。データ部にはマスク後の見た目をそのまま塗ってください。</p>
+            </div>
+        </aside>
+
+        <section class="panel canvas-panel">
+            <h2>塗り絵キャンバス</h2>
+            <div class="panel-body control-grid">
+                <div>
+                    <div class="group-label">ツール</div>
+                    <div class="segmented" role="group" aria-label="描画ツール">
+                        <button type="button" class="tool-button is-active" data-tool="pen">ペン</button>
+                        <button type="button" class="tool-button" data-tool="eraser">消しゴム</button>
+                        <button type="button" class="tool-button" data-tool="toggle">反転</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="brushSelect">ブラシサイズ</label>
+                    <select id="brushSelect">
+                        <option value="1" selected>1 module</option>
+                        <option value="2">2 modules</option>
+                        <option value="3">3 modules</option>
+                    </select>
+                </div>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="qrCanvas" width="480" height="480" aria-label="QRコード塗り絵キャンバス"></canvas>
+            </div>
+            <div class="canvas-status">
+                <span id="hoverInfo">module: -</span>
+                <span id="paintInfo">pen / 1 module</span>
+            </div>
+        </section>
+
+        <aside class="panel result-panel">
+            <h2>リアルタイム結果</h2>
+            <div class="panel-body control-grid">
+                <div class="metrics">
+                    <div class="metric"><span>バージョン</span><strong id="metricVersion">1</strong></div>
+                    <div class="metric"><span>モジュール数</span><strong id="metricModules">21 x 21</strong></div>
+                    <div class="metric"><span>編集可能</span><strong id="metricEditable">0</strong></div>
+                    <div class="metric"><span>黒モジュール</span><strong id="metricBlack">0</strong></div>
+                </div>
+
+                <div class="decode-card">
+                    <div class="decode-header">
+                        <strong>デコード</strong>
+                        <span class="pill warn" id="decodeStatus">未検出</span>
+                    </div>
+                    <div class="decode-output" id="decodeOutput">まだ読み取れるQRコードではありません。</div>
+                    <div class="mini-log">
+                        <span id="decodeMeta">ECC M / Mask 0 / Quiet zone 4 modules</span>
+                        <span>読み取りエンジン: <code>jsQR</code></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="notes">メモ</label>
+                    <textarea id="notes" placeholder="作業メモや狙っているデータを書いておけます。"></textarea>
+                </div>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var alignmentPatternCenters = [
+        [],
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90]
+    ];
+
+    var eccBits = { M: 0, L: 1, H: 2, Q: 3 };
+    var quietModules = 4;
+    var state = {
+        version: 1,
+        ecc: "M",
+        mask: 0,
+        displaySize: 480,
+        moduleCount: 21,
+        cells: [],
+        reserved: [],
+        labels: [],
+        tool: "pen",
+        brush: 1,
+        showGrid: true,
+        lockTemplate: true,
+        isPainting: false,
+        decodeTimer: null
+    };
+
+    var canvas = document.getElementById("qrCanvas");
+    var ctx = canvas.getContext("2d");
+    var versionSelect = document.getElementById("versionSelect");
+    var eccSelect = document.getElementById("eccSelect");
+    var maskSelect = document.getElementById("maskSelect");
+    var sizeSelect = document.getElementById("sizeSelect");
+    var brushSelect = document.getElementById("brushSelect");
+    var lockTemplate = document.getElementById("lockTemplate");
+    var showGrid = document.getElementById("showGrid");
+    var hoverInfo = document.getElementById("hoverInfo");
+    var paintInfo = document.getElementById("paintInfo");
+    var decodeStatus = document.getElementById("decodeStatus");
+    var decodeOutput = document.getElementById("decodeOutput");
+    var decodeMeta = document.getElementById("decodeMeta");
+
+    function fillVersionOptions() {
+        var fragment = document.createDocumentFragment();
+        for (var version = 1; version <= 20; version += 1) {
+            var option = document.createElement("option");
+            var modules = 21 + (version - 1) * 4;
+            option.value = String(version);
+            option.textContent = "Version " + version + " / " + modules + " x " + modules;
+            fragment.appendChild(option);
+        }
+        versionSelect.appendChild(fragment);
+    }
+
+    function makeMatrix(value) {
+        var matrix = [];
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            var row = [];
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                row.push(value);
+            }
+            matrix.push(row);
+        }
+        return matrix;
+    }
+
+    function inBounds(x, y) {
+        return x >= 0 && y >= 0 && x < state.moduleCount && y < state.moduleCount;
+    }
+
+    function setModule(x, y, value, isReserved, label) {
+        if (!inBounds(x, y)) return;
+        state.cells[y][x] = value ? 1 : 0;
+        if (isReserved) {
+            state.reserved[y][x] = true;
+            state.labels[y][x] = label || state.labels[y][x] || "template";
+        }
+    }
+
+    function setupFinder(x0, y0) {
+        for (var dy = -1; dy <= 7; dy += 1) {
+            for (var dx = -1; dx <= 7; dx += 1) {
+                var x = x0 + dx;
+                var y = y0 + dy;
+                if (!inBounds(x, y)) continue;
+                if (dx < 0 || dx > 6 || dy < 0 || dy > 6) {
+                    setModule(x, y, 0, true, "separator");
+                    continue;
+                }
+                var outer = dx === 0 || dx === 6 || dy === 0 || dy === 6;
+                var center = dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4;
+                setModule(x, y, outer || center ? 1 : 0, true, "finder");
+            }
+        }
+    }
+
+    function setupTiming() {
+        for (var i = 8; i < state.moduleCount - 8; i += 1) {
+            setModule(i, 6, i % 2 === 0 ? 1 : 0, true, "timing");
+            setModule(6, i, i % 2 === 0 ? 1 : 0, true, "timing");
+        }
+    }
+
+    function isNearFinderCenter(x, y) {
+        var last = state.moduleCount - 7;
+        return (x <= 8 && y <= 8) || (x >= last - 1 && y <= 8) || (x <= 8 && y >= last - 1);
+    }
+
+    function setupAlignment() {
+        var centers = alignmentPatternCenters[state.version] || [];
+        centers.forEach(function (cx) {
+            centers.forEach(function (cy) {
+                if (isNearFinderCenter(cx, cy)) return;
+                for (var dy = -2; dy <= 2; dy += 1) {
+                    for (var dx = -2; dx <= 2; dx += 1) {
+                        var edge = Math.max(Math.abs(dx), Math.abs(dy)) === 2;
+                        var center = dx === 0 && dy === 0;
+                        setModule(cx + dx, cy + dy, edge || center ? 1 : 0, true, "alignment");
+                    }
+                }
+            });
+        });
+    }
+
+    function bchRemainder(value, generator) {
+        var generatorBits = bitLength(generator);
+        var current = value;
+        while (bitLength(current) >= generatorBits) {
+            current ^= generator << (bitLength(current) - generatorBits);
+        }
+        return current;
+    }
+
+    function bitLength(value) {
+        var length = 0;
+        while (value !== 0) {
+            length += 1;
+            value >>>= 1;
+        }
+        return length;
+    }
+
+    function formatBits() {
+        var data = (eccBits[state.ecc] << 3) | state.mask;
+        var bits = ((data << 10) | bchRemainder(data << 10, 0x537)) ^ 0x5412;
+        return bits;
+    }
+
+    function versionBits() {
+        var data = state.version;
+        return (data << 12) | bchRemainder(data << 12, 0x1f25);
+    }
+
+    function setupFormatInfo() {
+        var bits = formatBits();
+        for (var i = 0; i < 15; i += 1) {
+            var value = (bits >> i) & 1;
+            if (i < 6) {
+                setModule(8, i, value, true, "format");
+            } else if (i < 8) {
+                setModule(8, i + 1, value, true, "format");
+            } else {
+                setModule(8, state.moduleCount - 15 + i, value, true, "format");
+            }
+
+            if (i < 8) {
+                setModule(state.moduleCount - i - 1, 8, value, true, "format");
+            } else if (i < 9) {
+                setModule(7, 8, value, true, "format");
+            } else {
+                setModule(15 - i - 1, 8, value, true, "format");
+            }
+        }
+        setModule(8, state.moduleCount - 8, 1, true, "dark");
+    }
+
+    function setupVersionInfo() {
+        if (state.version < 7) return;
+        var bits = versionBits();
+        for (var i = 0; i < 18; i += 1) {
+            var value = (bits >> i) & 1;
+            setModule(state.moduleCount - 11 + (i % 3), Math.floor(i / 3), value, true, "version");
+            setModule(Math.floor(i / 3), state.moduleCount - 11 + (i % 3), value, true, "version");
+        }
+    }
+
+    function rebuildTemplate() {
+        state.moduleCount = 21 + (state.version - 1) * 4;
+        state.cells = makeMatrix(0);
+        state.reserved = makeMatrix(false);
+        state.labels = makeMatrix("");
+        setupFinder(0, 0);
+        setupFinder(state.moduleCount - 7, 0);
+        setupFinder(0, state.moduleCount - 7);
+        setupTiming();
+        setupAlignment();
+        setupFormatInfo();
+        setupVersionInfo();
+        render();
+        updateMetrics();
+        scheduleDecode();
+    }
+
+    function cellMetrics() {
+        var total = state.moduleCount * state.moduleCount;
+        var reservedCount = 0;
+        var blackCount = 0;
+        var dataBlack = 0;
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                if (state.reserved[y][x]) reservedCount += 1;
+                if (state.cells[y][x]) {
+                    blackCount += 1;
+                    if (!state.reserved[y][x]) dataBlack += 1;
+                }
+            }
+        }
+        return {
+            total: total,
+            reserved: reservedCount,
+            editable: total - reservedCount,
+            black: blackCount,
+            dataBlack: dataBlack
+        };
+    }
+
+    function updateMetrics() {
+        var metrics = cellMetrics();
+        document.getElementById("metricVersion").textContent = String(state.version);
+        document.getElementById("metricModules").textContent = state.moduleCount + " x " + state.moduleCount;
+        document.getElementById("metricEditable").textContent = String(metrics.editable);
+        document.getElementById("metricBlack").textContent = metrics.black + " (" + metrics.dataBlack + " data)";
+        decodeMeta.textContent = "ECC " + state.ecc + " / Mask " + state.mask + " / Quiet zone " + quietModules + " modules";
+    }
+
+    function render() {
+        var displaySize = state.displaySize;
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(displaySize * dpr);
+        canvas.height = Math.round(displaySize * dpr);
+        canvas.style.width = displaySize + "px";
+        canvas.style.height = displaySize + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        var totalModules = state.moduleCount + quietModules * 2;
+        var cell = displaySize / totalModules;
+        ctx.clearRect(0, 0, displaySize, displaySize);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, displaySize, displaySize);
+
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                var px = (x + quietModules) * cell;
+                var py = (y + quietModules) * cell;
+                if (state.cells[y][x]) {
+                    ctx.fillStyle = "#101820";
+                    ctx.fillRect(px, py, Math.ceil(cell), Math.ceil(cell));
+                } else if (state.reserved[y][x] && state.showGrid) {
+                    ctx.fillStyle = "#eef6f8";
+                    ctx.fillRect(px, py, Math.ceil(cell), Math.ceil(cell));
+                }
+            }
+        }
+
+        if (state.showGrid) {
+            ctx.lineWidth = Math.max(0.5, 1 / dpr);
+            ctx.strokeStyle = "rgba(20, 42, 58, 0.18)";
+            ctx.beginPath();
+            for (var i = 0; i <= state.moduleCount; i += 1) {
+                var pos = (i + quietModules) * cell;
+                var start = quietModules * cell;
+                var end = (state.moduleCount + quietModules) * cell;
+                ctx.moveTo(start, pos);
+                ctx.lineTo(end, pos);
+                ctx.moveTo(pos, start);
+                ctx.lineTo(pos, end);
+            }
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(17, 122, 139, 0.34)";
+            for (var yy = 0; yy < state.moduleCount; yy += 1) {
+                for (var xx = 0; xx < state.moduleCount; xx += 1) {
+                    if (!state.reserved[yy][xx]) continue;
+                    ctx.strokeRect((xx + quietModules) * cell, (yy + quietModules) * cell, cell, cell);
+                }
+            }
+        }
+    }
+
+    function canvasToModule(event) {
+        var rect = canvas.getBoundingClientRect();
+        var totalModules = state.moduleCount + quietModules * 2;
+        var relX = (event.clientX - rect.left) / rect.width * totalModules;
+        var relY = (event.clientY - rect.top) / rect.height * totalModules;
+        var x = Math.floor(relX - quietModules);
+        var y = Math.floor(relY - quietModules);
+        if (!inBounds(x, y)) return null;
+        return { x: x, y: y };
+    }
+
+    function applyPaint(x, y) {
+        var radius = state.brush - 1;
+        var changed = false;
+        for (var dy = -radius; dy <= radius; dy += 1) {
+            for (var dx = -radius; dx <= radius; dx += 1) {
+                var tx = x + dx;
+                var ty = y + dy;
+                if (!inBounds(tx, ty)) continue;
+                if (state.lockTemplate && state.reserved[ty][tx]) continue;
+                var next = state.cells[ty][tx];
+                if (state.tool === "pen") next = 1;
+                if (state.tool === "eraser") next = 0;
+                if (state.tool === "toggle") next = state.cells[ty][tx] ? 0 : 1;
+                if (state.cells[ty][tx] !== next) {
+                    state.cells[ty][tx] = next;
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            render();
+            updateMetrics();
+            scheduleDecode();
+        }
+    }
+
+    function updateHover(event) {
+        var module = canvasToModule(event);
+        if (!module) {
+            hoverInfo.textContent = "module: -";
+            return;
+        }
+        var label = state.labels[module.y][module.x] || "data";
+        var value = state.cells[module.y][module.x] ? "black" : "white";
+        hoverInfo.textContent = "module: x" + module.x + " y" + module.y + " / " + label + " / " + value;
+    }
+
+    function scheduleDecode() {
+        window.clearTimeout(state.decodeTimer);
+        state.decodeTimer = window.setTimeout(runDecode, 80);
+    }
+
+    function runDecode() {
+        if (typeof window.jsQR !== "function") {
+            decodeStatus.textContent = "待機中";
+            decodeStatus.className = "pill warn";
+            decodeOutput.textContent = "jsQRを読み込み中、またはネットワークから取得できませんでした。描画とPNG保存は利用できます。";
+            return;
+        }
+
+        var scale = 8;
+        var totalModules = state.moduleCount + quietModules * 2;
+        var size = totalModules * scale;
+        var offscreen = document.createElement("canvas");
+        var offCtx = offscreen.getContext("2d", { willReadFrequently: true });
+        offscreen.width = size;
+        offscreen.height = size;
+        offCtx.fillStyle = "#fff";
+        offCtx.fillRect(0, 0, size, size);
+        offCtx.fillStyle = "#000";
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                if (state.cells[y][x]) {
+                    offCtx.fillRect((x + quietModules) * scale, (y + quietModules) * scale, scale, scale);
+                }
+            }
+        }
+        var imageData = offCtx.getImageData(0, 0, size, size);
+        var result = window.jsQR(imageData.data, size, size, { inversionAttempts: "attemptBoth" });
+        if (result && typeof result.data === "string") {
+            decodeStatus.textContent = "成功";
+            decodeStatus.className = "pill ok";
+            decodeOutput.textContent = result.data || "(空文字列)";
+        } else {
+            decodeStatus.textContent = "未検出";
+            decodeStatus.className = "pill warn";
+            decodeOutput.textContent = "まだ読み取れるQRコードではありません。形式情報、マスク、データ部の整合が取れるとここに内容が表示されます。";
+        }
+    }
+
+    function clearData() {
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                if (!state.reserved[y][x]) state.cells[y][x] = 0;
+            }
+        }
+        render();
+        updateMetrics();
+        scheduleDecode();
+    }
+
+    function invertData() {
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                if (!state.reserved[y][x]) state.cells[y][x] = state.cells[y][x] ? 0 : 1;
+            }
+        }
+        render();
+        updateMetrics();
+        scheduleDecode();
+    }
+
+    function downloadPng() {
+        var scale = Math.max(8, Math.floor(state.displaySize / (state.moduleCount + quietModules * 2)));
+        var totalModules = state.moduleCount + quietModules * 2;
+        var size = totalModules * scale;
+        var exportCanvas = document.createElement("canvas");
+        var exportCtx = exportCanvas.getContext("2d");
+        exportCanvas.width = size;
+        exportCanvas.height = size;
+        exportCtx.fillStyle = "#fff";
+        exportCtx.fillRect(0, 0, size, size);
+        exportCtx.fillStyle = "#000";
+        for (var y = 0; y < state.moduleCount; y += 1) {
+            for (var x = 0; x < state.moduleCount; x += 1) {
+                if (state.cells[y][x]) {
+                    exportCtx.fillRect((x + quietModules) * scale, (y + quietModules) * scale, scale, scale);
+                }
+            }
+        }
+        var link = document.createElement("a");
+        link.href = exportCanvas.toDataURL("image/png");
+        link.download = "qr-painting-v" + state.version + "-e" + state.ecc + "-m" + state.mask + ".png";
+        link.click();
+    }
+
+    function syncControls() {
+        state.version = Number(versionSelect.value);
+        state.ecc = eccSelect.value;
+        state.mask = Number(maskSelect.value);
+        state.displaySize = Number(sizeSelect.value);
+        state.brush = Number(brushSelect.value);
+        state.lockTemplate = lockTemplate.checked;
+        state.showGrid = showGrid.checked;
+        paintInfo.textContent = state.tool + " / " + state.brush + " module" + (state.brush > 1 ? "s" : "");
+    }
+
+    function bindEvents() {
+        [versionSelect, eccSelect, maskSelect].forEach(function (element) {
+            element.addEventListener("change", function () {
+                syncControls();
+                rebuildTemplate();
+            });
+        });
+        [sizeSelect, showGrid].forEach(function (element) {
+            element.addEventListener("change", function () {
+                syncControls();
+                render();
+                updateMetrics();
+            });
+        });
+        [brushSelect, lockTemplate].forEach(function (element) {
+            element.addEventListener("change", syncControls);
+        });
+
+        document.querySelectorAll("[data-tool]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                document.querySelectorAll("[data-tool]").forEach(function (item) {
+                    item.classList.remove("is-active");
+                });
+                button.classList.add("is-active");
+                state.tool = button.getAttribute("data-tool");
+                syncControls();
+            });
+        });
+
+        canvas.addEventListener("pointerdown", function (event) {
+            var module = canvasToModule(event);
+            if (!module) return;
+            canvas.setPointerCapture(event.pointerId);
+            state.isPainting = true;
+            applyPaint(module.x, module.y);
+            updateHover(event);
+        });
+        canvas.addEventListener("pointermove", function (event) {
+            updateHover(event);
+            if (!state.isPainting) return;
+            var module = canvasToModule(event);
+            if (module) applyPaint(module.x, module.y);
+        });
+        canvas.addEventListener("pointerup", function () {
+            state.isPainting = false;
+        });
+        canvas.addEventListener("pointercancel", function () {
+            state.isPainting = false;
+        });
+        canvas.addEventListener("mouseleave", function () {
+            hoverInfo.textContent = "module: -";
+        });
+
+        document.getElementById("resetTemplate").addEventListener("click", function () {
+            syncControls();
+            rebuildTemplate();
+        });
+        document.getElementById("clearData").addEventListener("click", clearData);
+        document.getElementById("invertData").addEventListener("click", invertData);
+        document.getElementById("downloadPng").addEventListener("click", downloadPng);
+    }
+
+    fillVersionOptions();
+    versionSelect.value = "1";
+    maskSelect.value = "0";
+    syncControls();
+    bindEvents();
+    rebuildTemplate();
+}());
+</script>
+</body>
+</html>

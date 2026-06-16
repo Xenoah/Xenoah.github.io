@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://xenoah.github.io/sitemap.htm</loc>
-    <lastmod>2026-06-15</lastmod>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -121,6 +121,12 @@
   <url>
     <loc>https://xenoah.github.io/tools/tools_Omni%20Sci-Calc.htm</loc>
     <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/tools/qr-painting/qr-painting.htm</loc>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
