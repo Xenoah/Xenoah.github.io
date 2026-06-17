@@ -1,7 +1,7 @@
-# XNH_WEBAPP_GIF-Conv
+# GIF Converter
 
 ブラウザだけで画像・動画・GIF を相互変換するシングルページ Web アプリです。  
-サーバー不要で、`index.html` を開くだけで利用できます。
+サーバー不要で、`gif-conv.htm` を開くだけで利用できます。
 
 ## 概要
 
@@ -212,6 +212,5 @@ fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')
 
 ## ファイル構成
 
-- `index.html`: アプリ本体（UI・ロジック）
-- `README.md`: このドキュメント
-- `_config.yml`: GitHub Pages 用設定
+- `gif-conv.htm`: アプリ本体（UI・ロジック）
+- `gif-conv_readme.md`: このドキュメント

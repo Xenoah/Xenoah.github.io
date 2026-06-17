@@ -1,6 +1,6 @@
 # XNH WebApp PDF Editor
 
-https://xenoah.github.io/tools/XNH_WEBAPP_pdf-editor/
+https://xenoah.github.io/tools/pdf-editor/pdf-editor.htm
 
 ブラウザだけで動作する、ローカル処理完結型のPDFエディタです。
 
@@ -11,9 +11,9 @@ PDFファイルは外部サーバーへ送信せず、読み込み、表示、�
 このプロジェクトはビルド不要の静的Webアプリです。
 
 ```text
-index.html
-style.css
-app.js
+pdf-editor.htm
+pdf-editor.css
+pdf-editor.js
 lib/
   pdf.min.mjs
   pdf.worker.min.mjs
@@ -24,7 +24,7 @@ lib/
 
 ## 起動方法
 
-ES Modulesとpdf.js workerを使うため、ブラウザで直接 `index.html` を開くより、ローカルHTTPサーバー経由で開くことを推奨します。
+ES Modulesとpdf.js workerを使うため、ブラウザで直接 `pdf-editor.htm` を開くより、ローカルHTTPサーバー経由で開くことを推奨します。
 
 ```bash
 python -m http.server 4173
@@ -136,8 +136,6 @@ PDFの本文はWordやGoogle Docsのような自然な文字列データでは�
 
 ## 今後の改善候補
 
-実装ロードマップの詳細は [claude.md](claude.md) を参照。
-
 - Before / After 1クリック比較（Phase 2）
 - 注釈のリサイズ・回転・コピー&ペースト・整列（Phase 3）
 - 画像 / 署名 / スタンプ / 透かし / ページ番号挿入（Phase 4）
@@ -157,7 +155,7 @@ PDFの本文はWordやGoogle Docsのような自然な文字列データでは�
 - 未保存のままタブを閉じる / 別 PDF を開こうとした際に確認を出すようにしました。
 - alert によるエラー表示を廃止し、トースト通知に統一しました。
 - 大容量 PDF 向けに、レンダリングタスクのキャンセルと stale ガードを追加しました。
-- 手動 QA チェックリストを [claude.md](claude.md) に追加しました。
+- 手動 QA チェックリストを整理しました。
 
 #### Phase 1: ページ編集の完成
 
@@ -181,8 +179,8 @@ PDFの本文はWordやGoogle Docsのような自然な文字列データでは�
 
 ## 開発メモ
 
-現在のメイン実装は [app.js](app.js) に集約されています。
+現在のメイン実装は [pdf-editor.js](pdf-editor.js) に集約されています。
 
-UIは [index.html](index.html) と [style.css](style.css) で構成されています。
+UIは [pdf-editor.htm](pdf-editor.htm) と [pdf-editor.css](pdf-editor.css) で構成されています。
 
 ビルドステップをなくして即時起動できることを優先しているため、現時点では依存管理ファイルやバンドラー設定はありません。

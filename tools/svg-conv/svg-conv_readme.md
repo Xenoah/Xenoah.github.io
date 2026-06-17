@@ -1,5 +1,5 @@
-# XNH_WEBAPP_SVG-Conv
-https://xenoah.github.io/tools/XNH_WEBAPP_SVG-Conv/
+# SVG Converter
+https://xenoah.github.io/tools/svg-conv/svg-conv.htm
 
 ブラウザだけで完結する画像 → SVG コンバーター。
 画像はネットワークに送信せず、すべてあなたのブラウザの中で処理されます。
@@ -17,7 +17,7 @@ https://xenoah.github.io/tools/XNH_WEBAPP_SVG-Conv/
   オフラインの PWA として動かせるので、機密ロゴや社内データの SVG 化にも安心です。
 
 - **ビルドステップなし**
-  `index.html` と ES Modules だけで動く、いわゆる "no-build" 構成です。
+  `svg-conv.htm` と ES Modules だけで動く、いわゆる "no-build" 構成です。
   クローンしたディレクトリを静的サーバーに置くだけで起動します。
   `node_modules` も `vite` も必要ありません。
 
@@ -63,8 +63,7 @@ https://xenoah.github.io/tools/XNH_WEBAPP_SVG-Conv/
 ビルド不要。任意の静的サーバーから配信するだけです。
 
 ```sh
-git clone https://github.com/Xenoah/XNH_WEBAPP_SVG-Conv.git
-cd XNH_WEBAPP_SVG-Conv
+cd tools/svg-conv
 
 # 例: Python 同梱の簡易サーバー
 python -m http.server 5173
@@ -166,7 +165,7 @@ python -m http.server 5173
 
 ```
 /
-├─ index.html                 # エントリ
+├─ svg-conv.htm               # エントリ
 ├─ manifest.webmanifest       # PWA マニフェスト
 ├─ sw.js                      # Service Worker
 ├─ assets/                    # アイコン・ファビコン
@@ -200,7 +199,6 @@ python -m http.server 5173
 │     ├─ index.js
 │     ├─ ja.json
 │     └─ en.json
-└─ CLAUDE.md                  # 設計方針と進捗（フェーズ別）
 ```
 
 ---
@@ -214,8 +212,6 @@ python -m http.server 5173
 ---
 
 ## ロードマップ
-
-`CLAUDE.md` にフェーズごとの進捗詳細があります。
 
 **完了済み:**
 
@@ -249,8 +245,3 @@ python -m http.server 5173
 公開配布する場合は `LICENSE` ファイルを追加してください（MIT などが手堅いです）。
 
 ---
-
-## 関連
-
-- リポジトリ: [Xenoah/XNH_WEBAPP_SVG-Conv](https://github.com/Xenoah/XNH_WEBAPP_SVG-Conv)
-- 設計メモ: [CLAUDE.md](./CLAUDE.md)

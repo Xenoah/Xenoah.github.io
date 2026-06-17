@@ -1,14 +1,14 @@
 # VJ FX Maker
 
-https://xenoah.github.io/tools/XNH_vj-fx-maker/
+https://xenoah.github.io/tools/vj-fx-maker/vj-fx-maker.htm
 
-ブラウザ単体で動作する VJ 用エフェクトメーカー。`index.html` をダブルクリックで開くだけで起動します。
+ブラウザ単体で動作する VJ 用エフェクトメーカー。`vj-fx-maker.htm` をダブルクリックで開くだけで起動します。
 外部 CDN・ライブラリ・ビルドは一切不要です。
 
 ## 起動
 
 ```
-index.html を Chrome / Edge / Firefox など WebGL 対応ブラウザで開く
+vj-fx-maker.htm を Chrome / Edge / Firefox など WebGL 対応ブラウザで開く
 ```
 
 ローカルファイルの読込みやマイク権限を使うため、HTTPS や `file://` ではなくローカルサーバ経由で開くことを推奨:
@@ -233,6 +233,5 @@ python -m http.server 8000
 
 | ファイル | 内容 |
 |---|---|
-| `index.html` | アプリ本体 (HTML + CSS + JS の単一ファイル) |
-| `README.md` | このファイル |
-| `claude.md` | 実装メモ・進捗 |
+| `vj-fx-maker.htm` | アプリ本体 (HTML + CSS + JS の単一ファイル) |
+| `vj-fx-maker_readme.md` | このファイル |

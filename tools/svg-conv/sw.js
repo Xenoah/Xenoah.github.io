@@ -4,7 +4,7 @@
 const VERSION = 'xnh-svg-conv-v0.4.0';
 const CORE_ASSETS = [
   './',
-  './index.html',
+  './svg-conv.htm',
   './manifest.webmanifest',
   './assets/favicon.svg',
   './styles/base.css',
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(VERSION).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match('./index.html')),
+        .catch(() => caches.match('./svg-conv.htm')),
     );
     return;
   }

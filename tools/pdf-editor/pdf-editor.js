@@ -1,5 +1,5 @@
 /**
- * app.js — PDF Editor (vanilla JS, ES module)
+ * pdf-editor.js — PDF Editor (vanilla JS, ES module)
  * pdfjs-dist: ES module (lib/pdf.min.mjs)
  * pdf-lib:    UMD global PDFLib (lib/pdf-lib.min.js, loaded via <script>)
  */

@@ -3,7 +3,7 @@
   "short_name": "SVG Conv",
   "description": "ブラウザ内で完結する画像→SVG コンバーター。すべてローカルで処理されます。",
   "lang": "ja",
-  "start_url": "./",
+  "start_url": "./svg-conv.htm",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

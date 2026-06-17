@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Editor</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pdf-editor.css">
   <script src="lib/pdf-lib.min.js"></script>
   <script src="lib/qrcode.js"></script>
 </head>
@@ -603,7 +603,7 @@
 
   <div id="startup-error" class="startup-error hidden">
     <strong>アプリを起動できません</strong>
-    <span>index.html を直接開いている場合は、ローカルHTTPサーバーから開いてください。</span>
+    <span>pdf-editor.htm を直接開いている場合は、ローカルHTTPサーバーから開いてください。</span>
     <code>python -m http.server 4173</code>
     <span>その後、http://127.0.0.1:4173/ を開きます。</span>
   </div>
@@ -625,6 +625,6 @@
         : 'アプリの起動に失敗しました';
     }, 1200);
   </script>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="pdf-editor.js"></script>
 </body>
 </html>
