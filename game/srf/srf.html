@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyRacers FPV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Scrollbar & Range Input */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        input[type=range] { height: 0.5rem; background-color: #374151; border-radius: 0.5rem; appearance: none; cursor: pointer; }
+        
+        /* Loading Overlay */
+        #loading-screen {
+            position: fixed; inset: 0; background: #000; z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; font-family: monospace; transition: opacity 0.5s;
+        }
+
+        /* Controller Focus State */
+        .btn-focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+            transform: scale(1.05);
+            background-color: #1f2937; /* Gray-800 equivalent */
+        }
+        .btn-primary.btn-focus {
+            background-color: #2563eb; /* Blue-600 */
+        }
+
+        #canvas-container canvas {
+            transition: filter 0.6s ease, transform 0.6s ease;
+        }
+        #canvas-container.menu-preview canvas {
+            filter: blur(10px) saturate(0.75) brightness(0.8);
+            transform: scale(1.04);
+        }
+
+        .touch-ui {
+            position: absolute;
+            inset: auto 0 0 0;
+            padding: 1rem;
+            pointer-events: none;
+            display: none;
+            touch-action: none;
+        }
+        .touch-ui.is-visible {
+            display: block;
+        }
+        .touch-stick {
+            width: 132px;
+            height: 132px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.14), rgba(255,255,255,0.05) 45%, rgba(0,0,0,0.22) 75%),
+                rgba(0,0,0,0.18);
+            backdrop-filter: blur(10px);
+            position: relative;
+            pointer-events: auto;
+            touch-action: none;
+            box-shadow: inset 0 0 24px rgba(255,255,255,0.05);
+        }
+        .touch-stick::before,
+        .touch-stick::after {
+            content: "";
+            position: absolute;
+            background: rgba(255,255,255,0.08);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .touch-stick::before {
+            width: 68%;
+            height: 1px;
+        }
+        .touch-stick::after {
+            width: 1px;
+            height: 68%;
+        }
+        .touch-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.72), rgba(255,255,255,0.16) 60%, rgba(0,0,0,0.24));
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+            pointer-events: none;
+        }
+        .touch-action-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+            font: 700 11px/1 monospace;
+            letter-spacing: 0.08em;
+            pointer-events: auto;
+            touch-action: manipulation;
+            box-shadow: inset 0 0 18px rgba(255,255,255,0.05);
+        }
+        .touch-action-btn:active,
+        .touch-action-btn.is-active {
+            transform: scale(0.96);
+            background: rgba(37,99,235,0.45);
+        }
+        @media (min-width: 768px) {
+            .touch-ui {
+                padding: 1.5rem;
+            }
+            .touch-stick {
+                width: 148px;
+                height: 148px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-black text-white select-none overflow-hidden w-full h-screen relative font-sans">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="text-xl animate-pulse">INITIALIZING ENGINES...</div>
+        <div class="text-xs text-gray-500 mt-4">Internet connection required for CDN libraries</div>
+    </div>
+    <script src="./js/error-handler.js"></script>
+
+    <!-- 3D Container -->
+    <div id="canvas-container" class="absolute inset-0 z-0 bg-gradient-to-b from-sky-900 to-black"></div>
+
+    <!-- UI Overlay Layer -->
+    <div id="ui-layer" class="absolute inset-0 z-10 pointer-events-none hidden">
+
+        <!-- SCREEN: Main Menu -->
+        <div id="screen-menu" class="screen absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-auto transition-opacity duration-500">
+            <div class="absolute top-4 right-4 flex gap-4">
+                 <button id="btn-lang" class="px-3 py-1 rounded border border-gray-600 hover:bg-gray-800 text-xs text-gray-400">EN / JP</button>
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 drop-shadow-2xl mb-8 text-center">
+                SKY RACERS <span class="text-xl md:text-2xl block text-white font-normal tracking-widest mt-2">FPV SIMULATOR</span>
+            </h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg px-4">
+                <button id="btn-mode-timeattack" class="btn-primary px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/50 flex justify-center items-center gap-2">
+                    Time Attack
+                </button>
+                <button id="btn-mode-freeselect" class="px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-600">
+                    Free Flight
+                </button>
+                <button id="btn-settings-open" class="px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-600 md:col-span-2">
+                    Settings
+                </button>
+            </div>
+            <div class="absolute bottom-8 text-gray-500 text-sm">
+                🎮 Xbox Controller (A=Select, B=Back) / Keyboard
+            </div>
+        </div>
+
+        <!-- SCREEN: Time Attack Select -->
+        <div id="screen-select" class="screen hidden absolute inset-0 flex flex-col bg-gray-900/95 p-8 pointer-events-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 id="txt-prep" class="text-3xl font-bold italic">FLIGHT PREP</h2>
+                <button id="btn-back-menu" class="px-4 py-2 rounded bg-gray-800 hover:bg-gray-700 border border-gray-600">Back</button>
+            </div>
+            <div class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] flex-1 min-h-0 pb-24">
+                <div class="min-h-0 flex flex-col">
+                    <div class="mb-3">
+                        <div id="txt-select-step" class="text-xs uppercase tracking-[0.35em] text-cyan-300">Pick a Course</div>
+                        <div id="txt-select-helper" class="text-sm text-gray-400 mt-1">Select a course — aircraft selection opens automatically.</div>
+                    </div>
+                    <div id="selection-grid" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 pr-2"></div>
+
+                    <div id="custom-drone-panel" class="hidden bg-gray-800 p-4 rounded border border-gray-700 mt-4">
+                        <h3 id="txt-custom-tuning" class="font-bold mb-4 text-blue-400">CUSTOM TUNING</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="flex justify-between text-xs text-gray-400">Speed <span id="val-cust-speed">50</span></label>
+                                <input type="range" id="input-cust-speed" min="20" max="100" value="50" class="w-full accent-blue-500">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-xs text-gray-400">Agility <span id="val-cust-agility">4.0</span></label>
+                                <input type="range" id="input-cust-agility" min="1" max="10" step="0.1" value="4.0" class="w-full accent-green-500">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-xs text-gray-400">Weight <span id="val-cust-weight">1.0</span></label>
+                                <input type="range" id="input-cust-weight" min="0.5" max="3.0" step="0.1" value="1.0" class="w-full accent-orange-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="course-briefing" class="relative min-h-0 rounded-2xl border border-gray-800 bg-black/30 backdrop-blur overflow-hidden">
+                    <div id="detail-panel-empty" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 transition-all duration-300">
+                        <div class="text-[11px] uppercase tracking-[0.35em] text-cyan-300">Detail Panel</div>
+                        <h3 id="detail-panel-empty-title" class="text-2xl font-bold mt-3">Press Detail to Inspect</h3>
+                        <p id="detail-panel-empty-copy" class="text-sm text-gray-400 mt-2 max-w-sm">Course notes and drone specs fade in here when you open them.</p>
+                    </div>
+                    <div id="detail-panel-card" class="h-full flex flex-col gap-3 p-4 opacity-0 translate-y-4 scale-[0.985] pointer-events-none transition-all duration-300">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div id="detail-panel-kicker" class="text-[11px] uppercase tracking-[0.35em] text-cyan-300">Course Detail</div>
+                                <h3 id="detail-panel-title" class="text-xl font-bold mt-2">Select Detail</h3>
+                                <p id="detail-panel-subtitle" class="text-xs text-gray-400 mt-1">Open a course or drone detail card to inspect it.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div id="detail-panel-badge" class="shrink-0 px-2 py-1 rounded-full text-xs font-bold uppercase bg-gray-800 text-gray-300 border border-gray-700">--</div>
+                                <button id="detail-panel-toggle" class="px-3 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs uppercase tracking-[0.2em] text-gray-300">Collapse</button>
+                                <button id="detail-panel-close" class="px-3 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs uppercase tracking-[0.2em] text-gray-300">Close</button>
+                            </div>
+                        </div>
+                        <div id="detail-panel-body" class="contents">
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="rounded-xl border border-white/8 bg-white/5 p-3">
+                                <div id="detail-stat-1-label" class="text-[10px] uppercase tracking-[0.25em] text-gray-500">Profile</div>
+                                <div id="detail-stat-1-value" class="text-sm font-semibold text-white mt-2">--</div>
+                            </div>
+                            <div class="rounded-xl border border-white/8 bg-white/5 p-3">
+                                <div id="detail-stat-2-label" class="text-[10px] uppercase tracking-[0.25em] text-gray-500">Difficulty</div>
+                                <div id="detail-stat-2-value" class="text-sm font-semibold text-white mt-2">--</div>
+                            </div>
+                            <div class="rounded-xl border border-white/8 bg-white/5 p-3">
+                                <div id="detail-stat-3-label" class="text-[10px] uppercase tracking-[0.25em] text-gray-500">Gates</div>
+                                <div id="detail-stat-3-value" class="text-sm font-semibold text-white mt-2">--</div>
+                            </div>
+                            <div class="rounded-xl border border-white/8 bg-white/5 p-3">
+                                <div id="detail-stat-4-label" class="text-[10px] uppercase tracking-[0.25em] text-gray-500">Best</div>
+                                <div id="detail-stat-4-value" class="text-sm font-semibold text-cyan-300 mt-2">--</div>
+                            </div>
+                        </div>
+                        <div id="detail-preview-wrap" class="rounded-xl border border-cyan-500/20 bg-slate-950/70 overflow-hidden hidden">
+                            <canvas id="track-aerial-preview" width="640" height="260" class="w-full aspect-[16/6] bg-slate-950"></canvas>
+                        </div>
+                        <div id="detail-summary" class="text-xs text-gray-300 px-1 leading-6">No detail opened yet.</div>
+                        <div id="detail-meta" class="text-[11px] text-gray-500 px-1">Press a Detail button to preview the selection.</div>
+                        <div id="detail-ranking" class="hidden rounded-xl border border-white/8 bg-black/20 p-3">
+                            <div class="text-[10px] uppercase tracking-[0.25em] text-gray-500 mb-2">Class Local Ranking</div>
+                            <div id="detail-ranking-body" class="space-y-2 text-xs text-gray-300"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gray-900 border-t border-gray-800 flex justify-between items-center gap-4">
+                <div id="txt-start-hint" class="text-sm text-gray-400">Choose a course, then use Detail to inspect the route or drone specs.</div>
+                <button id="btn-start-race" class="px-8 py-3 rounded font-bold uppercase tracking-wider bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Start Race
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: Open World Select -->
+        <div id="screen-freeselect" class="screen hidden absolute inset-0 flex flex-col bg-gray-900/95 p-8 pointer-events-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 id="txt-select-terrain" class="text-3xl font-bold italic">SELECT FREE FLIGHT COURSE</h2>
+                <button id="btn-back-free" class="px-4 py-2 rounded bg-gray-800 hover:bg-gray-700 border border-gray-600">Back</button>
+            </div>
+            <div class="text-sm text-gray-400 mb-4">Fly inside the current racing worlds without the timer or gate progression.</div>
+            <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pr-2 pb-4" id="terrain-grid"></div>
+        </div>
+
+        <!-- HUD: In-Game -->
+        <div id="screen-hud" class="screen hidden absolute inset-0 pointer-events-none p-4 md:p-6 flex flex-col justify-between">
+            <div class="flex justify-between items-start pointer-events-auto">
+                <div class="bg-black/40 backdrop-blur px-4 py-2 rounded-lg border border-white/10 flex gap-4 text-sm font-mono">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">Battery</span>
+                        <div id="hud-battery" class="text-green-400">16.8V</div>
+                    </div>
+                    <div class="w-px h-8 bg-white/20"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">Health</span>
+                        <div id="hud-health" class="text-blue-400">100%</div>
+                    </div>
+                    <div class="w-px h-8 bg-white/20"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">Speed</span>
+                        <div id="hud-speed" class="text-cyan-400">0 m/s</div>
+                    </div>
+                </div>
+
+                <div id="hud-timer-container" class="bg-black/40 backdrop-blur px-6 py-3 rounded-lg border border-white/10 flex flex-col items-center min-w-[220px]">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">Lap Time</span>
+                    <span id="hud-timer" class="text-3xl font-mono font-bold text-yellow-400">READY</span>
+                    <span id="hud-laps" class="text-[10px] text-cyan-300 uppercase tracking-[0.25em] mt-1">Laps 0</span>
+                    <div id="hud-sector-strip" class="mt-3 flex gap-2 text-[10px] font-mono uppercase tracking-[0.2em]">
+                        <span id="hud-sector-1" class="px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400">S1 --</span>
+                        <span id="hud-sector-2" class="px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400">S2 --</span>
+                        <span id="hud-sector-3" class="px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400">S3 --</span>
+                    </div>
+                    <span id="hud-sector-delta" class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-2">Sectors armed</span>
+                    <span id="hud-ghost-status" class="text-[10px] text-cyan-200/80 uppercase tracking-[0.2em] mt-1">Ghost standby</span>
+                </div>
+
+                <button id="btn-pause" class="bg-black/40 hover:bg-black/60 backdrop-blur p-3 rounded-lg border border-white/10 text-white pointer-events-auto">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <!-- 方角ゲージ（コンパステープ） -->
+            <div id="hud-compass" class="absolute top-[72px] left-1/2 -translate-x-1/2 pointer-events-none hidden">
+                <canvas id="compass-canvas" width="400" height="52"></canvas>
+            </div>
+
+            <!-- 水平儀（アーティフィシャルホライゾン） -->
+            <div id="hud-horizon" class="absolute bottom-24 left-6 pointer-events-none hidden">
+                <canvas id="horizon-canvas" width="150" height="150"></canvas>
+            </div>
+
+            <div id="mission-start-msg" class="absolute top-1/4 left-0 right-0 text-center pointer-events-none transition-opacity duration-500">
+                <h2 id="txt-mission-title" class="text-4xl md:text-6xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse">TIME ATTACK</h2>
+                <p id="txt-mission-sub" class="text-blue-200 mt-2 bg-black/50 inline-block px-4 py-1 rounded backdrop-blur">Fly through the first gate and keep the laps flowing.</p>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/30">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+
+            <div id="input-viz-container" class="absolute bottom-24 right-6 bg-black/40 border border-white/10 rounded p-2 hidden">
+                <canvas id="input-canvas" width="140" height="70"></canvas>
+                <div class="text-center text-[10px] text-gray-500 mt-1">INPUT</div>
+            </div>
+
+            <div id="mobile-controls" class="touch-ui">
+                <div class="flex items-end justify-between gap-4">
+                    <div class="flex items-end gap-4">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="text-[10px] tracking-[0.2em] text-white/45 uppercase font-mono">Throttle / Yaw</div>
+                            <div id="mobile-left-stick" class="touch-stick">
+                                <div id="mobile-left-thumb" class="touch-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-3">
+                        <div class="flex flex-col gap-3 pb-1">
+                            <button id="mobile-btn-reset" class="touch-action-btn">RESET</button>
+                            <button id="mobile-btn-pause" class="touch-action-btn">PAUSE</button>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="text-[10px] tracking-[0.2em] text-white/45 uppercase font-mono">Pitch / Roll</div>
+                            <div id="mobile-right-stick" class="touch-stick">
+                                <div id="mobile-right-thumb" class="touch-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end pointer-events-auto">
+                <div class="bg-black/40 backdrop-blur p-4 rounded-lg hidden md:block">
+                    <!-- Controller Instructions -->
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs font-mono text-gray-300">
+                         <div class="col-span-2 border-b border-gray-600 mb-1 pb-1 font-bold text-white">CONTROLS (Gamepad / Keyboard)</div>
+                        <span>Pitch/Roll: R-Stick / Arrows</span>
+                        <span>Throttle: L-Stick(Y) / W,S</span>
+                        <span>Yaw: L-Stick(X) / A,D</span>
+                        <span>Pause: Start / ESC</span>
+                        <span>Respawn: Y / G</span>
+                        <span>Reset Run: X / R</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POPUP: Race Finished -->
+        <div id="popup-finish" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto">
+            <div class="bg-gray-900/90 border border-blue-500/30 p-8 rounded-2xl text-center shadow-2xl max-w-md w-full mx-4">
+                <h2 class="text-4xl font-bold mb-2 italic text-white">LAP COMPLETE</h2>
+                <p id="finish-time" class="text-6xl font-mono text-green-400 mb-2 font-bold tracking-tighter">00.00s</p>
+                <p id="finish-best" class="text-sm font-mono text-cyan-300 mb-4 tracking-wide">BEST --</p>
+                <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-800/60 p-3 rounded-lg text-left">
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">Max Speed</div>
+                        <div id="finish-maxspeed" class="font-mono text-cyan-400 text-lg">-- m/s</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">Crashes</div>
+                        <div id="finish-crashes" class="font-mono text-orange-400 text-lg">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">Local Rank</div>
+                        <div id="finish-rank" class="font-mono text-violet-300 text-lg">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">Replay</div>
+                        <div id="finish-replay-label" class="font-mono text-emerald-300 text-lg">Best Lap</div>
+                    </div>
+                </div>
+                <div id="finish-sectors" class="mb-6 grid grid-cols-3 gap-2 text-left text-xs font-mono"></div>
+                <div class="flex flex-col gap-3">
+                    <button id="btn-finish-replay" class="w-full px-6 py-3 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Best</button>
+                    <button id="btn-finish-reset" class="w-full px-6 py-3 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Restart Run</button>
+                    <button id="btn-finish-menu" class="w-full px-6 py-3 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700">Back to Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OVERLAY: Crash -->
+        <div id="crash-overlay" class="hidden absolute inset-0 z-40 pointer-events-none flex items-center justify-center transition-opacity duration-300">
+            <div class="absolute inset-0 bg-red-700/40"></div>
+            <div class="relative text-center">
+                <h2 class="text-7xl font-black italic text-white drop-shadow-[0_0_20px_rgba(239,68,68,1)]">CRASHED!</h2>
+                <p id="crash-countdown" class="text-xl font-mono text-red-300 mt-3">Restarting...</p>
+            </div>
+        </div>
+
+        <!-- POPUP: Pause Menu -->
+        <div id="popup-pause" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur flex items-center justify-center pointer-events-auto">
+            <div class="bg-gray-900 border border-gray-700 p-8 rounded-xl shadow-2xl w-80 text-center space-y-4">
+                <h2 class="text-2xl font-bold text-white">PAUSED</h2>
+                <button id="btn-resume" class="w-full px-6 py-2 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Resume</button>
+                <button id="btn-settings-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-white border border-gray-600">Settings</button>
+                <button id="btn-replay-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Best</button>
+                <button id="btn-restart" class="w-full px-6 py-2 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-white border border-gray-600">Restart</button>
+                <button id="btn-quit" class="w-full px-6 py-2 rounded font-bold uppercase bg-red-600 hover:bg-red-500 text-white">Quit to Menu</button>
+            </div>
+        </div>
+
+        <!-- POPUP: Settings -->
+        <div id="popup-settings" class="hidden absolute inset-0 z-60 bg-black/90 flex items-center justify-center pointer-events-auto p-4 overflow-y-auto">
+            <div class="bg-gray-800 p-6 md:p-8 rounded-xl w-full max-w-lg text-white shadow-2xl my-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold flex items-center gap-2">SETTINGS</h2>
+                    <button id="btn-close-settings" class="px-4 py-1 rounded bg-gray-700 hover:bg-gray-600">Close</button>
+                </div>
+                <div class="space-y-6">
+                    <!-- Data Management -->
+                     <div class="bg-black/30 p-4 rounded border border-gray-700">
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">DATA MANAGEMENT</h3>
+                        <div class="flex gap-2">
+                            <button id="btn-export" class="flex-1 px-3 py-2 bg-blue-900/50 hover:bg-blue-800 border border-blue-800 rounded text-xs">Export Save (JSON)</button>
+                            <button id="btn-import" class="flex-1 px-3 py-2 bg-green-900/50 hover:bg-green-800 border border-green-800 rounded text-xs">Import Save (JSON)</button>
+                            <input type="file" id="file-import" class="hidden" accept=".json">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Master Volume <span id="val-volume">40%</span></label>
+                        <input type="range" id="input-volume" min="0" max="1" step="0.1" value="0.4" class="w-full accent-blue-500">
+                    </div>
+                    <div class="border-t border-gray-700 pt-4">
+                        <h3 class="text-lg font-bold mb-4 text-cyan-400">VIDEO</h3>
+                        <div class="grid grid-cols-3 gap-2" id="video-quality-group">
+                            <button id="btn-quality-flat" class="px-3 py-2 rounded bg-gray-700 border border-gray-600 text-xs font-bold uppercase tracking-wide">Flat</button>
+                            <button id="btn-quality-textured" class="px-3 py-2 rounded bg-blue-700 border border-blue-500 text-xs font-bold uppercase tracking-wide">Textured</button>
+                            <button id="btn-quality-cinematic" class="px-3 py-2 rounded bg-gray-700 border border-gray-600 text-xs font-bold uppercase tracking-wide">Cinematic</button>
+                        </div>
+                        <div id="txt-video-quality" class="text-xs text-gray-400 mt-2">Textured: lightweight procedural textures with balanced shadows.</div>
+                    </div>
+                    <div class="border-t border-gray-700 pt-4">
+                        <h3 class="text-lg font-bold mb-4 text-blue-400">FLIGHT CONTROLLER</h3>
+                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">RC Rate (Sensitivity) <span id="val-rate">1.0</span></label>
+                        <input type="range" id="input-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full accent-green-500 mb-4">
+                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Expo (Curve) <span id="val-expo">0.2</span></label>
+                        <input type="range" id="input-expo" min="0" max="0.8" step="0.1" value="0.2" class="w-full accent-purple-500 mb-4">
+                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Deadzone <span id="val-deadzone">0.05</span></label>
+                        <input type="range" id="input-deadzone" min="0" max="0.2" step="0.01" value="0.05" class="w-full accent-red-500">
+                    </div>
+                    <div class="border-t border-gray-700 pt-4">
+                        <h3 class="text-lg font-bold mb-3 text-green-400">HUD OVERLAYS</h3>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-compass" class="w-5 h-5 rounded accent-cyan-500" checked>
+                                <label for="input-compass" class="text-gray-300 text-sm cursor-pointer select-none">Compass / Gate Bearing</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-horizon" class="w-5 h-5 rounded accent-cyan-500" checked>
+                                <label for="input-horizon" class="text-gray-300 text-sm cursor-pointer select-none">Artificial Horizon</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-show" class="w-5 h-5 rounded accent-blue-500">
+                                <label for="input-show" class="text-gray-300 text-sm cursor-pointer select-none">Controller Input Overlay</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="./js/drone-data.js"></script>
+    <script src="./js/game.js"></script>
+</body>
+</html>
+

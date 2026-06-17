@@ -85,12 +85,12 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_GAME_SRF/</loc>
+    <loc>https://xenoah.github.io/game/srf/srf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_HaikuRemixGenerator/</loc>
+    <loc>https://xenoah.github.io/game/haiku-remix-generator/haiku-remix-generator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -151,7 +151,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_2DCAD/</loc>
+    <loc>https://xenoah.github.io/tools/2d-cad/2d-cad.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
