@@ -39,7 +39,7 @@
         }
 
         body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; transition: background-color 0.3s, color 0.3s; padding-bottom: 60px; touch-action: manipulation; }
-        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s; }
         h3, h4, h5, h6, label, span, div { color: var(--text-main); }
         .text-muted { color: var(--text-muted) !important; }
 
@@ -52,11 +52,12 @@
             text-align: right;
             margin-bottom: 15px;
         }
-        #expressionDisplay { font-size: 0.9rem; color: var(--text-muted); min-height: 1.2em; overflow: hidden; white-space: nowrap; }
+        #expressionDisplay { font-size: 0.9rem; color: var(--text-muted); min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         #resultDisplay { 
             font-size: 2rem; font-weight: bold; color: var(--text-main); 
             border:none; background:transparent; width:100%; text-align:right; outline:none; font-family: monospace; 
         }
+        .calc-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--text-muted); font-size: 0.78rem; margin-top: 6px; }
         
         /* キーパッド */
         .calc-grid {
@@ -72,6 +73,12 @@
             padding-bottom: 10px;
             border-bottom: 1px dashed var(--border-color);
         }
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
         .btn-key {
             background-color: var(--key-bg);
             color: var(--text-main);
@@ -82,6 +89,7 @@
             transition: 0.1s;
         }
         .btn-key.sm { font-size: 0.9rem; padding: 10px 0; }
+        .btn-key.xs { font-size: 0.78rem; padding: 8px 0; }
         .btn-key:active { transform: scale(0.95); }
         .btn-key:hover { background-color: var(--key-bg-hover); color: var(--text-main); }
         .btn-op { color: var(--accent-color); font-weight: bold; }
@@ -114,9 +122,10 @@
         .nav-tabs .nav-link.active { color: var(--accent-color); background: transparent; border-bottom: 3px solid var(--accent-color); font-weight: bold; }
         
         .hidden { display: none !important; }
-        .history-container { max-height: 200px; overflow-y: auto; border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 10px; }
-        .history-item { cursor: pointer; border-bottom: 1px solid var(--border-color); padding: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
+        .history-container { max-height: 220px; overflow-y: auto; border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 10px; }
+        .history-item { cursor: pointer; border-bottom: 1px solid var(--border-color); padding: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--text-main); }
         .history-item:hover { background: rgba(128,128,128,0.1); }
+        .stat-card { min-height: 58px; }
         
         /* フォームコントロールのダークモード対応 */
         .form-control, .form-select, .input-group-text {
@@ -134,13 +143,22 @@
         ::placeholder { color: var(--text-muted) !important; opacity: 1; }
 
         footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+        @media (max-width: 575.98px) {
+            .container { padding-left: 10px; padding-right: 10px; }
+            .card-body { padding: 1rem !important; }
+            #resultDisplay { font-size: 1.65rem; }
+            .btn-key { padding: 13px 0; }
+            .quick-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+            .sci-grid { gap: 6px; }
+            .graph-wrapper { height: 300px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container py-4" style="max-width: 800px;">
+<div class="container py-4" style="max-width: 960px;">
     <!-- ヘッダー -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
         <div>
             <h3 class="fw-bold m-0"><i class="bi bi-calculator"></i> <span data-i18n="appTitle">科学計算機</span></h3>
         </div>
@@ -181,6 +199,18 @@
                 <div class="calc-screen">
                     <div id="expressionDisplay"></div>
                     <input type="text" id="resultDisplay" placeholder="0" autocomplete="off">
+                    <div class="calc-meta">
+                        <span id="angleModeLabel">RAD</span>
+                        <span id="memoryLabel">M: 0</span>
+                    </div>
+                </div>
+
+                <div class="quick-grid">
+                    <button class="btn btn-key xs" onclick="toggleAngleMode()" id="angleModeBtn">RAD</button>
+                    <button class="btn btn-key xs" onclick="memoryClear()">MC</button>
+                    <button class="btn btn-key xs" onclick="memoryRecall()">MR</button>
+                    <button class="btn btn-key xs" onclick="memoryAdd()">M+</button>
+                    <button class="btn btn-key xs" onclick="memoryStore()">MS</button>
                 </div>
 
                 <!-- 関数キー (展開式) -->
@@ -210,6 +240,16 @@
                         <button class="btn btn-key sm" onclick="insert('e')">e</button>
                         <button class="btn btn-key sm" onclick="insert('random')">Rand</button>
                         <button class="btn btn-key sm" onclick="insert(',')">,</button>
+
+                        <button class="btn btn-key sm" onclick="insert('min(')">min</button>
+                        <button class="btn btn-key sm" onclick="insert('max(')">max</button>
+                        <button class="btn btn-key sm" onclick="insert('floor(')">floor</button>
+                        <button class="btn btn-key sm" onclick="insert('ceil(')">ceil</button>
+
+                        <button class="btn btn-key sm" onclick="insert('round(')">round</button>
+                        <button class="btn btn-key sm" onclick="insert('%')">%</button>
+                        <button class="btn btn-key sm" onclick="insert(' mod ')">mod</button>
+                        <button class="btn btn-key sm" onclick="insert('1/')">1/x</button>
                     </div>
                 </div>
 
@@ -246,7 +286,10 @@
                 
                 <!-- 電卓履歴 -->
                 <div class="history-container">
-                    <h6 class="small border-bottom pb-1" data-i18n="histTitle">計算履歴</h6>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-1">
+                        <h6 class="small mb-0" data-i18n="histTitle">計算履歴</h6>
+                        <button class="btn btn-sm btn-outline-secondary py-0" onclick="clearCalcHistory()" data-i18n="btnClearHistory">履歴削除</button>
+                    </div>
                     <div id="calcHistoryList">
                         <div class="text-center text-muted small mt-2" data-i18n="histNone">履歴なし</div>
                     </div>
@@ -280,6 +323,13 @@
                     <input type="text" id="graphFormula" class="form-control" placeholder="sin(x)" value="sin(x)">
                     <button class="btn btn-primary" onclick="drawGraph()" data-i18n="btnDraw">描画</button>
                 </div>
+                <div class="quick-grid">
+                    <button class="btn btn-key xs" onclick="setGraphFormula('sin(x)')">sin</button>
+                    <button class="btn btn-key xs" onclick="setGraphFormula('cos(x)')">cos</button>
+                    <button class="btn btn-key xs" onclick="setGraphFormula('tan(x)')">tan</button>
+                    <button class="btn btn-key xs" onclick="setGraphFormula('x^2')">x²</button>
+                    <button class="btn btn-key xs" onclick="resetGraphRange()">Reset</button>
+                </div>
 
                 <div class="row g-2 align-items-center mb-2">
                     <!-- X Range -->
@@ -302,7 +352,10 @@
 
                 <!-- グラフ履歴 -->
                 <div class="history-container">
-                    <h6 class="small border-bottom pb-1" data-i18n="graphHist">描画履歴</h6>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-1">
+                        <h6 class="small mb-0" data-i18n="graphHist">描画履歴</h6>
+                        <button class="btn btn-sm btn-outline-secondary py-0" onclick="clearGraphHistory()" data-i18n="btnClearHistory">履歴削除</button>
+                    </div>
                     <div id="graphHistoryList">
                         <div class="text-center text-muted small mt-2" data-i18n="histNone">履歴なし</div>
                     </div>
@@ -315,12 +368,21 @@
                     <label class="form-label" data-i18n="csvLabel">CSVファイル読み込み</label>
                     <input class="form-control" type="file" id="csvInput" accept=".csv">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="csvPasteLabel">CSV/数値を貼り付け</label>
+                    <textarea class="form-control" id="csvPaste" rows="4" placeholder="1,2,3&#10;4,5,6"></textarea>
+                    <div class="d-grid mt-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="processCSV(document.getElementById('csvPaste').value)" data-i18n="btnAnalyze">解析</button>
+                    </div>
+                </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statSum">合計</small><span id="statSum" class="fw-bold">--</span></div></div>
-                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statAvg">平均</small><span id="statAvg" class="fw-bold">--</span></div></div>
-                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statMax">最大</small><span id="statMax" class="fw-bold">--</span></div></div>
-                    <div class="col-6"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statMin">最小</small><span id="statMin" class="fw-bold">--</span></div></div>
-                    <div class="col-12"><div class="p-2 border border-secondary rounded text-center"><small class="d-block text-muted" data-i18n="statDev">標準偏差</small><span id="statDev" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statCount">件数</small><span id="statCount" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statSum">合計</small><span id="statSum" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statAvg">平均</small><span id="statAvg" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statMedian">中央値</small><span id="statMedian" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statMax">最大</small><span id="statMax" class="fw-bold">--</span></div></div>
+                    <div class="col-6 col-md-4"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statMin">最小</small><span id="statMin" class="fw-bold">--</span></div></div>
+                    <div class="col-12"><div class="p-2 border border-secondary rounded text-center stat-card"><small class="d-block text-muted" data-i18n="statDev">標準偏差</small><span id="statDev" class="fw-bold">--</span></div></div>
                 </div>
                 <button class="btn btn-sm btn-outline-success w-100" onclick="exportCSV()"><i class="bi bi-download"></i> <span data-i18n="btnExport">結果をCSVで保存</span></button>
             </div>
@@ -345,27 +407,29 @@
             tabCalc: "電卓", tabGraph: "グラフ",
             btnSci: "関数キーを表示/非表示",
             btnCalc: "計算実行",
-            histTitle: "計算履歴", histNone: "履歴なし",
+            histTitle: "計算履歴", histNone: "履歴なし", btnClearHistory: "履歴削除",
             ocrDrop: "画像をドロップ / カメラ起動", ocrInsert: "認識結果を計算機へ送る",
             btnDraw: "描画", rangeX: "X範囲 (横軸)", rangeY: "Y範囲 (縦軸)", graphHist: "描画履歴",
-            csvLabel: "CSVファイル読み込み", statSum: "合計", statAvg: "平均", statMax: "最大", statMin: "最小", statDev: "標準偏差", btnExport: "結果をCSVで保存"
+            csvLabel: "CSVファイル読み込み", csvPasteLabel: "CSV/数値を貼り付け", btnAnalyze: "解析",
+            statCount: "件数", statSum: "合計", statAvg: "平均", statMedian: "中央値", statMax: "最大", statMin: "最小", statDev: "標準偏差", btnExport: "結果をCSVで保存"
         },
         en: {
             appTitle: "Scientific Calculator",
             tabCalc: "Calculator", tabGraph: "Graph",
             btnSci: "Show/Hide Sci-Keys",
             btnCalc: "Calculate",
-            histTitle: "History", histNone: "No history",
+            histTitle: "History", histNone: "No history", btnClearHistory: "Clear",
             ocrDrop: "Drop image / Open camera", ocrInsert: "Insert to Calculator",
             btnDraw: "Plot", rangeX: "X Range", rangeY: "Y Range", graphHist: "Plot History",
-            csvLabel: "Load CSV File", statSum: "Sum", statAvg: "Avg", statMax: "Max", statMin: "Min", statDev: "Std Dev", btnExport: "Export CSV"
+            csvLabel: "Load CSV File", csvPasteLabel: "Paste CSV / Numbers", btnAnalyze: "Analyze",
+            statCount: "Count", statSum: "Sum", statAvg: "Avg", statMedian: "Median", statMax: "Max", statMin: "Min", statDev: "Std Dev", btnExport: "Export CSV"
         }
     };
 
     let currentLang = 'ja';
 
     // --- State & History ---
-    const state = { ans: 0, calcHistory: [], graphHistory: [], csvData: [] };
+    const state = { ans: 0, memory: 0, angleMode: 'rad', calcHistory: [], graphHistory: [], csvData: [], csvStats: null };
 
     // --- DOM Elements ---
     const el = {
@@ -376,7 +440,10 @@
         graphCanvas: document.getElementById('graphCanvas'),
         graphFormula: document.getElementById('graphFormula'),
         themeToggle: document.getElementById('themeToggle'),
-        colorPicker: document.getElementById('accentColorPicker')
+        colorPicker: document.getElementById('accentColorPicker'),
+        angleModeBtn: document.getElementById('angleModeBtn'),
+        angleModeLabel: document.getElementById('angleModeLabel'),
+        memoryLabel: document.getElementById('memoryLabel')
     };
 
     // --- Localization ---
@@ -387,7 +454,8 @@
             const key = e.getAttribute('data-i18n');
             if(data[key]) e.innerText = data[key];
         });
-        // Update placeholders/values if needed (none critical for now)
+        renderCalcHistory();
+        renderGraphHistory();
     }
 
     // --- Theme & Tab Logic ---
@@ -418,7 +486,7 @@
     // --- Calculator Engine ---
     function insert(val) {
         const input = el.dispRes;
-        const currentPos = input.selectionStart || input.value.length;
+        const currentPos = input.selectionStart ?? input.value.length;
         const valStr = val.toString();
         const text = input.value;
         input.value = text.slice(0, currentPos) + valStr + text.slice(currentPos);
@@ -427,30 +495,122 @@
     }
     
     function clearAll() { el.dispRes.value = ''; el.dispExp.innerText = ''; }
-    function backspace() { el.dispRes.value = el.dispRes.value.slice(0, -1); }
+    function backspace() {
+        const input = el.dispRes;
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        if (start !== end) {
+            input.value = input.value.slice(0, start) + input.value.slice(end);
+            input.setSelectionRange(start, start);
+        } else if (start > 0) {
+            input.value = input.value.slice(0, start - 1) + input.value.slice(start);
+            input.setSelectionRange(start - 1, start - 1);
+        }
+        input.focus();
+    }
 
-    function safeEvaluate(expr, xVal = null) {
-        let clean = expr
+    function formatNumber(value) {
+        if (typeof value !== 'number') return String(value);
+        if (!Number.isFinite(value)) return String(value);
+        if (Object.is(value, -0)) return '0';
+        return Number.parseFloat(value.toPrecision(12)).toString();
+    }
+
+    function updateMeta() {
+        const mode = state.angleMode.toUpperCase();
+        el.angleModeBtn.textContent = mode;
+        el.angleModeLabel.textContent = mode;
+        el.memoryLabel.textContent = `M: ${formatNumber(state.memory)}`;
+    }
+
+    function toggleAngleMode() {
+        state.angleMode = state.angleMode === 'rad' ? 'deg' : 'rad';
+        updateMeta();
+        drawGraph(false);
+    }
+
+    function memoryStore() {
+        try {
+            const value = safeEvaluate(el.dispRes.value || String(state.ans));
+            state.memory = value;
+            updateMeta();
+        } catch (e) {
+            el.dispExp.innerText = 'Error';
+        }
+    }
+
+    function memoryAdd() {
+        try {
+            const value = safeEvaluate(el.dispRes.value || '0');
+            state.memory += value;
+            updateMeta();
+        } catch (e) {
+            el.dispExp.innerText = 'Error';
+        }
+    }
+
+    function memoryRecall() { insert(formatNumber(state.memory)); }
+    function memoryClear() { state.memory = 0; updateMeta(); }
+
+    function normalizeExpression(expr) {
+        const clean = expr
             .replace(/×/g, '*')
             .replace(/÷/g, '/')
-            .replace(/ans/gi, state.ans)
-            .replace(/sin/g, 'Math.sin')
-            .replace(/cos/g, 'Math.cos')
-            .replace(/tan/g, 'Math.tan')
-            .replace(/asin/g, 'Math.asin')
-            .replace(/acos/g, 'Math.acos')
-            .replace(/atan/g, 'Math.atan')
-            .replace(/sqrt/g, 'Math.sqrt')
-            .replace(/log/g, 'Math.log10')
-            .replace(/ln/g, 'Math.log')
-            .replace(/exp/g, 'Math.exp')
-            .replace(/abs/g, 'Math.abs')
-            .replace(/pi/gi, 'Math.PI')
-            .replace(/e/gi, 'Math.E')
+            .replace(/√/g, 'sqrt')
+            .replace(/π/g, 'pi')
+            .replace(/(\d+(?:\.\d+)?)\s*%/g, '($1/100)')
+            .replace(/\bmod\b/gi, '%')
             .replace(/\^/g, '**')
-            .replace(/random/g, 'Math.random()');
+            .replace(/\brandom\b(?!\s*\()/gi, 'random()');
+        const callable = 'sin|cos|tan|asin|acos|atan|sqrt|log|ln|exp|abs|floor|ceil|round|min|max|pow|random';
+        return clean
+            .replace(new RegExp(`(\\d|\\))\\s*(?=(?:pi|ans|x|${callable})\\b)`, 'gi'), '$1*')
+            .replace(/(\d|\))\s*(?=e\b(?![+-]?\d))/gi, '$1*')
+            .replace(/\b(pi|e|ans|x)\s*(?=\d|\()/gi, '$1*')
+            .replace(/\)\s*(?=\()/g, ')*');
+    }
+
+    function safeEvaluate(expr, xVal = null) {
+        const clean = normalizeExpression(expr || '').trim();
+        const toRad = n => state.angleMode === 'deg' ? n * Math.PI / 180 : n;
+        const fromRad = n => state.angleMode === 'deg' ? n * 180 / Math.PI : n;
+        const scope = {
+            x: xVal,
+            ans: state.ans,
+            pi: Math.PI,
+            e: Math.E,
+            sin: n => Math.sin(toRad(n)),
+            cos: n => Math.cos(toRad(n)),
+            tan: n => Math.tan(toRad(n)),
+            asin: n => fromRad(Math.asin(n)),
+            acos: n => fromRad(Math.acos(n)),
+            atan: n => fromRad(Math.atan(n)),
+            sqrt: Math.sqrt,
+            log: Math.log10,
+            ln: Math.log,
+            exp: Math.exp,
+            abs: Math.abs,
+            floor: Math.floor,
+            ceil: Math.ceil,
+            round: Math.round,
+            min: Math.min,
+            max: Math.max,
+            pow: Math.pow,
+            random: Math.random
+        };
+        const allowedNames = new Set(Object.keys(scope));
+        const nameScan = clean.replace(/\d+(?:\.\d+)?e[+-]?\d+/gi, '0');
+        const names = nameScan.match(/[A-Za-z_]\w*/g) || [];
+        if (xVal === null && names.some(name => name.toLowerCase() === 'x')) throw new Error('Err');
+        if (names.some(name => !allowedNames.has(name.toLowerCase()))) throw new Error('Err');
+        if (/[^0-9A-Za-z_+\-*/%().,\s]/.test(clean)) throw new Error('Err');
+        const executable = clean.replace(/[A-Za-z_]\w*/g, name => name.toLowerCase());
+        const params = Object.keys(scope);
+        const values = params.map(key => scope[key]);
         try {
-            return xVal !== null ? new Function('x', 'return ' + clean)(xVal) : new Function('return ' + clean)();
+            const res = new Function(...params, `"use strict"; return (${executable});`)(...values);
+            if (typeof res !== 'number' || Number.isNaN(res)) throw new Error('Err');
+            return res;
         } catch (e) { throw new Error("Err"); }
     }
 
@@ -459,10 +619,10 @@
         if (!expr.trim()) return;
         try {
             const res = safeEvaluate(expr);
-            const resFixed = parseFloat(res.toFixed(10));
+            const resFixed = formatNumber(res);
             el.dispExp.innerText = expr + ' =';
             el.dispRes.value = resFixed;
-            state.ans = resFixed;
+            state.ans = Number(res);
             state.calcHistory.unshift({ expr, res: resFixed });
             if(state.calcHistory.length > 20) state.calcHistory.pop();
             renderCalcHistory();
@@ -471,26 +631,52 @@
 
     function renderCalcHistory() {
         const list = el.calcHistoryList;
+        list.innerHTML = '';
         if (state.calcHistory.length === 0) {
-            list.innerHTML = `<div class="text-center text-muted small mt-2">${i18n[currentLang].histNone}</div>`;
+            const empty = document.createElement('div');
+            empty.className = 'text-center text-muted small mt-2';
+            empty.textContent = i18n[currentLang].histNone;
+            list.appendChild(empty);
             return;
         }
-        list.innerHTML = state.calcHistory.map(item => `
-            <div class="history-item" onclick="el.dispRes.value='${item.res}'">
-                <span class="text-muted small text-truncate" style="max-width: 60%;">${item.expr}</span>
-                <span class="fw-bold" style="color:var(--text-main)">= ${item.res}</span>
-            </div>
-        `).join('');
+        state.calcHistory.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'history-item';
+            row.addEventListener('click', () => {
+                el.dispRes.value = item.res;
+                el.dispRes.focus();
+            });
+            const expr = document.createElement('span');
+            expr.className = 'text-muted small text-truncate';
+            expr.style.maxWidth = '60%';
+            expr.textContent = item.expr;
+            const res = document.createElement('span');
+            res.className = 'fw-bold';
+            res.style.color = 'var(--text-main)';
+            res.textContent = `= ${item.res}`;
+            row.append(expr, res);
+            list.appendChild(row);
+        });
     }
 
+    function clearCalcHistory() {
+        state.calcHistory = [];
+        renderCalcHistory();
+    }
+
+    el.dispRes.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); calculate(); }
+        if (e.key === 'Escape') { e.preventDefault(); clearAll(); }
+    });
+
     // --- Graphing ---
-    function drawGraph() {
+    function drawGraph(addHistory = true) {
         const canvas = el.graphCanvas;
         const ctx = canvas.getContext('2d');
-        const expr = el.graphFormula.value;
+        const expr = el.graphFormula.value.trim();
 
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+        canvas.width = canvas.offsetWidth || 400;
+        canvas.height = canvas.offsetHeight || 300;
         const W = canvas.width, H = canvas.height;
 
         ctx.clearRect(0, 0, W, H);
@@ -502,10 +688,22 @@
         const gridColor = isLight ? '#e0e0e0' : '#333';
         const graphColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
 
-        const minX = parseFloat(document.getElementById('graphMinX').value) || -10;
-        const maxX = parseFloat(document.getElementById('graphMaxX').value) || 10;
-        const minY = parseFloat(document.getElementById('graphMinY').value) || -5;
-        const maxY = parseFloat(document.getElementById('graphMaxY').value) || 5;
+        let minX = parseFloat(document.getElementById('graphMinX').value);
+        let maxX = parseFloat(document.getElementById('graphMaxX').value);
+        let minY = parseFloat(document.getElementById('graphMinY').value);
+        let maxY = parseFloat(document.getElementById('graphMaxY').value);
+        if (!Number.isFinite(minX)) minX = -10;
+        if (!Number.isFinite(maxX)) maxX = 10;
+        if (!Number.isFinite(minY)) minY = -5;
+        if (!Number.isFinite(maxY)) maxY = 5;
+        if (minX === maxX) { minX -= 1; maxX += 1; }
+        if (minY === maxY) { minY -= 1; maxY += 1; }
+        if (minX > maxX) [minX, maxX] = [maxX, minX];
+        if (minY > maxY) [minY, maxY] = [maxY, minY];
+        document.getElementById('graphMinX').value = minX;
+        document.getElementById('graphMaxX').value = maxX;
+        document.getElementById('graphMinY').value = minY;
+        document.getElementById('graphMaxY').value = maxY;
         const rangeX = maxX - minX, rangeY = maxY - minY;
         
         const toPx = (x, y) => ({ x: (x - minX) / rangeX * W, y: H - (y - minY) / rangeY * H });
@@ -541,7 +739,7 @@
             if(py > 10 && py < H-10) ctx.fillText(parseFloat(y.toFixed(4)), 5, py - 2);
         }
 
-        if(!expr || !expr.includes('x')) return;
+        if(!expr) return;
 
         ctx.beginPath();
         ctx.strokeStyle = graphColor;
@@ -558,7 +756,7 @@
         }
         ctx.stroke();
         
-        if(state.graphHistory[0] !== expr) {
+        if(addHistory && state.graphHistory[0] !== expr) {
             state.graphHistory.unshift(expr);
             if(state.graphHistory.length > 10) state.graphHistory.pop();
             renderGraphHistory();
@@ -567,13 +765,50 @@
 
     function renderGraphHistory() {
         const list = el.graphHistoryList;
-        list.innerHTML = state.graphHistory.map(f => `
-            <div class="history-item" onclick="el.graphFormula.value='${f}'; drawGraph();">
-                <span class="font-monospace" style="color:var(--accent-color)">y = ${f}</span>
-                <i class="bi bi-arrow-counterclockwise text-muted"></i>
-            </div>
-        `).join('');
+        list.innerHTML = '';
+        if (state.graphHistory.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'text-center text-muted small mt-2';
+            empty.textContent = i18n[currentLang].histNone;
+            list.appendChild(empty);
+            return;
+        }
+        state.graphHistory.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'history-item';
+            row.addEventListener('click', () => setGraphFormula(f));
+            const text = document.createElement('span');
+            text.className = 'font-monospace text-truncate';
+            text.style.color = 'var(--accent-color)';
+            text.textContent = `y = ${f}`;
+            const icon = document.createElement('i');
+            icon.className = 'bi bi-arrow-counterclockwise text-muted';
+            row.append(text, icon);
+            list.appendChild(row);
+        });
     }
+
+    function setGraphFormula(formula) {
+        el.graphFormula.value = formula;
+        drawGraph();
+    }
+
+    function resetGraphRange() {
+        document.getElementById('graphMinX').value = -10;
+        document.getElementById('graphMaxX').value = 10;
+        document.getElementById('graphMinY').value = -5;
+        document.getElementById('graphMaxY').value = 5;
+        drawGraph(false);
+    }
+
+    function clearGraphHistory() {
+        state.graphHistory = [];
+        renderGraphHistory();
+    }
+
+    el.graphFormula.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); drawGraph(); }
+    });
 
     // --- CSV & OCR ---
     const csvInput = document.getElementById('csvInput');
@@ -586,34 +821,91 @@
     });
 
     function processCSV(text) {
-        const nums = [];
-        text.split(/\r\n|\n/).forEach(line => {
-            line.split(',').forEach(cell => {
-                const n = parseFloat(cell.trim());
-                if (!isNaN(n)) nums.push(n);
-            });
-        });
-        if (nums.length === 0) return;
+        const nums = parseNumbers(text);
+        if (nums.length === 0) {
+            resetStats();
+            return;
+        }
+        const sorted = [...nums].sort((a, b) => a - b);
         const sum = nums.reduce((a, b) => a + b, 0);
         const avg = sum / nums.length;
+        const mid = Math.floor(sorted.length / 2);
+        const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
         const variance = nums.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / nums.length;
-        
-        document.getElementById('statSum').innerText = sum.toFixed(4);
-        document.getElementById('statAvg').innerText = avg.toFixed(4);
-        document.getElementById('statMax').innerText = Math.max(...nums);
-        document.getElementById('statMin').innerText = Math.min(...nums);
-        document.getElementById('statDev').innerText = Math.sqrt(variance).toFixed(4);
+
+        state.csvStats = {
+            count: nums.length,
+            sum,
+            avg,
+            median,
+            max: sorted[sorted.length - 1],
+            min: sorted[0],
+            stddev: Math.sqrt(variance)
+        };
+        document.getElementById('statCount').innerText = state.csvStats.count;
+        document.getElementById('statSum').innerText = formatNumber(state.csvStats.sum);
+        document.getElementById('statAvg').innerText = formatNumber(state.csvStats.avg);
+        document.getElementById('statMedian').innerText = formatNumber(state.csvStats.median);
+        document.getElementById('statMax').innerText = formatNumber(state.csvStats.max);
+        document.getElementById('statMin').innerText = formatNumber(state.csvStats.min);
+        document.getElementById('statDev').innerText = formatNumber(state.csvStats.stddev);
         state.csvData = nums;
+    }
+
+    function parseNumbers(text) {
+        const values = [];
+        let cell = '';
+        let inQuotes = false;
+        const pushCell = () => {
+            const compact = cell.trim();
+            if (compact) {
+                const n = Number(compact.replace(/,/g, ''));
+                if (Number.isFinite(n)) values.push(n);
+            }
+            cell = '';
+        };
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            if (ch === '"') {
+                if (inQuotes && text[i + 1] === '"') { cell += '"'; i++; }
+                else inQuotes = !inQuotes;
+            } else if (!inQuotes && /[\t,\r\n]/.test(ch)) {
+                pushCell();
+            } else {
+                cell += ch;
+            }
+        }
+        pushCell();
+        return values;
+    }
+
+    function resetStats() {
+        ['statCount', 'statSum', 'statAvg', 'statMedian', 'statMax', 'statMin', 'statDev'].forEach(id => {
+            document.getElementById(id).innerText = '--';
+        });
+        state.csvData = [];
+        state.csvStats = null;
     }
     
     function exportCSV() {
-        if(state.csvData.length === 0) { alert('No data'); return; }
-        const header = `Sum,${document.getElementById('statSum').innerText}\nAvg,${document.getElementById('statAvg').innerText}`;
-        const blob = new Blob([header], { type: 'text/csv' });
+        if(!state.csvStats) { alert('No data'); return; }
+        const rows = [
+            ['Metric', 'Value'],
+            ['Count', state.csvStats.count],
+            ['Sum', state.csvStats.sum],
+            ['Average', state.csvStats.avg],
+            ['Median', state.csvStats.median],
+            ['Max', state.csvStats.max],
+            ['Min', state.csvStats.min],
+            ['StdDev', state.csvStats.stddev]
+        ];
+        const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'stats.csv';
         a.click();
+        URL.revokeObjectURL(a.href);
     }
 
     const ocrDrop = document.getElementById('ocrDropZone');
@@ -622,26 +914,47 @@
     const insertOcrBtn = document.getElementById('insertOcrBtn');
     
     ocrDrop.addEventListener('click', () => ocrInput.click());
+    ocrDrop.addEventListener('dragover', (e) => e.preventDefault());
     ocrDrop.addEventListener('drop', (e) => { e.preventDefault(); if(e.dataTransfer.files.length) runOCR(e.dataTransfer.files[0]); });
     ocrInput.addEventListener('change', (e) => { if(e.target.files.length) runOCR(e.target.files[0]); });
 
     function runOCR(file) {
+        if (typeof Tesseract === 'undefined') {
+            ocrResult.value = 'OCR library is not available.';
+            return;
+        }
         ocrResult.value = 'Analyzing...';
+        insertOcrBtn.disabled = true;
         document.getElementById('ocrProgress').classList.remove('hidden');
         Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
             document.getElementById('ocrProgress').classList.add('hidden');
-            ocrResult.value = text.replace(/\n/g, ' ').trim();
-            insertOcrBtn.disabled = false;
+            const normalized = text.replace(/\n/g, ' ').trim();
+            ocrResult.value = normalized;
+            insertOcrBtn.disabled = !normalized;
+        }).catch(() => {
+            document.getElementById('ocrProgress').classList.add('hidden');
+            ocrResult.value = 'OCR failed.';
+            insertOcrBtn.disabled = true;
         });
     }
     insertOcrBtn.addEventListener('click', () => {
-        let txt = ocrResult.value.replace(/[^0-9+\-*/().xy^sinco tanloge]/gi, '');
+        let txt = ocrResult.value
+            .replace(/×/g, '*')
+            .replace(/(\d)\s*[xX]\s*(\d)/g, '$1*$2')
+            .replace(/[÷]/g, '/')
+            .replace(/[^0-9+\-*/%().,^a-z\s]/gi, '')
+            .replace(/\s+/g, '');
         el.dispRes.value = txt;
         document.querySelector('[data-target="tab-calc"]').click();
     });
 
     // Init
-    window.addEventListener('load', drawGraph);
+    window.addEventListener('load', () => {
+        updateMeta();
+        renderCalcHistory();
+        renderGraphHistory();
+        drawGraph(false);
+    });
 </script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
