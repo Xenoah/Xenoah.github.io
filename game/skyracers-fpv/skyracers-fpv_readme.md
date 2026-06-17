@@ -1,12 +1,12 @@
 # SRF
 
-https://xenoah.github.io/game/srf/srf.html
+https://xenoah.github.io/game/skyracers-fpv/skyracers-fpv.html
 
 Three.js ベースの FPV ドローンレース風ミニゲームです。
 
 ## Files
 
-- `srf.html`: ゲーム本体の画面と UI
+- `skyracers-fpv.html`: ゲーム本体の画面と UI
 - `js/error-handler.js`: エラー表示
 - `js/drone-data.js`: ドローンやゲームデータ
 - `js/game.js`: ゲームロジックと 3D 描画
@@ -15,4 +15,4 @@ Three.js ベースの FPV ドローンレース風ミニゲームです。
 
 ## Notes
 
-静的ファイルだけで動作します。公開時は `game/srf/srf.html` を入口にします。
+静的ファイルだけで動作します。公開時は `game/skyracers-fpv/skyracers-fpv.html` を入口にします。

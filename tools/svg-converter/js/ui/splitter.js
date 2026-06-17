@@ -1,6 +1,6 @@
 /* ui/splitter.js — preview の divider をドラッグして左右（横画面時は上下）比率を変える。 */
 
-const STORAGE_KEY = 'xnh-svg-conv:split';
+const STORAGE_KEY = 'svg-converter:split';
 const MIN_RATIO = 0.15;
 const MAX_RATIO = 0.85;
 

@@ -1,10 +1,10 @@
 /* Service Worker — オフライン用最小キャッシュ。
  * バージョンを bump すると古いキャッシュが破棄される。 */
 
-const VERSION = 'xnh-svg-conv-v0.4.0';
+const VERSION = 'svg-converter-v0.4.0';
 const CORE_ASSETS = [
   './',
-  './svg-conv.htm',
+  './svg-converter.htm',
   './manifest.webmanifest',
   './assets/favicon.svg',
   './styles/base.css',
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(VERSION).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match('./svg-conv.htm')),
+        .catch(() => caches.match('./svg-converter.htm')),
     );
     return;
   }

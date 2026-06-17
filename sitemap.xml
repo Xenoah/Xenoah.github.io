@@ -85,12 +85,12 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/game/srf/srf.html</loc>
+    <loc>https://xenoah.github.io/game/skyracers-fpv/skyracers-fpv.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/game/haiku-remix-generator/haiku-remix-generator.html</loc>
+    <loc>https://xenoah.github.io/game/haiku-generator/haiku-generator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -113,13 +113,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/AudioConvertor/tools_AudioConvertor.htm</loc>
+    <loc>https://xenoah.github.io/tools/audio-converter/audio-converter.htm</loc>
     <lastmod>2026-01-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/Omni%20Sci-Calc/tools_Omni%20Sci-Calc.htm</loc>
+    <loc>https://xenoah.github.io/tools/scientific-calculator/scientific-calculator.htm</loc>
     <lastmod>2026-01-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -131,7 +131,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/qr/qr.htm</loc>
+    <loc>https://xenoah.github.io/tools/qr-code-tool/qr-code-tool.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -141,22 +141,22 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/svg-conv/svg-conv.htm</loc>
+    <loc>https://xenoah.github.io/tools/svg-converter/svg-converter.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/gif-conv/gif-conv.htm</loc>
+    <loc>https://xenoah.github.io/tools/gif-converter/gif-converter.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/2d-cad/2d-cad.htm</loc>
+    <loc>https://xenoah.github.io/tools/simple-2d-cad/simple-2d-cad.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/tools/dtmf/dtmf.htm</loc>
+    <loc>https://xenoah.github.io/tools/dtmf-toolkit/dtmf-toolkit.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

@@ -1,7 +1,7 @@
 /* store.js — 軽量状態管理。EventTarget を継承し、`change` を発火する。
  * UI 側は store.subscribe(fn) で購読、store.update(patch) で更新する。 */
 
-const STORAGE_KEY = 'xnh-svg-conv:state';
+const STORAGE_KEY = 'svg-converter:state';
 
 const DEFAULT_STATE = Object.freeze({
   // ファイル

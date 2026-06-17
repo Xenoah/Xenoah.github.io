@@ -1,5 +1,5 @@
 # SVG Converter
-https://xenoah.github.io/tools/svg-conv/svg-conv.htm
+https://xenoah.github.io/tools/svg-converter/svg-converter.htm
 
 ブラウザだけで完結する画像 → SVG コンバーター。
 画像はネットワークに送信せず、すべてあなたのブラウザの中で処理されます。
@@ -17,7 +17,7 @@ https://xenoah.github.io/tools/svg-conv/svg-conv.htm
   オフラインの PWA として動かせるので、機密ロゴや社内データの SVG 化にも安心です。
 
 - **ビルドステップなし**
-  `svg-conv.htm` と ES Modules だけで動く、いわゆる "no-build" 構成です。
+  `svg-converter.htm` と ES Modules だけで動く、いわゆる "no-build" 構成です。
   クローンしたディレクトリを静的サーバーに置くだけで起動します。
   `node_modules` も `vite` も必要ありません。
 
@@ -63,7 +63,7 @@ https://xenoah.github.io/tools/svg-conv/svg-conv.htm
 ビルド不要。任意の静的サーバーから配信するだけです。
 
 ```sh
-cd tools/svg-conv
+cd tools/svg-converter
 
 # 例: Python 同梱の簡易サーバー
 python -m http.server 5173
@@ -165,7 +165,7 @@ python -m http.server 5173
 
 ```
 /
-├─ svg-conv.htm               # エントリ
+├─ svg-converter.htm          # エントリ
 ├─ manifest.webmanifest       # PWA マニフェスト
 ├─ sw.js                      # Service Worker
 ├─ assets/                    # アイコン・ファビコン
