@@ -131,22 +131,22 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_WEBAPP_QR/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_WEBAPP_QR/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_WEBAPP_pdf-editor/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_WEBAPP_pdf-editor/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_WEBAPP_SVG-Conv/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_WEBAPP_SVG-Conv/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_WEBAPP_GIF-Conv/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_WEBAPP_GIF-Conv/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -156,12 +156,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_WEBAPP_DTMF/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_WEBAPP_DTMF/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/XNH_vj-fx-maker/</loc>
+    <loc>https://xenoah.github.io/tools/XNH_vj-fx-maker/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

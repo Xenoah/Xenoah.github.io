@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Editor</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lib/pdf-lib.min.js"></script>
+  <script src="lib/qrcode.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <div id="toolbar">
+      <div class="tb-group">
+        <button id="btn-open" class="tb-btn" title="PDFを開く">📂 開く</button>
+        <input id="file-input" class="file-input-native" type="file" accept="application/pdf,.pdf">
+        <input id="file-input-merge" class="file-input-native" type="file" accept="application/pdf,.pdf">
+        <input id="file-input-project" class="file-input-native" type="file" accept="application/json,.json">
+        <button id="btn-save" class="tb-btn primary" title="PDFを保存" style="display:none">💾 保存</button>
+        <button id="btn-restore-project" class="tb-btn" title="プロジェクトファイル（JSON）を読み込んで状態を復元">⤴ プロジェクト復元</button>
+        <button id="btn-merge" class="tb-btn" title="別のPDFを結合" style="display:none">＋結合</button>
+        <button id="btn-extract" class="tb-btn" title="選択ページを抽出して保存" style="display:none">⤓ 抽出</button>
+        <div id="compare-wrap" class="compare-wrap" style="display:none">
+          <button id="btn-compare" class="tb-btn" title="Before / After を切替（クリックで切替、長押しで一時Before）">⇄ 比較</button>
+          <button id="btn-compare-menu" class="tb-btn icon-btn" title="比較モード設定">▾</button>
+          <div id="compare-menu" class="compare-menu hidden">
+            <button type="button" data-compare-mode="off" class="compare-menu-item">After のみ（編集後）</button>
+            <button type="button" data-compare-mode="before" class="compare-menu-item">Before のみ（元PDF）</button>
+            <button type="button" data-compare-mode="split" class="compare-menu-item">左右分割（Before / After）</button>
+            <div class="compare-menu-divider"></div>
+            <label class="compare-menu-check">
+              <input type="checkbox" id="compare-diff"> 差分ハイライト
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="nav-group" style="display:none">
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-prev" class="tb-btn icon-btn" title="前のページ">◀</button>
+          <input id="page-input" type="number" class="page-input" min="1" value="1">
+          <span id="page-total" class="page-total">/ 0</span>
+          <button id="btn-next" class="tb-btn icon-btn" title="次のページ">▶</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-zoom-out" class="tb-btn icon-btn" title="ズームアウト">−</button>
+          <select id="zoom-select" class="zoom-select">
+            <option value="0.5">50%</option>
+            <option value="0.75">75%</option>
+            <option value="1.0">100%</option>
+            <option value="1.25" selected>125%</option>
+            <option value="1.5">150%</option>
+            <option value="2.0">200%</option>
+            <option value="3.0">300%</option>
+            <option value="4.0">400%</option>
+          </select>
+          <button id="btn-zoom-in" class="tb-btn icon-btn" title="ズームイン">＋</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-single" class="tb-btn" title="単ページ">□</button>
+          <button id="btn-continuous" class="tb-btn active" title="連続表示">☰</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-rotate-left" class="tb-btn icon-btn" title="左に回転">&#8634;</button>
+          <button id="btn-rotate-right" class="tb-btn icon-btn" title="右に回転">&#8635;</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-page-duplicate" class="tb-btn icon-btn" title="選択ページを複製">⎘</button>
+          <button id="btn-page-blank" class="tb-btn icon-btn" title="白紙ページを後ろに挿入">＋</button>
+          <button id="btn-page-delete" class="tb-btn icon-btn danger" title="選択ページを削除">🗑</button>
+          <button id="btn-page-first" class="tb-btn icon-btn" title="先頭へ移動">⇤</button>
+          <button id="btn-page-last" class="tb-btn icon-btn" title="末尾へ移動">⇥</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group tools-group">
+          <button class="tool-btn active" data-tool="select"     title="選択">↖</button>
+          <button class="tool-btn"        data-tool="rectangle"  title="矩形">▭</button>
+          <button class="tool-btn"        data-tool="circle"     title="楕円">○</button>
+          <button class="tool-btn"        data-tool="line"       title="線">╱</button>
+          <button class="tool-btn"        data-tool="arrow"      title="矢印">→</button>
+          <button class="tool-btn"        data-tool="freetext"   title="テキスト注釈">T</button>
+          <button class="tool-btn"        data-tool="textedit"   title="本文テキストを編集">A</button>
+          <button class="tool-btn"        data-tool="ink"        title="フリーハンド">✏</button>
+          <button class="tool-btn"        data-tool="highlight"  title="ハイライト">▬</button>
+          <button class="tool-btn"        data-tool="redaction"  title="墨消し（保存時に黒で焼き込み）">█</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-search" class="tb-btn icon-btn" title="PDF内検索 (Ctrl+F)" style="display:none">🔍</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group insert-group">
+          <button id="btn-insert" class="tb-btn" title="挿入（画像 / 署名 / スタンプ / QR / 透かし / ページ番号 / ヘッダーフッター）">＋ 挿入 ▾</button>
+          <div id="insert-menu" class="insert-menu hidden">
+            <button type="button" class="insert-menu-item" data-insert="image">🖼 画像挿入</button>
+            <button type="button" class="insert-menu-item" data-insert="signature">✒ 署名挿入</button>
+            <button type="button" class="insert-menu-item" data-insert="stamp">⬢ スタンプ挿入</button>
+            <button type="button" class="insert-menu-item" data-insert="qrcode">▦ QRコード挿入</button>
+            <div class="insert-menu-divider"></div>
+            <button type="button" class="insert-menu-item" data-insert="watermark">🌊 透かしを追加 / 編集</button>
+            <button type="button" class="insert-menu-item" data-insert="pagenumber">⓵ ページ番号を追加 / 編集</button>
+            <button type="button" class="insert-menu-item" data-insert="headerfooter">▥ ヘッダー / フッターを追加 / 編集</button>
+          </div>
+          <input id="file-input-image" class="file-input-native" type="file" accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp">
+          <input id="file-input-signature" class="file-input-native" type="file" accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp">
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-fit-page" class="tb-btn icon-btn" title="ページ全体に合わせる">⛶</button>
+          <button id="btn-fit-width" class="tb-btn icon-btn" title="幅に合わせる">↔</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="btn-undo" class="tb-btn icon-btn" title="元に戻す (Ctrl+Z)" disabled>↩</button>
+          <button id="btn-redo" class="tb-btn icon-btn" title="やり直す (Ctrl+Y)" disabled>↪</button>
+        </div>
+      </div>
+
+      <span id="file-name" class="tb-filename"></span>
+      <button id="btn-shortcuts" class="tb-btn" title="ショートカット一覧 (?)">⌨ ショートカット</button>
+    </div>
+
+    <div id="tool-options" style="display:none">
+      <div class="color-presets">
+        <div class="preset" data-color="#e53e3e" style="background:#e53e3e"></div>
+        <div class="preset" data-color="#dd6b20" style="background:#dd6b20"></div>
+        <div class="preset" data-color="#d69e2e" style="background:#d69e2e"></div>
+        <div class="preset" data-color="#38a169" style="background:#38a169"></div>
+        <div class="preset" data-color="#3182ce" style="background:#3182ce"></div>
+        <div class="preset" data-color="#805ad5" style="background:#805ad5"></div>
+        <div class="preset" data-color="#d53f8c" style="background:#d53f8c"></div>
+        <div class="preset" data-color="#1a202c" style="background:#1a202c"></div>
+        <div class="preset" data-color="#ffffff" style="background:#fff;border:1px solid #666"></div>
+        <div class="preset" data-color="#a0aec0" style="background:#a0aec0"></div>
+        <input id="color-custom" type="color" value="#e53e3e" class="color-custom" title="カスタムカラー">
+      </div>
+      <span id="opt-stroke-wrap">
+        <label class="opt-label">線幅</label>
+        <select id="opt-stroke">
+          <option value="1">1px</option><option value="2" selected>2px</option>
+          <option value="3">3px</option><option value="4">4px</option>
+          <option value="6">6px</option><option value="8">8px</option>
+          <option value="12">12px</option>
+        </select>
+      </span>
+      <label id="opt-fill-wrap" class="opt-checkbox">
+        <input id="opt-fill" type="checkbox"> 塗りつぶし
+      </label>
+      <span id="opt-font-wrap">
+        <label class="opt-label">サイズ</label>
+        <select id="opt-fontsize">
+          <option value="10">10pt</option><option value="12">12pt</option>
+          <option value="14" selected>14pt</option><option value="16">16pt</option>
+          <option value="18">18pt</option><option value="24">24pt</option>
+          <option value="32">32pt</option><option value="48">48pt</option>
+        </select>
+        <input id="opt-fontcolor" type="color" value="#1a202c" title="テキスト色">
+      </span>
+      <label class="opt-label">不透明度</label>
+      <input id="opt-opacity" type="range" min="0.1" max="1" step="0.05" value="1">
+      <span id="opt-opacity-val">100%</span>
+      <div class="tb-divider"></div>
+      <div class="preset-wrap">
+        <button id="btn-preset-save" class="tb-btn icon-btn" title="現在のスタイルをプリセット保存">★</button>
+        <div id="preset-list" class="preset-list"></div>
+      </div>
+      <button id="btn-delete-ann" class="tb-btn danger" style="display:none">🗑 削除</button>
+    </div>
+
+    <div id="search-bar" class="search-bar hidden" role="search">
+      <input id="search-input" type="search" class="search-input" placeholder="PDF内を検索…" autocomplete="off" spellcheck="false">
+      <label class="search-check" title="大文字小文字を区別する">
+        <input id="search-case" type="checkbox"> Aa
+      </label>
+      <span id="search-status" class="search-status">0 / 0</span>
+      <button id="btn-search-prev" type="button" class="tb-btn icon-btn" title="前の結果 (Shift+Enter)">▲</button>
+      <button id="btn-search-next" type="button" class="tb-btn icon-btn" title="次の結果 (Enter)">▼</button>
+      <button id="btn-search-close" type="button" class="tb-btn icon-btn" title="検索を閉じる (Esc)">×</button>
+    </div>
+
+    <div id="workspace">
+      <div id="thumbnail-panel">
+        <p class="thumb-hint">PDFを開いてください</p>
+      </div>
+      <div id="thumb-resizer" class="thumb-resizer" title="ドラッグでサムネイル幅を調整"></div>
+      <div id="viewer">
+        <div id="drop-hint" class="drop-hint">
+          <div class="drop-icon">📄</div>
+          <p>PDFファイルをドロップ</p>
+          <p class="drop-sub">または上部の「開く」ボタンから選択</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <span id="status-text">PDFを開いてください</span>
+    </div>
+  </div>
+
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loader"></div>
+    <p>処理中...</p>
+  </div>
+
+  <div id="drop-overlay" class="drop-overlay hidden">
+    <div class="drop-overlay-inner">
+      <div class="drop-overlay-icon">📄</div>
+      <p>PDFをドロップして開く</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" data-variant="info" role="status" aria-live="polite"></div>
+
+  <div id="save-modal" class="save-modal hidden" role="dialog" aria-modal="true">
+    <div class="save-modal-inner">
+      <div class="save-modal-header">
+        <h2>保存前の最終確認プレビュー</h2>
+        <button id="save-modal-close" class="tb-btn icon-btn" title="閉じる">×</button>
+      </div>
+      <div class="save-modal-sections">
+        <button type="button" class="save-modal-section active" data-section="preview">プレビュー</button>
+        <button type="button" class="save-modal-section" data-section="mode">保存モード</button>
+        <button type="button" class="save-modal-section" data-section="metadata">メタデータ</button>
+      </div>
+      <div class="save-modal-tabs" data-section-target="preview">
+        <button type="button" id="save-modal-tab-after" class="save-modal-tab active" data-tab="after">After（編集後）</button>
+        <button type="button" id="save-modal-tab-before" class="save-modal-tab" data-tab="before">Before（元PDF）</button>
+        <span id="save-modal-page-label" class="save-modal-page-label"></span>
+        <span style="flex:1"></span>
+        <button type="button" id="save-modal-prev" class="tb-btn icon-btn" title="前のページ">◀</button>
+        <button type="button" id="save-modal-next" class="tb-btn icon-btn" title="次のページ">▶</button>
+      </div>
+      <div id="save-modal-preview" class="save-modal-preview" data-section-target="preview"></div>
+      <div class="save-modal-panel" data-section-target="mode" style="display:none">
+        <div class="phase4-section">
+          <h3>保存モード</h3>
+          <label class="save-mode-option">
+            <input type="radio" name="save-mode" value="standard">
+            <span class="save-mode-title">標準保存</span>
+            <span class="save-mode-desc">注釈・ページ操作・透かしなどを反映して書き出します（既定）</span>
+          </label>
+          <label class="save-mode-option">
+            <input type="radio" name="save-mode" value="flatten">
+            <span class="save-mode-title">フラット化保存</span>
+            <span class="save-mode-desc">元PDFの注釈オブジェクトを削除し、編集ツール情報も除いた配布向け書き出し</span>
+          </label>
+          <label class="save-mode-option">
+            <input type="radio" name="save-mode" value="project">
+            <span class="save-mode-title">プロジェクト保存</span>
+            <span class="save-mode-desc">PDFと編集情報（JSON）を同時にダウンロード。後で完全復元可能</span>
+          </label>
+        </div>
+        <div class="phase4-section">
+          <h3>ファイル名テンプレート</h3>
+          <div class="phase4-row">
+            <input id="save-filename-template" type="text" class="phase4-input" placeholder="{original}_edited">
+          </div>
+          <div class="phase4-row">
+            <span class="phase4-hint">使えるプレースホルダ: <code>{original}</code> <code>{date}</code> <code>{datetime}</code> <code>{mode}</code> <code>{pages}</code></span>
+          </div>
+          <div class="phase4-row">
+            <span class="phase4-label">プレビュー</span>
+            <code id="save-filename-preview" class="save-filename-preview">-</code>
+          </div>
+        </div>
+      </div>
+      <div class="save-modal-panel" data-section-target="metadata" style="display:none">
+        <div class="phase4-section">
+          <h3>メタデータ</h3>
+          <div class="phase4-row">
+            <label class="phase4-label">タイトル</label>
+            <input id="meta-title" type="text" class="phase4-input" placeholder="（未設定）">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">作者</label>
+            <input id="meta-author" type="text" class="phase4-input" placeholder="（未設定）">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">件名</label>
+            <input id="meta-subject" type="text" class="phase4-input" placeholder="（未設定）">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">キーワード</label>
+            <input id="meta-keywords" type="text" class="phase4-input" placeholder="カンマ区切り（例: 社内, 機密, レポート）">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">プロデューサー</label>
+            <input id="meta-producer" type="text" class="phase4-input" placeholder="XNH WebApp PDF Editor">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">クリエイター</label>
+            <input id="meta-creator" type="text" class="phase4-input" placeholder="XNH WebApp PDF Editor">
+          </div>
+        </div>
+      </div>
+      <div class="save-modal-actions">
+        <button type="button" id="save-modal-cancel" class="tb-btn">キャンセル</button>
+        <button type="button" id="save-modal-confirm" class="tb-btn primary">この内容で保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="save-error-modal" class="save-modal hidden" role="dialog" aria-modal="true">
+    <div class="save-modal-inner save-error-inner">
+      <div class="save-modal-header">
+        <h2>書き出しエラーの詳細</h2>
+        <button id="save-error-close" class="tb-btn icon-btn" title="閉じる">×</button>
+      </div>
+      <div class="save-error-body">
+        <p id="save-error-message" class="save-error-message"></p>
+        <details class="save-error-details">
+          <summary>スタックトレースを表示</summary>
+          <pre id="save-error-stack" class="save-error-stack"></pre>
+        </details>
+      </div>
+      <div class="save-modal-actions">
+        <button type="button" id="save-error-copy" class="tb-btn">エラー内容をコピー</button>
+        <button type="button" id="save-error-dismiss" class="tb-btn primary">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: 署名ライブラリ -->
+  <div id="signature-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>署名を挿入</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="signature-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <p class="phase4-hint">登録した署名画像をクリックして現在ページに挿入できます。透過PNG推奨。</p>
+        <div id="signature-list" class="library-grid"></div>
+        <div class="phase4-row">
+          <button type="button" id="btn-signature-add" class="tb-btn primary">＋ 新しい署名画像を登録</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: スタンプライブラリ -->
+  <div id="stamp-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>スタンプを挿入</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="stamp-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <p class="phase4-hint">クリックで現在ページに挿入。新規スタンプを作成して保存できます。</p>
+        <div id="stamp-list" class="library-grid"></div>
+        <div class="phase4-section">
+          <h3>新しいスタンプを作成</h3>
+          <div class="phase4-row">
+            <label class="phase4-label">テキスト</label>
+            <input id="stamp-new-text" type="text" class="phase4-input" placeholder="例: 承認">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">文字色</label>
+            <input id="stamp-new-color" type="color" value="#e53e3e">
+            <label class="phase4-label">枠色</label>
+            <input id="stamp-new-border" type="color" value="#e53e3e">
+            <label class="phase4-label">枠幅</label>
+            <input id="stamp-new-stroke" type="number" min="0" max="8" step="0.5" value="2" class="phase4-input-small">
+            <label class="phase4-label">サイズ</label>
+            <input id="stamp-new-fontsize" type="number" min="8" max="120" step="1" value="32" class="phase4-input-small">
+          </div>
+          <div class="phase4-row">
+            <button type="button" id="btn-stamp-add" class="tb-btn primary">＋ スタンプを保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: 透かし -->
+  <div id="watermark-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>透かしを追加 / 編集</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="watermark-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <div class="phase4-row">
+          <label class="phase4-check"><input id="wm-enabled" type="checkbox"> 透かしを有効にする</label>
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">テキスト</label>
+          <input id="wm-text" type="text" class="phase4-input" placeholder="例: 機密 / 社外秘 / DRAFT">
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">フォントサイズ</label>
+          <input id="wm-fontsize" type="number" min="8" max="240" step="2" value="80" class="phase4-input-small">
+          <label class="phase4-label">文字色</label>
+          <input id="wm-color" type="color" value="#e53e3e">
+          <label class="phase4-label">不透明度</label>
+          <input id="wm-opacity" type="range" min="0.05" max="1" step="0.05" value="0.2">
+          <span id="wm-opacity-val">20%</span>
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">角度</label>
+          <input id="wm-angle" type="number" min="-180" max="180" step="5" value="-30" class="phase4-input-small">°
+          <label class="phase4-label">配置</label>
+          <select id="wm-placement">
+            <option value="center">中央</option>
+            <option value="diagonal-tile">斜めタイル（全面）</option>
+          </select>
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">対象</label>
+          <select id="wm-scope">
+            <option value="all">全ページ</option>
+            <option value="current">現在ページのみ</option>
+          </select>
+        </div>
+        <div class="phase4-actions">
+          <button type="button" class="tb-btn phase4-modal-close" data-close="watermark-modal">キャンセル</button>
+          <button type="button" id="wm-apply" class="tb-btn primary">適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: ページ番号 -->
+  <div id="pagenum-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>ページ番号を追加 / 編集</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="pagenum-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <div class="phase4-row">
+          <label class="phase4-check"><input id="pn-enabled" type="checkbox"> ページ番号を有効にする</label>
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">書式</label>
+          <select id="pn-format">
+            <option value="{n}">1</option>
+            <option value="{n}/{total}" selected>1/10</option>
+            <option value="- {n} -">- 1 -</option>
+            <option value="Page {n}">Page 1</option>
+            <option value="Page {n} of {total}">Page 1 of 10</option>
+            <option value="custom">カスタム…</option>
+          </select>
+          <input id="pn-format-custom" type="text" class="phase4-input" placeholder="{n}, {total} を使えます" style="display:none">
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">位置</label>
+          <select id="pn-position">
+            <option value="bl">左下</option>
+            <option value="bc" selected>中央下</option>
+            <option value="br">右下</option>
+            <option value="tl">左上</option>
+            <option value="tc">中央上</option>
+            <option value="tr">右上</option>
+          </select>
+          <label class="phase4-label">フォントサイズ</label>
+          <input id="pn-fontsize" type="number" min="6" max="48" step="1" value="11" class="phase4-input-small">
+          <label class="phase4-label">色</label>
+          <input id="pn-color" type="color" value="#1a202c">
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">開始番号</label>
+          <input id="pn-start" type="number" min="0" max="9999" step="1" value="1" class="phase4-input-small">
+          <label class="phase4-label">最初のページから何ページ目に付ける</label>
+          <input id="pn-from" type="number" min="1" max="9999" step="1" value="1" class="phase4-input-small">
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">微調整X(pt)</label>
+          <input id="pn-offset-x" type="number" min="-500" max="500" step="1" value="0" class="phase4-input-small">
+          <label class="phase4-label">微調整Y(pt)</label>
+          <input id="pn-offset-y" type="number" min="-500" max="500" step="1" value="0" class="phase4-input-small">
+          <button type="button" id="pn-offset-reset" class="tb-btn">オフセットをリセット</button>
+          <span class="phase4-hint">ビューア上のページ番号をドラッグでも調整できます</span>
+        </div>
+        <div class="phase4-actions">
+          <button type="button" class="tb-btn phase4-modal-close" data-close="pagenum-modal">キャンセル</button>
+          <button type="button" id="pn-apply" class="tb-btn primary">適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: ヘッダー/フッター -->
+  <div id="hf-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>ヘッダー / フッターを追加 / 編集</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="hf-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <div class="phase4-section">
+          <h3>ヘッダー</h3>
+          <div class="phase4-row">
+            <label class="phase4-check"><input id="hf-h-enabled" type="checkbox"> 有効</label>
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">テキスト</label>
+            <input id="hf-h-text" type="text" class="phase4-input" placeholder="ヘッダーのテキスト">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">配置</label>
+            <select id="hf-h-align">
+              <option value="left">左</option>
+              <option value="center" selected>中央</option>
+              <option value="right">右</option>
+            </select>
+            <label class="phase4-label">サイズ</label>
+            <input id="hf-h-fontsize" type="number" min="6" max="48" step="1" value="11" class="phase4-input-small">
+            <label class="phase4-label">色</label>
+            <input id="hf-h-color" type="color" value="#1a202c">
+          </div>
+        </div>
+        <div class="phase4-section">
+          <h3>フッター</h3>
+          <div class="phase4-row">
+            <label class="phase4-check"><input id="hf-f-enabled" type="checkbox"> 有効</label>
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">テキスト</label>
+            <input id="hf-f-text" type="text" class="phase4-input" placeholder="フッターのテキスト">
+          </div>
+          <div class="phase4-row">
+            <label class="phase4-label">配置</label>
+            <select id="hf-f-align">
+              <option value="left">左</option>
+              <option value="center" selected>中央</option>
+              <option value="right">右</option>
+            </select>
+            <label class="phase4-label">サイズ</label>
+            <input id="hf-f-fontsize" type="number" min="6" max="48" step="1" value="11" class="phase4-input-small">
+            <label class="phase4-label">色</label>
+            <input id="hf-f-color" type="color" value="#1a202c">
+          </div>
+        </div>
+        <div class="phase4-actions">
+          <button type="button" class="tb-btn phase4-modal-close" data-close="hf-modal">キャンセル</button>
+          <button type="button" id="hf-apply" class="tb-btn primary">適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: QRコード -->
+  <div id="qr-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>QRコードを挿入</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="qr-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <div class="phase4-row">
+          <label class="phase4-label">テキスト / URL</label>
+          <input id="qr-text" type="text" class="phase4-input" placeholder="https://example.com">
+        </div>
+        <div class="phase4-row">
+          <label class="phase4-label">サイズ(pt)</label>
+          <input id="qr-size" type="number" min="40" max="600" step="10" value="120" class="phase4-input-small">
+          <label class="phase4-label">誤り訂正</label>
+          <select id="qr-ec">
+            <option value="L">L (7%)</option>
+            <option value="M" selected>M (15%)</option>
+            <option value="Q">Q (25%)</option>
+            <option value="H">H (30%)</option>
+          </select>
+          <label class="phase4-label">前景色</label>
+          <input id="qr-fg" type="color" value="#000000">
+          <label class="phase4-label">背景色</label>
+          <input id="qr-bg" type="color" value="#ffffff">
+        </div>
+        <div class="phase4-row" id="qr-preview-row">
+          <div id="qr-preview" class="qr-preview"></div>
+        </div>
+        <div class="phase4-actions">
+          <button type="button" class="tb-btn phase4-modal-close" data-close="qr-modal">キャンセル</button>
+          <button type="button" id="qr-apply" class="tb-btn primary">現在ページに挿入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 7: ショートカット一覧 / カスタマイズ -->
+  <div id="shortcuts-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
+    <div class="phase4-modal-inner shortcuts-modal-inner">
+      <div class="phase4-modal-header">
+        <h2>キーボードショートカット</h2>
+        <button class="tb-btn icon-btn phase4-modal-close" data-close="shortcuts-modal" title="閉じる">×</button>
+      </div>
+      <div class="phase4-modal-body">
+        <p class="phase4-hint">単押しのキーは入力欄にフォーカスしていない時のみ有効です。Ctrl/Cmd を伴うキーは常に有効です。「変更」を押してから新しいキーを押すと割り当てを変更できます（Esc でキャンセル）。</p>
+        <div id="shortcuts-list" class="shortcuts-list"></div>
+        <div class="phase4-actions">
+          <button type="button" id="shortcuts-reset" class="tb-btn">既定に戻す</button>
+          <button type="button" class="tb-btn phase4-modal-close" data-close="shortcuts-modal">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="startup-error" class="startup-error hidden">
+    <strong>アプリを起動できません</strong>
+    <span>index.html を直接開いている場合は、ローカルHTTPサーバーから開いてください。</span>
+    <code>python -m http.server 4173</code>
+    <span>その後、http://127.0.0.1:4173/ を開きます。</span>
+  </div>
+
+  <script>
+    window.pdfEditorBooted = false;
+    window.addEventListener('error', function (event) {
+      if (event.target && event.target.tagName === 'SCRIPT') {
+        window.pdfEditorBootError = true;
+      }
+    }, true);
+    setTimeout(function () {
+      if (window.pdfEditorBooted) return;
+      var panel = document.getElementById('startup-error');
+      var status = document.getElementById('status-text');
+      if (panel) panel.classList.remove('hidden');
+      if (status) status.textContent = location.protocol === 'file:'
+        ? 'HTTPサーバー経由で開いてください'
+        : 'アプリの起動に失敗しました';
+    }, 1200);
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4507 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VJ FX Maker</title>
+<style>
+* { box-sizing: border-box; }
+:root {
+  --left-w: 280px;
+  --right-w: 330px;
+  --bottom-h: 210px;
+  --track-offset: 232px;
+  --panel: #232323;
+  --panel-2: #2a2a2a;
+  --line: #3a3a3a;
+  --line-soft: #1b1b1b;
+  --text: #e7e8ea;
+  --muted: #8a92a3;
+  --accent: #1f8bd8;
+  --green: #88d8a3;
+  --gold: #d8c188;
+}
+html, body { margin: 0; padding: 0; height: 100%; background: #090a0d; color: var(--text);
+  font: 12px/1.4 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  overflow: hidden; }
+button, input, select { font: inherit; color: inherit; }
+button { background: #1e2229; border: 1px solid var(--line); padding: 5px 9px; border-radius: 4px; cursor: pointer; transition: background .1s, border-color .1s; white-space: nowrap; }
+button:hover { background: #282d36; border-color: #3a4150; }
+button:active { background: #303641; }
+button.primary { background: #2c3554; border-color: #4a5b8a; }
+button.primary:hover { background: #34406b; }
+button.danger { background: #4a2c2c; border-color: #8a4a4a; }
+button.toggle-on { background: #253a30; border-color: #3f7c58; color: #b8f0c8; }
+input[type=text], input[type=number] { background: #101218; border: 1px solid var(--line); padding: 3px 6px; border-radius: 3px; color: var(--text); }
+input[type=number] { width: 68px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+input[type=color] { width: 28px; height: 22px; padding: 0; border: 1px solid var(--line); background: #101218; cursor: pointer; }
+input[type=file] { font-size: 11px; max-width: 100%; }
+select { background: #101218; border: 1px solid var(--line); padding: 3px 6px; border-radius: 3px; }
+
+#app {
+  display: grid;
+  grid-template-columns: var(--left-w) 6px minmax(0, 1fr) 6px var(--right-w);
+  grid-template-rows: 68px minmax(0, 1fr) 6px var(--bottom-h);
+  grid-template-areas:
+    "top top top top top"
+    "left resizeL center resizeR right"
+    "resizeB resizeB resizeB resizeB resizeB"
+    "bottom bottom bottom bottom bottom";
+  height: 100vh;
+  min-width: 780px;
+}
+#app.fs {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: "center";
+}
+#app.fs #topbar, #app.fs #left, #app.fs #right, #app.fs #bottom, #app.fs .panel-resizer { display: none; }
+
+#topbar { grid-area: top; display: flex; flex-direction: column; gap: 0; background: #1e1e1e; border-bottom: 1px solid #050505; min-width: 0; overflow: hidden; }
+.menu-row, .tool-row { display: flex; align-items: center; min-width: 0; }
+.menu-row { height: 27px; gap: 8px; padding: 2px 8px; background: #1b1b1b; border-bottom: 1px solid #080808; }
+.tool-row { height: 41px; gap: 6px; padding: 4px 8px; background: #252525; box-shadow: inset 0 1px #333; overflow-x: auto; }
+.brand { font-weight: 700; letter-spacing: .02em; color: #d6d6d6; flex: 0 0 auto; padding-right: 8px; border-right: 1px solid #383838; }
+.menu-button, .tool-btn { background: transparent; border: 1px solid transparent; border-radius: 2px; padding: 3px 7px; color: #c8c8c8; }
+.menu-button:hover, .tool-btn:hover { background: #303030; border-color: #454545; }
+.tool-btn.icon { width: 30px; height: 28px; padding: 0; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+.workspace-tabs { display: flex; align-items: center; gap: 2px; margin-left: auto; color: #aaa; }
+.workspace-tabs span { padding: 3px 10px; border-left: 1px solid transparent; border-right: 1px solid transparent; }
+.workspace-tabs .active { color: #5fb6ff; border-color: #3a3a3a; background: #242424; }
+.top-group { display: flex; align-items: center; gap: 5px; min-width: 0; border-right: 1px solid #3a3a3a; padding-right: 6px; }
+.top-group.grow { flex: 1 1 auto; }
+.top-group.transport button { min-width: 34px; }
+.top-label { color: var(--muted); font-size: 10px; text-transform: uppercase; }
+#timecode { font: 12px/1.2 ui-monospace, Consolas, monospace; color: #cbd3e2; min-width: 66px; text-align: right; }
+#topbar input[type=range] { width: 90px; }
+#topEffectSelect { width: 150px; }
+
+#left, #right, #bottom { background: var(--panel); overflow: hidden; min-width: 0; min-height: 0; }
+#left { grid-area: left; border-right: 1px solid #050505; display: flex; flex-direction: column; }
+#right { grid-area: right; border-left: 1px solid #050505; display: flex; flex-direction: column; }
+#bottom { grid-area: bottom; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; }
+.panel-scroll { overflow: auto; padding: 10px; min-height: 0; }
+.panel-head { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid #101010; background: #2b2b2b; min-height: 30px; box-shadow: inset 0 1px #3a3a3a; }
+.panel-title { font-size: 11px; color: #c6c6c6; font-weight: 650; flex: 1; }
+.right-stack { overflow: auto; min-height: 0; flex: 1; }
+.side-panel { border-bottom: 1px solid #111; background: #242424; }
+.side-panel summary { list-style: none; cursor: pointer; padding: 7px 10px; background: #2b2b2b; border-top: 1px solid #373737; border-bottom: 1px solid #171717; color: #c9c9c9; font-weight: 650; }
+.side-panel summary::-webkit-details-marker { display: none; }
+.side-panel summary::before { content: "▸"; color: #8a8a8a; margin-right: 6px; }
+.side-panel[open] summary::before { content: "▾"; }
+.side-panel-body { padding: 8px 10px; color: #aeb6c5; }
+.side-kv { display: grid; grid-template-columns: 70px 1fr; gap: 2px 8px; font: 11px/1.5 ui-monospace, Consolas, monospace; }
+.side-kv span:nth-child(odd) { color: #858585; }
+.side-panel .toolbar { margin-top: 4px; }
+
+#center { grid-area: center; display: flex; flex-direction: column; align-items: stretch; justify-content: center;
+  background: #222; position: relative; min-width: 0; min-height: 0; padding: 8px 8px 0; border-top: 1px solid #343434; }
+#viewWrap { flex: 1 1 auto; }
+#previewControls { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 6px 8px; background: #1c1e22; border: 1px solid #2a2e36; border-radius: 4px; margin-top: 6px; }
+#previewControls .pc-btn { background: #232830; border: 1px solid #303743; color: #c8c8c8; padding: 3px 9px; font-size: 13px; min-width: 30px; line-height: 1.1; border-radius: 3px; cursor: pointer; }
+#previewControls .pc-btn:hover { background: #2c333d; border-color: #3a4252; }
+#previewControls .pc-btn.pc-play.playing { background: #2c4f3a; border-color: #4a8862; color: #b8f0c8; }
+#previewControls .pc-btn#pcLoop.toggle-on { background: #253a30; border-color: #3f7c58; color: #b8f0c8; }
+#previewControls .pc-time { font: 11px ui-monospace, Consolas, monospace; color: #cbd3e2; min-width: 110px; text-align: right; padding: 0 6px; }
+#previewControls .pc-seek-wrap { flex: 1 1 auto; min-width: 80px; display: flex; align-items: center; }
+#previewControls .pc-seek-track { position: relative; flex: 1 1 auto; height: 8px; background: #0e1014; border: 1px solid #1f242c; border-radius: 4px; cursor: pointer; }
+#previewControls .pc-seek-loop { position: absolute; top: 0; bottom: 0; background: #6a86d822; border-left: 1px solid #6a86d855; border-right: 1px solid #6a86d855; pointer-events: none; }
+#previewControls .pc-seek-fill { position: absolute; top: 0; bottom: 0; left: 0; background: linear-gradient(90deg, #4c6fb7aa, #88d8a3aa); pointer-events: none; }
+#previewControls .pc-seek-thumb { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #d6d9df; box-shadow: 0 0 0 1px #0008; pointer-events: none; }
+#viewWrap { position: relative; max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center; }
+canvas#view { display: block; max-width: 100%; max-height: 100%; background: #000;
+  box-shadow: 0 0 0 1px #23262d, 0 8px 30px #0008; }
+#hud { position: absolute; bottom: 8px; left: 12px; font: 10px/1.3 ui-monospace, Consolas, monospace; color: #6a7180; pointer-events: none; text-shadow: 0 0 3px #000; }
+#hud .k { color: #9ab; }
+#hud .v { color: #cde; }
+
+.panel-resizer { background: #101217; position: relative; }
+.panel-resizer::after { content: ""; position: absolute; inset: 0; background: transparent; }
+#resizeLeft { grid-area: resizeL; cursor: col-resize; border-left: 1px solid #0b0c10; border-right: 1px solid #242832; }
+#resizeRight { grid-area: resizeR; cursor: col-resize; border-left: 1px solid #242832; border-right: 1px solid #0b0c10; }
+#resizeBottom { grid-area: resizeB; cursor: row-resize; border-top: 1px solid #242832; border-bottom: 1px solid #0b0c10; }
+.is-resizing, .is-resizing * { cursor: inherit !important; user-select: none !important; }
+
+.section { margin-bottom: 10px; border-top: 1px solid #151515; }
+.section h3 { margin: 0 -2px 8px; padding: 6px 8px; font-size: 11px; color: #c8c8c8; font-weight: 650; background: #2b2b2b; border-bottom: 1px solid #151515; }
+.row { display: flex; gap: 6px; align-items: center; margin: 4px 0; min-width: 0; }
+.row label { flex: 0 0 76px; font-size: 11px; color: #b5bbc8; }
+.row .v { color: #888f9d; font-variant-numeric: tabular-nums; min-width: 36px; text-align: right; font-size: 10px; }
+.row .keybtn { width: 24px; padding: 2px 0; color: #d8c188; }
+.toolbar { display: flex; gap: 4px; flex-wrap: wrap; }
+.toolbar button { padding: 4px 8px; font-size: 11px; }
+
+#fxStatus { font-size: 10px; color: #a0a7b5; line-height: 1.5; }
+.category { border: 1px solid #171717; border-radius: 0; overflow: hidden; background: #202020; margin-bottom: 4px; }
+.category-head { display: flex; align-items: center; gap: 6px; width: 100%; border: 0; border-radius: 0; background: #303030; padding: 5px 8px; text-align: left; }
+.category-head .twisty { color: var(--muted); width: 10px; }
+.category-head .cat-name { flex: 1; font-weight: 650; }
+.category-head .cat-count { color: var(--muted); font: 10px/1 ui-monospace, Consolas, monospace; }
+.category-body { display: grid; gap: 1px; background: #1b1b1b; padding: 2px; }
+.category.closed .category-body { display: none; }
+.lib-row, .lane-row { display: flex; align-items: center; gap: 6px; min-width: 0; border: 1px solid transparent; background: #252525; cursor: pointer; }
+.lib-row { padding: 5px 6px; }
+.lib-row:hover, .lane-row:hover { background: #20252d; }
+.lib-row.selected, .lane-row.selected { border-color: #536aa7; background: #202845; }
+.lib-row.on, .lane-row.on { box-shadow: inset 3px 0 0 var(--accent); }
+.lib-name, .lane-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mvbtn { padding: 1px 6px; font-size: 10px; line-height: 1.1; }
+.num { width: 24px; color: #6a7180; font-variant-numeric: tabular-nums; font-size: 10px; flex: 0 0 auto; }
+.badge { font-size: 9px; padding: 1px 5px; border-radius: 8px; background: #2a2e36; color: #b5bbc8; flex: 0 0 auto; }
+.badge.full { background: #1f3d2a; color: var(--green); }
+.badge.lite { background: #3d352a; color: var(--gold); }
+.badge.mon  { background: #2a3a4d; color: #88b3d8; }
+.selected-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.selected-title h2 { margin: 0; font-size: 14px; line-height: 1.2; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selected-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.fx-body { padding-top: 2px; }
+.fx-body .row label { flex-basis: 82px; }
+.sub-panel { margin: 8px 0 4px; padding: 6px 8px; background: #1c1f25; border: 1px solid #2a2e36; border-radius: 4px; }
+.sub-panel-head { font-size: 10px; font-weight: 650; color: #88b3d8; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 4px; }
+.sub-panel .row { gap: 6px; }
+.sub-panel .row label { flex-basis: 56px; color: #aeb6c5; }
+.sub-panel .row input[type=number] { width: 70px; }
+.sub-panel .row .v { font: 10px ui-monospace, Consolas, monospace; color: #aeb6c5; min-width: 56px; text-align: right; }
+.sub-panel .row select { padding: 2px 4px; }
+.sub-panel .row .mvbtn { padding: 2px 6px; font-size: 10px; }
+.empty { color: var(--muted); font-size: 11px; padding: 10px; border: 1px dashed #323743; border-radius: 4px; background: #111318; }
+
+.timeline-controls { display: flex; align-items: center; gap: 10px; padding: 5px 10px; border-bottom: 1px solid #111; background: #2a2a2a; min-height: 34px; overflow-x: auto; }
+.timeline-controls label { display: flex; align-items: center; gap: 5px; color: #b5bbc8; white-space: nowrap; }
+.timeline-controls input[type=number] { width: 62px; }
+.timeline-head { position: relative; flex: 0 0 auto; display: grid; grid-template-columns: var(--track-offset) 1fr; }
+.timeline-head .th-spacer { background: #1a1c20; border-right: 1px solid #050505; display: flex; align-items: center; padding: 0 8px; gap: 6px; font-size: 10px; color: #8a92a3; }
+.timeline-head .th-spacer .zoom-readout { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: #aeb6c5; }
+.timeline-head .th-spacer .zoom-btn { padding: 1px 6px; font-size: 11px; background: #232830; border: 1px solid #303743; color: #c8c8c8; border-radius: 2px; cursor: pointer; }
+.timeline-head .th-spacer .zoom-btn:hover { background: #2c333d; }
+.timeline-head .th-track { position: relative; min-width: 0; }
+.timeline-head .playhead { z-index: 5; }
+#timelineList { position: relative; }
+#timelineList .list-playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: #d6d9df66; pointer-events: none; z-index: 6; }
+.timeline-ruler { position: relative; height: 28px; border-bottom: 1px solid var(--line-soft); background: #111318; overflow: hidden; cursor: ew-resize; }
+.timeline-wave { position: relative; height: 44px; background: #0c0e13; border-bottom: 1px solid var(--line-soft); overflow: hidden; cursor: ew-resize; display: none; }
+.timeline-scrollbar { position: relative; height: 12px; background: #15171c; border-top: 1px solid #050505; overflow: hidden; cursor: pointer; display: grid; grid-template-columns: var(--track-offset) 1fr; }
+.timeline-scrollbar .sb-spacer { background: #1a1c20; border-right: 1px solid #050505; }
+.timeline-scrollbar .sb-track { position: relative; }
+.timeline-scrollbar .sb-thumb { position: absolute; top: 2px; bottom: 2px; background: #4a526288; border: 1px solid #5a627aaa; border-radius: 3px; min-width: 18px; cursor: grab; }
+.timeline-scrollbar .sb-thumb:active { cursor: grabbing; }
+.timeline-wave.has-audio { display: block; }
+.timeline-wave .wave-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #4a5260; font: 10px ui-monospace, Consolas, monospace; pointer-events: none; }
+.timeline-wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.timeline-wave .wave-name { position: absolute; top: 2px; left: 6px; color: #6a86d8; font: 9px/1 ui-monospace, Consolas, monospace; pointer-events: none; opacity: .7; z-index: 2; }
+.timeline-ruler::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(to right, #313640 0 1px, transparent 1px 80px),
+              repeating-linear-gradient(to right, #222730 0 1px, transparent 1px 20px);
+}
+.ruler-tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid #343a46; color: #707887; font: 10px/1 ui-monospace, Consolas, monospace; }
+.ruler-tick.major { border-left-color: #566070; color: #aeb6c5; }
+.ruler-tick span { position: absolute; top: 4px; left: 4px; white-space: nowrap; }
+.loop-range { position: absolute; top: 0; bottom: 0; background: #6a86d81c; border-left: 1px solid #6a86d877; border-right: 1px solid #6a86d877; pointer-events: none; z-index: 1; }
+.inout-marker { position: absolute; top: 0; bottom: 0; width: 1px; background: #d8c188; pointer-events: none; z-index: 2; }
+.inout-marker::after { content: attr(data-label); position: absolute; top: 14px; left: 3px; color: #d8c188; font: 9px/1 ui-monospace, Consolas, monospace; }
+.playhead { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background: #d6d9df; box-shadow: 0 0 0 1px #0006; pointer-events: none; z-index: 4; }
+#timelineList { overflow: auto; min-height: 0; flex: 1; padding: 4px 6px 8px; }
+.lane-row { display: grid; grid-template-columns: var(--track-offset) 1fr; align-items: center; height: 26px; margin-bottom: 3px; padding: 0; }
+.lane-row.param { height: 23px; background: #13171d; color: #aeb6c5; }
+.lane-row.param.graph { height: 54px; align-items: stretch; padding-top: 5px; padding-bottom: 5px; }
+.lane-row.param .lane-name { font-size: 11px; color: #aeb6c5; }
+.lane-row .mvbtn { padding: 1px 5px; font-size: 10px; line-height: 1.1; }
+.lane-controls { display: flex; align-items: center; gap: 6px; padding: 0 6px; min-width: 0; overflow: hidden; }
+.lane-controls .lane-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lane-row.param .lane-controls { padding-left: 24px; }
+.lane-track { position: relative; min-width: 0; height: 12px; background: #101318; border-top: 1px solid #242935; border-bottom: 1px solid #242935; overflow: hidden; align-self: center; }
+.lane-row.graph .lane-track { height: 42px; }
+.lane-bar { position: absolute; top: 1px; bottom: 1px; border-radius: 1px; background: linear-gradient(90deg, #4c6fb7, #a56a5f); opacity: .9; cursor: grab; min-width: 8px; }
+.lane-bar:active { cursor: grabbing; }
+.clip-handle { position: absolute; top: -1px; bottom: -1px; width: 7px; border: 0; padding: 0; background: #d6d9df; opacity: .88; cursor: ew-resize; z-index: 2; }
+.clip-handle.start { left: 0; border-radius: 1px 0 0 1px; }
+.clip-handle.end { right: 0; border-radius: 0 1px 1px 0; }
+.lane-row.selected .lane-bar { box-shadow: 0 0 0 1px #d6d9df88; }
+.lane-row:not(.on) .lane-bar { opacity: .28; }
+.waveform-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .55; z-index: 0; }
+.lane-track > .lane-bar, .lane-track > .key-marker, .lane-track > .graph-canvas, .lane-track > .graph-point { z-index: 2; }
+.key-marker { position: absolute; top: 50%; width: 9px; height: 9px; border: 1px solid #14161b; background: #d8c188; transform: translate(-50%,-50%) rotate(45deg); cursor: grab; z-index: 3; }
+.key-marker.selected { background: #ffffff; border-color: #6a86d8; box-shadow: 0 0 0 2px #6a86d877; }
+.graph-canvas { position: absolute; inset: 1px 0; width: 100%; height: calc(100% - 2px); pointer-events: none; opacity: .9; }
+.graph-point { position: absolute; width: 10px; height: 10px; border: 1px solid #101318; border-radius: 50%; background: #88d8a3; transform: translate(-50%,-50%); cursor: grab; }
+.graph-point.selected { background: #fff; border-color: #6a86d8; box-shadow: 0 0 0 2px #6a86d877; }
+.midi-bindings { display: grid; gap: 3px; margin-top: 6px; }
+.midi-binding { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 4px 5px; background: #111318; border: 1px solid var(--line-soft); border-radius: 3px; }
+.midi-binding span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aeb6c5; font-size: 10px; }
+.midi-binding button { padding: 1px 5px; font-size: 10px; }
+.context-menu { position: fixed; z-index: 10000; min-width: 220px; background: #222; border: 1px solid #4a4a4a; box-shadow: 0 10px 28px #000b; padding: 4px 0; display: none; }
+.context-menu.open { display: block; }
+.context-menu button { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 16px; background: transparent; border: 0; border-radius: 0; padding: 6px 12px; color: #ddd; text-align: left; }
+.context-menu button:hover { background: #1f5f9f; color: #fff; }
+.context-menu button[disabled] { color: #666; pointer-events: none; }
+.context-menu .sep { height: 1px; margin: 4px 0; background: #3a3a3a; }
+
+.recRing { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #d44; margin-right: 4px; vertical-align: middle; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.3; } }
+.recProgress { display: inline-block; width: 90px; height: 5px; margin-left: 6px; background: #101318; border: 1px solid #2a2e36; vertical-align: middle; }
+.recProgress span { display: block; height: 100%; background: #d44; width: 0%; }
+
+#fpsInfo { font-family: ui-monospace, Consolas, monospace; color: #aeb6c5; }
+.note { font-size: 10px; color: #6a7180; margin-top: 4px; line-height: 1.4; }
+hr { border: 0; border-top: 1px solid var(--line-soft); margin: 8px 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<header id="topbar">
+  <div class="menu-row">
+    <div class="brand">VJ FX Maker</div>
+    <button class="menu-button" id="topImportMedia">Import Media</button>
+    <button class="menu-button" id="topImportAudio">Import Audio</button>
+    <button class="menu-button" id="topPresetLoad">Open Preset</button>
+    <button class="menu-button" id="topPresetSave">Save</button>
+    <button class="menu-button" id="topRecord">Record</button>
+    <button class="menu-button" id="topMIDI">MIDI</button>
+    <button class="menu-button" id="topContextHelp">Context</button>
+    <div class="workspace-tabs">
+      <span class="active">Default</span>
+      <span>Learn</span>
+      <span>Standard</span>
+      <span>Small Screen</span>
+    </div>
+  </div>
+  <div class="tool-row">
+    <div class="top-group transport">
+      <button class="tool-btn icon" id="rewindBtn" title="先頭">↤</button>
+      <button class="tool-btn icon" id="playBtn" title="再生/停止">▶</button>
+      <button class="tool-btn" id="loopBtn">Loop</button>
+      <button class="tool-btn icon" id="undoBtn" title="Undo">↶</button>
+      <button class="tool-btn icon" id="redoBtn" title="Redo">↷</button>
+    </div>
+    <div class="top-group">
+      <button class="tool-btn" id="sceneABtn">A</button>
+      <button class="tool-btn" id="sceneBBtn">B</button>
+      <span class="top-label">XFade</span>
+      <input type="range" id="crossfader" min="0" max="1" step="0.001" value="0">
+    </div>
+    <div class="top-group">
+      <select id="topEffectSelect"><option value="">Effects & Presets</option></select>
+      <button class="tool-btn" id="topAddEffect">＋</button>
+      <button class="tool-btn" id="topParticles">Particles</button>
+      <button class="tool-btn" id="topFxAllOff">FX Off</button>
+    </div>
+    <div class="top-group">
+      <span class="top-label">BPM</span>
+      <input type="number" id="bpmInput" min="20" max="300" step="0.5" value="120">
+      <button class="tool-btn" id="tapBpm">tap</button>
+      <input type="range" id="beatBar" min="0" max="1" step="0.001" value="0" disabled>
+    </div>
+    <div class="top-group">
+      <button class="tool-btn" id="presetSave">保存</button>
+      <button class="tool-btn" id="presetLoad">読込</button>
+      <button class="tool-btn primary" id="presetRand">ランダム</button>
+      <button class="tool-btn" id="presetClear">クリア</button>
+      <input type="file" id="presetFile" accept="application/json" style="display:none;">
+    </div>
+    <div class="top-group">
+      <button class="tool-btn" id="topMic">Mic</button>
+      <button class="tool-btn" id="topAudioFile">Audio</button>
+      <button class="tool-btn" id="topDemo">Demo</button>
+      <button class="tool-btn" id="topMediaPlay">Media Play</button>
+    </div>
+    <div class="top-group">
+      <span id="timecode">00:00.0</span>
+      <button class="tool-btn" id="recBtn">● 録画</button>
+      <button class="tool-btn" id="snapBtn">PNG</button>
+      <button class="tool-btn" id="fsBtn">全画面</button>
+      <button class="tool-btn" id="hidePanelBtn">Panels</button>
+    </div>
+  </div>
+</header>
+
+<aside id="left">
+  <div class="panel-head">
+    <div class="panel-title">Project</div>
+    <div id="fxStatus"></div>
+  </div>
+  <div class="panel-scroll">
+    <div class="section">
+      <h3>素材</h3>
+      <input type="file" id="fileInput" accept="image/*,video/*">
+      <div class="row" style="margin-top:6px;">
+        <button id="useDemo">デモ映像</button>
+        <button id="playPause">再生/停止</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>解像度</h3>
+      <div class="row">
+        <label>scale</label>
+        <input type="range" id="resScale" min="0.25" max="1" step="0.05" value="1">
+        <span class="v" id="resScaleV">1.00</span>
+      </div>
+      <div class="note">重い場合は下げる</div>
+    </div>
+
+    <div class="section">
+      <h3>音声</h3>
+      <div class="toolbar">
+        <button id="micBtn">マイク</button>
+      </div>
+      <input type="file" id="audioFile" accept="audio/*" style="margin-top:6px;">
+      <div class="row">
+        <label>level</label>
+        <input type="range" id="audioBar" min="0" max="1" step="0.001" value="0" disabled>
+      </div>
+      <div class="row">
+        <label>感度</label>
+        <input type="range" id="audioGain" min="0.5" max="6" step="0.1" value="2">
+        <span class="v" id="audioGainV">2.0</span>
+      </div>
+      <hr>
+      <div class="row">
+        <label>FFT Hz</label>
+        <input type="number" id="fftFreq" min="20" max="16000" step="1" value="80">
+        <span class="v" id="fftFreqV">80</span>
+      </div>
+      <div class="row">
+        <label>width</label>
+        <input type="range" id="fftWidth" min="10" max="2000" step="10" value="90">
+        <span class="v" id="fftWidthV">90</span>
+      </div>
+      <div class="row">
+        <label>threshold</label>
+        <input type="range" id="fftThreshold" min="0" max="1" step="0.001" value="0.45">
+        <span class="v" id="fftThresholdV">0.45</span>
+      </div>
+      <div class="row">
+        <label>edge</label>
+        <select id="fftEdge">
+          <option value="rise">rise</option>
+          <option value="fall">fall</option>
+          <option value="both">both</option>
+        </select>
+        <span class="v" id="fftGateState">off</span>
+      </div>
+      <div class="row">
+        <label>band</label>
+        <input type="range" id="fftBandBar" min="0" max="1" step="0.001" value="0" disabled>
+      </div>
+      <div class="row">
+        <label>trigger</label>
+        <input type="range" id="fftTriggerBar" min="0" max="1" step="0.001" value="0" disabled>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>MIDI</h3>
+      <div class="toolbar">
+        <button id="midiEnableBtn">MIDI ON</button>
+        <button id="midiClearLearn">Learn off</button>
+      </div>
+      <div class="note" id="midiStatus">not connected</div>
+      <div id="midiBindings" class="midi-bindings"></div>
+    </div>
+
+    <div class="section">
+      <h3>エフェクト</h3>
+      <div class="toolbar" style="margin-bottom:8px;">
+        <button id="fxAllOff">全OFF</button>
+        <button id="fxExpandAll">全展開</button>
+        <button id="fxCollapseAll">全折畳</button>
+      </div>
+      <div id="effectList"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="panel-resizer" id="resizeLeft"></div>
+
+<main id="center">
+  <div id="viewWrap"><canvas id="view" width="1280" height="720"></canvas></div>
+  <div id="hud"></div>
+  <div id="previewControls">
+    <button class="pc-btn" id="pcRewind" title="先頭 (Home)">⏮</button>
+    <button class="pc-btn" id="pcStepBack" title="-1f (←)">◀</button>
+    <button class="pc-btn pc-play" id="pcPlay" title="再生 / 停止 (Space)">▶</button>
+    <button class="pc-btn" id="pcStepFwd" title="+1f (→)">▶</button>
+    <button class="pc-btn" id="pcEnd" title="末尾 (End)">⏭</button>
+    <button class="pc-btn" id="pcLoop" title="ループ">⟲</button>
+    <button class="pc-btn" id="pcMarkIn" title="In (I)">[</button>
+    <button class="pc-btn" id="pcMarkOut" title="Out (O)">]</button>
+    <span class="pc-time" id="pcTimecode">00:00.0 / 00:08.0</span>
+    <div class="pc-seek-wrap">
+      <div class="pc-seek-track" id="pcSeekTrack">
+        <div class="pc-seek-loop" id="pcSeekLoop"></div>
+        <div class="pc-seek-fill" id="pcSeekFill"></div>
+        <div class="pc-seek-thumb" id="pcSeekThumb"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="panel-resizer" id="resizeRight"></div>
+
+<aside id="right">
+  <div class="panel-head">
+    <div class="panel-title">Info</div>
+    <div id="fpsInfo">FPS -</div>
+  </div>
+  <div class="right-stack">
+    <details class="side-panel" open>
+      <summary>Info</summary>
+      <div class="side-panel-body side-kv" id="infoPanel">
+        <span>Scene</span><span>A</span>
+        <span>Time</span><span>00:00.0</span>
+        <span>Audio</span><span>0.00</span>
+        <span>FFT</span><span>0.00</span>
+      </div>
+    </details>
+    <details class="side-panel">
+      <summary>Audio</summary>
+      <div class="side-panel-body">
+        <div class="toolbar">
+          <button id="rightMicBtn">Mic</button>
+          <button id="rightAudioBtn">Audio File</button>
+          <button id="rightMidiBtn">MIDI</button>
+        </div>
+      </div>
+    </details>
+    <details class="side-panel">
+      <summary>Preview</summary>
+      <div class="side-panel-body">
+        <div class="toolbar">
+          <button id="rightPlayBtn">Play</button>
+          <button id="rightPngBtn">PNG</button>
+          <button id="rightFsBtn">Fullscreen</button>
+        </div>
+      </div>
+    </details>
+    <details class="side-panel" open>
+      <summary>Effects & Presets</summary>
+      <div class="side-panel-body">
+        <div class="toolbar">
+          <button id="rightParticlesBtn">Particles</button>
+          <button id="rightRandomBtn">Random</button>
+          <button id="rightSaveBtn">Save</button>
+          <button id="rightLoadBtn">Load</button>
+        </div>
+      </div>
+    </details>
+    <details class="side-panel" open>
+      <summary>Effect Controls</summary>
+      <div class="panel-scroll" id="selectedPanel"></div>
+    </details>
+  </div>
+</aside>
+
+<div class="panel-resizer" id="resizeBottom"></div>
+
+<section id="bottom">
+  <div class="panel-head">
+    <div class="panel-title">Timeline</div>
+    <div id="timelineSummary"></div>
+    <div id="recInfo" style="color:#888f9d; font-size:11px;">stop</div>
+  </div>
+  <div class="timeline-controls">
+    <label>duration <input type="number" id="durationInput" min="4" max="60" step="1" value="8"></label>
+    <label>mode
+      <select id="timeModeSelect">
+        <option value="sec">sec</option>
+        <option value="beat">beat</option>
+      </select>
+    </label>
+    <label>snap
+      <select id="snapSelect">
+        <option value="none">off</option>
+        <option value="beat">1拍</option>
+        <option value="half">半拍</option>
+        <option value="eighth">8分</option>
+      </select>
+    </label>
+    <label>In <input type="number" id="inPointInput" min="0" max="60" step="0.01" value="0"></label>
+    <label>Out <input type="number" id="outPointInput" min="0" max="60" step="0.01" value="8"></label>
+  </div>
+  <div class="timeline-head">
+    <div class="th-spacer">
+      <button class="zoom-btn" id="zoomOutBtn" title="ズームアウト (-)">−</button>
+      <button class="zoom-btn" id="zoomInBtn" title="ズームイン (+)">＋</button>
+      <button class="zoom-btn" id="zoomResetBtn" title="ズームリセット (\\)">⤧</button>
+      <span class="zoom-readout" id="zoomReadout">x1.0</span>
+    </div>
+    <div class="th-track" id="thTrack">
+      <div class="timeline-ruler"></div>
+      <div class="timeline-wave" id="timelineWave">
+        <span class="wave-name" id="waveName"></span>
+        <canvas id="waveCanvas"></canvas>
+      </div>
+      <div class="playhead" id="playhead"></div>
+    </div>
+  </div>
+  <div id="timelineList"></div>
+  <div class="timeline-scrollbar" id="timelineScrollbar">
+    <div class="sb-spacer"></div>
+    <div class="sb-track" id="sbTrack"><div class="sb-thumb" id="sbThumb"></div></div>
+  </div>
+</section>
+
+<div id="contextMenu" class="context-menu" role="menu"></div>
+</div>
+
+<script>
+'use strict';
+(function(){
+
+// ===================================================================
+// SHADER LIBRARY HEADER (prepended to every effect frag)
+// ===================================================================
+const SHADER_HEADER = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_tex;
+uniform sampler2D u_prev;
+uniform vec2 u_res;
+uniform float u_time;
+uniform float u_beat;
+uniform float u_audio;
+uniform float u_freq;
+uniform float u_trigger;
+uniform float u_amount;
+uniform float u_speed;
+uniform float u_mix;
+uniform float u_p1;
+uniform float u_p2;
+uniform float u_p3;
+uniform float u_p4;
+uniform float u_p5;
+uniform float u_p6;
+uniform float u_p7;
+uniform float u_p8;
+uniform vec3 u_colorA;
+uniform vec3 u_colorB;
+
+vec3 rgb2hsv(vec3 c){
+  vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  float e = 1.0e-10;
+  return vec3(abs(q.z + (q.w - q.y) / (6.0*d + e)), d / (q.x + e), q.x);
+}
+vec3 hsv2rgb(vec3 c){
+  vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+float hash11(float p){ return fract(sin(p*78.233)*43758.5453); }
+float hash12(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  float a = hash12(i), b = hash12(i+vec2(1,0)),
+        c = hash12(i+vec2(0,1)), d = hash12(i+vec2(1,1));
+  vec2 u = f*f*(3.0-2.0*f);
+  return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+}
+vec4 sampleEdge(vec2 uv){ return texture2D(u_tex, clamp(uv, 0.001, 0.999)); }
+`;
+
+const VERT = `
+attribute vec2 a_pos;
+varying vec2 v_uv;
+void main(){
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+const COPY_FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_tex;
+void main(){ gl_FragColor = texture2D(u_tex, v_uv); }`;
+
+const BLEND_FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_texA;
+uniform sampler2D u_texB;
+uniform float u_mix;
+void main(){
+  gl_FragColor = mix(texture2D(u_texA, v_uv), texture2D(u_texB, v_uv), u_mix);
+}`;
+
+// ===================================================================
+// EFFECT DEFINITIONS
+// ===================================================================
+// st: 'full' = full WebGL, 'lite' = simplified, 'mon' = monitor only
+// extras: [{key,label,min,max,def,type}] map to u_p1..u_p8 (8 numeric max)
+// defaults: { amount, speed, mix, bpmSync, audioReactive, ...extras }
+// ===================================================================
+
+const EFFECTS = [
+// 1
+{id:'zoom', name:'01 ズーム', st:'full',
+ def:{amount:0.3, mix:1},
+ frag:`
+  float s = 1.0 + (u_amount-0.5) * 4.0;
+  vec2 uv = (v_uv - vec2(0.5+(u_p1-0.5)*0.5, 0.5+(u_p2-0.5)*0.5)) / s + 0.5;
+  gl_FragColor = mix(texture2D(u_tex,v_uv), sampleEdge(uv), u_mix);`,
+ extras:[
+   {key:'cx',label:'centerX',min:0,max:1,def:0.5},
+   {key:'cy',label:'centerY',min:0,max:1,def:0.5}
+ ]},
+// 2
+{id:'pan', name:'02 パン', st:'full',
+ def:{amount:0.3, speed:0.3, mix:1},
+ frag:`
+  vec2 dir = vec2((u_p1-0.5)*2.0, (u_p2-0.5)*2.0);
+  vec2 uv = v_uv - dir * u_amount + dir * u_time * u_speed * 0.2;
+  uv = fract(uv);
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex, uv), u_mix);`,
+ extras:[
+   {key:'dx',label:'dirX',min:0,max:1,def:0.7},
+   {key:'dy',label:'dirY',min:0,max:1,def:0.5}
+ ]},
+// 3
+{id:'crop', name:'03 クロップ', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  vec2 c = (v_uv - 0.5) * (1.0 - u_amount*0.95) + 0.5;
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex, c), u_mix);`,
+ extras:[]},
+// 4
+{id:'rotate', name:'04 回転', st:'full',
+ def:{amount:0.5, speed:0, mix:1},
+ frag:`
+  float a = (u_amount-0.5) * 6.2832 + u_time * u_speed * 2.0;
+  vec2 c = v_uv - 0.5;
+  mat2 R = mat2(cos(a), -sin(a), sin(a), cos(a));
+  vec2 uv = R * c + 0.5;
+  gl_FragColor = mix(texture2D(u_tex,v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 5
+{id:'mirror', name:'05 ミラー', st:'full',
+ def:{amount:1, mix:1},
+ frag:`
+  vec2 uv = v_uv;
+  if (u_p1 > 0.5) uv.x = uv.x < 0.5 ? uv.x : 1.0 - uv.x;
+  if (u_p2 > 0.5) uv.y = uv.y < 0.5 ? uv.y : 1.0 - uv.y;
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex,uv), u_mix);`,
+ extras:[
+   {key:'mx',label:'X反転',min:0,max:1,def:1},
+   {key:'my',label:'Y反転',min:0,max:1,def:0}
+ ]},
+// 6
+{id:'tile', name:'06 タイル', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  float n = floor(2.0 + u_amount * 14.0);
+  vec2 uv = fract(v_uv * n);
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex,uv), u_mix);`,
+ extras:[]},
+// 7
+{id:'kaleido', name:'07 万華鏡', st:'full',
+ def:{amount:0.5, speed:0.2, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  float r = length(c);
+  float a = atan(c.y, c.x);
+  float n = floor(3.0 + u_amount * 10.0);
+  float seg = 6.2832 / n;
+  a = mod(a + u_time * u_speed * 0.6, seg);
+  a = abs(a - seg*0.5);
+  vec2 uv = vec2(cos(a), sin(a)) * r + 0.5;
+  gl_FragColor = mix(texture2D(u_tex,v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 8
+{id:'split', name:'08 スプリット', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  float n = floor(2.0 + u_amount * 5.0);
+  vec2 uv = vec2(fract(v_uv.x * n), v_uv.y);
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex,uv), u_mix);`,
+ extras:[]},
+// 9
+{id:'pip', name:'09 PiP', st:'full',
+ def:{amount:0.3, mix:1},
+ frag:`
+  vec4 base = texture2D(u_tex, v_uv);
+  float s = 0.1 + u_amount * 0.4;
+  vec2 box = (v_uv - vec2(u_p1, u_p2)) / s + 0.5;
+  vec4 col = base;
+  if (box.x > 0.0 && box.x < 1.0 && box.y > 0.0 && box.y < 1.0) {
+    col = mix(base, texture2D(u_tex, box), u_mix);
+    if (box.x < 0.01 || box.x > 0.99 || box.y < 0.01 || box.y > 0.99)
+      col = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+  gl_FragColor = col;`,
+ extras:[
+   {key:'px',label:'posX',min:0,max:1,def:0.75},
+   {key:'py',label:'posY',min:0,max:1,def:0.75}
+ ]},
+// 10
+{id:'wrapscroll', name:'10 ラップスクロール', st:'full',
+ def:{amount:0.5, speed:0.5, mix:1},
+ frag:`
+  vec2 d = vec2((u_p1-0.5)*2.0, (u_p2-0.5)*2.0);
+  vec2 uv = fract(v_uv + d * u_time * u_speed * 0.5);
+  gl_FragColor = mix(texture2D(u_tex,v_uv), texture2D(u_tex, uv), u_mix);`,
+ extras:[
+   {key:'dx',label:'dirX',min:0,max:1,def:1},
+   {key:'dy',label:'dirY',min:0,max:1,def:0.5}
+ ]},
+// 11
+{id:'hue', name:'11 色相回転', st:'full',
+ def:{amount:0.5, speed:0, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec3 h = rgb2hsv(c.rgb);
+  h.x = fract(h.x + (u_amount-0.5) + u_time*u_speed*0.2);
+  gl_FragColor = vec4(mix(c.rgb, hsv2rgb(h), u_mix), c.a);`,
+ extras:[]},
+// 12
+{id:'sat', name:'12 彩度', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+  vec3 r = mix(vec3(l), c.rgb, u_amount * 2.0);
+  gl_FragColor = vec4(mix(c.rgb, r, u_mix), c.a);`,
+ extras:[]},
+// 13
+{id:'contrast', name:'13 コントラスト', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float k = (u_amount - 0.5) * 3.0 + 1.0;
+  vec3 r = (c.rgb - 0.5) * k + 0.5;
+  gl_FragColor = vec4(mix(c.rgb, r, u_mix), c.a);`,
+ extras:[]},
+// 14
+{id:'bright', name:'14 明るさ', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec3 r = c.rgb + (u_amount - 0.5) * 1.5;
+  gl_FragColor = vec4(mix(c.rgb, clamp(r, 0.0, 1.5), u_mix), c.a);`,
+ extras:[]},
+// 15
+{id:'gamma', name:'15 ガンマ', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float g = u_amount < 0.5
+    ? mix(0.3, 1.0, u_amount * 2.0)
+    : mix(1.0, 3.0, (u_amount - 0.5) * 2.0);
+  vec3 r = pow(max(c.rgb, vec3(0.0)), vec3(1.0/g));
+  gl_FragColor = vec4(mix(c.rgb, r, u_mix), c.a);`,
+ extras:[]},
+// 16
+{id:'invert', name:'16 反転', st:'full',
+ def:{amount:1, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  gl_FragColor = vec4(mix(c.rgb, 1.0 - c.rgb, u_amount * u_mix), c.a);`,
+ extras:[]},
+// 17
+{id:'mono', name:'17 モノクロ', st:'full',
+ def:{amount:1, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+  gl_FragColor = vec4(mix(c.rgb, vec3(l), u_amount * u_mix), c.a);`,
+ extras:[]},
+// 18
+{id:'gradmap', name:'18 グラデーションマップ', st:'full',
+ def:{amount:0.7, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+  vec3 g = mix(u_colorA, u_colorB, smoothstep(0.0, 1.0, l));
+  gl_FragColor = vec4(mix(c.rgb, g, u_amount * u_mix), c.a);`,
+ extras:[
+   {key:'cA',label:'colorA',min:0,max:1,def:'#1a0633',type:'color'},
+   {key:'cB',label:'colorB',min:0,max:1,def:'#ffaa44',type:'color'}
+ ]},
+// 19
+{id:'poster', name:'19 ポスタライズ', st:'full',
+ def:{amount:0.6, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float n = floor(2.0 + (1.0 - u_amount) * 14.0);
+  vec3 r = floor(c.rgb * n) / n;
+  gl_FragColor = vec4(mix(c.rgb, r, u_mix), c.a);`,
+ extras:[]},
+// 20
+{id:'lut', name:'20 LUT風', st:'lite',
+ def:{amount:0.6, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+  vec3 sh = u_colorA;
+  vec3 hi = u_colorB;
+  vec3 tinted = c.rgb * mix(sh*2.0, hi*2.0, smoothstep(0.0, 1.0, l));
+  gl_FragColor = vec4(mix(c.rgb, clamp(tinted, 0.0, 2.0), u_amount * u_mix), c.a);`,
+ extras:[
+   {key:'cA',label:'シャドウ',min:0,max:1,def:'#3355aa',type:'color'},
+   {key:'cB',label:'ハイライト',min:0,max:1,def:'#ffcc88',type:'color'}
+ ]},
+// 21
+{id:'glow', name:'21 グロー', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec3 acc = vec3(0.0);
+  float thr = 0.4;
+  float r = 2.0 + u_amount * 4.0;
+  for (int j = -3; j <= 3; j++) {
+    for (int i = -3; i <= 3; i++) {
+      vec2 o = vec2(float(i), float(j)) * r / u_res;
+      vec3 s = texture2D(u_tex, v_uv + o).rgb;
+      float l = max(max(s.r, s.g), s.b);
+      acc += s * smoothstep(thr, 1.0, l);
+    }
+  }
+  acc /= 49.0;
+  gl_FragColor = vec4(c.rgb + acc * u_amount * 5.0 * u_mix, c.a);`,
+ extras:[]},
+// 22
+{id:'edgeglow', name:'22 エッジグロウ', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec2 px = 1.0 / u_res;
+  vec3 a = texture2D(u_tex, v_uv + vec2(px.x,0)).rgb;
+  vec3 b = texture2D(u_tex, v_uv - vec2(px.x,0)).rgb;
+  vec3 cc= texture2D(u_tex, v_uv + vec2(0,px.y)).rgb;
+  vec3 d = texture2D(u_tex, v_uv - vec2(0,px.y)).rgb;
+  vec3 e = abs(a-b) + abs(cc-d);
+  vec3 col = mix(c.rgb, c.rgb + e * 4.0, u_amount * u_mix);
+  gl_FragColor = vec4(col, c.a);`,
+ extras:[]},
+// 23
+{id:'bloom', name:'23 ブルーム', st:'lite',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec3 acc = vec3(0.0);
+  float r = 4.0 + u_amount * 8.0;
+  for (int j = -2; j <= 2; j++) {
+    for (int i = -2; i <= 2; i++) {
+      vec2 o = vec2(float(i), float(j)) * r / u_res;
+      vec3 s = texture2D(u_tex, v_uv + o).rgb;
+      float l = max(max(s.r, s.g), s.b);
+      acc += s * max(l - 0.5, 0.0) * 2.0;
+    }
+  }
+  acc /= 25.0;
+  gl_FragColor = vec4(c.rgb + acc * u_amount * 3.0 * u_mix, c.a);`,
+ extras:[]},
+// 24
+{id:'flare', name:'24 レンズフレア', st:'lite',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec2 fp = vec2(u_p1, u_p2);
+  vec2 d = v_uv - fp;
+  float ar = u_res.x / u_res.y;
+  d.x *= ar;
+  float core = exp(-length(d) * 6.0);
+  float halo = exp(-abs(length(d) - 0.25) * 25.0) * 0.5;
+  float ghost = 0.0;
+  for (int i = 1; i < 5; i++) {
+    vec2 g = mix(fp, vec2(0.5), float(i) * 0.25) - v_uv;
+    g.x *= ar;
+    ghost += exp(-length(g) * 30.0) * 0.4;
+  }
+  vec3 add = vec3(1.0, 0.85, 0.55) * (core + halo + ghost);
+  gl_FragColor = vec4(c.rgb + add * u_amount * 1.2 * u_mix, c.a);`,
+ extras:[
+   {key:'fx',label:'X',min:0,max:1,def:0.7},
+   {key:'fy',label:'Y',min:0,max:1,def:0.3}
+ ]},
+// 25
+{id:'leak', name:'25 ライトリーク', st:'lite',
+ def:{amount:0.5, speed:0.2, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float n1 = vnoise(v_uv * 2.0 + u_time * u_speed * 0.3);
+  float n2 = vnoise(v_uv * 4.0 - u_time * u_speed * 0.2 + 30.0);
+  float l = smoothstep(0.4, 0.9, n1*0.6 + n2*0.4);
+  vec3 add = u_colorA * l * u_amount * 1.5;
+  gl_FragColor = vec4(c.rgb + add * u_mix, c.a);`,
+ extras:[
+   {key:'cA',label:'tint',min:0,max:1,def:'#ffaa55',type:'color'}
+ ]},
+// 26
+{id:'vignette', name:'26 ビネット', st:'full',
+ def:{amount:0.6, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float d = length(v_uv - 0.5);
+  float v = smoothstep(0.85, 0.25, d * (1.0 + u_amount));
+  gl_FragColor = vec4(mix(c.rgb, c.rgb * v, u_mix), c.a);`,
+ extras:[]},
+// 27
+{id:'strobe', name:'27 ストロボ', st:'full',
+ def:{amount:0.7, speed:0.5, mix:1, bpmSync:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float div = floor(1.0 + u_speed * 7.0);
+  float ph = fract(u_beat * div);
+  float dark = step(0.5, ph) * u_amount;
+  gl_FragColor = vec4(mix(c.rgb, c.rgb * (1.0 - dark), u_mix), c.a);`,
+ extras:[]},
+// 28
+{id:'flash', name:'28 フラッシュ', st:'full',
+ def:{amount:0.7, mix:1, bpmSync:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float f = pow(1.0 - fract(u_beat), 5.0) * u_amount;
+  vec3 r = c.rgb + vec3(f);
+  gl_FragColor = vec4(mix(c.rgb, r, u_mix), c.a);`,
+ extras:[]},
+// 29
+{id:'gblur', name:'29 ガウスブラー', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  vec4 acc = vec4(0.0);
+  float total = 0.0;
+  float r = 0.5 + u_amount * 6.0;
+  for (int j = -3; j <= 3; j++) {
+    for (int i = -3; i <= 3; i++) {
+      vec2 o = vec2(float(i), float(j)) * r / u_res;
+      float w = exp(-(float(i*i + j*j)) / 6.0);
+      acc += texture2D(u_tex, v_uv + o) * w;
+      total += w;
+    }
+  }
+  gl_FragColor = mix(texture2D(u_tex, v_uv), acc / total, u_mix);`,
+ extras:[]},
+// 30
+{id:'mblur', name:'30 モーションブラー', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  float a = u_p1 * 6.2832;
+  vec2 dir = vec2(cos(a), sin(a)) * u_amount * 0.05;
+  vec4 acc = vec4(0.0);
+  for (int i = 0; i < 8; i++) {
+    float t = (float(i) - 3.5) / 8.0;
+    acc += texture2D(u_tex, v_uv + dir * t);
+  }
+  gl_FragColor = mix(texture2D(u_tex, v_uv), acc / 8.0, u_mix);`,
+ extras:[
+   {key:'ang',label:'angle',min:0,max:1,def:0}
+ ]},
+// 31
+{id:'rblur', name:'31 ラジアルブラー', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  vec4 acc = vec4(0.0);
+  for (int i = 0; i < 8; i++) {
+    float t = float(i) / 8.0 * 6.2832 * u_amount * 0.04;
+    mat2 R = mat2(cos(t), -sin(t), sin(t), cos(t));
+    acc += texture2D(u_tex, R*c + 0.5);
+  }
+  gl_FragColor = mix(texture2D(u_tex, v_uv), acc / 8.0, u_mix);`,
+ extras:[]},
+// 32
+{id:'zblur', name:'32 ズームブラー', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  vec4 acc = vec4(0.0);
+  for (int i = 0; i < 10; i++) {
+    float s = 1.0 + (float(i)/10.0 - 0.5) * u_amount * 0.4;
+    acc += texture2D(u_tex, c*s + 0.5);
+  }
+  gl_FragColor = mix(texture2D(u_tex, v_uv), acc / 10.0, u_mix);`,
+ extras:[]},
+// 33
+{id:'wave', name:'33 波形歪み', st:'full',
+ def:{amount:0.4, speed:0.5, mix:1},
+ frag:`
+  vec2 uv = v_uv;
+  uv.x += sin(uv.y * (10.0 + u_p1*40.0) + u_time * u_speed * 4.0) * u_amount * 0.05;
+  uv.y += cos(uv.x * (10.0 + u_p1*40.0) + u_time * u_speed * 4.0) * u_amount * 0.05;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(uv), u_mix);`,
+ extras:[
+   {key:'fr',label:'freq',min:0,max:1,def:0.4}
+ ]},
+// 34
+{id:'lensd', name:'34 レンズ歪み', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  float r2 = dot(c, c);
+  vec2 uv = c * (1.0 + (u_amount - 0.5) * 3.0 * r2) + 0.5;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 35
+{id:'swirl', name:'35 渦巻き', st:'full',
+ def:{amount:0.5, speed:0.2, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  float r = length(c);
+  float a = atan(c.y, c.x) + (1.0 - r*2.0) * (u_amount-0.5) * 12.0 + u_time * u_speed;
+  vec2 uv = vec2(cos(a), sin(a)) * r + 0.5;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 36
+{id:'noisedisp', name:'36 ノイズディスプレイス', st:'full',
+ def:{amount:0.4, speed:0.4, mix:1},
+ frag:`
+  float n1 = vnoise(v_uv * 6.0 + u_time * u_speed * 0.7);
+  float n2 = vnoise(v_uv * 6.0 + 70.0 + u_time * u_speed * 0.7);
+  vec2 uv = v_uv + (vec2(n1, n2) - 0.5) * u_amount * 0.15;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 37
+{id:'liquify', name:'37 液状化ワープ', st:'lite',
+ def:{amount:0.4, speed:0.3, mix:1},
+ frag:`
+  vec2 uv = v_uv;
+  float t = u_time * u_speed;
+  float a = sin(uv.x * 5.0 + t) + cos(uv.y * 5.0 + t * 1.3);
+  uv.x += sin(a * 3.14159) * u_amount * 0.06;
+  uv.y += cos(a * 3.14159 + 1.0) * u_amount * 0.06;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(uv), u_mix);`,
+ extras:[]},
+// 38
+{id:'shake', name:'38 画面シェイク', st:'full',
+ def:{amount:0.4, speed:0.5, mix:1},
+ frag:`
+  float t = floor(u_time * (5.0 + u_speed * 60.0));
+  vec2 sh = (vec2(hash11(t), hash11(t + 7.3)) - 0.5) * u_amount * 0.12;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), sampleEdge(v_uv + sh), u_mix);`,
+ extras:[]},
+// 39
+{id:'rgbshift', name:'39 RGBシフト', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  float a = u_p1 * 6.2832;
+  vec2 d = vec2(cos(a), sin(a)) * u_amount * 0.03;
+  vec4 c = texture2D(u_tex, v_uv);
+  float r = texture2D(u_tex, v_uv + d).r;
+  float g = texture2D(u_tex, v_uv).g;
+  float b = texture2D(u_tex, v_uv - d).b;
+  gl_FragColor = vec4(mix(c.rgb, vec3(r,g,b), u_mix), c.a);`,
+ extras:[
+   {key:'ang',label:'angle',min:0,max:1,def:0}
+ ]},
+// 40
+{id:'chroma', name:'40 色収差', st:'full',
+ def:{amount:0.4, mix:1},
+ frag:`
+  vec2 c = v_uv - 0.5;
+  vec2 d = c * u_amount * 0.08;
+  vec4 col = texture2D(u_tex, v_uv);
+  float r = texture2D(u_tex, v_uv + d).r;
+  float g = texture2D(u_tex, v_uv).g;
+  float b = texture2D(u_tex, v_uv - d).b;
+  gl_FragColor = vec4(mix(col.rgb, vec3(r, g, b), u_mix), col.a);`,
+ extras:[]},
+// 41
+{id:'glitch', name:'41 グリッチ', st:'lite',
+ def:{amount:0.4, speed:0.5, mix:1},
+ frag:`
+  vec2 uv = v_uv;
+  float t = floor(u_time * (1.0 + u_speed * 8.0));
+  float row = floor(uv.y * 30.0);
+  float r = hash12(vec2(row, t));
+  float thr = 1.0 - u_amount * 0.6;
+  float push = step(thr, r) * (hash12(vec2(row*1.5, t)) - 0.5) * u_amount * 0.6;
+  uv.x += push;
+  vec3 col;
+  col.r = texture2D(u_tex, uv + vec2(u_amount*0.01, 0)).r;
+  col.g = texture2D(u_tex, uv).g;
+  col.b = texture2D(u_tex, uv - vec2(u_amount*0.01, 0)).b;
+  gl_FragColor = vec4(mix(texture2D(u_tex,v_uv).rgb, col, u_mix), 1.0);`,
+ extras:[]},
+// 42
+{id:'slice', name:'42 スライスずれ', st:'lite',
+ def:{amount:0.4, speed:0.4, mix:1},
+ frag:`
+  float row = floor(v_uv.y * (10.0 + u_amount * 40.0));
+  float t = floor(u_time * (1.0 + u_speed * 6.0));
+  float sh = (hash12(vec2(row, t)) - 0.5) * u_amount * 0.4;
+  vec2 uv = vec2(fract(v_uv.x + sh), v_uv.y);
+  gl_FragColor = mix(texture2D(u_tex, v_uv), texture2D(u_tex, uv), u_mix);`,
+ extras:[]},
+// 43
+{id:'block', name:'43 ブロックノイズ', st:'lite',
+ def:{amount:0.4, speed:0.4, mix:1},
+ frag:`
+  vec2 b = floor(v_uv * (8.0 + u_amount * 60.0));
+  float t = floor(u_time * (1.0 + u_speed * 6.0));
+  float r = hash12(b + t);
+  vec4 col = texture2D(u_tex, v_uv);
+  float thr = 1.0 - u_amount * 0.3;
+  if (r > thr) col.rgb = mix(col.rgb, vec3(r, hash12(b+t+1.0), hash12(b+t+2.0)), u_mix);
+  gl_FragColor = col;`,
+ extras:[]},
+// 44
+{id:'pixel', name:'44 ピクセル化', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  float n = floor(8.0 + (1.0 - u_amount) * 240.0);
+  vec2 uv = (floor(v_uv * n) + 0.5) / n;
+  gl_FragColor = mix(texture2D(u_tex, v_uv), texture2D(u_tex, uv), u_mix);`,
+ extras:[]},
+// 45
+{id:'scan', name:'45 スキャンライン', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float s = sin(v_uv.y * u_res.y * (0.5 + u_p1*2.0)) * 0.5 + 0.5;
+  s = mix(1.0, s, u_amount);
+  gl_FragColor = vec4(mix(c.rgb, c.rgb * s, u_mix), c.a);`,
+ extras:[
+   {key:'dens',label:'density',min:0,max:1,def:0.5}
+ ]},
+// 46
+{id:'grain', name:'46 フィルムグレイン', st:'full',
+ def:{amount:0.3, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float n = hash12(v_uv + fract(u_time)) - 0.5;
+  gl_FragColor = vec4(c.rgb + vec3(n) * u_amount * 0.6 * u_mix, c.a);`,
+ extras:[]},
+// 47
+{id:'vhs', name:'47 VHSノイズ', st:'lite',
+ def:{amount:0.4, speed:0.4, mix:1},
+ frag:`
+  vec2 uv = v_uv;
+  uv.x += sin(uv.y * 80.0 + u_time * u_speed * 4.0) * u_amount * 0.004;
+  float row = floor(uv.y * 200.0);
+  float t = floor(u_time * 20.0);
+  if (hash12(vec2(row, t)) > 0.97) uv.x += u_amount * 0.04;
+  float band = sin(uv.y * 4.0 + u_time * u_speed) * 0.5 + 0.5;
+  band = smoothstep(0.7, 0.95, band) * u_amount * 0.3;
+  vec3 col;
+  col.r = texture2D(u_tex, uv + vec2(u_amount*0.005, 0)).r;
+  col.g = texture2D(u_tex, uv).g;
+  col.b = texture2D(u_tex, uv - vec2(u_amount*0.005, 0)).b;
+  col += band;
+  float n = (hash12(v_uv + fract(u_time)) - 0.5) * u_amount * 0.25;
+  col += n;
+  float sl = sin(v_uv.y * u_res.y) * 0.5 + 0.5;
+  col *= mix(1.0, sl, u_amount * 0.4);
+  gl_FragColor = vec4(mix(texture2D(u_tex, v_uv).rgb, col, u_mix), 1.0);`,
+ extras:[]},
+// 48
+{id:'trail', name:'48 残像 / トレイル', st:'full',
+ def:{amount:0.5, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  vec4 prev = texture2D(u_prev, v_uv);
+  float decay = 1.0 - (1.0 - u_amount) * 0.4 - 0.04;
+  vec4 r = max(c, prev * decay);
+  gl_FragColor = mix(c, r, u_mix);`,
+ extras:[]},
+// 49
+{id:'feedback', name:'49 フィードバック', st:'full',
+ def:{amount:0.5, speed:0.2, mix:1},
+ frag:`
+  vec4 c = texture2D(u_tex, v_uv);
+  float z = 1.0 + (u_amount - 0.5) * 0.15;
+  float a = u_time * u_speed * 0.3;
+  vec2 uv = (v_uv - 0.5);
+  uv = mat2(cos(a),-sin(a),sin(a),cos(a)) * uv / z + 0.5;
+  vec4 prev = texture2D(u_prev, uv) * (0.85 + u_amount * 0.13);
+  vec4 r = max(c, prev);
+  gl_FragColor = mix(c, r, u_mix);`,
+ extras:[]},
+// 50
+{id:'audiobpm', name:'50 BPM / 音量連動', st:'mon',
+  def:{amount:1, mix:1},
+  frag:`gl_FragColor = texture2D(u_tex, v_uv);`,
+  extras:[]},
+{id:'particles', name:'51 Particles', st:'full',
+ def:{amount:0.72, speed:0.45, mix:1, audioReactive:0.25, fftTrigger:0.65, density:0.58, size:0.34, spread:0.72, glow:0.7, spin:0.62, tunnel:0.55, streak:0.55, style:0.18, cA:'#00e5ff', cB:'#ff2bd6'},
+ frag:`
+  vec4 base = texture2D(u_tex, v_uv);
+  vec2 p = v_uv - 0.5;
+  p.x *= u_res.x / max(1.0, u_res.y);
+
+  float density = floor(10.0 + u_p1 * 86.0);
+  float size = mix(0.003, 0.035, u_p2) * (1.0 + u_trigger * (0.4 + u_p7 * 1.8));
+  float spread = mix(0.18, 1.85, u_p3);
+  float glow = mix(0.6, 6.5, u_p4);
+  float spin = (u_p5 - 0.5) * 2.0;
+  float tunnel = u_p6;
+  float streak = u_p7;
+  float style = u_p8;
+  float t = u_time * (0.18 + u_speed * 2.8);
+  float pulse = 1.0 + u_trigger * (1.0 + streak * 2.4) + u_freq * 0.5;
+  vec3 acc = vec3(0.0);
+
+  for (int i = 0; i < 88; i++) {
+    float fi = float(i);
+    float active = step(fi, density);
+    float seed = fi + 13.37;
+    float rnd = hash11(seed);
+    float rnd2 = hash11(seed + 19.0);
+    float z = fract(rnd2 - t * (0.035 + tunnel * 0.34 + u_trigger * 0.03));
+    float fade = smoothstep(0.0, 0.12, z) * (1.0 - smoothstep(0.88, 1.0, z));
+    float a = rnd * 6.2831853 + t * spin + sin(t * 0.7 + seed) * tunnel * 0.55;
+    vec2 dir = vec2(cos(a), sin(a));
+    float r = pow(z, mix(1.35, 0.42, tunnel)) * spread;
+    vec2 pos = dir * r;
+
+    if (style > 0.34 && style < 0.68) {
+      float gx = floor(hash11(seed + 3.0) * 16.0) - 7.5;
+      float gy = floor(hash11(seed + 4.0) * 10.0) - 4.5;
+      pos = vec2(gx / 7.5, gy / 4.5) * spread * vec2(0.82, 0.48);
+      pos += 0.025 * vec2(sin(t + seed), cos(t * 1.3 + seed));
+      dir = normalize(vec2(hash11(seed + 5.0) - 0.5, hash11(seed + 6.0) - 0.5) + 0.001);
+      fade = 0.45 + 0.55 * step(0.55, hash11(seed + floor(t * 3.0)));
+    } else if (style >= 0.68) {
+      float lanes = floor(5.0 + u_p1 * 18.0);
+      float lane = floor(hash11(seed + 7.0) * lanes);
+      float aa = lane / max(1.0, lanes) * 6.2831853 + t * spin * 0.25;
+      dir = vec2(cos(aa), sin(aa));
+      pos = dir * (0.08 + z * spread);
+      fade *= 1.0 - smoothstep(0.9, 1.35, length(pos));
+    }
+
+    vec2 rel = p - pos;
+    float d = length(rel);
+    float core = smoothstep(size, 0.0, d);
+    float halo = exp(-d / max(0.0005, size * glow)) * 0.08 * glow;
+    float along = dot(rel, dir);
+    float crossD = length(rel - dir * along);
+    float ray = smoothstep(size * 1.6, 0.0, crossD) *
+                smoothstep(size * (10.0 + 30.0 * streak), 0.0, abs(along)) * streak;
+    vec3 pc = mix(u_colorA, u_colorB, hash11(seed + 9.0));
+    acc += active * fade * pc * (core * 1.9 + halo + ray * 1.4);
+  }
+
+  float gridStyle = smoothstep(0.25, 0.42, style) * (1.0 - smoothstep(0.66, 0.82, style));
+  vec2 guv = v_uv * vec2(32.0, 18.0);
+  vec2 cell = floor(guv);
+  vec2 gf = abs(fract(guv) - 0.5);
+  float cellBlink = step(0.78 - u_amount * 0.16 - u_trigger * 0.18, hash12(cell + floor(t * 3.0)));
+  float gridLine = 1.0 - smoothstep(0.0, 0.035, min(gf.x, gf.y));
+  acc += mix(u_colorB, u_colorA, hash12(cell + 4.0)) * gridLine * cellBlink * gridStyle * (0.35 + glow * 0.08);
+
+  float ringStyle = smoothstep(0.62, 0.86, style);
+  float rad = length(p);
+  float ring = 1.0 - smoothstep(0.0, 0.014 + size * 0.4, abs(fract(rad * (8.0 + tunnel * 18.0) - t * 0.55) - 0.5));
+  acc += mix(u_colorA, u_colorB, rad) * ring * ringStyle * (0.22 + streak * 0.55);
+
+  vec3 result = base.rgb + acc * u_amount * pulse;
+  gl_FragColor = vec4(mix(base.rgb, result, u_mix), base.a);`,
+ extras:[
+   {key:'density',label:'density',min:0,max:1,def:0.58},
+   {key:'size',label:'size',min:0,max:1,def:0.34},
+   {key:'spread',label:'spread',min:0,max:1,def:0.72},
+   {key:'glow',label:'glow',min:0,max:1,def:0.7},
+   {key:'spin',label:'spin',min:0,max:1,def:0.62},
+   {key:'tunnel',label:'tunnel',min:0,max:1,def:0.55},
+   {key:'streak',label:'streak',min:0,max:1,def:0.55},
+   {key:'style',label:'style',min:0,max:1,def:0.18},
+   {key:'cA',label:'color A',type:'color',def:'#00e5ff'},
+   {key:'cB',label:'color B',type:'color',def:'#ff2bd6'}
+ ]}
+];
+
+const EFFECT_CATEGORIES = [
+  {key:'Generate', ids:['particles']},
+  {key:'Transform', ids:['zoom','pan','crop','rotate','mirror','tile','kaleido','split','pip','wrapscroll']},
+  {key:'Color', ids:['hue','sat','contrast','bright','gamma','invert','mono','gradmap','poster','lut']},
+  {key:'Light', ids:['glow','edgeglow','bloom','flare','leak','vignette','strobe','flash']},
+  {key:'Blur', ids:['gblur','mblur','rblur','zblur']},
+  {key:'Distort', ids:['wave','lensd','swirl','noisedisp','liquify','shake']},
+  {key:'Glitch', ids:['rgbshift','chroma','glitch','slice','block','pixel','scan','grain','vhs']},
+  {key:'Time', ids:['trail','feedback','audiobpm']}
+];
+const EFFECT_CATEGORY_BY_ID = {};
+EFFECT_CATEGORIES.forEach(cat => cat.ids.forEach(id => { EFFECT_CATEGORY_BY_ID[id] = cat.key; }));
+EFFECTS.forEach(e => { e.cat = EFFECT_CATEGORY_BY_ID[e.id] || 'Other'; });
+
+// ===================================================================
+// STATE
+// ===================================================================
+const state = {
+  source: { kind: 'demo', media: null, image: null, dirty: true },
+  scenes: [{layers: []}, {layers: []}],
+  activeScene: 0,
+  crossfader: 0,
+  get layers() { return this.scenes[this.activeScene].layers; },
+  set layers(v) { this.scenes[this.activeScene].layers = v; },
+  nextLayerSeq: 1,
+  bpm: 120,
+  beatPhase: 0,
+  comp: { duration: 8, timeMode: 'sec', inPoint: 0, outPoint: 8, loop: true, snap: 'none' },
+  play: { playing: true, time: 0, lastWall: performance.now() / 1000 },
+  audio: {
+    ctx: null, analyser: null, level: 0, gain: 2, source: null, kind: null,
+    freq: 80, freqWidth: 90, freqThreshold: 0.45, freqEdge: 'rise',
+    freqLevel: 0, freqGate: false, prevFreqGate: false,
+    triggerEnv: 0, triggerDecay: 0.18, lastPoll: performance.now() / 1000,
+    waveform: null
+  },
+  midi: {
+    access: null, enabled: false, learnTarget: null, bindings: [], nextBindingId: 1, status: 'not connected'
+  },
+  resScale: 1,
+  selectedLayerId: null,
+  selectedKey: null,
+  keyClipboard: null,
+  graphOpen: {},
+  pendingParamHistory: null,
+  history: { past: [], future: [] },
+  categoriesOpen: Object.fromEntries(EFFECT_CATEGORIES.map(cat => [cat.key, true])),
+  panels: { leftW: 280, rightW: 330, bottomH: 210 },
+  view: { zoom: 1, scroll: 0 },
+  recording: false,
+  recorder: null,
+  recChunks: [],
+  recStartTime: 0,
+  recMime: '',
+  recExt: 'webm',
+  recPrevLoop: true
+};
+
+// ===================================================================
+// WEBGL
+// ===================================================================
+const canvas = document.getElementById('view');
+const gl = canvas.getContext('webgl', {preserveDrawingBuffer: true, alpha: false, antialias: false}) ||
+           canvas.getContext('experimental-webgl');
+if (!gl) {
+  alert('WebGL が利用できません');
+  return;
+}
+
+function compile(type, src) {
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, src);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    console.error('shader err:', gl.getShaderInfoLog(sh), '\n', src);
+    gl.deleteShader(sh); return null;
+  }
+  return sh;
+}
+function makeProgram(vert, frag) {
+  const v = compile(gl.VERTEX_SHADER, vert);
+  const f = compile(gl.FRAGMENT_SHADER, frag);
+  if (!v || !f) return null;
+  const p = gl.createProgram();
+  gl.attachShader(p, v); gl.attachShader(p, f);
+  gl.bindAttribLocation(p, 0, 'a_pos');
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    console.error('prog err:', gl.getProgramInfoLog(p));
+    return null;
+  }
+  const u = {};
+  ['u_tex','u_prev','u_res','u_time','u_beat','u_audio','u_freq','u_trigger',
+   'u_amount','u_speed','u_mix','u_p1','u_p2','u_p3','u_p4','u_p5','u_p6','u_p7','u_p8',
+   'u_colorA','u_colorB'].forEach(n => u[n] = gl.getUniformLocation(p, n));
+  return { program: p, u };
+}
+
+// quad buffer
+const quad = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+
+// programs (lazy)
+const programs = {};
+function getProg(eff) {
+  if (programs[eff.id] === undefined) {
+    const full = SHADER_HEADER + '\nvoid main(){\n' + eff.frag + '\n}';
+    programs[eff.id] = makeProgram(VERT, full);
+  }
+  return programs[eff.id];
+}
+const copyProg = makeProgram(VERT, COPY_FRAG);
+const copyTexLoc = gl.getUniformLocation(copyProg.program, 'u_tex');
+const blendProg = makeProgram(VERT, BLEND_FRAG);
+const blendTexALoc = gl.getUniformLocation(blendProg.program, 'u_texA');
+const blendTexBLoc = gl.getUniformLocation(blendProg.program, 'u_texB');
+const blendMixLoc = gl.getUniformLocation(blendProg.program, 'u_mix');
+
+// FBOs
+function makeFBO(w, h) {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return { fbo, tex, w, h };
+}
+
+let fboA = null, fboB = null, fboPrev = null, fboSceneA = null, fboSceneB = null;
+function ensureFBOs(w, h) {
+  if (fboA && fboA.w === w && fboA.h === h) return;
+  if (fboA) { gl.deleteTexture(fboA.tex); gl.deleteFramebuffer(fboA.fbo); }
+  if (fboB) { gl.deleteTexture(fboB.tex); gl.deleteFramebuffer(fboB.fbo); }
+  if (fboPrev) { gl.deleteTexture(fboPrev.tex); gl.deleteFramebuffer(fboPrev.fbo); }
+  if (fboSceneA) { gl.deleteTexture(fboSceneA.tex); gl.deleteFramebuffer(fboSceneA.fbo); }
+  if (fboSceneB) { gl.deleteTexture(fboSceneB.tex); gl.deleteFramebuffer(fboSceneB.fbo); }
+  fboA = makeFBO(w, h); fboB = makeFBO(w, h); fboPrev = makeFBO(w, h);
+  fboSceneA = makeFBO(w, h); fboSceneB = makeFBO(w, h);
+}
+
+// source texture
+const srcTex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, srcTex);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 4, 4, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(16*4).fill(0));
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+// demo pattern offscreen
+const demoCanvas = document.createElement('canvas');
+demoCanvas.width = 640; demoCanvas.height = 360;
+const demoCtx = demoCanvas.getContext('2d');
+function drawDemo(t) {
+  const w = demoCanvas.width, h = demoCanvas.height;
+  const g = demoCtx.createLinearGradient(0,0,w,h);
+  const hue = (t*30) % 360;
+  g.addColorStop(0, `hsl(${hue}, 80%, 25%)`);
+  g.addColorStop(1, `hsl(${(hue+120)%360}, 80%, 18%)`);
+  demoCtx.fillStyle = g; demoCtx.fillRect(0,0,w,h);
+  for (let i = 0; i < 8; i++) {
+    demoCtx.beginPath();
+    const x = w/2 + Math.cos(t*0.7 + i)*w*0.3;
+    const y = h/2 + Math.sin(t*0.9 + i*1.3)*h*0.3;
+    const r = 30 + Math.sin(t*2 + i)*20 + i*8;
+    demoCtx.fillStyle = `hsla(${(hue + i*45)%360}, 90%, 65%, 0.6)`;
+    demoCtx.arc(x, y, r, 0, Math.PI*2);
+    demoCtx.fill();
+  }
+  demoCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+  demoCtx.lineWidth = 2;
+  for (let i = 0; i < 12; i++) {
+    demoCtx.beginPath();
+    const a = t*0.5 + i*Math.PI/6;
+    demoCtx.moveTo(w/2, h/2);
+    demoCtx.lineTo(w/2 + Math.cos(a)*w, h/2 + Math.sin(a)*h);
+    demoCtx.stroke();
+  }
+  demoCtx.fillStyle = '#fff';
+  demoCtx.font = 'bold 48px sans-serif';
+  demoCtx.textAlign = 'center';
+  demoCtx.fillText('VJ FX', w/2, h/2 - 20);
+  demoCtx.font = '20px sans-serif';
+  demoCtx.fillText('DEMO', w/2, h/2 + 20);
+}
+
+function uploadSource(t) {
+  const s = state.source;
+  try {
+    if (s.kind === 'image' && s.image && s.image.complete && s.image.naturalWidth) {
+      if (s.dirty) {
+        gl.bindTexture(gl.TEXTURE_2D, srcTex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, s.image);
+        s.dirty = false;
+      }
+    } else if (s.kind === 'video' && s.media && s.media.readyState >= 2) {
+      gl.bindTexture(gl.TEXTURE_2D, srcTex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, s.media);
+    } else {
+      drawDemo(t);
+      gl.bindTexture(gl.TEXTURE_2D, srcTex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, demoCanvas);
+    }
+  } catch (e) { /* ignore mid-load errors */ }
+}
+
+// ===================================================================
+// COLOR HELPERS
+// ===================================================================
+function hexToVec3(h) {
+  if (typeof h !== 'string') return [1,1,1];
+  const m = h.replace('#','');
+  const r = parseInt(m.substr(0,2),16)/255;
+  const g = parseInt(m.substr(2,2),16)/255;
+  const b = parseInt(m.substr(4,2),16)/255;
+  return [r,g,b];
+}
+function vec3ToHex(v) {
+  const parts = v.map(n => {
+    const x = Math.max(0, Math.min(255, Math.round(n * 255)));
+    return x.toString(16).padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
+// ===================================================================
+// RENDER
+// ===================================================================
+function bindFBO(f) {
+  if (f) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, f.fbo);
+    gl.viewport(0, 0, f.w, f.h);
+  } else {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+}
+function drawQuad() {
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+}
+
+let frameCount = 0, lastFps = performance.now(), curFps = 0;
+
+function sortedKeyframes(layer, paramKey) {
+  const keys = layer.keyframes[paramKey] || [];
+  keys.sort((a, b) => a.t - b.t);
+  return keys;
+}
+
+function sampleKeyframes(base, keys, t) {
+  if (!keys || !keys.length) return base;
+  if (t <= keys[0].t) return keys[0].v;
+  const last = keys[keys.length - 1];
+  if (t >= last.t) return last.v;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const a = keys[i], b = keys[i + 1];
+    if (t >= a.t && t <= b.t) {
+      const k = (t - a.t) / Math.max(0.0001, b.t - a.t);
+      if (typeof a.v === 'number' && typeof b.v === 'number') return a.v + (b.v - a.v) * k;
+      if (typeof a.v === 'string' && typeof b.v === 'string') {
+        const ca = hexToVec3(a.v), cb = hexToVec3(b.v);
+        return vec3ToHex(ca.map((v, idx) => v + (cb[idx] - v) * k));
+      }
+      return k < 0.5 ? a.v : b.v;
+    }
+  }
+  return base;
+}
+
+function evaluateLayerValues(layer, t) {
+  const values = {...layer.values};
+  Object.keys(layer.keyframes || {}).forEach(paramKey => {
+    values[paramKey] = sampleKeyframes(values[paramKey], sortedKeyframes(layer, paramKey), t);
+  });
+  layer.renderValues = values;
+  return values;
+}
+
+function effectiveAmount(values, layer) {
+  const v = values;
+  let amt = v.amount;
+  if (v.bpmSync) amt += v.bpmSync * 0.5 * Math.sin(state.beatPhase * Math.PI * 2);
+  if (v.audioReactive) amt += v.audioReactive * 0.5 * state.audio.level;
+  if (v.fftTrigger) {
+    const env = (layer && layer.fft) ? (layer.fft._env || 0) : state.audio.triggerEnv;
+    amt += v.fftTrigger * 0.8 * env;
+  }
+  return Math.max(0, Math.min(1.5, amt));
+}
+
+function formatTime(t) {
+  const safe = Math.max(0, t);
+  const minutes = Math.floor(safe / 60);
+  const seconds = safe % 60;
+  return `${String(minutes).padStart(2,'0')}:${seconds.toFixed(1).padStart(4,'0')}`;
+}
+
+function beatDuration() {
+  return 60 / Math.max(1, state.bpm);
+}
+
+// ===================================================================
+// TIMELINE VIEWPORT (zoom + scroll)
+// ===================================================================
+function viewVisibleDuration() {
+  const dur = Math.max(0.001, state.comp.duration);
+  return dur / Math.max(1, state.view.zoom || 1);
+}
+function viewStartTime() {
+  const dur = Math.max(0.001, state.comp.duration);
+  const visible = viewVisibleDuration();
+  const maxScroll = Math.max(0, dur - visible);
+  return clamp(state.view.scroll, 0, 1) * maxScroll;
+}
+function timeToPct(t) {
+  const visible = viewVisibleDuration();
+  if (visible <= 0) return 0;
+  return (t - viewStartTime()) / visible * 100;
+}
+function pctToTime(pct) {
+  return viewStartTime() + (pct / 100) * viewVisibleDuration();
+}
+function clampViewScroll() {
+  state.view.zoom = clamp(state.view.zoom || 1, 1, 64);
+  state.view.scroll = clamp(state.view.scroll || 0, 0, 1);
+}
+function setViewZoom(nextZoom, anchorTime) {
+  const oldZoom = state.view.zoom || 1;
+  nextZoom = clamp(nextZoom, 1, 64);
+  if (nextZoom === oldZoom) return;
+  const dur = Math.max(0.001, state.comp.duration);
+  const oldVisible = dur / oldZoom;
+  const newVisible = dur / nextZoom;
+  const oldStart = state.view.scroll * Math.max(0, dur - oldVisible);
+  const anchor = anchorTime ?? (oldStart + oldVisible / 2);
+  const fraction = (anchor - oldStart) / Math.max(0.0001, oldVisible);
+  const newStart = clamp(anchor - fraction * newVisible, 0, Math.max(0, dur - newVisible));
+  state.view.zoom = nextZoom;
+  state.view.scroll = (dur - newVisible) > 0.0001 ? newStart / (dur - newVisible) : 0;
+  clampViewScroll();
+}
+function setViewScroll(scroll01) {
+  state.view.scroll = clamp(scroll01, 0, 1);
+}
+function ensurePlayheadVisible() {
+  const t = state.play.time;
+  const start = viewStartTime();
+  const visible = viewVisibleDuration();
+  if (t < start) {
+    const dur = Math.max(0.001, state.comp.duration);
+    state.view.scroll = (dur - visible) > 0.0001 ? Math.max(0, t - visible * 0.1) / (dur - visible) : 0;
+    clampViewScroll();
+  } else if (t > start + visible) {
+    const dur = Math.max(0.001, state.comp.duration);
+    state.view.scroll = (dur - visible) > 0.0001 ? Math.min(1, (t - visible * 0.9) / (dur - visible)) : 0;
+    clampViewScroll();
+  }
+}
+
+function snapTime(t) {
+  const mode = state.comp.snap;
+  if (mode === 'none') return t;
+  const beat = beatDuration();
+  const step = mode === 'beat' ? beat : mode === 'half' ? beat / 2 : beat / 4;
+  return Math.round(t / step) * step;
+}
+
+function setTimelineTime(t, opts = {}) {
+  const next = opts.snap ? snapTime(t) : t;
+  state.play.time = clamp(next, 0, state.comp.duration);
+  if (opts.autopan !== false) ensurePlayheadVisible();
+  updateTimelineVisuals();
+}
+
+function advancePlayback(now) {
+  if (!state.play.playing) {
+    state.play.lastWall = now;
+    return;
+  }
+  const dt = Math.max(0, Math.min(0.25, now - state.play.lastWall));
+  state.play.lastWall = now;
+  let next = state.play.time + dt;
+  if (next < state.comp.inPoint) next = state.comp.inPoint;
+  if (next >= state.comp.outPoint) {
+    if (state.comp.loop && state.comp.outPoint > state.comp.inPoint) {
+      const len = state.comp.outPoint - state.comp.inPoint;
+      next = state.comp.inPoint + ((next - state.comp.inPoint) % len);
+    } else {
+      next = state.comp.outPoint;
+      state.play.playing = false;
+      updateTransportButtons();
+    }
+  }
+  setTimelineTime(next);
+}
+
+function isLayerActiveAt(layer, t) {
+  const start = layer.start ?? 0;
+  const end = layer.end ?? state.comp.duration;
+  return layer.enabled && t >= start && t <= end;
+}
+
+function renderLayerStack(layers, outFbo, t) {
+  const enabled = layers.filter(layer => isLayerActiveAt(layer, t));
+  let curTex = srcTex;
+  let target = fboA, alt = fboB;
+
+  for (const layer of enabled) {
+    const def = EFFECTS.find(d => d.id === layer.effId);
+    if (!def || def.st === 'mon') continue;
+    const prog = getProg(def);
+    if (!prog) continue;
+    const values = evaluateLayerValues(layer, t);
+
+    bindFBO(target);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(prog.program);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, curTex);
+    gl.uniform1i(prog.u.u_tex, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, fboPrev.tex);
+    gl.uniform1i(prog.u.u_prev, 1);
+
+    gl.uniform2f(prog.u.u_res, target.w, target.h);
+    gl.uniform1f(prog.u.u_time, t);
+    gl.uniform1f(prog.u.u_beat, state.beatPhase);
+    gl.uniform1f(prog.u.u_audio, state.audio.level);
+    const layerFftLevel = layer.fft ? (layer.fft._level || 0) : state.audio.freqLevel;
+    const layerFftEnv = layer.fft ? (layer.fft._env || 0) : state.audio.triggerEnv;
+    gl.uniform1f(prog.u.u_freq, layerFftLevel);
+    gl.uniform1f(prog.u.u_trigger, layerFftEnv);
+
+    gl.uniform1f(prog.u.u_amount, effectiveAmount(values, layer));
+    gl.uniform1f(prog.u.u_speed, values.speed);
+    gl.uniform1f(prog.u.u_mix, values.mix);
+
+    // map numeric extras to p1..p8 (color extras get separate slots)
+    const ps = [0,0,0,0,0,0,0,0];
+    let pi = 0;
+    let cA = [1,1,1], cB = [0,0,0];
+    if (def.extras) {
+      for (const x of def.extras) {
+        if (x.type === 'color') {
+          if (x.key === 'cA' || x.key === 'colorA') cA = hexToVec3(values[x.key]);
+          else if (x.key === 'cB' || x.key === 'colorB') cB = hexToVec3(values[x.key]);
+        } else {
+          if (pi < 8) ps[pi++] = values[x.key];
+        }
+      }
+    }
+    gl.uniform1f(prog.u.u_p1, ps[0]);
+    gl.uniform1f(prog.u.u_p2, ps[1]);
+    gl.uniform1f(prog.u.u_p3, ps[2]);
+    gl.uniform1f(prog.u.u_p4, ps[3]);
+    gl.uniform1f(prog.u.u_p5, ps[4]);
+    gl.uniform1f(prog.u.u_p6, ps[5]);
+    gl.uniform1f(prog.u.u_p7, ps[6]);
+    gl.uniform1f(prog.u.u_p8, ps[7]);
+    gl.uniform3f(prog.u.u_colorA, cA[0], cA[1], cA[2]);
+    gl.uniform3f(prog.u.u_colorB, cB[0], cB[1], cB[2]);
+
+    drawQuad();
+
+    curTex = target.tex;
+    [target, alt] = [alt, target];
+  }
+
+  bindFBO(outFbo);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(copyProg.program);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, curTex);
+  gl.uniform1i(copyTexLoc, 0);
+  drawQuad();
+  return enabled.filter(layer=>{const d=EFFECTS.find(D=>D.id===layer.effId);return d&&d.st!=='mon';}).length;
+}
+
+function drawTexture(tex, outFbo = null) {
+  bindFBO(outFbo);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(copyProg.program);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.uniform1i(copyTexLoc, 0);
+  drawQuad();
+}
+
+function drawSceneBlend(mix, outFbo = null) {
+  bindFBO(outFbo);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(blendProg.program);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, fboSceneA.tex);
+  gl.uniform1i(blendTexALoc, 0);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, fboSceneB.tex);
+  gl.uniform1i(blendTexBLoc, 1);
+  gl.uniform1f(blendMixLoc, mix);
+  drawQuad();
+}
+
+function render() {
+  const now = performance.now() / 1000;
+  advancePlayback(now);
+  const t = state.play.time;
+  state.beatPhase = ((t * state.bpm / 60) % 1 + 1) % 1;
+
+  uploadSource(t);
+
+  const W = canvas.width, H = canvas.height;
+  ensureFBOs(W, H);
+
+  const mix = state.crossfader;
+  let passCount = 0;
+  if (mix <= 0.001) {
+    passCount += renderLayerStack(state.scenes[0].layers, fboSceneA, t);
+    drawTexture(fboSceneA.tex, null);
+    drawTexture(fboSceneA.tex, fboPrev);
+  } else if (mix >= 0.999) {
+    passCount += renderLayerStack(state.scenes[1].layers, fboSceneB, t);
+    drawTexture(fboSceneB.tex, null);
+    drawTexture(fboSceneB.tex, fboPrev);
+  } else {
+    passCount += renderLayerStack(state.scenes[0].layers, fboSceneA, t);
+    passCount += renderLayerStack(state.scenes[1].layers, fboSceneB, t);
+    drawSceneBlend(mix, fboPrev);
+    drawTexture(fboPrev.tex, null);
+  }
+
+  // FPS
+  frameCount++;
+  if (now * 1000 - lastFps > 1000) {
+    curFps = frameCount;
+    frameCount = 0;
+    lastFps = now * 1000;
+    document.getElementById('fpsInfo').textContent =
+      `FPS ${curFps}  ${canvas.width}x${canvas.height}  passes:${passCount}`;
+  }
+
+  // HUD
+  document.getElementById('hud').innerHTML =
+    `<span class="k">BPM</span> <span class="v">${state.bpm.toFixed(1)}</span>  ` +
+    `<span class="k">beat</span> <span class="v">${state.beatPhase.toFixed(2)}</span>  ` +
+    `<span class="k">audio</span> <span class="v">${state.audio.level.toFixed(2)}</span>  ` +
+    `<span class="k">freq</span> <span class="v">${state.audio.freqLevel.toFixed(2)}</span>  ` +
+    `<span class="k">trig</span> <span class="v">${state.audio.triggerEnv.toFixed(2)}</span>`;
+  document.getElementById('beatBar').value = state.beatPhase;
+  document.getElementById('audioBar').value = Math.min(1, state.audio.level);
+  document.getElementById('timecode').textContent = formatTime(t);
+  const infoPanel = document.getElementById('infoPanel');
+  if (infoPanel) {
+    infoPanel.innerHTML =
+      `<span>Scene</span><span>${state.activeScene ? 'B' : 'A'} / XF ${state.crossfader.toFixed(2)}</span>` +
+      `<span>Time</span><span>${formatTime(t)}</span>` +
+      `<span>Audio</span><span>${state.audio.level.toFixed(2)}</span>` +
+      `<span>FFT</span><span>${state.audio.freqLevel.toFixed(2)} / ${state.audio.triggerEnv.toFixed(2)}</span>` +
+      `<span>Layers</span><span>${state.layers.filter(layer => layer.enabled).length}/${state.layers.length}</span>`;
+  }
+  updateTimelineVisuals();
+  if (state.recording && !state.play.playing && state.play.time >= state.comp.outPoint - 1 / 120) {
+    stopRec();
+  }
+
+  requestAnimationFrame(render);
+}
+
+// ===================================================================
+// CANVAS SIZING
+// ===================================================================
+function resizeCanvas() {
+  const wrap = document.getElementById('viewWrap');
+  const cR = document.getElementById('center').getBoundingClientRect();
+  const baseW = 1280, baseH = 720;
+  const scale = state.resScale;
+  // intrinsic resolution
+  canvas.width  = Math.max(64, Math.floor(baseW * scale));
+  canvas.height = Math.max(64, Math.floor(baseH * scale));
+  // fit display to center area, preserve 16:9
+  const aw = cR.width - 16, ah = cR.height - 16;
+  const ar = baseW / baseH;
+  let dw = aw, dh = aw / ar;
+  if (dh > ah) { dh = ah; dw = ah * ar; }
+  canvas.style.width = dw + 'px';
+  canvas.style.height = dh + 'px';
+}
+window.addEventListener('resize', resizeCanvas);
+
+// ===================================================================
+// SOURCE LOADING
+// ===================================================================
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  if (f.type.startsWith('image/')) {
+    const img = new Image();
+    img.onload = () => {
+      state.source = { kind:'image', media:null, image:img, dirty:true };
+    };
+    img.src = url;
+  } else if (f.type.startsWith('video/')) {
+    const v = document.createElement('video');
+    v.src = url; v.loop = true; v.muted = true; v.playsInline = true;
+    v.play().catch(()=>{});
+    state.source = { kind:'video', media:v, image:null, dirty:false };
+  }
+});
+document.getElementById('useDemo').addEventListener('click', () => {
+  state.source = { kind:'demo', media:null, image:null, dirty:true };
+});
+document.getElementById('playPause').addEventListener('click', () => {
+  if (state.source.kind === 'video' && state.source.media) {
+    if (state.source.media.paused) state.source.media.play();
+    else state.source.media.pause();
+  }
+});
+
+// ===================================================================
+// BPM
+// ===================================================================
+const bpmInput = document.getElementById('bpmInput');
+bpmInput.addEventListener('input', () => {
+  state.bpm = parseFloat(bpmInput.value) || 120;
+  rebuildTimelineRuler();
+});
+let tapTimes = [];
+document.getElementById('tapBpm').addEventListener('click', () => {
+  const now = performance.now();
+  tapTimes.push(now);
+  if (tapTimes.length > 5) tapTimes.shift();
+  if (tapTimes.length >= 2) {
+    const diffs = [];
+    for (let i = 1; i < tapTimes.length; i++) diffs.push(tapTimes[i] - tapTimes[i-1]);
+    const avg = diffs.reduce((a,b)=>a+b,0) / diffs.length;
+    if (avg < 2000) {
+      state.bpm = Math.max(20, Math.min(300, 60000 / avg));
+      bpmInput.value = state.bpm.toFixed(1);
+      rebuildTimelineRuler();
+    }
+  }
+  setTimeout(() => { if (performance.now() - now > 1500) tapTimes = []; }, 1600);
+});
+
+// ===================================================================
+// TIMELINE
+// ===================================================================
+const playBtn = document.getElementById('playBtn');
+const rewindBtn = document.getElementById('rewindBtn');
+const loopBtn = document.getElementById('loopBtn');
+const undoBtn = document.getElementById('undoBtn');
+const redoBtn = document.getElementById('redoBtn');
+const sceneABtn = document.getElementById('sceneABtn');
+const sceneBBtn = document.getElementById('sceneBBtn');
+const crossfaderInput = document.getElementById('crossfader');
+const durationInput = document.getElementById('durationInput');
+const timeModeSelect = document.getElementById('timeModeSelect');
+const snapSelect = document.getElementById('snapSelect');
+const inPointInput = document.getElementById('inPointInput');
+const outPointInput = document.getElementById('outPointInput');
+const timelineRuler = document.querySelector('.timeline-ruler');
+const playhead = document.getElementById('playhead');
+let loopRangeEl = null;
+let inMarkerEl = null;
+let outMarkerEl = null;
+
+function cloneData(v) {
+  return JSON.parse(JSON.stringify(v));
+}
+
+function snapshotState() {
+  return {
+    scenes: cloneData(state.scenes),
+    activeScene: state.activeScene,
+    crossfader: state.crossfader,
+    nextLayerSeq: state.nextLayerSeq,
+    selectedLayerId: state.selectedLayerId,
+    selectedKey: state.selectedKey ? {...state.selectedKey} : null,
+    comp: {...state.comp},
+    bpm: state.bpm,
+    midi: {
+      bindings: cloneData(state.midi.bindings),
+      nextBindingId: state.midi.nextBindingId
+    }
+  };
+}
+
+function restoreSnapshot(snap) {
+  if (snap.scenes) {
+    state.scenes = cloneData(snap.scenes);
+    state.activeScene = snap.activeScene ?? 0;
+    state.crossfader = snap.crossfader ?? 0;
+  } else {
+    state.layers = cloneData(snap.layers || []);
+  }
+  state.nextLayerSeq = snap.nextLayerSeq;
+  state.selectedLayerId = snap.selectedLayerId;
+  state.selectedKey = snap.selectedKey ? {...snap.selectedKey} : null;
+  state.comp = {...snap.comp};
+  state.bpm = snap.bpm;
+  if (snap.midi) {
+    state.midi.bindings = cloneData(snap.midi.bindings || []);
+    state.midi.nextBindingId = snap.midi.nextBindingId || nextMidiBindingId();
+  }
+  normalizeAllLayerClips();
+  bpmInput.value = state.bpm.toFixed(1);
+  setTimelineTime(state.play.time);
+  syncTimelineControls();
+  updateSceneControls();
+  refreshMidiUI();
+  rebuildTimelineRuler();
+  refreshFxUI();
+}
+
+function updateHistoryButtons() {
+  undoBtn.disabled = !state.history.past.length;
+  redoBtn.disabled = !state.history.future.length;
+}
+
+function pushHistory(label, before, after = snapshotState()) {
+  if (JSON.stringify(before) === JSON.stringify(after)) return;
+  state.history.past.push({label, before, after});
+  if (state.history.past.length > 100) state.history.past.shift();
+  state.history.future = [];
+  updateHistoryButtons();
+}
+
+function runCommand(label, fn) {
+  const before = snapshotState();
+  fn();
+  pushHistory(label, before);
+}
+
+function undo() {
+  const cmd = state.history.past.pop();
+  if (!cmd) return;
+  state.history.future.push(cmd);
+  restoreSnapshot(cmd.before);
+  updateHistoryButtons();
+}
+
+function redo() {
+  const cmd = state.history.future.pop();
+  if (!cmd) return;
+  state.history.past.push(cmd);
+  restoreSnapshot(cmd.after);
+  updateHistoryButtons();
+}
+
+function updateTransportButtons() {
+  playBtn.textContent = state.play.playing ? '停止' : '再生';
+  loopBtn.classList.toggle('toggle-on', state.comp.loop);
+  const pcPlay = document.getElementById('pcPlay');
+  if (pcPlay) {
+    pcPlay.textContent = state.play.playing ? '⏸' : '▶';
+    pcPlay.classList.toggle('playing', state.play.playing);
+  }
+  const pcLoop = document.getElementById('pcLoop');
+  if (pcLoop) pcLoop.classList.toggle('toggle-on', state.comp.loop);
+  updateHistoryButtons();
+}
+
+function updatePreviewSeekUI() {
+  const pcTimecode = document.getElementById('pcTimecode');
+  const pcSeekFill = document.getElementById('pcSeekFill');
+  const pcSeekThumb = document.getElementById('pcSeekThumb');
+  const pcSeekLoop = document.getElementById('pcSeekLoop');
+  const dur = Math.max(0.001, state.comp.duration);
+  const pct = clamp(state.play.time / dur, 0, 1) * 100;
+  if (pcTimecode) pcTimecode.textContent = `${formatTime(state.play.time)} / ${formatTime(dur)}`;
+  if (pcSeekFill) pcSeekFill.style.width = pct.toFixed(3) + '%';
+  if (pcSeekThumb) pcSeekThumb.style.left = pct.toFixed(3) + '%';
+  if (pcSeekLoop) {
+    const lp = state.comp.inPoint / dur * 100;
+    const rp = state.comp.outPoint / dur * 100;
+    pcSeekLoop.style.left = lp.toFixed(3) + '%';
+    pcSeekLoop.style.width = Math.max(0, rp - lp).toFixed(3) + '%';
+  }
+}
+
+function syncTimelineControls() {
+  durationInput.value = state.comp.duration.toFixed(0);
+  timeModeSelect.value = state.comp.timeMode;
+  snapSelect.value = state.comp.snap;
+  inPointInput.max = state.comp.duration;
+  outPointInput.max = state.comp.duration;
+  inPointInput.value = state.comp.inPoint.toFixed(2);
+  outPointInput.value = state.comp.outPoint.toFixed(2);
+  updateTransportButtons();
+}
+
+function rebuildTimelineRuler() {
+  timelineRuler.querySelectorAll('.ruler-tick,.loop-range,.inout-marker,.waveform-bg').forEach(el => el.remove());
+  loopRangeEl = document.createElement('div');
+  loopRangeEl.className = 'loop-range';
+  inMarkerEl = document.createElement('div');
+  inMarkerEl.className = 'inout-marker';
+  inMarkerEl.dataset.label = 'I';
+  outMarkerEl = document.createElement('div');
+  outMarkerEl.className = 'inout-marker';
+  outMarkerEl.dataset.label = 'O';
+  timelineRuler.appendChild(loopRangeEl);
+  timelineRuler.appendChild(inMarkerEl);
+  timelineRuler.appendChild(outMarkerEl);
+
+  const duration = state.comp.duration;
+  if (state.comp.timeMode === 'beat') {
+    const beat = beatDuration();
+    const totalBeats = Math.ceil(duration / beat);
+    for (let i = 0; i <= totalBeats; i++) {
+      const t = Math.min(duration, i * beat);
+      addRulerTick(t, i % 4 === 0, i % 4 === 0 ? String(i + 1) : '');
+    }
+  } else {
+    const major = duration <= 12 ? 1 : duration <= 30 ? 2 : 5;
+    const minor = major / 4;
+    for (let t = 0; t <= duration + 0.0001; t += minor) {
+      const isMajor = Math.abs((t / major) - Math.round(t / major)) < 0.001;
+      addRulerTick(Math.min(duration, t), isMajor, isMajor ? `${Math.round(t)}s` : '');
+    }
+  }
+  refreshWaveStrip();
+  updateTimelineVisuals();
+}
+
+function addRulerTick(t, major, label) {
+  const pct = timeToPct(t);
+  if (pct < -2 || pct > 102) return;
+  const tick = document.createElement('div');
+  tick.className = 'ruler-tick' + (major ? ' major' : '');
+  tick.style.left = pct.toFixed(3) + '%';
+  if (label) tick.innerHTML = `<span>${label}</span>`;
+  timelineRuler.appendChild(tick);
+}
+
+function refreshWaveStrip() {
+  const strip = document.getElementById('timelineWave');
+  const nameEl = document.getElementById('waveName');
+  if (!strip) return;
+  const waveform = state.audio.waveform;
+  strip.classList.toggle('has-audio', !!waveform);
+  if (nameEl) nameEl.textContent = waveform ? waveform.name : '';
+  if (waveform) requestAnimationFrame(() => drawWaveformCanvas(document.getElementById('waveCanvas')));
+}
+
+function drawWaveformCanvas(canvas) {
+  const waveform = state.audio.waveform;
+  if (!waveform || !canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const w = Math.max(1, Math.floor(rect.width * devicePixelRatio));
+  const h = Math.max(1, Math.floor(rect.height * devicePixelRatio));
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  // mid line
+  ctx.strokeStyle = 'rgba(106, 134, 216, 0.18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.5);
+  ctx.lineTo(w, h * 0.5);
+  ctx.stroke();
+
+  const mid = h * 0.5;
+  const peaks = waveform.peaks;
+  const audioDur = waveform.duration;
+  // gradient fill mirrored
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, 'rgba(106, 134, 216, 0.95)');
+  grad.addColorStop(0.5, 'rgba(136, 216, 163, 0.85)');
+  grad.addColorStop(1, 'rgba(106, 134, 216, 0.95)');
+  ctx.fillStyle = grad;
+  const viewStart = viewStartTime();
+  const viewVis = viewVisibleDuration();
+  for (let x = 0; x < w; x++) {
+    const t = viewStart + (x / Math.max(1, w)) * viewVis;
+    if (t < 0 || t > audioDur) continue;
+    const idx = Math.min(peaks.length - 1, Math.max(0, Math.floor((t / audioDur) * peaks.length)));
+    const amp = clamp(peaks[idx] || 0, 0, 1);
+    const y = Math.max(1, amp * (mid - 1));
+    ctx.fillRect(x, mid - y, 1, y * 2);
+  }
+}
+
+function updateTimelineVisuals() {
+  playhead.style.left = timeToPct(state.play.time).toFixed(3) + '%';
+  if (loopRangeEl) {
+    const left = timeToPct(state.comp.inPoint);
+    const right = timeToPct(state.comp.outPoint);
+    loopRangeEl.style.left = left.toFixed(3) + '%';
+    loopRangeEl.style.width = Math.max(0, right - left).toFixed(3) + '%';
+  }
+  if (inMarkerEl) inMarkerEl.style.left = timeToPct(state.comp.inPoint).toFixed(3) + '%';
+  if (outMarkerEl) outMarkerEl.style.left = timeToPct(state.comp.outPoint).toFixed(3) + '%';
+  updateListPlayhead();
+  updatePreviewSeekUI();
+  updateZoomScrollbarUI();
+}
+
+function updateListPlayhead() {
+  const list = document.getElementById('timelineList');
+  if (!list) return;
+  let ph = list.querySelector('.list-playhead');
+  if (!ph) {
+    ph = document.createElement('div');
+    ph.className = 'list-playhead';
+    list.appendChild(ph);
+  }
+  const offsetStr = getComputedStyle(document.documentElement).getPropertyValue('--track-offset').trim();
+  const offset = parseFloat(offsetStr) || 0;
+  const cs = getComputedStyle(list);
+  const padL = parseFloat(cs.paddingLeft) || 0;
+  const padR = parseFloat(cs.paddingRight) || 0;
+  const w = list.clientWidth - padL - padR;
+  const trackW = Math.max(1, w - offset);
+  const pct = timeToPct(state.play.time) / 100;
+  const left = padL + offset + pct * trackW;
+  ph.style.left = left + 'px';
+  ph.style.display = (pct < 0 || pct > 1) ? 'none' : 'block';
+}
+
+function setDuration(v) {
+  const duration = clamp(parseFloat(v) || state.comp.duration, 4, 60);
+  state.comp.duration = duration;
+  state.comp.inPoint = clamp(state.comp.inPoint, 0, duration - 1 / 60);
+  state.comp.outPoint = clamp(state.comp.outPoint, state.comp.inPoint + 1 / 60, duration);
+  normalizeAllLayerClips();
+  setTimelineTime(state.play.time);
+  syncTimelineControls();
+  rebuildTimelineRuler();
+  refreshFxUI();
+}
+
+function setInPoint(v) {
+  const minGap = 1 / 60;
+  state.comp.inPoint = clamp(parseFloat(v) || 0, 0, state.comp.duration - minGap);
+  if (state.comp.outPoint <= state.comp.inPoint + minGap) {
+    state.comp.outPoint = clamp(state.comp.inPoint + minGap, minGap, state.comp.duration);
+  }
+  syncTimelineControls();
+  rebuildTimelineRuler();
+  refreshFxUI();
+}
+
+function setOutPoint(v) {
+  const minGap = 1 / 60;
+  state.comp.outPoint = clamp(parseFloat(v) || state.comp.duration, state.comp.inPoint + minGap, state.comp.duration);
+  syncTimelineControls();
+  rebuildTimelineRuler();
+  refreshFxUI();
+}
+
+function togglePlayback() {
+  if (!state.play.playing && (state.play.time >= state.comp.outPoint || state.play.time < state.comp.inPoint)) {
+    setTimelineTime(state.comp.inPoint);
+  }
+  state.play.playing = !state.play.playing;
+  state.play.lastWall = performance.now() / 1000;
+  updateTransportButtons();
+}
+
+function timeFromRulerEvent(e) {
+  const ref = e.currentTarget && e.currentTarget.getBoundingClientRect ? e.currentTarget : timelineRuler;
+  const rect = ref.getBoundingClientRect();
+  const x = clamp(e.clientX - rect.left, 0, rect.width);
+  return pctToTime(x / Math.max(1, rect.width) * 100);
+}
+
+function updateSceneControls() {
+  state.activeScene = state.activeScene === 1 ? 1 : 0;
+  state.crossfader = clamp(state.crossfader, 0, 1);
+  sceneABtn.classList.toggle('toggle-on', state.activeScene === 0);
+  sceneBBtn.classList.toggle('toggle-on', state.activeScene === 1);
+  crossfaderInput.value = state.crossfader;
+}
+
+function setActiveScene(idx) {
+  state.activeScene = idx === 1 ? 1 : 0;
+  state.selectedKey = null;
+  ensureSelectedLayer();
+  updateSceneControls();
+  refreshFxUI();
+}
+
+function setCrossfader(v) {
+  state.crossfader = clamp(parseFloat(v) || 0, 0, 1);
+  updateSceneControls();
+  updateFxStatus();
+}
+
+playBtn.addEventListener('click', togglePlayback);
+rewindBtn.addEventListener('click', () => setTimelineTime(0));
+loopBtn.addEventListener('click', () => {
+  state.comp.loop = !state.comp.loop;
+  updateTransportButtons();
+});
+undoBtn.addEventListener('click', undo);
+redoBtn.addEventListener('click', redo);
+sceneABtn.addEventListener('click', () => setActiveScene(0));
+sceneBBtn.addEventListener('click', () => setActiveScene(1));
+crossfaderInput.addEventListener('input', e => setCrossfader(e.target.value));
+durationInput.addEventListener('change', e => runCommand('Change duration', () => setDuration(e.target.value)));
+timeModeSelect.addEventListener('change', e => {
+  runCommand('Change time mode', () => {
+    state.comp.timeMode = e.target.value;
+    syncTimelineControls();
+    rebuildTimelineRuler();
+  });
+});
+snapSelect.addEventListener('change', e => {
+  runCommand('Change snap', () => {
+    state.comp.snap = e.target.value;
+    syncTimelineControls();
+  });
+});
+inPointInput.addEventListener('change', e => runCommand('Set In point', () => setInPoint(e.target.value)));
+outPointInput.addEventListener('change', e => runCommand('Set Out point', () => setOutPoint(e.target.value)));
+
+let rulerDragging = false;
+timelineRuler.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  rulerDragging = true;
+  timelineRuler.setPointerCapture(e.pointerId);
+  state.play.playing = false;
+  setTimelineTime(timeFromRulerEvent(e), {snap:true});
+  updateTransportButtons();
+});
+timelineRuler.addEventListener('pointermove', e => {
+  if (rulerDragging) setTimelineTime(timeFromRulerEvent(e), {snap:true});
+});
+timelineRuler.addEventListener('pointerup', e => {
+  rulerDragging = false;
+  try { timelineRuler.releasePointerCapture(e.pointerId); } catch (err) {}
+});
+
+const timelineWaveEl = document.getElementById('timelineWave');
+let waveDragging = false;
+timelineWaveEl.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  waveDragging = true;
+  timelineWaveEl.setPointerCapture(e.pointerId);
+  state.play.playing = false;
+  setTimelineTime(timeFromRulerEvent(e), {snap:true});
+  updateTransportButtons();
+});
+timelineWaveEl.addEventListener('pointermove', e => {
+  if (waveDragging) setTimelineTime(timeFromRulerEvent(e), {snap:true});
+});
+timelineWaveEl.addEventListener('pointerup', e => {
+  waveDragging = false;
+  try { timelineWaveEl.releasePointerCapture(e.pointerId); } catch (err) {}
+});
+window.addEventListener('resize', () => {
+  if (state.audio.waveform) requestAnimationFrame(() => drawWaveformCanvas(document.getElementById('waveCanvas')));
+});
+
+// Zoom + scroll wiring
+const thTrackEl = document.getElementById('thTrack');
+const zoomReadoutEl = document.getElementById('zoomReadout');
+const sbTrackEl = document.getElementById('sbTrack');
+const sbThumbEl = document.getElementById('sbThumb');
+
+function updateZoomScrollbarUI() {
+  if (zoomReadoutEl) zoomReadoutEl.textContent = 'x' + (state.view.zoom || 1).toFixed(1);
+  if (sbThumbEl && sbTrackEl) {
+    const z = state.view.zoom || 1;
+    const w = sbTrackEl.clientWidth;
+    const thumbW = Math.max(18, w / z);
+    const left = state.view.scroll * Math.max(0, w - thumbW);
+    sbThumbEl.style.width = thumbW + 'px';
+    sbThumbEl.style.left = left + 'px';
+  }
+}
+
+function repaintTimelineAfterView() {
+  rebuildTimelineRuler();
+  buildTimeline();
+}
+
+function applyZoom(deltaSign, anchorTime) {
+  const oldZoom = state.view.zoom || 1;
+  const factor = deltaSign > 0 ? 1.25 : 1 / 1.25;
+  setViewZoom(oldZoom * factor, anchorTime);
+  repaintTimelineAfterView();
+}
+
+function timeFromTrackEvent(e) {
+  const rect = thTrackEl.getBoundingClientRect();
+  const x = clamp(e.clientX - rect.left, 0, rect.width);
+  return pctToTime(x / Math.max(1, rect.width) * 100);
+}
+
+[thTrackEl, document.getElementById('timelineList')].forEach(target => {
+  if (!target) return;
+  target.addEventListener('wheel', e => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      const anchor = timeFromTrackEvent(e);
+      applyZoom(-Math.sign(e.deltaY), anchor);
+    } else if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      // horizontal trackpad scroll
+      e.preventDefault();
+      const dur = Math.max(0.001, state.comp.duration);
+      const visible = viewVisibleDuration();
+      const denom = Math.max(0.0001, dur - visible);
+      state.view.scroll = clamp(state.view.scroll + e.deltaX / denom / 200, 0, 1);
+      repaintTimelineAfterView();
+    } else if (e.shiftKey) {
+      e.preventDefault();
+      const dur = Math.max(0.001, state.comp.duration);
+      const visible = viewVisibleDuration();
+      const denom = Math.max(0.0001, dur - visible);
+      state.view.scroll = clamp(state.view.scroll + e.deltaY / denom / 200, 0, 1);
+      repaintTimelineAfterView();
+    }
+  }, {passive: false});
+});
+
+if (sbTrackEl && sbThumbEl) {
+  let sbDrag = null;
+  sbThumbEl.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    sbThumbEl.setPointerCapture(e.pointerId);
+    sbDrag = {startX: e.clientX, startScroll: state.view.scroll};
+  });
+  sbThumbEl.addEventListener('pointermove', e => {
+    if (!sbDrag) return;
+    const w = sbTrackEl.clientWidth;
+    const z = state.view.zoom || 1;
+    const thumbW = Math.max(18, w / z);
+    const range = Math.max(1, w - thumbW);
+    state.view.scroll = clamp(sbDrag.startScroll + (e.clientX - sbDrag.startX) / range, 0, 1);
+    repaintTimelineAfterView();
+  });
+  sbThumbEl.addEventListener('pointerup', e => {
+    sbDrag = null;
+    try { sbThumbEl.releasePointerCapture(e.pointerId); } catch (err) {}
+  });
+  sbTrackEl.addEventListener('click', e => {
+    if (e.target === sbThumbEl) return;
+    const rect = sbTrackEl.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const w = rect.width;
+    const z = state.view.zoom || 1;
+    const thumbW = Math.max(18, w / z);
+    const range = Math.max(1, w - thumbW);
+    state.view.scroll = clamp((x - thumbW / 2) / range, 0, 1);
+    repaintTimelineAfterView();
+  });
+}
+
+document.getElementById('zoomInBtn').addEventListener('click', () => applyZoom(1, state.play.time));
+document.getElementById('zoomOutBtn').addEventListener('click', () => applyZoom(-1, state.play.time));
+document.getElementById('zoomResetBtn').addEventListener('click', () => {
+  state.view.zoom = 1; state.view.scroll = 0;
+  repaintTimelineAfterView();
+});
+
+// ===================================================================
+// AUDIO
+// ===================================================================
+function ensureAudioCtx() {
+  if (!state.audio.ctx) {
+    state.audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    state.audio.analyser = state.audio.ctx.createAnalyser();
+    state.audio.analyser.fftSize = 256;
+    state.audio.buf = new Uint8Array(state.audio.analyser.frequencyBinCount);
+  }
+  if (state.audio.ctx.state === 'suspended') state.audio.ctx.resume();
+}
+function disconnectAudio() {
+  try { state.audio.source && state.audio.source.disconnect(); } catch(e){}
+  state.audio.source = null; state.audio.kind = null;
+}
+document.getElementById('micBtn').addEventListener('click', async () => {
+  ensureAudioCtx();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    disconnectAudio();
+    const src = state.audio.ctx.createMediaStreamSource(stream);
+    src.connect(state.audio.analyser);
+    state.audio.source = src; state.audio.kind = 'mic';
+    document.getElementById('micBtn').textContent = 'マイクON';
+  } catch (e) {
+    alert('マイク取得失敗: ' + e.message);
+  }
+});
+document.getElementById('audioFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  ensureAudioCtx();
+  disconnectAudio();
+  const aud = new Audio(URL.createObjectURL(f));
+  aud.loop = true;
+  aud.crossOrigin = 'anonymous';
+  const src = state.audio.ctx.createMediaElementSource(aud);
+  src.connect(state.audio.analyser);
+  state.audio.analyser.connect(state.audio.ctx.destination);
+  aud.play().catch(()=>{});
+  state.audio.source = src; state.audio.kind = 'file';
+  state.audio.elem = aud;
+  analyzeAudioWaveform(f);
+});
+document.getElementById('audioGain').addEventListener('input', e => {
+  state.audio.gain = parseFloat(e.target.value);
+  document.getElementById('audioGainV').textContent = state.audio.gain.toFixed(1);
+});
+const fftFreqInput = document.getElementById('fftFreq');
+const fftFreqV = document.getElementById('fftFreqV');
+const fftWidthInput = document.getElementById('fftWidth');
+const fftWidthV = document.getElementById('fftWidthV');
+const fftThresholdInput = document.getElementById('fftThreshold');
+const fftThresholdV = document.getElementById('fftThresholdV');
+const fftEdgeSelect = document.getElementById('fftEdge');
+const fftBandBar = document.getElementById('fftBandBar');
+const fftTriggerBar = document.getElementById('fftTriggerBar');
+const fftGateState = document.getElementById('fftGateState');
+function syncGlobalFftUI() {
+  fftFreqInput.value = Math.round(state.audio.freq);
+  fftFreqV.textContent = Math.round(state.audio.freq);
+  fftWidthInput.value = state.audio.freqWidth;
+  fftWidthV.textContent = Math.round(state.audio.freqWidth);
+  fftThresholdInput.value = state.audio.freqThreshold;
+  fftThresholdV.textContent = state.audio.freqThreshold.toFixed(2);
+  fftEdgeSelect.value = state.audio.freqEdge;
+  const audioGain = document.getElementById('audioGain');
+  if (audioGain) audioGain.value = state.audio.gain;
+  const audioGainV = document.getElementById('audioGainV');
+  if (audioGainV) audioGainV.textContent = state.audio.gain.toFixed(1);
+}
+fftFreqInput.addEventListener('input', e => {
+  state.audio.freq = clamp(parseFloat(e.target.value) || 80, 20, 16000);
+  fftFreqInput.value = Math.round(state.audio.freq);
+  fftFreqV.textContent = Math.round(state.audio.freq);
+});
+fftWidthInput.addEventListener('input', e => {
+  state.audio.freqWidth = clamp(parseFloat(e.target.value) || 90, 10, 2000);
+  fftWidthV.textContent = Math.round(state.audio.freqWidth);
+});
+fftThresholdInput.addEventListener('input', e => {
+  state.audio.freqThreshold = clamp(parseFloat(e.target.value) || 0, 0, 1);
+  fftThresholdV.textContent = state.audio.freqThreshold.toFixed(2);
+});
+fftEdgeSelect.addEventListener('change', e => {
+  state.audio.freqEdge = e.target.value;
+});
+function updateFrequencyTrigger(dt) {
+  const a = state.audio;
+  const buf = a.buf;
+  if (!a.analyser || !buf || !buf.length) {
+    a.freqLevel *= 0.92;
+    a.freqGate = false;
+    a.triggerEnv *= Math.exp(-dt / Math.max(0.03, a.triggerDecay));
+    return;
+  }
+  const sampleRate = a.ctx ? a.ctx.sampleRate : 44100;
+  const binHz = (sampleRate * 0.5) / buf.length;
+  const halfWidth = Math.max(5, a.freqWidth * 0.5);
+  const from = Math.max(0, Math.floor((a.freq - halfWidth) / binHz));
+  const to = Math.min(buf.length - 1, Math.ceil((a.freq + halfWidth) / binHz));
+  let sum = 0;
+  for (let i = from; i <= to; i++) sum += buf[i];
+  const bins = Math.max(1, to - from + 1);
+  a.freqLevel = Math.min(1, (sum / bins / 255) * a.gain);
+
+  const prevGate = a.freqGate;
+  const nextGate = a.freqLevel >= a.freqThreshold;
+  const rose = !prevGate && nextGate;
+  const fell = prevGate && !nextGate;
+  const edge = a.freqEdge;
+  if ((edge === 'rise' && rose) || (edge === 'fall' && fell) || (edge === 'both' && (rose || fell))) {
+    a.triggerEnv = 1;
+  } else {
+    a.triggerEnv *= Math.exp(-dt / Math.max(0.03, a.triggerDecay));
+  }
+  a.prevFreqGate = prevGate;
+  a.freqGate = nextGate;
+}
+function updateLayerFftTrigger(layer, dt) {
+  const cfg = layer.fft;
+  if (!cfg) return;
+  const a = state.audio;
+  const buf = a.buf;
+  if (!a.analyser || !buf || !buf.length) {
+    cfg._level = (cfg._level || 0) * 0.92;
+    cfg._gate = false;
+    cfg._env = (cfg._env || 0) * Math.exp(-dt / 0.18);
+    return;
+  }
+  const sampleRate = a.ctx ? a.ctx.sampleRate : 44100;
+  const binHz = (sampleRate * 0.5) / buf.length;
+  const halfWidth = Math.max(5, cfg.width * 0.5);
+  const from = Math.max(0, Math.floor((cfg.freq - halfWidth) / binHz));
+  const to = Math.min(buf.length - 1, Math.ceil((cfg.freq + halfWidth) / binHz));
+  let sum = 0;
+  for (let i = from; i <= to; i++) sum += buf[i];
+  const bins = Math.max(1, to - from + 1);
+  cfg._level = Math.min(1, (sum / bins / 255) * (cfg.gain || a.gain));
+  const prevGate = cfg._gate;
+  const nextGate = cfg._level >= cfg.threshold;
+  const rose = !prevGate && nextGate;
+  const fell = prevGate && !nextGate;
+  if ((cfg.edge === 'rise' && rose) || (cfg.edge === 'fall' && fell) || (cfg.edge === 'both' && (rose || fell))) {
+    cfg._env = 1;
+  } else {
+    cfg._env = (cfg._env || 0) * Math.exp(-dt / 0.18);
+  }
+  cfg._prevGate = prevGate;
+  cfg._gate = nextGate;
+}
+function pollAudio() {
+  const now = performance.now() / 1000;
+  const dt = Math.max(1 / 120, Math.min(0.25, now - state.audio.lastPoll));
+  state.audio.lastPoll = now;
+  if (state.audio.analyser) {
+    state.audio.analyser.getByteFrequencyData(state.audio.buf);
+    let sum = 0;
+    for (let i = 0; i < state.audio.buf.length; i++) sum += state.audio.buf[i];
+    const avg = sum / state.audio.buf.length / 255;
+    state.audio.level = Math.min(1, avg * state.audio.gain);
+  } else {
+    state.audio.level *= 0.95;
+  }
+  updateFrequencyTrigger(dt);
+  state.scenes.forEach(scene => scene.layers.forEach(layer => updateLayerFftTrigger(layer, dt)));
+  fftBandBar.value = state.audio.freqLevel;
+  fftTriggerBar.value = state.audio.triggerEnv;
+  fftGateState.textContent = state.audio.freqGate ? 'on' : 'off';
+  requestAnimationFrame(pollAudio);
+}
+
+async function analyzeAudioWaveform(file) {
+  try {
+    const buf = await file.arrayBuffer();
+    const decoded = await state.audio.ctx.decodeAudioData(buf.slice(0));
+    const peaks = buildAudioPeaks(decoded, 900);
+    state.audio.waveform = {peaks, duration: decoded.duration, name: file.name};
+    rebuildTimelineRuler();
+    refreshFxUI();
+  } catch (err) {
+    state.audio.waveform = null;
+    rebuildTimelineRuler();
+  }
+}
+function buildAudioPeaks(buffer, count) {
+  const channels = [];
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) channels.push(buffer.getChannelData(ch));
+  const len = buffer.length;
+  const peaks = [];
+  for (let i = 0; i < count; i++) {
+    const from = Math.floor(i / count * len);
+    const to = Math.max(from + 1, Math.floor((i + 1) / count * len));
+    let max = 0;
+    for (let ch = 0; ch < channels.length; ch++) {
+      const data = channels[ch];
+      for (let j = from; j < to; j++) {
+        const v = Math.abs(data[j] || 0);
+        if (v > max) max = v;
+      }
+    }
+    peaks.push(max);
+  }
+  const norm = Math.max(0.001, peaks.reduce((m, v) => Math.max(m, v), 0));
+  return peaks.map(v => v / norm);
+}
+
+// ===================================================================
+// MIDI
+// ===================================================================
+const midiEnableBtn = document.getElementById('midiEnableBtn');
+const midiClearLearn = document.getElementById('midiClearLearn');
+const midiStatus = document.getElementById('midiStatus');
+const midiBindingsEl = document.getElementById('midiBindings');
+
+function nextMidiBindingId() {
+  return state.midi.bindings.reduce((max, b) => Math.max(max, b.id || 0), 0) + 1;
+}
+function findLayerAnyScene(lid) {
+  for (const scene of state.scenes) {
+    const layer = scene.layers.find(item => item.lid === lid);
+    if (layer) return layer;
+  }
+  return null;
+}
+function midiMessageLabel(binding) {
+  const base = `${binding.type.toUpperCase()} ${binding.num}`;
+  return binding.channel >= 0 ? `${base} ch${binding.channel + 1}` : base;
+}
+function midiTargetLabel(binding) {
+  const layer = findLayerAnyScene(binding.lid);
+  const def = layer && effectDef(layer.effId);
+  const name = def ? def.name : binding.lid;
+  if (binding.kind === 'param') return `${name} / ${binding.paramKey}`;
+  if (binding.kind === 'enabled') return `${name} / enabled`;
+  if (binding.kind === 'key') return `${name} / add key`;
+  return name;
+}
+function refreshMidiUI() {
+  if (!midiStatus) return;
+  const learn = state.midi.learnTarget;
+  midiEnableBtn.classList.toggle('toggle-on', !!state.midi.enabled);
+  midiStatus.textContent = learn ? `learning: ${learn.label}` : state.midi.status;
+  midiBindingsEl.innerHTML = '';
+  if (!state.midi.bindings.length) {
+    midiBindingsEl.innerHTML = '<div class="note">no bindings</div>';
+    return;
+  }
+  state.midi.bindings.forEach(binding => {
+    const row = document.createElement('div');
+    row.className = 'midi-binding';
+    row.innerHTML = `<span>${midiMessageLabel(binding)} -> ${midiTargetLabel(binding)}</span><button data-id="${binding.id}">x</button>`;
+    row.querySelector('button').addEventListener('click', () => {
+      runCommand('Remove MIDI binding', () => {
+        state.midi.bindings = state.midi.bindings.filter(item => item.id !== binding.id);
+        refreshMidiUI();
+      });
+    });
+    midiBindingsEl.appendChild(row);
+  });
+}
+async function enableMidi() {
+  if (!navigator.requestMIDIAccess) {
+    state.midi.status = 'Web MIDI unsupported';
+    refreshMidiUI();
+    return;
+  }
+  try {
+    state.midi.access = await navigator.requestMIDIAccess();
+    state.midi.enabled = true;
+    state.midi.status = 'connected';
+    attachMidiInputs();
+    state.midi.access.onstatechange = attachMidiInputs;
+  } catch (err) {
+    state.midi.status = 'MIDI failed: ' + err.message;
+  }
+  refreshMidiUI();
+}
+function attachMidiInputs() {
+  if (!state.midi.access) return;
+  let count = 0;
+  state.midi.access.inputs.forEach(input => {
+    input.onmidimessage = handleMidiMessage;
+    count++;
+  });
+  state.midi.status = count ? `connected: ${count} input${count === 1 ? '' : 's'}` : 'connected: no inputs';
+  refreshMidiUI();
+}
+function startMidiLearn(target) {
+  state.midi.learnTarget = target;
+  refreshMidiUI();
+}
+function clearMidiLearn() {
+  state.midi.learnTarget = null;
+  refreshMidiUI();
+}
+function parseMidiMessage(message) {
+  const [status, data1, data2] = message.data;
+  const cmd = status & 0xf0;
+  const channel = status & 0x0f;
+  if (cmd === 0xb0) return {type:'cc', channel, num:data1, value:data2};
+  if (cmd === 0x90 && data2 > 0) return {type:'note', channel, num:data1, value:data2};
+  if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) return {type:'noteOff', channel, num:data1, value:0};
+  return null;
+}
+function handleMidiMessage(message) {
+  if (!state.midi.enabled) return;
+  const msg = parseMidiMessage(message);
+  if (!msg || msg.type === 'noteOff') return;
+  if (state.midi.learnTarget) {
+    learnMidiBinding(msg);
+    return;
+  }
+  state.midi.bindings.forEach(binding => {
+    if (binding.type === msg.type && binding.channel === msg.channel && binding.num === msg.num) {
+      applyMidiBinding(binding, msg.value);
+    }
+  });
+}
+function learnMidiBinding(msg) {
+  const target = state.midi.learnTarget;
+  runCommand('Add MIDI binding', () => {
+    state.midi.bindings = state.midi.bindings.filter(binding =>
+      !(binding.type === msg.type && binding.channel === msg.channel && binding.num === msg.num &&
+        binding.lid === target.lid && binding.kind === target.kind && binding.paramKey === target.paramKey)
+    );
+    state.midi.bindings.push({
+      id: state.midi.nextBindingId++,
+      type: msg.type,
+      channel: msg.channel,
+      num: msg.num,
+      kind: target.kind,
+      lid: target.lid,
+      paramKey: target.paramKey || null
+    });
+    state.midi.learnTarget = null;
+    refreshMidiUI();
+  });
+}
+function paramDefForLayer(layer, paramKey) {
+  const def = layer && effectDef(layer.effId);
+  return def && paramDefsFor(def).find(param => param.key === paramKey);
+}
+function valueToHex(v) {
+  const hue = clamp(v, 0, 1);
+  const rgb = hsv2rgbForUI(hue, 0.95, 1);
+  return '#' + rgb.map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
+}
+function hsv2rgbForUI(h, s, v) {
+  const i = Math.floor(h * 6);
+  const f = h * 6 - i;
+  const p = v * (1 - s);
+  const q = v * (1 - f * s);
+  const t = v * (1 - (1 - f) * s);
+  const m = i % 6;
+  if (m === 0) return [v, t, p];
+  if (m === 1) return [q, v, p];
+  if (m === 2) return [p, v, t];
+  if (m === 3) return [p, q, v];
+  if (m === 4) return [t, p, v];
+  return [v, p, q];
+}
+let midiRefreshQueued = false;
+function scheduleMidiRefresh() {
+  if (midiRefreshQueued) return;
+  midiRefreshQueued = true;
+  requestAnimationFrame(() => {
+    midiRefreshQueued = false;
+    refreshFxUI();
+  });
+}
+function applyMidiBinding(binding, rawValue) {
+  const layer = findLayerAnyScene(binding.lid);
+  if (!layer) return;
+  if (binding.kind === 'enabled') {
+    if (binding.type === 'note') layer.enabled = !layer.enabled;
+    else layer.enabled = rawValue >= 64;
+    scheduleMidiRefresh();
+    return;
+  }
+  if (binding.kind === 'key') {
+    if (binding.type === 'note' || rawValue > 0) {
+      const prevScene = state.activeScene;
+      const sceneIdx = state.scenes.findIndex(scene => scene.layers.includes(layer));
+      if (sceneIdx >= 0) state.activeScene = sceneIdx;
+      state.selectedLayerId = layer.lid;
+      addKeyframe(layer.lid, binding.paramKey || 'amount');
+      state.activeScene = prevScene;
+      updateSceneControls();
+    }
+    return;
+  }
+  const param = paramDefForLayer(layer, binding.paramKey);
+  if (!param) return;
+  const norm = clamp(rawValue / 127, 0, 1);
+  if (param.type === 'color') {
+    layer.values[param.key] = valueToHex(norm);
+  } else {
+    const min = param.min ?? 0;
+    const max = param.max ?? 1;
+    layer.values[param.key] = min + (max - min) * norm;
+  }
+  scheduleMidiRefresh();
+}
+midiEnableBtn.addEventListener('click', enableMidi);
+midiClearLearn.addEventListener('click', clearMidiLearn);
+refreshMidiUI();
+
+// ===================================================================
+// UI: EFFECT LIST
+// ===================================================================
+const effectList = document.getElementById('effectList');
+const selectedPanel = document.getElementById('selectedPanel');
+const timelineList = document.getElementById('timelineList');
+
+function effectDef(id) {
+  return EFFECTS.find(d => d.id === id);
+}
+function layerState(lid) {
+  return state.layers.find(layer => layer.lid === lid);
+}
+function statusLabel(st) {
+  return st === 'full' ? '実装' : st === 'lite' ? '簡易' : '監視';
+}
+function defaultValuesFor(def) {
+  const values = { amount: 0.5, speed: 0.5, mix: 1, bpmSync: 0, audioReactive: 0, fftTrigger: 0 };
+  if (def.def) Object.assign(values, def.def);
+  if (def.extras) def.extras.forEach(x => values[x.key] = x.def);
+  return values;
+}
+const BASE_PARAM_DEFS = [
+  {key:'amount',  label:'amount',  min:0, max:1, step:0.001},
+  {key:'speed',   label:'speed',   min:0, max:1, step:0.001},
+  {key:'mix',     label:'mix',     min:0, max:1, step:0.001},
+  {key:'bpmSync', label:'bpmSync', min:0, max:1, step:0.001},
+  {key:'audioReactive', label:'audio', min:0, max:1, step:0.001},
+  {key:'fftTrigger', label:'fftTrig', min:0, max:1, step:0.001},
+];
+function paramDefsFor(def) {
+  return BASE_PARAM_DEFS.concat((def.extras || []).map(x => ({
+    key: x.key,
+    label: x.label,
+    min: x.min,
+    max: x.max,
+    step: 0.001,
+    type: x.type
+  })));
+}
+function defaultLayerFft() {
+  const a = state.audio;
+  return {
+    freq: a.freq,
+    width: a.freqWidth,
+    threshold: a.freqThreshold,
+    edge: a.freqEdge,
+    gain: a.gain,
+    _level: 0, _gate: false, _prevGate: false, _env: 0
+  };
+}
+function normalizeLayerFft(fft) {
+  const base = defaultLayerFft();
+  if (!fft) return base;
+  base.freq = clamp(parseFloat(fft.freq) || base.freq, 20, 16000);
+  base.width = clamp(parseFloat(fft.width) || base.width, 10, 2000);
+  base.threshold = clamp(parseFloat(fft.threshold) ?? base.threshold, 0, 1);
+  base.edge = (fft.edge === 'rise' || fft.edge === 'fall' || fft.edge === 'both') ? fft.edge : base.edge;
+  base.gain = clamp(parseFloat(fft.gain) || base.gain, 0.1, 8);
+  return base;
+}
+function createLayer(effId, opts = {}) {
+  const def = effectDef(effId);
+  if (!def) return null;
+  const clip = normalizeClip(opts.start, opts.end);
+  const layer = {
+    lid: opts.lid || `L${state.nextLayerSeq++}`,
+    effId,
+    enabled: !!opts.enabled,
+    open: opts.open !== undefined ? !!opts.open : true,
+    start: clip.start,
+    end: clip.end,
+    values: defaultValuesFor(def),
+    keyframes: {},
+    fft: normalizeLayerFft(opts.fft)
+  };
+  Object.assign(layer.values, opts.values || {});
+  if (opts.keyframes) layer.keyframes = JSON.parse(JSON.stringify(opts.keyframes));
+  return layer;
+}
+function normalizeClip(start, end) {
+  const duration = Math.max(1 / 60, state.comp.duration);
+  const minLen = 1 / 30;
+  let s = Number.isFinite(parseFloat(start)) ? parseFloat(start) : 0;
+  let e = Number.isFinite(parseFloat(end)) ? parseFloat(end) : duration;
+  s = clamp(s, 0, Math.max(0, duration - minLen));
+  e = clamp(e, s + minLen, duration);
+  return {start: s, end: e};
+}
+function normalizeLayerClip(layer) {
+  if (!layer) return;
+  const clip = normalizeClip(layer.start, layer.end);
+  layer.start = clip.start;
+  layer.end = clip.end;
+}
+function normalizeAllLayerClips() {
+  state.scenes.forEach(scene => scene.layers.forEach(normalizeLayerClip));
+}
+function ensureSelectedLayer() {
+  if (!layerState(state.selectedLayerId)) {
+    state.selectedLayerId = state.layers[0] ? state.layers[0].lid : null;
+  }
+}
+function selectLayer(lid) {
+  state.selectedLayerId = lid;
+  refreshFxUI();
+}
+function addLayer(effId) {
+  runCommand('Add layer', () => {
+    const def = effectDef(effId);
+    const layer = createLayer(effId, {enabled: true});
+    if (!layer || !def) return;
+    state.layers.push(layer);
+    state.selectedLayerId = layer.lid;
+    if (def.st !== 'mon') getProg(def);
+    refreshFxUI();
+  });
+}
+function duplicateLayer(lid) {
+  runCommand('Duplicate layer', () => {
+    const src = layerState(lid);
+    if (!src) return;
+    const copy = createLayer(src.effId, {enabled: src.enabled, values: {...src.values}, keyframes: src.keyframes, open: src.open, start: src.start, end: src.end});
+    if (!copy) return;
+    const idx = state.layers.findIndex(layer => layer.lid === lid);
+    state.layers.splice(idx + 1, 0, copy);
+    state.selectedLayerId = copy.lid;
+    refreshFxUI();
+  });
+}
+function deleteLayer(lid) {
+  runCommand('Delete layer', () => {
+    const idx = state.layers.findIndex(layer => layer.lid === lid);
+    if (idx < 0) return;
+    state.layers.splice(idx, 1);
+    if (state.selectedKey?.lid === lid) state.selectedKey = null;
+    state.selectedLayerId = state.layers[Math.min(idx, state.layers.length - 1)]?.lid || null;
+    refreshFxUI();
+  });
+}
+function moveLayer(lid, delta) {
+  runCommand('Move layer', () => {
+    const idx = state.layers.findIndex(layer => layer.lid === lid);
+    const next = idx + delta;
+    if (idx < 0 || next < 0 || next >= state.layers.length) return;
+    [state.layers[idx], state.layers[next]] = [state.layers[next], state.layers[idx]];
+    refreshFxUI();
+  });
+}
+function toggleLayer(lid, enabled) {
+  runCommand('Toggle layer', () => {
+    const layer = layerState(lid);
+    const def = layer && effectDef(layer.effId);
+    if (!layer || !def) return;
+    layer.enabled = enabled;
+    if (layer.enabled && def.st !== 'mon') getProg(def);
+    state.selectedLayerId = lid;
+    refreshFxUI();
+  });
+}
+function toggleLayerOpen(lid) {
+  const layer = layerState(lid);
+  if (!layer) return;
+  layer.open = !layer.open;
+  state.selectedLayerId = lid;
+  refreshFxUI();
+}
+function selectKey(lid, paramKey, idx) {
+  state.selectedLayerId = lid;
+  state.selectedKey = {lid, paramKey, idx};
+  refreshFxUI();
+}
+function addKeyframe(lid, paramKey) {
+  runCommand('Add keyframe', () => {
+    const layer = layerState(lid);
+    if (!layer) return;
+    const value = evaluateLayerValues(layer, state.play.time)[paramKey] ?? layer.values[paramKey];
+    if (!layer.keyframes[paramKey]) layer.keyframes[paramKey] = [];
+    const keys = layer.keyframes[paramKey];
+    const t = snapTime(state.play.time);
+    const existing = keys.findIndex(k => Math.abs(k.t - t) < 1 / 120);
+    if (existing >= 0) keys[existing].v = value;
+    else keys.push({t, v: value});
+    sortedKeyframes(layer, paramKey);
+    const idx = keys.findIndex(k => Math.abs(k.t - t) < 1 / 120);
+    state.selectedKey = {lid, paramKey, idx};
+    state.selectedLayerId = lid;
+    refreshFxUI();
+  });
+}
+function deleteSelectedKey() {
+  runCommand('Delete keyframe', () => {
+    const sel = state.selectedKey;
+    const layer = sel && layerState(sel.lid);
+    const keys = layer && layer.keyframes[sel.paramKey];
+    if (!keys || !keys[sel.idx]) return;
+    keys.splice(sel.idx, 1);
+    if (!keys.length) delete layer.keyframes[sel.paramKey];
+    state.selectedKey = null;
+    refreshFxUI();
+  });
+}
+function moveKey(lid, paramKey, idx, t, refresh = true) {
+  const layer = layerState(lid);
+  const keys = layer && layer.keyframes[paramKey];
+  if (!keys || !keys[idx]) return;
+  const key = keys[idx];
+  key.t = clamp(snapTime(t), 0, state.comp.duration);
+  if (refresh) sortedKeyframes(layer, paramKey);
+  const nextIdx = keys.indexOf(key);
+  state.selectedKey = {lid, paramKey, idx: Math.max(0, Math.min(keys.length - 1, nextIdx))};
+  if (refresh) refreshFxUI();
+}
+function copySelectedKey() {
+  const sel = state.selectedKey;
+  const layer = sel && layerState(sel.lid);
+  const key = layer && layer.keyframes[sel.paramKey]?.[sel.idx];
+  if (!key) return;
+  state.keyClipboard = {paramKey: sel.paramKey, v: key.v};
+}
+function pasteKeyClipboard() {
+  runCommand('Paste keyframe', () => {
+    if (!state.keyClipboard || !state.selectedLayerId) return;
+    const layer = layerState(state.selectedLayerId);
+    if (!layer) return;
+    const paramKey = state.keyClipboard.paramKey;
+    if (!(paramKey in layer.values)) return;
+    if (!layer.keyframes[paramKey]) layer.keyframes[paramKey] = [];
+    const t = snapTime(state.play.time);
+    layer.keyframes[paramKey].push({t, v: state.keyClipboard.v});
+    sortedKeyframes(layer, paramKey);
+    const idx = layer.keyframes[paramKey].findIndex(k => Math.abs(k.t - t) < 1 / 120);
+    state.selectedKey = {lid: layer.lid, paramKey, idx};
+    refreshFxUI();
+  });
+}
+function scheduleParamHistory(label, before) {
+  if (!state.pendingParamHistory) {
+    state.pendingParamHistory = {label, before, timer: null};
+  }
+  clearTimeout(state.pendingParamHistory.timer);
+  state.pendingParamHistory.timer = setTimeout(() => {
+    const pending = state.pendingParamHistory;
+    state.pendingParamHistory = null;
+    pushHistory(pending.label, pending.before);
+  }, 250);
+}
+function randomParamValue(param) {
+  if (param.type === 'color') {
+    return '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+  }
+  const min = param.min ?? 0;
+  const max = param.max ?? 1;
+  return min + Math.random() * (max - min);
+}
+function randomizeLayerKeyframes(layer, def) {
+  const params = paramDefsFor(def).filter(p => p.type !== 'color');
+  const count = 2 + Math.floor(Math.random() * 3);
+  const chosen = params
+    .sort(() => Math.random() - 0.5)
+    .slice(0, Math.min(params.length, 2 + Math.floor(Math.random() * 3)));
+  chosen.forEach(param => {
+    layer.keyframes[param.key] = [];
+    for (let i = 0; i < count; i++) {
+      layer.keyframes[param.key].push({
+        t: Math.random() * state.comp.duration,
+        v: randomParamValue(param)
+      });
+    }
+    sortedKeyframes(layer, param.key);
+  });
+}
+function refreshFxUI() {
+  ensureSelectedLayer();
+  effectList.innerHTML = '';
+  buildEffectList();
+  buildInspector();
+  buildTimeline();
+  updateFxStatus();
+}
+
+function buildEffectList() {
+  EFFECT_CATEGORIES.forEach(cat => {
+    const box = document.createElement('div');
+    box.className = 'category' + (state.categoriesOpen[cat.key] ? '' : ' closed');
+    const layerCount = state.layers.filter(layer => effectDef(layer.effId)?.cat === cat.key).length;
+    const onCount = state.layers.filter(layer => layer.enabled && effectDef(layer.effId)?.cat === cat.key).length;
+    box.innerHTML = `
+      <button class="category-head">
+        <span class="twisty">${state.categoriesOpen[cat.key] ? '▼' : '▶'}</span>
+        <span class="cat-name">${cat.key}</span>
+        <span class="cat-count">${onCount}/${layerCount}</span>
+      </button>
+      <div class="category-body"></div>
+    `;
+    box.querySelector('.category-head').addEventListener('click', () => {
+      state.categoriesOpen[cat.key] = !state.categoriesOpen[cat.key];
+      refreshFxUI();
+    });
+    const body = box.querySelector('.category-body');
+    cat.ids.forEach(id => {
+      const def = effectDef(id);
+      if (!def) return;
+      const related = state.layers.filter(layer => layer.effId === id);
+      const selected = related.some(layer => layer.lid === state.selectedLayerId);
+      const enabled = related.some(layer => layer.enabled);
+      const row = document.createElement('div');
+      row.className = 'lib-row' +
+        (enabled ? ' on' : '') +
+        (selected ? ' selected' : '');
+      row.innerHTML = `
+        <span class="num">${String(related.length).padStart(2,'0')}</span>
+        <span class="lib-name">${def.name}</span>
+        <span class="badge ${def.st}">${statusLabel(def.st)}</span>
+        <button class="mvbtn" data-act="add">＋</button>
+      `;
+      row.addEventListener('click', () => {
+        const first = related[0];
+        if (first) selectLayer(first.lid);
+        else addLayer(id);
+      });
+      row.querySelector('[data-act=add]').addEventListener('click', e => {
+        e.stopPropagation();
+        addLayer(id);
+      });
+      body.appendChild(row);
+    });
+    effectList.appendChild(box);
+  });
+}
+
+function buildInspector() {
+  selectedPanel.innerHTML = '';
+  const layer = layerState(state.selectedLayerId);
+  const def = layer && effectDef(layer.effId);
+  if (!layer || !def) {
+    selectedPanel.innerHTML = '<div class="empty">左のライブラリから効果を追加してください。</div>';
+    return;
+  }
+  const idx = state.layers.findIndex(item => item.lid === layer.lid);
+  normalizeLayerClip(layer);
+  const head = document.createElement('div');
+  head.innerHTML = `
+    <div class="selected-title">
+      <span class="num">${String(idx + 1).padStart(2,'0')}</span>
+      <h2>${def.name}</h2>
+      <span class="badge">${layer.lid}</span>
+      <span class="badge">${formatTime(layer.start)}-${formatTime(layer.end)}</span>
+      <span class="badge ${def.st}">${statusLabel(def.st)}</span>
+    </div>
+    <div class="selected-actions">
+      <label class="row" style="margin:0;">
+        <input type="checkbox" id="selectedEnabled" ${layer.enabled?'checked':''}> 有効
+      </label>
+      <button data-act="up">▲ 上へ</button>
+      <button data-act="down">▼ 下へ</button>
+      <button data-act="duplicate">複製</button>
+      <button class="danger" data-act="delete">削除</button>
+    </div>
+  `;
+  selectedPanel.appendChild(head);
+  const actionBox = head.querySelector('.selected-actions');
+  const midiEnabledBtn = document.createElement('button');
+  midiEnabledBtn.textContent = 'MIDI on/off';
+  midiEnabledBtn.addEventListener('click', () => startMidiLearn({kind:'enabled', lid:layer.lid, label:`${def.name} enabled`}));
+  const midiKeyBtn = document.createElement('button');
+  midiKeyBtn.textContent = 'MIDI key';
+  midiKeyBtn.addEventListener('click', () => startMidiLearn({kind:'key', lid:layer.lid, paramKey:'amount', label:`${def.name} add key`}));
+  actionBox.insertBefore(midiEnabledBtn, actionBox.querySelector('.danger'));
+  actionBox.insertBefore(midiKeyBtn, actionBox.querySelector('.danger'));
+  head.querySelector('#selectedEnabled').addEventListener('change', e => toggleLayer(layer.lid, e.target.checked));
+  head.querySelector('[data-act=up]').addEventListener('click', () => moveLayer(layer.lid, -1));
+  head.querySelector('[data-act=down]').addEventListener('click', () => moveLayer(layer.lid, 1));
+  head.querySelector('[data-act=duplicate]').addEventListener('click', () => duplicateLayer(layer.lid));
+  head.querySelector('[data-act=delete]').addEventListener('click', () => deleteLayer(layer.lid));
+
+  const body = document.createElement('div');
+  body.className = 'fx-body';
+  buildEffectBody(body, layer, def);
+  selectedPanel.appendChild(body);
+}
+
+function buildTimeline() {
+  timelineList.innerHTML = '';
+  if (!state.layers.length) {
+    timelineList.innerHTML = '<div class="empty">レイヤーはまだありません。左パネルの＋で追加します。</div>';
+    return;
+  }
+  state.layers.forEach((layer, idx) => {
+    const def = effectDef(layer.effId);
+    if (!def) return;
+    normalizeLayerClip(layer);
+    const inPct = timeToPct(layer.start);
+    const outPct = timeToPct(layer.end);
+    const row = document.createElement('div');
+    row.className = 'lane-row' +
+      (layer.enabled ? ' on' : '') +
+      (state.selectedLayerId === layer.lid ? ' selected' : '');
+    row.innerHTML = `
+      <div class="lane-controls">
+        <span class="num">${String(idx + 1).padStart(2,'0')}</span>
+        <button class="mvbtn" data-act="open">${layer.open ? '▼' : '▶'}</button>
+        <input type="checkbox" ${layer.enabled?'checked':''} aria-label="${def.name} 有効">
+        <span class="lane-name">${def.name}</span>
+        <button class="mvbtn" data-act="up">▲</button>
+        <button class="mvbtn" data-act="down">▼</button>
+      </div>
+      <div class="lane-track">
+        <div class="lane-bar" data-lid="${layer.lid}" style="left:${inPct.toFixed(3)}%;width:${Math.max(0, outPct - inPct).toFixed(3)}%;">
+          <button class="clip-handle start" data-edge="start" aria-label="clip start"></button>
+          <button class="clip-handle end" data-edge="end" aria-label="clip end"></button>
+        </div>
+        ${renderLayerKeys(layer)}
+      </div>
+    `;
+    row.addEventListener('click', () => selectLayer(layer.lid));
+    const chk = row.querySelector('input');
+    chk.addEventListener('click', e => e.stopPropagation());
+    chk.addEventListener('change', e => toggleLayer(layer.lid, e.target.checked));
+    row.querySelector('[data-act=open]').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleLayerOpen(layer.lid);
+    });
+    row.querySelector('[data-act=up]').addEventListener('click', e => {
+      e.stopPropagation();
+      moveLayer(layer.lid, -1);
+    });
+    row.querySelector('[data-act=down]').addEventListener('click', e => {
+      e.stopPropagation();
+      moveLayer(layer.lid, 1);
+    });
+    timelineList.appendChild(row);
+    setupClipDrag(row.querySelector('.lane-bar'));
+    row.querySelectorAll('.key-marker').forEach(marker => setupKeyMarker(marker));
+    if (layer.open) buildParamRows(layer, def);
+  });
+}
+
+function renderLayerKeys(layer) {
+  const keys = [];
+  Object.keys(layer.keyframes || {}).forEach(paramKey => {
+    sortedKeyframes(layer, paramKey).forEach((key, idx) => {
+      const selected = state.selectedKey &&
+        state.selectedKey.lid === layer.lid &&
+        state.selectedKey.paramKey === paramKey &&
+        state.selectedKey.idx === idx;
+      keys.push(`<button class="key-marker ${selected ? 'selected' : ''}" data-lid="${layer.lid}" data-param="${paramKey}" data-idx="${idx}" style="left:${timeToPct(key.t).toFixed(3)}%"></button>`);
+    });
+  });
+  return keys.join('');
+}
+
+function updateClipBarStyle(bar, layer) {
+  normalizeLayerClip(layer);
+  const left = timeToPct(layer.start);
+  const right = timeToPct(layer.end);
+  bar.style.left = left.toFixed(3) + '%';
+  bar.style.width = Math.max(0, right - left).toFixed(3) + '%';
+}
+
+function setLayerClip(layer, start, end) {
+  const clip = normalizeClip(start, end);
+  layer.start = clip.start;
+  layer.end = clip.end;
+}
+
+function setupClipDrag(bar) {
+  if (!bar) return;
+  bar.addEventListener('click', e => {
+    e.stopPropagation();
+    selectLayer(bar.dataset.lid);
+  });
+  bar.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    const layer = layerState(bar.dataset.lid);
+    if (!layer) return;
+    normalizeLayerClip(layer);
+    const before = snapshotState();
+    const track = bar.closest('.lane-track');
+    const mode = e.target.dataset.edge || 'move';
+    const startX = e.clientX;
+    const initialStart = layer.start;
+    const initialEnd = layer.end;
+    const initialLen = initialEnd - initialStart;
+    const minLen = 1 / 30;
+    state.selectedLayerId = layer.lid;
+    state.selectedKey = null;
+    bar.setPointerCapture(e.pointerId);
+    const move = ev => {
+      const rect = track.getBoundingClientRect();
+      const dx = (ev.clientX - startX) / Math.max(1, rect.width) * viewVisibleDuration();
+      if (mode === 'start') {
+        const nextStart = clamp(snapTime(initialStart + dx), 0, initialEnd - minLen);
+        setLayerClip(layer, nextStart, initialEnd);
+      } else if (mode === 'end') {
+        const nextEnd = clamp(snapTime(initialEnd + dx), initialStart + minLen, state.comp.duration);
+        setLayerClip(layer, initialStart, nextEnd);
+      } else {
+        const snappedStart = snapTime(initialStart + dx);
+        const nextStart = clamp(snappedStart, 0, state.comp.duration - initialLen);
+        setLayerClip(layer, nextStart, nextStart + initialLen);
+      }
+      updateClipBarStyle(bar, layer);
+    };
+    const up = ev => {
+      try { bar.releasePointerCapture(ev.pointerId); } catch (err) {}
+      bar.removeEventListener('pointermove', move);
+      bar.removeEventListener('pointerup', up);
+      pushHistory('Change clip range', before);
+      refreshFxUI();
+    };
+    bar.addEventListener('pointermove', move);
+    bar.addEventListener('pointerup', up);
+  });
+}
+
+function buildParamRows(layer, def) {
+  paramDefsFor(def).forEach(param => {
+    const keys = sortedKeyframes(layer, param.key);
+    const graphable = param.type !== 'color';
+    const graph = graphable && !!state.graphOpen[graphKey(layer.lid, param.key)];
+    const row = document.createElement('div');
+    row.className = 'lane-row param' + (graph ? ' graph' : '') + (state.selectedLayerId === layer.lid ? ' selected' : '');
+    row.innerHTML = `
+      <div class="lane-controls">
+        <span class="num">${String(keys.length).padStart(2,'0')}</span>
+        <span class="lane-name">${param.label}</span>
+        <button class="mvbtn" data-act="add-key">◆</button>
+        ${graphable ? `<button class="mvbtn" data-act="graph">${graph ? 'G*' : 'G'}</button>` : '<span class="num"></span>'}
+      </div>
+      <div class="lane-track">${graph ? renderGraphTrack(layer, param, keys) : keys.map((key, idx) => {
+        const selected = state.selectedKey &&
+          state.selectedKey.lid === layer.lid &&
+          state.selectedKey.paramKey === param.key &&
+          state.selectedKey.idx === idx;
+        return `<button class="key-marker ${selected ? 'selected' : ''}" data-lid="${layer.lid}" data-param="${param.key}" data-idx="${idx}" style="left:${timeToPct(key.t).toFixed(3)}%"></button>`;
+      }).join('')}</div>
+    `;
+    row.querySelector('[data-act=add-key]').addEventListener('click', e => {
+      e.stopPropagation();
+      addKeyframe(layer.lid, param.key);
+    });
+    const graphBtn = row.querySelector('[data-act=graph]');
+    if (graphBtn) graphBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const key = graphKey(layer.lid, param.key);
+      state.graphOpen[key] = !state.graphOpen[key];
+      refreshFxUI();
+    });
+    timelineList.appendChild(row);
+    if (graph) {
+      const canvas = row.querySelector('.graph-canvas');
+      requestAnimationFrame(() => drawGraphCanvas(canvas, layer, param));
+      row.querySelectorAll('.graph-point').forEach(point => setupGraphPoint(point, param));
+    } else {
+      row.querySelectorAll('.key-marker').forEach(marker => setupKeyMarker(marker));
+    }
+  });
+}
+
+function graphKey(lid, paramKey) {
+  return `${lid}:${paramKey}`;
+}
+function renderGraphTrack(layer, param, keys) {
+  const points = keys.map((key, idx) => {
+    const pos = graphPointPosition(param, key);
+    const selected = state.selectedKey &&
+      state.selectedKey.lid === layer.lid &&
+      state.selectedKey.paramKey === param.key &&
+      state.selectedKey.idx === idx;
+    return `<button class="graph-point ${selected ? 'selected' : ''}" data-lid="${layer.lid}" data-param="${param.key}" data-idx="${idx}" style="left:${pos.x.toFixed(3)}%;top:${pos.y.toFixed(3)}%"></button>`;
+  }).join('');
+  return `<canvas class="graph-canvas" data-lid="${layer.lid}" data-param="${param.key}"></canvas>${points}`;
+}
+function graphPointPosition(param, key) {
+  const min = param.min ?? 0;
+  const max = param.max ?? 1;
+  const norm = max === min ? 0 : clamp((parseFloat(key.v) - min) / (max - min), 0, 1);
+  return {
+    x: timeToPct(key.t),
+    y: (1 - norm) * 100
+  };
+}
+function drawGraphCanvas(canvas, layer, param) {
+  if (!canvas) return;
+  const keys = sortedKeyframes(layer, param.key);
+  const rect = canvas.getBoundingClientRect();
+  const w = Math.max(1, Math.floor(rect.width * devicePixelRatio));
+  const h = Math.max(1, Math.floor(rect.height * devicePixelRatio));
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#2a3341';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.5);
+  ctx.lineTo(w, h * 0.5);
+  ctx.stroke();
+  if (!keys.length) return;
+  ctx.strokeStyle = '#88d8a3';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const viewStart = viewStartTime();
+  const viewVis = viewVisibleDuration();
+  for (let x = 0; x <= w; x++) {
+    const t = viewStart + (x / Math.max(1, w)) * viewVis;
+    const v = sampleKeyframes(layer.values[param.key], keys, t);
+    const pos = graphPointPosition(param, {t, v});
+    const y = pos.y / 100 * h;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+function setupGraphPoint(point, param) {
+  point.addEventListener('click', e => {
+    e.stopPropagation();
+    selectKey(point.dataset.lid, point.dataset.param, parseInt(point.dataset.idx, 10));
+  });
+  point.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    const before = snapshotState();
+    const track = point.closest('.lane-track');
+    point.setPointerCapture(e.pointerId);
+    state.selectedLayerId = point.dataset.lid;
+    state.selectedKey = {
+      lid: point.dataset.lid,
+      paramKey: point.dataset.param,
+      idx: parseInt(point.dataset.idx, 10)
+    };
+    const move = ev => {
+      const layer = layerState(point.dataset.lid);
+      const keys = layer && layer.keyframes[point.dataset.param];
+      const key = keys && keys[parseInt(point.dataset.idx, 10)];
+      if (!key) return;
+      const rect = track.getBoundingClientRect();
+      const x = clamp(ev.clientX - rect.left, 0, rect.width);
+      const y = clamp(ev.clientY - rect.top, 0, rect.height);
+      key.t = clamp(snapTime(pctToTime(x / Math.max(1, rect.width) * 100)), 0, state.comp.duration);
+      const min = param.min ?? 0;
+      const max = param.max ?? 1;
+      key.v = min + (1 - y / Math.max(1, rect.height)) * (max - min);
+      const pos = graphPointPosition(param, key);
+      point.style.left = pos.x.toFixed(3) + '%';
+      point.style.top = pos.y.toFixed(3) + '%';
+      drawGraphCanvas(track.querySelector('.graph-canvas'), layer, param);
+    };
+    const up = ev => {
+      try { point.releasePointerCapture(ev.pointerId); } catch (err) {}
+      point.removeEventListener('pointermove', move);
+      point.removeEventListener('pointerup', up);
+      const layer = layerState(point.dataset.lid);
+      if (layer) sortedKeyframes(layer, point.dataset.param);
+      pushHistory('Move graph key', before);
+      refreshFxUI();
+    };
+    point.addEventListener('pointermove', move);
+    point.addEventListener('pointerup', up);
+  });
+}
+
+function setupKeyMarker(marker) {
+  marker.addEventListener('click', e => {
+    e.stopPropagation();
+    selectKey(marker.dataset.lid, marker.dataset.param, parseInt(marker.dataset.idx, 10));
+  });
+  marker.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    const before = snapshotState();
+    marker.setPointerCapture(e.pointerId);
+    state.selectedLayerId = marker.dataset.lid;
+    state.selectedKey = {
+      lid: marker.dataset.lid,
+      paramKey: marker.dataset.param,
+      idx: parseInt(marker.dataset.idx, 10)
+    };
+    marker.classList.add('selected');
+    const track = marker.closest('.lane-track');
+    const move = ev => {
+      const rect = track.getBoundingClientRect();
+      const x = clamp(ev.clientX - rect.left, 0, rect.width);
+      const t = pctToTime(x / Math.max(1, rect.width) * 100);
+      moveKey(marker.dataset.lid, marker.dataset.param, parseInt(marker.dataset.idx, 10), t, false);
+      const layer = layerState(marker.dataset.lid);
+      const key = layer?.keyframes[marker.dataset.param]?.[parseInt(marker.dataset.idx, 10)];
+      if (key) marker.style.left = timeToPct(key.t).toFixed(3) + '%';
+    };
+    const up = ev => {
+      try { marker.releasePointerCapture(ev.pointerId); } catch (err) {}
+      marker.removeEventListener('pointermove', move);
+      marker.removeEventListener('pointerup', up);
+      const layer = layerState(marker.dataset.lid);
+      if (layer) sortedKeyframes(layer, marker.dataset.param);
+      pushHistory('Move keyframe', before);
+      refreshFxUI();
+    };
+    marker.addEventListener('pointermove', move);
+    marker.addEventListener('pointerup', up);
+  });
+}
+
+function buildEffectBody(body, layer, def) {
+  body.innerHTML = '';
+  BASE_PARAM_DEFS.forEach(p => body.appendChild(makeRange(layer, p)));
+  body.appendChild(makeLayerInOutPanel(layer));
+  body.appendChild(makeLayerFftPanel(layer));
+  if (def.extras && def.extras.length) {
+    const hr = document.createElement('hr'); body.appendChild(hr);
+    def.extras.forEach(x => {
+      if (x.type === 'color') body.appendChild(makeColor(layer, x));
+      else body.appendChild(makeRange(layer, {key:x.key, label:x.label, min:x.min, max:x.max, step:0.001}));
+    });
+  }
+  if (def.id === 'audiobpm') {
+    const note = document.createElement('div');
+    note.className = 'note';
+    note.textContent = '※ このスロットは状態表示用。各効果の bpmSync / audio スライダで個別に同期させてください。';
+    body.appendChild(note);
+  }
+}
+
+function makeLayerInOutPanel(layer) {
+  normalizeLayerClip(layer);
+  const panel = document.createElement('div');
+  panel.className = 'sub-panel';
+  panel.innerHTML = `
+    <div class="sub-panel-head">Layer In / Out (clip range)</div>
+    <div class="row"><label>In</label>
+      <input type="number" min="0" max="${state.comp.duration}" step="0.01" data-clip="start" value="${layer.start.toFixed(2)}">
+      <button class="mvbtn" data-clip-act="set-in">@playhead</button></div>
+    <div class="row"><label>Out</label>
+      <input type="number" min="0" max="${state.comp.duration}" step="0.01" data-clip="end" value="${layer.end.toFixed(2)}">
+      <button class="mvbtn" data-clip-act="set-out">@playhead</button></div>
+    <div class="row"><label>length</label>
+      <span class="v">${(layer.end - layer.start).toFixed(2)} s</span>
+      <button class="mvbtn" data-clip-act="full">full</button></div>
+  `;
+  const inField = panel.querySelector('[data-clip="start"]');
+  const outField = panel.querySelector('[data-clip="end"]');
+  const commitClip = (label, fn) => runCommand(label, () => {
+    fn();
+    normalizeLayerClip(layer);
+    refreshFxUI();
+  });
+  inField.addEventListener('change', () => {
+    commitClip('Set layer In', () => { layer.start = parseFloat(inField.value) || 0; });
+  });
+  outField.addEventListener('change', () => {
+    commitClip('Set layer Out', () => { layer.end = parseFloat(outField.value) || state.comp.duration; });
+  });
+  panel.querySelector('[data-clip-act="set-in"]').addEventListener('click', () => {
+    commitClip('Set layer In @playhead', () => { layer.start = state.play.time; });
+  });
+  panel.querySelector('[data-clip-act="set-out"]').addEventListener('click', () => {
+    commitClip('Set layer Out @playhead', () => { layer.end = state.play.time; });
+  });
+  panel.querySelector('[data-clip-act="full"]').addEventListener('click', () => {
+    commitClip('Set layer In/Out full', () => { layer.start = 0; layer.end = state.comp.duration; });
+  });
+  return panel;
+}
+
+function setLayerInAtPlayhead(lid) {
+  const layer = layerState(lid);
+  if (!layer) return;
+  runCommand('Set layer In @playhead', () => {
+    layer.start = clamp(state.play.time, 0, layer.end - 1 / 30);
+    normalizeLayerClip(layer);
+    refreshFxUI();
+  });
+}
+function setLayerOutAtPlayhead(lid) {
+  const layer = layerState(lid);
+  if (!layer) return;
+  runCommand('Set layer Out @playhead', () => {
+    layer.end = clamp(state.play.time, layer.start + 1 / 30, state.comp.duration);
+    normalizeLayerClip(layer);
+    refreshFxUI();
+  });
+}
+
+function makeLayerFftPanel(layer) {
+  if (!layer.fft) layer.fft = defaultLayerFft();
+  const panel = document.createElement('div');
+  panel.className = 'sub-panel';
+  panel.innerHTML = `
+    <div class="sub-panel-head">FFT trigger (per-layer)</div>
+    <div class="row"><label>freq</label>
+      <input type="number" min="20" max="16000" step="1" data-fft="freq" value="${Math.round(layer.fft.freq)}">
+      <span class="v" data-fft-disp="freq">${Math.round(layer.fft.freq)} Hz</span></div>
+    <div class="row"><label>width</label>
+      <input type="number" min="10" max="2000" step="1" data-fft="width" value="${Math.round(layer.fft.width)}">
+      <span class="v" data-fft-disp="width">${Math.round(layer.fft.width)} Hz</span></div>
+    <div class="row"><label>thresh</label>
+      <input type="range" min="0" max="1" step="0.001" data-fft="threshold" value="${layer.fft.threshold}">
+      <span class="v" data-fft-disp="threshold">${layer.fft.threshold.toFixed(2)}</span></div>
+    <div class="row"><label>edge</label>
+      <select data-fft="edge">
+        <option value="rise" ${layer.fft.edge === 'rise' ? 'selected' : ''}>rise</option>
+        <option value="fall" ${layer.fft.edge === 'fall' ? 'selected' : ''}>fall</option>
+        <option value="both" ${layer.fft.edge === 'both' ? 'selected' : ''}>both</option>
+      </select></div>
+    <div class="row"><label>gain</label>
+      <input type="range" min="0.1" max="8" step="0.05" data-fft="gain" value="${layer.fft.gain}">
+      <span class="v" data-fft-disp="gain">x${layer.fft.gain.toFixed(2)}</span></div>
+    <div class="row"><label>copy</label>
+      <button class="mvbtn" data-fft-act="from-global">← global</button>
+      <button class="mvbtn" data-fft-act="to-global">→ global</button></div>
+  `;
+  const setNum = (key, raw, fmt) => {
+    let val = parseFloat(raw);
+    if (key === 'freq') val = clamp(val || 80, 20, 16000);
+    else if (key === 'width') val = clamp(val || 90, 10, 2000);
+    else if (key === 'threshold') val = clamp(val || 0, 0, 1);
+    else if (key === 'gain') val = clamp(val || 1, 0.1, 8);
+    layer.fft[key] = val;
+    const disp = panel.querySelector(`[data-fft-disp="${key}"]`);
+    if (disp) disp.textContent = fmt(val);
+  };
+  panel.querySelectorAll('[data-fft]').forEach(el => {
+    const key = el.dataset.fft;
+    let before = null;
+    if (el.tagName === 'SELECT') {
+      el.addEventListener('change', () => {
+        const snap = snapshotState();
+        layer.fft.edge = el.value;
+        pushHistory('Change layer FFT edge', snap);
+      });
+    } else {
+      el.addEventListener('pointerdown', () => { before = snapshotState(); });
+      el.addEventListener('focus', () => { before = snapshotState(); });
+      el.addEventListener('pointerup', () => setTimeout(() => { before = null; }, 300));
+      el.addEventListener('blur', () => setTimeout(() => { before = null; }, 300));
+      el.addEventListener('input', () => {
+        if (!before) before = snapshotState();
+        if (key === 'freq') setNum(key, el.value, v => `${Math.round(v)} Hz`);
+        else if (key === 'width') setNum(key, el.value, v => `${Math.round(v)} Hz`);
+        else if (key === 'threshold') setNum(key, el.value, v => v.toFixed(2));
+        else if (key === 'gain') setNum(key, el.value, v => `x${v.toFixed(2)}`);
+        scheduleParamHistory('Change layer FFT', before);
+      });
+      el.addEventListener('change', () => {
+        if (key === 'freq') setNum(key, el.value, v => { el.value = Math.round(v); return `${Math.round(v)} Hz`; });
+        else if (key === 'width') setNum(key, el.value, v => { el.value = Math.round(v); return `${Math.round(v)} Hz`; });
+      });
+    }
+  });
+  panel.querySelector('[data-fft-act="from-global"]').addEventListener('click', () => {
+    runCommand('Copy global FFT to layer', () => {
+      layer.fft = normalizeLayerFft({
+        freq: state.audio.freq, width: state.audio.freqWidth,
+        threshold: state.audio.freqThreshold, edge: state.audio.freqEdge,
+        gain: state.audio.gain
+      });
+      refreshFxUI();
+    });
+  });
+  panel.querySelector('[data-fft-act="to-global"]').addEventListener('click', () => {
+    runCommand('Copy layer FFT to global', () => {
+      state.audio.freq = layer.fft.freq;
+      state.audio.freqWidth = layer.fft.width;
+      state.audio.freqThreshold = layer.fft.threshold;
+      state.audio.freqEdge = layer.fft.edge;
+      state.audio.gain = layer.fft.gain;
+      syncGlobalFftUI();
+    });
+  });
+  return panel;
+}
+
+function setParamValueAtPlayhead(layer, paramKey, value) {
+  const keys = layer.keyframes && layer.keyframes[paramKey];
+  if (keys && keys.length) {
+    const t = snapTime(state.play.time);
+    const tol = 1 / 120;
+    const existing = keys.findIndex(k => Math.abs(k.t - t) < tol);
+    if (existing >= 0) {
+      keys[existing].v = value;
+    } else {
+      keys.push({t, v: value});
+      sortedKeyframes(layer, paramKey);
+    }
+    layer.values[paramKey] = value;
+    return true;
+  }
+  layer.values[paramKey] = value;
+  return false;
+}
+
+function makeRange(layer, p) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const lab = document.createElement('label'); lab.textContent = p.label;
+  const inp = document.createElement('input');
+  inp.type = 'range'; inp.min = p.min; inp.max = p.max; inp.step = p.step || 0.01;
+  const initial = (layer.keyframes && layer.keyframes[p.key] && layer.keyframes[p.key].length)
+    ? sampleKeyframes(layer.values[p.key], sortedKeyframes(layer, p.key), state.play.time)
+    : layer.values[p.key] ?? 0;
+  inp.value = initial;
+  const v = document.createElement('span'); v.className = 'v';
+  v.textContent = (+initial).toFixed(2);
+  let before = null;
+  inp.addEventListener('pointerdown', () => { before = snapshotState(); });
+  inp.addEventListener('pointerup', () => setTimeout(() => { before = null; }, 300));
+  inp.addEventListener('input', () => {
+    if (!before) before = snapshotState();
+    const val = parseFloat(inp.value);
+    setParamValueAtPlayhead(layer, p.key, val);
+    v.textContent = val.toFixed(2);
+    scheduleParamHistory('Change parameter', before);
+  });
+  const keyBtn = document.createElement('button');
+  keyBtn.className = 'keybtn';
+  keyBtn.textContent = '◆';
+  keyBtn.title = '現在時刻にキーフレーム追加';
+  keyBtn.addEventListener('click', () => addKeyframe(layer.lid, p.key));
+  const midiBtn = document.createElement('button');
+  midiBtn.className = 'keybtn';
+  midiBtn.textContent = 'M';
+  midiBtn.title = 'MIDI Learn';
+  midiBtn.addEventListener('click', () => startMidiLearn({kind:'param', lid:layer.lid, paramKey:p.key, label:`${p.label} (${layer.lid})`}));
+  row.appendChild(lab); row.appendChild(inp); row.appendChild(v); row.appendChild(keyBtn); row.appendChild(midiBtn);
+  return row;
+}
+function makeColor(layer, x) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const lab = document.createElement('label'); lab.textContent = x.label;
+  const inp = document.createElement('input');
+  const initial = (layer.keyframes && layer.keyframes[x.key] && layer.keyframes[x.key].length)
+    ? sampleKeyframes(layer.values[x.key] || x.def, sortedKeyframes(layer, x.key), state.play.time)
+    : (layer.values[x.key] || x.def);
+  inp.type = 'color'; inp.value = initial;
+  let before = null;
+  inp.addEventListener('pointerdown', () => { before = snapshotState(); });
+  inp.addEventListener('pointerup', () => setTimeout(() => { before = null; }, 300));
+  inp.addEventListener('input', () => {
+    if (!before) before = snapshotState();
+    setParamValueAtPlayhead(layer, x.key, inp.value);
+    scheduleParamHistory('Change color', before);
+  });
+  const keyBtn = document.createElement('button');
+  keyBtn.className = 'keybtn';
+  keyBtn.textContent = '◆';
+  keyBtn.title = '現在時刻にキーフレーム追加';
+  keyBtn.addEventListener('click', () => addKeyframe(layer.lid, x.key));
+  const midiBtn = document.createElement('button');
+  midiBtn.className = 'keybtn';
+  midiBtn.textContent = 'M';
+  midiBtn.title = 'MIDI Learn';
+  midiBtn.addEventListener('click', () => startMidiLearn({kind:'param', lid:layer.lid, paramKey:x.key, label:`${x.label} (${layer.lid})`}));
+  row.appendChild(lab); row.appendChild(inp); row.appendChild(keyBtn); row.appendChild(midiBtn);
+  return row;
+}
+
+function updateFxStatus() {
+  const total = state.layers.length;
+  const on = state.layers.filter(layer => layer.enabled).length;
+  const full = EFFECTS.filter(e => e.st === 'full').length;
+  const lite = EFFECTS.filter(e => e.st === 'lite').length;
+  const mon  = EFFECTS.filter(e => e.st === 'mon').length;
+  const sceneLabel = state.activeScene ? 'B' : 'A';
+  document.getElementById('fxStatus').innerHTML = `<b>${on}</b> / ${total}`;
+  document.getElementById('timelineSummary').innerHTML =
+    `Scene ${sceneLabel} / XF ${state.crossfader.toFixed(2)} / ` +
+    `${on} / ${total} レイヤー / <span style="color:#88d8a3">実装 ${full}</span> ` +
+    `<span style="color:#d8c188">簡易 ${lite}</span> ` +
+    `<span style="color:#88b3d8">監視 ${mon}</span>`;
+}
+
+document.getElementById('fxAllOff').addEventListener('click', () => {
+  state.layers.forEach(layer => layer.enabled = false);
+  refreshFxUI();
+});
+document.getElementById('fxExpandAll').addEventListener('click', () => {
+  EFFECT_CATEGORIES.forEach(cat => state.categoriesOpen[cat.key] = true);
+  refreshFxUI();
+});
+document.getElementById('fxCollapseAll').addEventListener('click', () => {
+  EFFECT_CATEGORIES.forEach(cat => state.categoriesOpen[cat.key] = false);
+  refreshFxUI();
+});
+
+// ===================================================================
+// PRESET
+// ===================================================================
+function serializeLayer(layer) {
+  normalizeLayerClip(layer);
+  const fft = layer.fft ? {
+    freq: layer.fft.freq,
+    width: layer.fft.width,
+    threshold: layer.fft.threshold,
+    edge: layer.fft.edge,
+    gain: layer.fft.gain
+  } : null;
+  return {
+    effId: layer.effId,
+    enabled: layer.enabled,
+    start: layer.start,
+    end: layer.end,
+    values: {...layer.values},
+    keyframes: layer.keyframes || {},
+    fft
+  };
+}
+function importLayerData(items, fromV1 = false, fallbackFft = null) {
+  const layers = [];
+  (items || []).forEach(p => {
+    const effId = p.effId || p.id;
+    if (fromV1 && !p.enabled) return;
+    const layer = createLayer(effId, {
+      enabled: !!p.enabled,
+      start: p.start,
+      end: p.end,
+      values: p.values || {},
+      fft: p.fft || fallbackFft
+    });
+    if (!layer) return;
+    layer.keyframes = p.keyframes || {};
+    layers.push(layer);
+  });
+  return layers;
+}
+function exportPreset() {
+  const data = {
+    version: 4,
+    bpm: state.bpm,
+    comp: {...state.comp},
+    audioTrigger: {
+      freq: state.audio.freq,
+      width: state.audio.freqWidth,
+      threshold: state.audio.freqThreshold,
+      edge: state.audio.freqEdge,
+      gain: state.audio.gain
+    },
+    midiBindings: state.midi.bindings.map(binding => ({...binding})),
+    activeScene: state.activeScene,
+    crossfader: state.crossfader,
+    scenes: state.scenes.map(scene => ({
+      layers: scene.layers.map(serializeLayer)
+    })),
+    layers: state.layers.map(serializeLayer)
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vjfx-preset-' + Date.now() + '.json';
+  a.click();
+}
+function importPreset(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const before = snapshotState();
+      const data = JSON.parse(r.result);
+      if (data.bpm) { state.bpm = data.bpm; bpmInput.value = data.bpm; }
+      if (data.comp) {
+        Object.assign(state.comp, data.comp);
+        state.comp.duration = clamp(parseFloat(state.comp.duration) || 8, 4, 60);
+        state.comp.inPoint = clamp(parseFloat(state.comp.inPoint) || 0, 0, state.comp.duration);
+        state.comp.outPoint = clamp(parseFloat(state.comp.outPoint) || state.comp.duration, state.comp.inPoint + 1 / 60, state.comp.duration);
+        setTimelineTime(state.play.time);
+        syncTimelineControls();
+        rebuildTimelineRuler();
+      }
+      let fallbackFft = null;
+      if (data.audioTrigger) {
+        state.audio.freq = clamp(parseFloat(data.audioTrigger.freq) || state.audio.freq, 20, 16000);
+        state.audio.freqWidth = clamp(parseFloat(data.audioTrigger.width) || state.audio.freqWidth, 10, 2000);
+        state.audio.freqThreshold = clamp(parseFloat(data.audioTrigger.threshold) || 0, 0, 1);
+        state.audio.freqEdge = data.audioTrigger.edge || 'rise';
+        if (data.audioTrigger.gain) state.audio.gain = clamp(parseFloat(data.audioTrigger.gain), 0.1, 8);
+        syncGlobalFftUI();
+        fallbackFft = {
+          freq: state.audio.freq, width: state.audio.freqWidth,
+          threshold: state.audio.freqThreshold, edge: state.audio.freqEdge,
+          gain: state.audio.gain
+        };
+      }
+      if (Array.isArray(data.midiBindings)) {
+        state.midi.bindings = data.midiBindings.map(binding => ({...binding}));
+        state.midi.nextBindingId = nextMidiBindingId();
+      }
+      if (Array.isArray(data.scenes)) {
+        state.scenes = [0, 1].map(idx => {
+          const scene = data.scenes[idx] || {layers: []};
+          return {layers: importLayerData(scene.layers || [], false, fallbackFft)};
+        });
+        state.activeScene = data.activeScene === 1 ? 1 : 0;
+        state.crossfader = clamp(parseFloat(data.crossfader) || 0, 0, 1);
+        state.selectedLayerId = state.layers[0]?.lid || null;
+      }
+      const hasLayerData = !Array.isArray(data.scenes) && (Array.isArray(data.layers) || Array.isArray(data.effects));
+      const incoming = data.layers || data.effects || [];
+      if (hasLayerData) {
+        const fromV1 = !Array.isArray(data.layers);
+        state.scenes = [{layers: importLayerData(incoming, fromV1, fallbackFft)}, {layers: []}];
+        state.activeScene = 0;
+        state.crossfader = 0;
+        state.selectedLayerId = state.layers[0]?.lid || null;
+      }
+      updateSceneControls();
+      refreshMidiUI();
+      refreshFxUI();
+      pushHistory('Import preset', before);
+    } catch (e) { alert('プリセット読込失敗: ' + e.message); }
+  };
+  r.readAsText(file);
+}
+document.getElementById('presetSave').addEventListener('click', exportPreset);
+document.getElementById('presetLoad').addEventListener('click', () =>
+  document.getElementById('presetFile').click());
+document.getElementById('presetFile').addEventListener('change', e => {
+  if (e.target.files[0]) importPreset(e.target.files[0]);
+});
+document.getElementById('presetClear').addEventListener('click', () => {
+  runCommand('Clear preset', () => {
+    state.layers = [];
+    state.selectedLayerId = null;
+    refreshFxUI();
+  });
+});
+document.getElementById('presetRand').addEventListener('click', () => {
+  runCommand('Random preset', () => {
+    state.layers = [];
+    // pick 3-7 effects randomly
+    const candidates = EFFECTS.filter(def => def.st !== 'mon');
+    const n = 3 + Math.floor(Math.random() * 5);
+    for (let i = candidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    }
+    candidates.slice(0, n).forEach(def => {
+      const layer = createLayer(def.id, {enabled: true});
+      if (!layer) return;
+      layer.values.amount = 0.2 + Math.random() * 0.7;
+      layer.values.speed  = Math.random();
+      layer.values.mix    = 0.5 + Math.random() * 0.5;
+      layer.values.bpmSync = Math.random() < 0.4 ? Math.random() * 0.6 : 0;
+      layer.values.audioReactive = Math.random() < 0.4 ? Math.random() * 0.6 : 0;
+      if (def.extras) def.extras.forEach(x => {
+        if (x.type === 'color') {
+          layer.values[x.key] = '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+        } else {
+          layer.values[x.key] = x.min + Math.random() * (x.max - x.min);
+        }
+      });
+      randomizeLayerKeyframes(layer, def);
+      state.layers.push(layer);
+    });
+    state.selectedLayerId = state.layers[0]?.lid || null;
+    refreshFxUI();
+  });
+});
+
+// ===================================================================
+// RECORDING
+// ===================================================================
+const recBtn = document.getElementById('recBtn');
+const recInfo = document.getElementById('recInfo');
+recBtn.addEventListener('click', () => {
+  if (!state.recording) startRec();
+  else stopRec();
+});
+function pickMime() {
+  const mimes = [
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4;codecs=avc1',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ];
+  for (const m of mimes) if (MediaRecorder.isTypeSupported(m)) return m;
+  return '';
+}
+function startRec() {
+  try {
+    const stream = canvas.captureStream(60);
+    const mime = pickMime();
+    state.recMime = mime || 'video/webm';
+    state.recExt = state.recMime.startsWith('video/mp4') ? 'mp4' : 'webm';
+    state.recorder = new MediaRecorder(stream, mime ? {mimeType: mime, videoBitsPerSecond: 8000000} : {});
+    state.recChunks = [];
+    state.recorder.ondataavailable = e => { if (e.data.size > 0) state.recChunks.push(e.data); };
+    state.recorder.onstop = () => {
+      const blob = new Blob(state.recChunks, {type: state.recMime});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'vjfx-rec-' + Date.now() + '.' + state.recExt;
+      a.click();
+    };
+    state.recPrevLoop = state.comp.loop;
+    state.comp.loop = false;
+    setTimelineTime(state.comp.inPoint);
+    state.play.playing = true;
+    state.play.lastWall = performance.now() / 1000;
+    syncTimelineControls();
+    state.recorder.start(250);
+    state.recording = true;
+    state.recStartTime = performance.now();
+    recBtn.innerHTML = '<span class="recRing"></span>停止';
+    recBtn.classList.add('danger');
+    updateRecInfo();
+  } catch (e) {
+    alert('録画開始失敗: ' + e.message);
+  }
+}
+function stopRec() {
+  if (state.recorder && state.recording) {
+    state.recorder.stop();
+  }
+  state.recording = false;
+  state.comp.loop = state.recPrevLoop;
+  syncTimelineControls();
+  recBtn.innerHTML = '● 録画';
+  recBtn.classList.remove('danger');
+  recInfo.textContent = 'stop';
+}
+function updateRecInfo() {
+  if (!state.recording) return;
+  const sec = (performance.now() - state.recStartTime) / 1000;
+  const len = Math.max(0.001, state.comp.outPoint - state.comp.inPoint);
+  const p = clamp((state.play.time - state.comp.inPoint) / len, 0, 1);
+  recInfo.innerHTML = `<span class="recRing"></span>REC ${sec.toFixed(1)}s ${state.recExt.toUpperCase()}<span class="recProgress"><span style="width:${(p * 100).toFixed(1)}%"></span></span>`;
+  setTimeout(updateRecInfo, 200);
+}
+document.getElementById('snapBtn').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'vjfx-snap-' + Date.now() + '.png';
+  a.click();
+});
+
+// ===================================================================
+// FULLSCREEN / PANEL HIDE
+// ===================================================================
+document.getElementById('fsBtn').addEventListener('click', () => {
+  const el = document.getElementById('center');
+  if (!document.fullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+  } else {
+    document.exitFullscreen();
+  }
+});
+document.getElementById('hidePanelBtn').addEventListener('click', () => {
+  document.getElementById('app').classList.toggle('fs');
+  setTimeout(resizeCanvas, 50);
+});
+document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 50));
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea,select')) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    if (e.shiftKey) redo();
+    else undo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+    e.preventDefault();
+    redo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+    copySelectedKey();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+    pasteKeyClipboard();
+    return;
+  }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    deleteSelectedKey();
+    return;
+  }
+  if (e.code === 'Space') {
+    e.preventDefault();
+    togglePlayback();
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    state.play.playing = false;
+    setTimelineTime(state.play.time - 1 / 60);
+    updateTransportButtons();
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    state.play.playing = false;
+    setTimelineTime(state.play.time + 1 / 60);
+    updateTransportButtons();
+  }
+  if (e.key === 'Home') {
+    e.preventDefault();
+    state.play.playing = false;
+    setTimelineTime(0);
+    updateTransportButtons();
+  }
+  if (e.key === 'End') {
+    e.preventDefault();
+    state.play.playing = false;
+    setTimelineTime(state.comp.duration);
+    updateTransportButtons();
+  }
+  if (e.key.toLowerCase() === 'i') {
+    if (e.shiftKey && state.selectedLayerId) setLayerInAtPlayhead(state.selectedLayerId);
+    else setInPoint(state.play.time);
+  }
+  if (e.key.toLowerCase() === 'o') {
+    if (e.shiftKey && state.selectedLayerId) setLayerOutAtPlayhead(state.selectedLayerId);
+    else setOutPoint(state.play.time);
+  }
+  if (e.key === 'f') {
+    document.getElementById('fsBtn').click();
+  }
+  if (e.key === 'h') {
+    document.getElementById('hidePanelBtn').click();
+  }
+  if (e.key === '=' || e.key === '+') {
+    e.preventDefault();
+    applyZoom(1, state.play.time);
+  }
+  if (e.key === '-' || e.key === '_') {
+    e.preventDefault();
+    applyZoom(-1, state.play.time);
+  }
+  if (e.key === '\\') {
+    e.preventDefault();
+    state.view.zoom = 1; state.view.scroll = 0;
+    repaintTimelineAfterView();
+  }
+});
+
+// ===================================================================
+// RES SCALE
+// ===================================================================
+document.getElementById('resScale').addEventListener('input', e => {
+  state.resScale = parseFloat(e.target.value);
+  document.getElementById('resScaleV').textContent = state.resScale.toFixed(2);
+  resizeCanvas();
+});
+
+// ===================================================================
+// PANEL RESIZE
+// ===================================================================
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+function applyPanelSizes() {
+  const app = document.getElementById('app');
+  app.style.setProperty('--left-w', state.panels.leftW + 'px');
+  app.style.setProperty('--right-w', state.panels.rightW + 'px');
+  app.style.setProperty('--bottom-h', state.panels.bottomH + 'px');
+  resizeCanvas();
+}
+function setupPanelResize() {
+  let drag = null;
+  const start = (kind, e) => {
+    e.preventDefault();
+    drag = {
+      kind,
+      x: e.clientX,
+      y: e.clientY,
+      leftW: state.panels.leftW,
+      rightW: state.panels.rightW,
+      bottomH: state.panels.bottomH
+    };
+    document.body.classList.add('is-resizing');
+    document.body.style.cursor = kind === 'bottom' ? 'row-resize' : 'col-resize';
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end, {once:true});
+  };
+  const move = e => {
+    if (!drag) return;
+    const minCenter = 360;
+    if (drag.kind === 'left') {
+      const max = Math.max(220, window.innerWidth - state.panels.rightW - minCenter);
+      state.panels.leftW = clamp(drag.leftW + e.clientX - drag.x, 220, Math.min(460, max));
+    } else if (drag.kind === 'right') {
+      const max = Math.max(260, window.innerWidth - state.panels.leftW - minCenter);
+      state.panels.rightW = clamp(drag.rightW - (e.clientX - drag.x), 260, Math.min(540, max));
+    } else {
+      const max = Math.max(130, window.innerHeight - 220);
+      state.panels.bottomH = clamp(drag.bottomH - (e.clientY - drag.y), 130, Math.min(420, max));
+    }
+    applyPanelSizes();
+  };
+  const end = () => {
+    drag = null;
+    document.body.classList.remove('is-resizing');
+    document.body.style.cursor = '';
+    window.removeEventListener('pointermove', move);
+  };
+  document.getElementById('resizeLeft').addEventListener('pointerdown', e => start('left', e));
+  document.getElementById('resizeRight').addEventListener('pointerdown', e => start('right', e));
+  document.getElementById('resizeBottom').addEventListener('pointerdown', e => start('bottom', e));
+}
+
+// ===================================================================
+// TOP TOOLBAR / CONTEXT MENU
+// ===================================================================
+const contextMenu = document.getElementById('contextMenu');
+
+function setupTopToolbar() {
+  const effectSelect = document.getElementById('topEffectSelect');
+  EFFECT_CATEGORIES.forEach(cat => {
+    const group = document.createElement('optgroup');
+    group.label = cat.key;
+    cat.ids.forEach(id => {
+      const def = effectDef(id);
+      if (!def) return;
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = def.name;
+      group.appendChild(option);
+    });
+    effectSelect.appendChild(group);
+  });
+  document.getElementById('topImportMedia').addEventListener('click', () => fileInput.click());
+  document.getElementById('topImportAudio').addEventListener('click', () => document.getElementById('audioFile').click());
+  document.getElementById('topPresetLoad').addEventListener('click', () => document.getElementById('presetLoad').click());
+  document.getElementById('topPresetSave').addEventListener('click', () => document.getElementById('presetSave').click());
+  document.getElementById('topRecord').addEventListener('click', () => document.getElementById('recBtn').click());
+  document.getElementById('topMIDI').addEventListener('click', () => document.getElementById('midiEnableBtn').click());
+  document.getElementById('topContextHelp').addEventListener('click', e => openContextMenu(e.clientX + 6, e.clientY + 6, null));
+  document.getElementById('topAddEffect').addEventListener('click', () => {
+    const id = effectSelect.value;
+    if (id) addLayer(id);
+  });
+  effectSelect.addEventListener('change', () => {
+    if (effectSelect.value) addLayer(effectSelect.value);
+    effectSelect.value = '';
+  });
+  document.getElementById('topParticles').addEventListener('click', () => addLayer('particles'));
+  document.getElementById('topFxAllOff').addEventListener('click', () => document.getElementById('fxAllOff').click());
+  document.getElementById('topMic').addEventListener('click', () => document.getElementById('micBtn').click());
+  document.getElementById('topAudioFile').addEventListener('click', () => document.getElementById('audioFile').click());
+  document.getElementById('topDemo').addEventListener('click', () => document.getElementById('useDemo').click());
+  document.getElementById('topMediaPlay').addEventListener('click', () => document.getElementById('playPause').click());
+  document.getElementById('rightMicBtn').addEventListener('click', () => document.getElementById('micBtn').click());
+  document.getElementById('rightAudioBtn').addEventListener('click', () => document.getElementById('audioFile').click());
+  document.getElementById('rightMidiBtn').addEventListener('click', () => document.getElementById('midiEnableBtn').click());
+  document.getElementById('rightPlayBtn').addEventListener('click', () => togglePlayback());
+  document.getElementById('rightPngBtn').addEventListener('click', () => document.getElementById('snapBtn').click());
+  document.getElementById('rightFsBtn').addEventListener('click', () => document.getElementById('fsBtn').click());
+  document.getElementById('rightParticlesBtn').addEventListener('click', () => addLayer('particles'));
+  document.getElementById('rightRandomBtn').addEventListener('click', () => document.getElementById('presetRand').click());
+  document.getElementById('rightSaveBtn').addEventListener('click', () => document.getElementById('presetSave').click());
+  document.getElementById('rightLoadBtn').addEventListener('click', () => document.getElementById('presetLoad').click());
+}
+
+function contextTargetFromEvent(e) {
+  const layerRow = e.target.closest('.lane-row');
+  const libRow = e.target.closest('.lib-row');
+  const key = e.target.closest('.key-marker,.graph-point');
+  return {
+    layerRow,
+    libRow,
+    key,
+    inTimeline: !!e.target.closest('#bottom'),
+    inCanvas: !!e.target.closest('#center'),
+    inLeft: !!e.target.closest('#left'),
+    inRight: !!e.target.closest('#right')
+  };
+}
+
+function menuItem(label, fn, enabled = true, hint = '') {
+  return {label, fn, enabled, hint};
+}
+
+function buildContextItems(target) {
+  const layer = state.selectedLayerId && layerState(state.selectedLayerId);
+  const items = [
+    menuItem(state.play.playing ? '停止' : '再生', togglePlayback, true, 'Space'),
+    menuItem('先頭へ', () => setTimelineTime(0), true, 'Home'),
+    menuItem('現在時刻を In (comp)', () => setInPoint(state.play.time), true, 'I'),
+    menuItem('現在時刻を Out (comp)', () => setOutPoint(state.play.time), true, 'O'),
+    menuItem('現在時刻を Layer In', () => setLayerInAtPlayhead(state.selectedLayerId), !!layer, 'Shift+I'),
+    menuItem('現在時刻を Layer Out', () => setLayerOutAtPlayhead(state.selectedLayerId), !!layer, 'Shift+O'),
+    'sep',
+    menuItem('メディア読み込み', () => fileInput.click()),
+    menuItem('音声読み込み', () => document.getElementById('audioFile').click()),
+    menuItem('デモ映像', () => document.getElementById('useDemo').click()),
+    'sep',
+    menuItem('選択レイヤーにキー追加', () => addKeyframe(state.selectedLayerId, 'amount'), !!layer),
+    menuItem('選択レイヤー複製', () => duplicateLayer(state.selectedLayerId), !!layer),
+    menuItem(layer?.enabled ? '選択レイヤー OFF' : '選択レイヤー ON', () => toggleLayer(state.selectedLayerId, !layer.enabled), !!layer),
+    menuItem('選択レイヤー削除', () => deleteLayer(state.selectedLayerId), !!layer, 'Del'),
+    menuItem('Particles 追加', () => addLayer('particles')),
+    menuItem('ランダムプリセット', () => document.getElementById('presetRand').click()),
+    'sep',
+    menuItem('全 FX OFF', () => document.getElementById('fxAllOff').click()),
+    menuItem('全展開', () => document.getElementById('fxExpandAll').click()),
+    menuItem('全折畳', () => document.getElementById('fxCollapseAll').click()),
+    'sep',
+    menuItem('MIDI ON', () => document.getElementById('midiEnableBtn').click()),
+    menuItem('PNG 保存', () => document.getElementById('snapBtn').click()),
+    menuItem('録画 開始/停止', () => document.getElementById('recBtn').click()),
+    menuItem('パネル表示切替', () => document.getElementById('hidePanelBtn').click(), true, 'H')
+  ];
+  if (target?.key) {
+    items.splice(10, 0, menuItem('選択キー削除', deleteSelectedKey, true, 'Del'));
+  }
+  return items;
+}
+
+function openContextMenu(x, y, eventTarget) {
+  const target = eventTarget ? contextTargetFromEvent(eventTarget) : {};
+  const items = buildContextItems(target);
+  contextMenu.innerHTML = '';
+  items.forEach(item => {
+    if (item === 'sep') {
+      const sep = document.createElement('div');
+      sep.className = 'sep';
+      contextMenu.appendChild(sep);
+      return;
+    }
+    const btn = document.createElement('button');
+    btn.disabled = !item.enabled;
+    btn.innerHTML = `<span>${item.label}</span><span>${item.hint || ''}</span>`;
+    btn.addEventListener('click', () => {
+      closeContextMenu();
+      item.fn();
+    });
+    contextMenu.appendChild(btn);
+  });
+  contextMenu.classList.add('open');
+  const w = contextMenu.offsetWidth;
+  const h = contextMenu.offsetHeight;
+  contextMenu.style.left = Math.min(x, window.innerWidth - w - 6) + 'px';
+  contextMenu.style.top = Math.min(y, window.innerHeight - h - 6) + 'px';
+}
+
+function closeContextMenu() {
+  contextMenu.classList.remove('open');
+}
+
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const row = e.target.closest('.lane-row');
+  if (row) {
+    const bar = row.querySelector('.lane-bar');
+    if (bar?.dataset.lid) state.selectedLayerId = bar.dataset.lid;
+  }
+  openContextMenu(e.clientX, e.clientY, e);
+});
+document.addEventListener('pointerdown', e => {
+  if (!contextMenu.contains(e.target)) closeContextMenu();
+});
+window.addEventListener('blur', closeContextMenu);
+
+// ===================================================================
+// PREVIEW CONTROLS WIRING
+// ===================================================================
+function setupPreviewControls() {
+  const pcRewind = document.getElementById('pcRewind');
+  const pcStepBack = document.getElementById('pcStepBack');
+  const pcPlay = document.getElementById('pcPlay');
+  const pcStepFwd = document.getElementById('pcStepFwd');
+  const pcEnd = document.getElementById('pcEnd');
+  const pcLoop = document.getElementById('pcLoop');
+  const pcMarkIn = document.getElementById('pcMarkIn');
+  const pcMarkOut = document.getElementById('pcMarkOut');
+  const pcSeekTrack = document.getElementById('pcSeekTrack');
+  pcRewind.addEventListener('click', () => { state.play.playing = false; setTimelineTime(0, {autopan: false}); updateTransportButtons(); });
+  pcStepBack.addEventListener('click', () => { state.play.playing = false; setTimelineTime(state.play.time - 1 / 60, {autopan: false}); updateTransportButtons(); });
+  pcPlay.addEventListener('click', togglePlayback);
+  pcStepFwd.addEventListener('click', () => { state.play.playing = false; setTimelineTime(state.play.time + 1 / 60, {autopan: false}); updateTransportButtons(); });
+  pcEnd.addEventListener('click', () => { state.play.playing = false; setTimelineTime(state.comp.duration, {autopan: false}); updateTransportButtons(); });
+  pcLoop.addEventListener('click', () => { state.comp.loop = !state.comp.loop; updateTransportButtons(); });
+  pcMarkIn.addEventListener('click', () => runCommand('Set In point', () => setInPoint(state.play.time)));
+  pcMarkOut.addEventListener('click', () => runCommand('Set Out point', () => setOutPoint(state.play.time)));
+  let pcSeekDragging = false;
+  const seekFromEvent = e => {
+    const rect = pcSeekTrack.getBoundingClientRect();
+    const x = clamp(e.clientX - rect.left, 0, rect.width);
+    return (x / Math.max(1, rect.width)) * state.comp.duration;
+  };
+  pcSeekTrack.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    pcSeekDragging = true;
+    pcSeekTrack.setPointerCapture(e.pointerId);
+    state.play.playing = false;
+    setTimelineTime(seekFromEvent(e), {snap: true, autopan: false});
+    updateTransportButtons();
+  });
+  pcSeekTrack.addEventListener('pointermove', e => {
+    if (pcSeekDragging) setTimelineTime(seekFromEvent(e), {snap: true, autopan: false});
+  });
+  pcSeekTrack.addEventListener('pointerup', e => {
+    pcSeekDragging = false;
+    try { pcSeekTrack.releasePointerCapture(e.pointerId); } catch (err) {}
+  });
+}
+
+// ===================================================================
+// INIT
+// ===================================================================
+applyPanelSizes();
+setupTopToolbar();
+setupPreviewControls();
+updateSceneControls();
+syncTimelineControls();
+rebuildTimelineRuler();
+setupPanelResize();
+refreshFxUI();
+resizeCanvas();
+updateZoomScrollbarUI();
+requestAnimationFrame(render);
+requestAnimationFrame(pollAudio);
+
+})();
+</script>
+</body>
+</html>

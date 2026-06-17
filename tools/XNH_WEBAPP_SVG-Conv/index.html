@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta
+      name="description"
+      content="ブラウザ内で完結する画像→SVG コンバーター。すべてローカルで処理されます。"
+    />
+    <title>XNH SVG Converter</title>
+
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/layout.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__logo" aria-hidden="true">▩</span>
+        <h1 class="brand__title">XNH SVG Converter</h1>
+        <span class="brand__badge" data-i18n="badge.local">ローカル処理</span>
+      </div>
+      <nav class="app-toolbar" id="toolbar">
+        <button type="button" class="btn" data-action="open-file" data-i18n="toolbar.open">
+          画像を開く
+        </button>
+        <button
+          type="button"
+          class="btn"
+          data-action="paste"
+          data-i18n="toolbar.paste"
+          title="クリップボードから貼付"
+        >
+          貼付
+        </button>
+        <button
+          type="button"
+          class="btn btn--primary"
+          data-action="convert"
+          data-i18n="toolbar.convert"
+          disabled
+        >
+          変換
+        </button>
+        <label class="toggle" title="パラメータ変更時に自動で再トレース">
+          <input type="checkbox" id="live-trace-toggle" />
+          <span data-i18n="toolbar.live">ライブ</span>
+        </label>
+        <span class="export-group">
+          <select class="select" id="size-template-select" aria-label="出力サイズ" title="出力サイズテンプレート">
+            <option value="native">元サイズ</option>
+            <option value="square-512">正方 512</option>
+            <option value="square-1024">正方 1024</option>
+            <option value="icon-128">アイコン 128</option>
+            <option value="instagram-1080">Instagram 1080</option>
+            <option value="twitter-1500x500">X ヘッダ</option>
+            <option value="youtube-1280x720">YouTube</option>
+            <option value="a4">A4 縦</option>
+          </select>
+          <select class="select" id="format-select" aria-label="出力形式">
+            <option value="svg">SVG</option>
+            <option value="svgz">SVGZ</option>
+            <option value="png">PNG</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WebP</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button
+            type="button"
+            class="btn"
+            data-action="download"
+            data-i18n="toolbar.download"
+            disabled
+          >
+            保存
+          </button>
+        </span>
+        <button
+          type="button"
+          class="btn"
+          data-action="copy"
+          data-i18n="toolbar.copy"
+          title="SVG コードをクリップボードへコピー"
+          disabled
+        >
+          コピー
+        </button>
+        <span class="spacer"></span>
+        <button
+          type="button"
+          class="btn btn--icon"
+          data-action="toggle-theme"
+          data-i18n-title="toolbar.theme"
+          title="テーマ切替"
+        >
+          ◐
+        </button>
+        <button
+          type="button"
+          class="btn btn--icon"
+          data-action="show-help"
+          data-i18n-title="toolbar.help"
+          title="ヘルプ"
+        >
+          ?
+        </button>
+        <select class="select" id="locale-select" aria-label="Language">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+        </select>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      <aside class="panel panel--controls" id="controls" aria-label="コントロール">
+        <section class="panel__section">
+          <h2 class="panel__title" data-i18n="panel.mode">変換モード</h2>
+          <div class="control-group" id="mode-group">
+            <!-- mode radios are injected by ui/controls.js -->
+          </div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title" data-i18n="panel.preprocess">前処理</h2>
+          <div class="control-group" id="preprocess-group">
+            <!-- sliders are injected -->
+          </div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title" data-i18n="panel.trace">トレース</h2>
+          <div class="control-group" id="trace-group"></div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title" data-i18n="panel.preset">プリセット</h2>
+          <div class="control-group" id="preset-group"></div>
+        </section>
+
+        <section class="panel__section" id="palette-section" hidden>
+          <h2 class="panel__title" data-i18n="panel.palette">パレット</h2>
+          <div class="palette" id="palette-group"></div>
+        </section>
+      </aside>
+
+      <section class="preview" id="preview">
+        <div class="preview__pane preview__pane--source">
+          <header class="preview__head">
+            <span data-i18n="preview.source">原画</span>
+            <span class="preview__meta" id="source-meta"></span>
+            <span class="preview__actions">
+              <span class="brush-tools" id="brush-tools" role="toolbar" aria-label="ブラシ">
+                <button type="button" class="btn btn--icon btn--ghost" data-brush-tool="none" title="ブラシ無効" aria-pressed="true">↖</button>
+                <button type="button" class="btn btn--icon btn--ghost" data-brush-tool="paint" title="加筆（黒）">✎</button>
+                <button type="button" class="btn btn--icon btn--ghost" data-brush-tool="erase" title="消しゴム（白）">⌫</button>
+                <button type="button" class="btn btn--icon btn--ghost" data-action="brush-clear" title="ブラシをクリア">⟲</button>
+                <input type="range" id="brush-size" min="2" max="80" step="1" class="brush-size" title="ブラシ太さ" />
+              </span>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="source" data-action="fit" title="フィット (0)">⤢</button>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="source" data-action="zoom-in" title="拡大 (+)">＋</button>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="source" data-action="zoom-out" title="縮小 (-)">−</button>
+            </span>
+          </header>
+          <div class="preview__viewport" id="source-viewport" tabindex="0">
+            <div class="viewport__content" id="source-content">
+              <canvas id="source-canvas" hidden></canvas>
+            </div>
+            <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="画像を投入">
+              <div class="dropzone__inner">
+                <p class="dropzone__title" data-i18n="dropzone.title">
+                  ここに画像をドロップ
+                </p>
+                <p class="dropzone__hint" data-i18n="dropzone.hint">
+                  クリック / Ctrl+V でも投入できます
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview__divider" aria-hidden="true"></div>
+
+        <div class="preview__pane preview__pane--result">
+          <header class="preview__head">
+            <span data-i18n="preview.result">SVG 出力</span>
+            <span class="preview__meta" id="result-meta"></span>
+            <span class="preview__actions">
+              <button type="button" class="btn btn--icon btn--ghost" data-action="toggle-compare" title="Before/After 比較" id="compare-btn">⇄</button>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="result" data-action="fit" title="フィット (0)">⤢</button>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="result" data-action="zoom-in" title="拡大 (+)">＋</button>
+              <button type="button" class="btn btn--icon btn--ghost" data-viewport="result" data-action="zoom-out" title="縮小 (-)">−</button>
+            </span>
+          </header>
+          <div class="preview__viewport" id="result-viewport" tabindex="0">
+            <div class="viewport__content" id="result-content">
+              <div class="svg-host" id="svg-host" hidden></div>
+            </div>
+            <div class="compare" id="compare" hidden>
+              <div class="compare__before" id="compare-before"></div>
+              <div class="compare__after" id="compare-after"></div>
+              <div class="compare__handle" id="compare-handle" role="slider"
+                aria-label="Before/After" tabindex="0"></div>
+            </div>
+            <div class="placeholder" id="result-placeholder" data-i18n="preview.placeholder">
+              変換結果がここに表示されます
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span class="status" id="status" aria-live="polite" data-i18n="status.idle">
+        待機中
+      </span>
+      <progress class="progress" id="progress" value="0" max="1" hidden></progress>
+      <span class="spacer"></span>
+      <span class="footnote" data-i18n="footer.note">
+        画像は外部に送信されません。すべてブラウザ内で処理されます。
+      </span>
+    </footer>
+
+    <input type="file" id="file-input" accept="image/*" hidden multiple />
+
+    <dialog class="help" id="help-dialog">
+      <form method="dialog" class="help__inner">
+        <h2 class="help__title" data-i18n="help.title">ヘルプ</h2>
+        <ul class="help__list">
+          <li><kbd>Ctrl</kbd>+<kbd>Enter</kbd> <span data-i18n="help.convert">変換実行</span></li>
+          <li><kbd>Ctrl</kbd>+<kbd>S</kbd> <span data-i18n="help.save">SVG ダウンロード</span></li>
+          <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd> <span data-i18n="help.undo">Undo / Redo</span></li>
+          <li><kbd>Ctrl</kbd>+<kbd>V</kbd> <span data-i18n="help.paste">クリップボードから貼付</span></li>
+          <li><kbd>+</kbd> / <kbd>-</kbd> / <kbd>0</kbd> <span data-i18n="help.zoom">ズーム / フィット（プレビュー）</span></li>
+          <li><span data-i18n="help.dblclick">プレビューダブルクリックでフィット、分割バーダブルクリックで 50:50</span></li>
+        </ul>
+        <p class="help__note" data-i18n="help.note">
+          すべての処理はブラウザ内で完結します。
+        </p>
+        <menu>
+          <button type="submit" class="btn" data-i18n="help.close">閉じる</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

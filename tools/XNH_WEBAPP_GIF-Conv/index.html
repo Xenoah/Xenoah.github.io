@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIF昆布 GIF Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: '#3b82f6' } } }
+    };
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/dist/gifuct.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeIn 0.2s ease-out; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+    const MODES = {
+      TO_GIF: 'toGif',
+      GIF_TO_VIDEO: 'gifToVideo',
+      GIF_TO_IMAGES: 'gifToImages',
+    };
+
+    const MIN_HZ = 1;
+    const MAX_HZ = 240;
+    const MIN_MS = 1000 / MAX_HZ;
+    const MAX_MS = 1000;
+    const MAX_FRAME_DELAY_MS = 10000;
+    const MIN_WIDTH = 1;
+    const MAX_WIDTH = 4000;
+    const MIN_VIDEO_FRAME_LIMIT = 1;
+    const MAX_VIDEO_FRAME_LIMIT = 2000;
+    const DEFAULT_VIDEO_FRAME_LIMIT = 800;
+    const MIN_COLORS = 2;
+    const MAX_COLORS = 256;
+    const VIDEO_OUTPUTS = {
+      webm: {
+        id: 'webm',
+        label: 'WebM',
+        extension: 'webm',
+        mimeCandidates: [
+          'video/webm;codecs=vp9',
+          'video/webm;codecs=vp8',
+          'video/webm',
+        ],
+      },
+      mp4: {
+        id: 'mp4',
+        label: 'MP4',
+        extension: 'mp4',
+        mimeCandidates: [
+          'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+          'video/mp4;codecs=avc1.42E01E',
+          'video/mp4',
+        ],
+      },
+    };
+
+
+    const STRINGS = {
+      ja: {
+        modeLabel: {
+          [MODES.TO_GIF]: '画像/動画 → GIF',
+          [MODES.GIF_TO_VIDEO]: 'GIF → 動画',
+          [MODES.GIF_TO_IMAGES]: 'GIF → 画像ZIP',
+        },
+        langToggle: 'EN',
+        darkTitle: 'ライトモード',
+        lightTitle: 'ダークモード',
+        dropToGifIdle: '画像または動画をドラッグ＆ドロップ、またはクリック',
+        dropToGifOver: 'ここにドロップ！',
+        dropGifIdle: 'GIF をドラッグ＆ドロップ、またはクリック',
+        dropGifOver: 'GIF をドロップ！',
+        dropToGifHint: '画像: PNG/JPG/WebP/GIF, 動画: MP4/WebM/その他ブラウザ対応形式',
+        dropGifHint: '入力: GIF 1ファイル',
+        framesLoaded: (n) => `${n} フレーム読み込み済み`,
+        secFrames: 'フレーム',
+        btnAdd: '追加',
+        btnClear: 'クリア',
+        btnMoveLeft: '左へ移動',
+        btnDelete: '削除',
+        btnMoveRight: '右へ移動',
+        secSettings: '設定',
+        labelHz: 'フレームレート (Hz)',
+        labelMs: 'フレーム遅延 (ms)',
+        gifSaveNote: (ms, hz) => `GIF 保存値: ${ms}ms (${hz}Hz)`,
+        gifSaveHint: 'GIF 仕様上、保存は 10ms 単位に丸められます。',
+        labelLoop: 'ループ回数',
+        loopLow: '0 (無限)',
+        labelWidth: '出力横幅',
+        labelQuality: '品質',
+        qualityLow: '1 (高速)',
+        qualityHigh: '10 (高品質)',
+        labelMaxColors: '最大色数',
+        labelVideoLimit: '動画フレーム抽出上限',
+        labelFormat: '出力フォーマット',
+        unsupported: '(非対応)',
+        reverseNote: 'GIF 逆変換では GIF の各フレーム遅延を維持します。',
+        reverseHint: '動画出力時は captureStream の補助FPSとして Hz 設定を使用します。',
+        secPreview: 'プレビュー',
+        btnFirst: '最初のフレーム',
+        btnPrev: '前のフレーム',
+        btnNext: '次のフレーム',
+        btnLast: '最後のフレーム',
+        btnPause: '一時停止',
+        btnPlay: '再生',
+        playing: '▶ 再生中',
+        delayLabel: '遅延:',
+        btnReset: 'リセット',
+        resetTitle: 'デフォルト遅延に戻す',
+        btnApplyAll: '全フレームをデフォルト遅延に統一',
+        emptyToGif: '画像または動画を追加するとプレビューが表示されます',
+        emptyGif: 'GIF を追加するとプレビューが表示されます',
+        actionGif: 'GIF 生成',
+        actionVideo: (label) => `動画生成 (${label})`,
+        actionZip: '画像ZIP生成',
+        btnCancel: 'キャンセル',
+        btnDownload: 'ダウンロード',
+        preparing: '準備中...',
+        idleToGifEmpty: '画像または動画を追加してください',
+        idleGifEmpty: 'GIF ファイルを追加してください',
+        idleInput: (ms, hz) => `入力 ${ms}ms (${hz}Hz)`,
+        idleSaved: (ms, hz) => `保存 ${ms}ms (${hz}Hz)`,
+        idleWidth: (w) => `幅 ${w}px`,
+        idleColors: (n) => `色数上限 ${n}`,
+        idleGifSummary: (n, name) => `${n} フレーム · 入力 GIF: ${name}`,
+        outPreview: '出力プレビュー:',
+        zipMsg: 'ZIP を生成しました。ダウンロードボタンから保存できます。',
+        framesUnit: (n) => `${n} フレーム`,
+        statusLoading: 'ファイルを読み込み中...',
+        statusFramingVideo: (name) => `動画をフレーム化中: ${name}`,
+        statusFramingProgress: (name, cur, total) => `動画をフレーム化中: ${name} (${cur}/${total})`,
+        statusLoadDone: (n) => `読み込み完了: ${n} フレーム追加`,
+        statusNoFiles: '読み込めるファイルがありません',
+        statusAnalyzing: (name) => `GIF を解析中: ${name}`,
+        statusAnalyzingProgress: (name, cur, total) => `GIF を解析中: ${name} (${cur}/${total})`,
+        statusAnalyzeDone: (n) => `読み込み完了: ${n} フレーム`,
+        statusCancelled: 'キャンセルしました',
+        statusGeneratingGif: 'GIF を生成中...',
+        statusGifDone: (n, ms, hz) => `生成完了: ${n} フレーム / ${ms}ms (${hz}Hz)`,
+        statusGifDoneMulti: (n, min, max) => `生成完了: ${n} フレーム / 個別遅延 ${min}–${max}ms`,
+        statusGeneratingVideo: 'GIF から動画を生成中...',
+        statusVideoDone: (n, fps, label) => `動画生成完了: ${n} フレーム (${fps}fps) [${label}]`,
+        statusGeneratingZip: 'フレーム画像 ZIP を生成中...',
+        statusZipDone: (n) => `ZIP 生成完了: ${n} フレーム`,
+        errNoGif: 'GIF ファイルを選択してください',
+        errNoGifFrames: 'GIF フレームを取得できませんでした',
+        errGifDecoder: 'GIF デコーダーが利用できません',
+        errBrowserNoVideo: 'このブラウザは動画生成に対応していません',
+        errNoZip: 'ZIP ライブラリが利用できません',
+        errNoWorker: 'GIF エンコーダーの準備中です',
+        errNoFrames: '変換するフレームがありません',
+        errNoGifVideoFrames: 'GIF フレームがありません',
+        errLoad: '読み込みに失敗しました',
+        errAnalyze: 'GIF 解析に失敗しました',
+        errConvert: '変換に失敗しました',
+        unitColors: '色',
+        lowColors: '2色',
+        highColors: '256色',
+        unitFrames: 'フレーム',
+        processing: '処理中...',
+        frameCounter: (cur, total) => `${cur} / ${total} フレーム`,
+        footerCopyright: 'Copyright © 2026 Xenoah',
+        footerLicense: 'MIT License',
+        footerAssisted: 'Assisted by Codex / Claude Code',
+        footerLibs: 'React 18 · gif.js · gifuct-js · JSZip · Tailwind CSS',
+      },
+      en: {
+        modeLabel: {
+          [MODES.TO_GIF]: 'Image/Video → GIF',
+          [MODES.GIF_TO_VIDEO]: 'GIF → Video',
+          [MODES.GIF_TO_IMAGES]: 'GIF → Image ZIP',
+        },
+        langToggle: 'JP',
+        darkTitle: 'Light mode',
+        lightTitle: 'Dark mode',
+        dropToGifIdle: 'Drag & drop images or videos, or click',
+        dropToGifOver: 'Drop here!',
+        dropGifIdle: 'Drag & drop a GIF, or click',
+        dropGifOver: 'Drop GIF here!',
+        dropToGifHint: 'Images: PNG/JPG/WebP/GIF · Videos: MP4/WebM/browser-supported',
+        dropGifHint: 'Input: 1 GIF file',
+        framesLoaded: (n) => `${n} frames loaded`,
+        secFrames: 'Frames',
+        btnAdd: 'Add',
+        btnClear: 'Clear',
+        btnMoveLeft: 'Move left',
+        btnDelete: 'Delete',
+        btnMoveRight: 'Move right',
+        secSettings: 'Settings',
+        labelHz: 'Frame Rate (Hz)',
+        labelMs: 'Frame Delay (ms)',
+        gifSaveNote: (ms, hz) => `GIF saved: ${ms}ms (${hz}Hz)`,
+        gifSaveHint: 'GIF format stores delay in 10ms increments.',
+        labelLoop: 'Loop Count',
+        loopLow: '0 (infinite)',
+        labelWidth: 'Output Width',
+        labelQuality: 'Quality',
+        qualityLow: '1 (fast)',
+        qualityHigh: '10 (high quality)',
+        labelMaxColors: 'Max Colors',
+        labelVideoLimit: 'Video Frame Limit',
+        labelFormat: 'Output Format',
+        unsupported: '(unsupported)',
+        reverseNote: "GIF reverse mode preserves each frame's original delay.",
+        reverseHint: 'For video output, Hz is used as auxiliary captureStream FPS.',
+        secPreview: 'Preview',
+        btnFirst: 'First frame',
+        btnPrev: 'Previous frame',
+        btnNext: 'Next frame',
+        btnLast: 'Last frame',
+        btnPause: 'Pause',
+        btnPlay: 'Play',
+        playing: '▶ Playing',
+        delayLabel: 'Delay:',
+        btnReset: 'Reset',
+        resetTitle: 'Reset to default delay',
+        btnApplyAll: 'Apply default delay to all frames',
+        emptyToGif: 'Add images or videos to see a preview',
+        emptyGif: 'Add a GIF to see a preview',
+        actionGif: 'Generate GIF',
+        actionVideo: (label) => `Generate Video (${label})`,
+        actionZip: 'Generate Image ZIP',
+        btnCancel: 'Cancel',
+        btnDownload: 'Download',
+        preparing: 'Preparing...',
+        idleToGifEmpty: 'Add images or videos to get started',
+        idleGifEmpty: 'Add a GIF file to get started',
+        idleInput: (ms, hz) => `Input ${ms}ms (${hz}Hz)`,
+        idleSaved: (ms, hz) => `Saved ${ms}ms (${hz}Hz)`,
+        idleWidth: (w) => `Width ${w}px`,
+        idleColors: (n) => `Max colors ${n}`,
+        idleGifSummary: (n, name) => `${n} frames · Input GIF: ${name}`,
+        outPreview: 'Output Preview:',
+        zipMsg: 'ZIP created. Click Download to save.',
+        framesUnit: (n) => `${n} frames`,
+        statusLoading: 'Loading files...',
+        statusFramingVideo: (name) => `Extracting frames: ${name}`,
+        statusFramingProgress: (name, cur, total) => `Extracting frames: ${name} (${cur}/${total})`,
+        statusLoadDone: (n) => `Done: ${n} frames added`,
+        statusNoFiles: 'No supported files found',
+        statusAnalyzing: (name) => `Analyzing GIF: ${name}`,
+        statusAnalyzingProgress: (name, cur, total) => `Analyzing GIF: ${name} (${cur}/${total})`,
+        statusAnalyzeDone: (n) => `Done: ${n} frames`,
+        statusCancelled: 'Cancelled',
+        statusGeneratingGif: 'Generating GIF...',
+        statusGifDone: (n, ms, hz) => `Done: ${n} frames / ${ms}ms (${hz}Hz)`,
+        statusGifDoneMulti: (n, min, max) => `Done: ${n} frames / per-frame ${min}–${max}ms`,
+        statusGeneratingVideo: 'Generating video from GIF...',
+        statusVideoDone: (n, fps, label) => `Video done: ${n} frames (${fps}fps) [${label}]`,
+        statusGeneratingZip: 'Generating image ZIP...',
+        statusZipDone: (n) => `ZIP done: ${n} frames`,
+        errNoGif: 'Please select a GIF file',
+        errNoGifFrames: 'Could not extract GIF frames',
+        errGifDecoder: 'GIF decoder unavailable',
+        errBrowserNoVideo: 'This browser does not support video generation',
+        errNoZip: 'ZIP library unavailable',
+        errNoWorker: 'GIF encoder is loading',
+        errNoFrames: 'No frames to convert',
+        errNoGifVideoFrames: 'No GIF frames',
+        errLoad: 'Failed to load file',
+        errAnalyze: 'Failed to analyze GIF',
+        errConvert: 'Conversion failed',
+        unitColors: '',
+        lowColors: '2',
+        highColors: '256',
+        unitFrames: 'frames',
+        processing: 'Processing...',
+        frameCounter: (cur, total) => `${cur} / ${total}`,
+        footerCopyright: 'Copyright © 2026 Xenoah',
+        footerLicense: 'MIT License',
+        footerAssisted: 'Assisted by Codex / Claude Code',
+        footerLibs: 'React 18 · gif.js · gifuct-js · JSZip · Tailwind CSS',
+      },
+    };
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const isCancelError = (err) => err && /キャンセル/.test(String(err.message || err));
+    const moveArrayItem = (items, from, to) => {
+      if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return items;
+      const next = [...items];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    };
+    const remapMovedIndex = (currentIdx, from, to) => {
+      if (currentIdx === from) return to;
+      if (from < to && currentIdx > from && currentIdx <= to) return currentIdx - 1;
+      if (to < from && currentIdx >= to && currentIdx < from) return currentIdx + 1;
+      return currentIdx;
+    };
+    const fmtSize = (b) => (
+      b < 1024 ? `${b} B` :
+      b < 1048576 ? `${(b / 1024).toFixed(1)} KB` :
+      `${(b / 1048576).toFixed(2)} MB`
+    );
+
+    const readFileAsDataURL = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error(`読み込み失敗: ${file.name}`));
+      reader.readAsDataURL(file);
+    });
+
+    const loadImageFromSrc = (src) => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+      img.src = src;
+    });
+
+    const seekVideo = (video, targetTime) => new Promise((resolve, reject) => {
+      const safeTime = clamp(targetTime, 0, Math.max(0, (video.duration || 0) - 0.001));
+      if (Math.abs((video.currentTime || 0) - safeTime) < 0.0005) {
+        resolve();
+        return;
+      }
+      const onSeeked = () => { cleanup(); resolve(); };
+      const onError = () => { cleanup(); reject(new Error('動画シークに失敗しました')); };
+      const cleanup = () => {
+        video.removeEventListener('seeked', onSeeked);
+        video.removeEventListener('error', onError);
+      };
+      video.addEventListener('seeked', onSeeked, { once: true });
+      video.addEventListener('error', onError, { once: true });
+      try {
+        video.currentTime = safeTime;
+      } catch (err) {
+        cleanup();
+        reject(err);
+      }
+    });
+
+    const waitForVideoFrame = (video) => new Promise((resolve, reject) => {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        if (typeof video.requestVideoFrameCallback === 'function') {
+          const timeout = setTimeout(resolve, 250);
+          video.requestVideoFrameCallback(() => {
+            clearTimeout(timeout);
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+        return;
+      }
+      const onReady = () => { cleanup(); resolve(); };
+      const onError = () => { cleanup(); reject(new Error('動画フレームの読み込みに失敗しました')); };
+      const cleanup = () => {
+        video.removeEventListener('loadeddata', onReady);
+        video.removeEventListener('canplay', onReady);
+        video.removeEventListener('error', onError);
+      };
+      video.addEventListener('loadeddata', onReady, { once: true });
+      video.addEventListener('canplay', onReady, { once: true });
+      video.addEventListener('error', onError, { once: true });
+    });
+
+    const levelsFromMaxColors = (maxColors) => {
+      const safeMax = clamp(Math.floor(maxColors), MIN_COLORS, MAX_COLORS);
+      let r = Math.max(2, Math.floor(Math.cbrt(safeMax)));
+      let g = r;
+      let b = r;
+      const product = () => r * g * b;
+      while (true) {
+        let changed = false;
+        const channels = [
+          { key: 'r', val: r },
+          { key: 'g', val: g },
+          { key: 'b', val: b },
+        ].sort((a, z) => a.val - z.val);
+        for (const ch of channels) {
+          const nr = ch.key === 'r' ? r + 1 : r;
+          const ng = ch.key === 'g' ? g + 1 : g;
+          const nb = ch.key === 'b' ? b + 1 : b;
+          if (nr * ng * nb <= safeMax) {
+            r = nr; g = ng; b = nb;
+            changed = true;
+            break;
+          }
+        }
+        if (!changed || product() >= safeMax) break;
+      }
+      return [r, g, b];
+    };
+
+    const quantizeCanvasColors = (ctx, width, height, maxColors) => {
+      const colorLimit = clamp(Math.floor(maxColors), MIN_COLORS, MAX_COLORS);
+      if (colorLimit >= 256) return;
+      const [lr, lg, lb] = levelsFromMaxColors(colorLimit);
+      const q = (v, levels) => {
+        const step = 255 / (levels - 1);
+        return Math.round(v / step) * step;
+      };
+      const img = ctx.getImageData(0, 0, width, height);
+      const { data } = img;
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = q(data[i], lr);
+        data[i + 1] = q(data[i + 1], lg);
+        data[i + 2] = q(data[i + 2], lb);
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+
+    const NumericControl = ({
+      label, value, min, max, step, decimals, onChange, unit, lowLabel, highLabel,
+    }) => {
+      const shown = Number.isFinite(value) ? value : min;
+      const shownNumber = Number(shown.toFixed(decimals));
+      return (
+        <div>
+          <div className="flex justify-between items-center mb-1.5">
+            <label className="text-sm text-gray-600 dark:text-gray-400">{label}</label>
+            <span className="text-sm font-mono text-blue-600 dark:text-blue-400">
+              {shownNumber}{unit ? ` ${unit}` : ''}
+            </span>
+          </div>
+          <div className="grid grid-cols-[1fr_110px] gap-2">
+            <input
+              type="range"
+              min={min}
+              max={max}
+              step={step}
+              value={shown}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (Number.isFinite(n)) onChange(n);
+              }}
+              className="w-full h-1.5 accent-blue-500 cursor-pointer"
+            />
+            <input
+              type="number"
+              min={min}
+              max={max}
+              step={step}
+              value={shownNumber}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (Number.isFinite(n)) onChange(n);
+              }}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-1 text-sm text-right"
+            />
+          </div>
+          <div className="flex justify-between text-[11px] text-gray-400 mt-0.5">
+            <span>{lowLabel}</span>
+            <span>{highLabel}</span>
+          </div>
+        </div>
+      );
+    };
+
+    const Ico = (d) => ({ size = 20, className = '', style, onClick }) => (
+      <svg width={size} height={size} className={className} style={style} onClick={onClick}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round"
+        dangerouslySetInnerHTML={{ __html: d }} />
+    );
+
+    const IcoMoon      = Ico('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>');
+    const IcoSun       = Ico('<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>');
+    const IcoUpload    = Ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>');
+    const IcoX         = Ico('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
+    const IcoChevLeft  = Ico('<polyline points="15 18 9 12 15 6"/>');
+    const IcoChevRight = Ico('<polyline points="9 18 15 12 9 6"/>');
+    const IcoPlay      = Ico('<polygon points="5 3 19 12 5 21 5 3"/>');
+    const IcoPause     = Ico('<line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/>');
+    const IcoSkipBack  = Ico('<polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>');
+    const IcoSkipFwd   = Ico('<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>');
+    const IcoDownload  = Ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
+    const IcoPlus      = Ico('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>');
+    const IcoFilm      = Ico('<rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>');
+    const IcoAlert     = Ico('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>');
+    const IcoCheck     = Ico('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>');
+    const IcoLoader    = Ico('<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>');
+    const IcoImage     = Ico('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>');
+
+    const App = () => {
+      const [mode, setMode] = useState(MODES.TO_GIF);
+      const [toGifFrames, setToGifFrames] = useState([]);
+      const [gifFrames, setGifFrames] = useState([]);
+      const [sourceGifName, setSourceGifName] = useState('input.gif');
+      const [settings, setSettings] = useState({
+        hz: 10,
+        ms: 100,
+        loop: 0,
+        width: 480,
+        quality: 7,
+        maxColors: 256,
+        videoFrameLimit: DEFAULT_VIDEO_FRAME_LIMIT,
+        videoFormat: 'webm',
+      });
+      const [status, setStatus] = useState('idle');
+      const [statusMessage, setStatusMessage] = useState('');
+      const [progress, setProgress] = useState(0);
+      const [output, setOutput] = useState(null);
+      const [workerReady, setWorkerReady] = useState(false);
+      const [isDragOver, setIsDragOver] = useState(false);
+      const [dragFrameIdx, setDragFrameIdx] = useState(null);
+      const [dropFrameIdx, setDropFrameIdx] = useState(null);
+      const [previewIdx, setPreviewIdx] = useState(0);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [darkMode, setDarkMode] = useState(
+        window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+      );
+      const [lang, setLang] = useState('ja');
+
+      const fileInputRef = useRef(null);
+      const gifEncoderRef = useRef(null);
+      const workerUrlRef = useRef(null);
+      const outputUrlRef = useRef(null);
+      const recorderRef = useRef(null);
+      const cancelRef = useRef(false);
+
+      const activeFrames = mode === MODES.TO_GIF ? toGifFrames : gifFrames;
+      const inputAccept = mode === MODES.TO_GIF ? 'image/*,video/*' : 'image/gif,.gif';
+      const busy = status === 'processing' || status === 'generating';
+      const savedMs = useMemo(() => Math.max(10, Math.round(settings.ms / 10) * 10), [settings.ms]);
+      const savedHz = useMemo(() => 1000 / savedMs, [savedMs]);
+      const getFrameDelayMs = useCallback((frame, fallbackMs = settings.ms) => {
+        const raw = Number(frame?.delayMs);
+        return clamp(Number.isFinite(raw) ? raw : fallbackMs, MIN_MS, MAX_FRAME_DELAY_MS);
+      }, [settings.ms]);
+      const activeFrame = activeFrames[previewIdx] || null;
+      const activeFrameDelayMs = useMemo(
+        () => getFrameDelayMs(activeFrame),
+        [activeFrame, getFrameDelayMs]
+      );
+      const activeFrameHz = useMemo(() => 1000 / activeFrameDelayMs, [activeFrameDelayMs]);
+      const toGifDelayStats = useMemo(() => {
+        if (!toGifFrames.length) return null;
+        const inputDelays = toGifFrames.map((frame) => getFrameDelayMs(frame));
+        const savedDelays = inputDelays.map((delayMs) => Math.max(10, Math.round(delayMs / 10) * 10));
+        return {
+          inputMin: Math.min(...inputDelays),
+          inputMax: Math.max(...inputDelays),
+          savedMin: Math.min(...savedDelays),
+          savedMax: Math.max(...savedDelays),
+          customCount: toGifFrames.filter((frame) => frame.customDelay).length,
+        };
+      }, [getFrameDelayMs, toGifFrames]);
+      const getSupportedVideoMime = useCallback((formatId) => {
+        if (!window.MediaRecorder) return '';
+        const option = VIDEO_OUTPUTS[formatId] || VIDEO_OUTPUTS.webm;
+        if (!window.MediaRecorder.isTypeSupported) {
+          return formatId === 'webm' ? option.mimeCandidates[option.mimeCandidates.length - 1] : '';
+        }
+        return option.mimeCandidates.find((mimeType) => window.MediaRecorder.isTypeSupported(mimeType)) || '';
+      }, []);
+      const mp4MimeType = useMemo(() => getSupportedVideoMime('mp4'), [getSupportedVideoMime]);
+      const effectiveVideoFormat = settings.videoFormat === 'mp4' && mp4MimeType ? 'mp4' : 'webm';
+      const effectiveVideoOutput = VIDEO_OUTPUTS[effectiveVideoFormat];
+      const previewDelay = useMemo(() => activeFrameDelayMs, [activeFrameDelayMs]);
+      const t = STRINGS[lang];
+      const tRef = useRef(t);
+      tRef.current = t;
+
+      const clearOutput = useCallback(() => {
+        if (outputUrlRef.current) {
+          URL.revokeObjectURL(outputUrlRef.current);
+          outputUrlRef.current = null;
+        }
+        setOutput(null);
+      }, []);
+
+      const setBlobOutput = useCallback((blob, type, name, meta = {}) => {
+        clearOutput();
+        const url = URL.createObjectURL(blob);
+        outputUrlRef.current = url;
+        setOutput({ type, url, size: blob.size, name, meta });
+      }, [clearOutput]);
+
+      const stopOngoingWork = useCallback(() => {
+        cancelRef.current = true;
+        if (gifEncoderRef.current) {
+          try { gifEncoderRef.current.abort(); } catch (_) {}
+          gifEncoderRef.current = null;
+        }
+        if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+          try { recorderRef.current.stop(); } catch (_) {}
+          recorderRef.current = null;
+        }
+      }, []);
+
+      useEffect(() => {
+        document.documentElement.classList.toggle('dark', darkMode);
+      }, [darkMode]);
+
+      useEffect(() => {
+        fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')
+          .then((r) => r.blob())
+          .then((blob) => {
+            workerUrlRef.current = URL.createObjectURL(blob);
+            setWorkerReady(true);
+          })
+          .catch(() => {
+            setWorkerReady(false);
+            console.error('gif.js worker の読み込みに失敗しました');
+          });
+        return () => {
+          stopOngoingWork();
+          if (workerUrlRef.current) URL.revokeObjectURL(workerUrlRef.current);
+          if (outputUrlRef.current) URL.revokeObjectURL(outputUrlRef.current);
+        };
+      }, [stopOngoingWork]);
+
+      useEffect(() => {
+        if (activeFrames.length === 0) {
+          setPreviewIdx(0);
+          setIsPlaying(false);
+          return;
+        }
+        if (previewIdx > activeFrames.length - 1) setPreviewIdx(0);
+      }, [activeFrames.length, previewIdx]);
+
+      useEffect(() => {
+        if (!isPlaying || activeFrames.length <= 1) return;
+        const timer = setTimeout(() => {
+          setPreviewIdx((p) => (p + 1) % activeFrames.length);
+        }, previewDelay);
+        return () => clearTimeout(timer);
+      }, [isPlaying, activeFrames.length, previewIdx, previewDelay]);
+
+      useEffect(() => {
+        if (settings.videoFormat === 'mp4' && !mp4MimeType) {
+          setSettings((s) => (s.videoFormat === 'mp4' ? { ...s, videoFormat: 'webm' } : s));
+        }
+      }, [mp4MimeType, settings.videoFormat]);
+
+      const syncDefaultDelayToToGifFrames = useCallback((delayMs) => {
+        setToGifFrames((prev) => prev.map((frame) => (
+          frame.customDelay ? frame : { ...frame, delayMs }
+        )));
+      }, []);
+
+      const setHz = useCallback((value) => {
+        const hz = clamp(value, MIN_HZ, MAX_HZ);
+        const ms = 1000 / hz;
+        setSettings((s) => ({ ...s, hz, ms }));
+        syncDefaultDelayToToGifFrames(ms);
+      }, [syncDefaultDelayToToGifFrames]);
+
+      const setMs = useCallback((value) => {
+        const ms = clamp(value, MIN_MS, MAX_MS);
+        const hz = 1000 / ms;
+        setSettings((s) => ({ ...s, ms, hz }));
+        syncDefaultDelayToToGifFrames(ms);
+      }, [syncDefaultDelayToToGifFrames]);
+
+      const setLoop = useCallback((value) => {
+        const loop = Math.round(clamp(value, 0, 10));
+        setSettings((s) => ({ ...s, loop }));
+      }, []);
+
+      const setWidth = useCallback((value) => {
+        const width = Math.round(clamp(value, MIN_WIDTH, MAX_WIDTH));
+        setSettings((s) => ({ ...s, width }));
+      }, []);
+
+      const setQuality = useCallback((value) => {
+        const quality = Math.round(clamp(value, 1, 10));
+        setSettings((s) => ({ ...s, quality }));
+      }, []);
+
+      const setMaxColors = useCallback((value) => {
+        const maxColors = Math.round(clamp(value, MIN_COLORS, MAX_COLORS));
+        setSettings((s) => ({ ...s, maxColors }));
+      }, []);
+
+      const setVideoFrameLimit = useCallback((value) => {
+        const videoFrameLimit = Math.round(clamp(value, MIN_VIDEO_FRAME_LIMIT, MAX_VIDEO_FRAME_LIMIT));
+        setSettings((s) => ({ ...s, videoFrameLimit }));
+      }, []);
+
+      const setVideoFormat = useCallback((formatId) => {
+        if (formatId === 'mp4' && !mp4MimeType) return;
+        setSettings((s) => ({ ...s, videoFormat: formatId === 'mp4' ? 'mp4' : 'webm' }));
+      }, [mp4MimeType]);
+
+      const updateFrameDelayAt = useCallback((targetMode, idx, value) => {
+        const delayMs = clamp(value, MIN_MS, MAX_FRAME_DELAY_MS);
+        const updater = (frame, frameIdx) => {
+          if (frameIdx !== idx) return frame;
+          if (targetMode === MODES.TO_GIF) {
+            return { ...frame, delayMs, customDelay: true };
+          }
+          return { ...frame, delayMs };
+        };
+        if (targetMode === MODES.TO_GIF) {
+          setToGifFrames((prev) => prev.map(updater));
+          return;
+        }
+        setGifFrames((prev) => prev.map(updater));
+      }, []);
+
+      const resetSelectedToGifFrameDelay = useCallback(() => {
+        setToGifFrames((prev) => prev.map((frame, idx) => (
+          idx === previewIdx
+            ? { ...frame, delayMs: settings.ms, customDelay: false }
+            : frame
+        )));
+      }, [previewIdx, settings.ms]);
+
+      const applyDefaultDelayToAllToGifFrames = useCallback(() => {
+        setToGifFrames((prev) => prev.map((frame) => ({
+          ...frame,
+          delayMs: settings.ms,
+          customDelay: false,
+        })));
+      }, [settings.ms]);
+
+      const extractFramesFromVideo = useCallback(async (file, onProgress) => {
+        const url = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.preload = 'auto';
+        video.muted = true;
+        video.playsInline = true;
+        video.src = url;
+
+        try {
+          await new Promise((resolve, reject) => {
+            video.onloadedmetadata = () => resolve();
+            video.onerror = () => reject(new Error(`動画読み込み失敗: ${file.name}`));
+          });
+          await waitForVideoFrame(video);
+
+          const duration = Number(video.duration);
+          const width = Math.max(1, video.videoWidth || 1);
+          const height = Math.max(1, video.videoHeight || 1);
+          if (!Number.isFinite(duration) || duration <= 0) {
+            throw new Error(`動画の長さを取得できません: ${file.name}`);
+          }
+
+          const targetFrameCount = Math.max(1, Math.floor(duration * settings.hz));
+          const maxFrames = Math.round(clamp(
+            settings.videoFrameLimit,
+            MIN_VIDEO_FRAME_LIMIT,
+            MAX_VIDEO_FRAME_LIMIT
+          ));
+          const stride = Math.max(1, Math.ceil(targetFrameCount / maxFrames));
+          const actualFrameCount = Math.ceil(targetFrameCount / stride);
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          const extracted = [];
+
+          for (let i = 0, seq = 0; i < targetFrameCount; i += stride, seq++) {
+            if (cancelRef.current) throw new Error('キャンセル');
+            const t = Math.min(Math.max(duration - 0.001, 0), i / settings.hz);
+            await seekVideo(video, t);
+            await waitForVideoFrame(video);
+            ctx.drawImage(video, 0, 0, width, height);
+            extracted.push({
+              id: uid(),
+              src: canvas.toDataURL('image/png'),
+              name: `${file.name} [${seq + 1}]`,
+              delayMs: settings.ms,
+              customDelay: false,
+            });
+            if (onProgress) onProgress(Math.round(((seq + 1) / actualFrameCount) * 100), seq + 1, actualFrameCount);
+          }
+
+          return extracted;
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }, [settings.hz, settings.ms, settings.videoFrameLimit]);
+
+      const decodeGifFrames = useCallback(async (file, onProgress) => {
+        const bytes = await file.arrayBuffer();
+
+        if ('ImageDecoder' in window) {
+          try {
+            const decoder = new ImageDecoder({ data: bytes, type: 'image/gif' });
+            await decoder.tracks.ready;
+            const track = decoder.tracks.selectedTrack;
+            const total = Math.max(1, track.frameCount || 1);
+            const frames = [];
+
+            for (let i = 0; i < total; i++) {
+              if (cancelRef.current) throw new Error('キャンセル');
+              const { image } = await decoder.decode({ frameIndex: i });
+              const w = Math.max(1, image.displayWidth || image.codedWidth || 1);
+              const h = Math.max(1, image.displayHeight || image.codedHeight || 1);
+              const c = document.createElement('canvas');
+              c.width = w;
+              c.height = h;
+              const ctx = c.getContext('2d');
+              ctx.drawImage(image, 0, 0, w, h);
+              const delayMs = clamp(Math.round((image.duration || 100000) / 1000), 10, 10000);
+              frames.push({
+                id: uid(),
+                src: c.toDataURL('image/png'),
+                name: `frame-${String(i + 1).padStart(4, '0')}.png`,
+                delayMs,
+              });
+              image.close();
+              if (onProgress) onProgress(Math.round(((i + 1) / total) * 100), i + 1, total);
+            }
+
+            decoder.close();
+            return frames;
+          } catch (err) {
+            console.warn('ImageDecoder fallback to gifuct-js', err);
+          }
+        }
+
+        const api = window.gifuctjs || window.gifuct || window.GIFuct || window.GIFUCT || {};
+        if (typeof api.parseGIF !== 'function' || typeof api.decompressFrames !== 'function') {
+          throw new Error(tRef.current.errGifDecoder);
+        }
+
+        const parsed = api.parseGIF(bytes);
+        const rawFrames = api.decompressFrames(parsed, true);
+        const total = Math.max(1, rawFrames.length);
+        const width = Math.max(1, parsed?.lsd?.width || 1);
+        const height = Math.max(1, parsed?.lsd?.height || 1);
+        const c = document.createElement('canvas');
+        c.width = width;
+        c.height = height;
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, width, height);
+        const frames = [];
+
+        for (let i = 0; i < total; i++) {
+          if (cancelRef.current) throw new Error('キャンセル');
+          const f = rawFrames[i];
+          const prev = ctx.getImageData(0, 0, width, height);
+          const patch = new ImageData(
+            new Uint8ClampedArray(f.patch),
+            f.dims.width,
+            f.dims.height
+          );
+          ctx.putImageData(patch, f.dims.left, f.dims.top);
+          frames.push({
+            id: uid(),
+            src: c.toDataURL('image/png'),
+            name: `frame-${String(i + 1).padStart(4, '0')}.png`,
+            delayMs: Math.max(10, (f.delay || 10) * 10),
+          });
+
+          if (f.disposalType === 2) {
+            ctx.clearRect(f.dims.left, f.dims.top, f.dims.width, f.dims.height);
+          } else if (f.disposalType === 3) {
+            ctx.putImageData(prev, 0, 0);
+          }
+          if (onProgress) onProgress(Math.round(((i + 1) / total) * 100), i + 1, total);
+        }
+        return frames;
+      }, []);
+
+      const loadToGifSources = useCallback(async (fileList) => {
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+        setStatus('processing');
+        setStatusMessage(tRef.current.statusLoading);
+        setProgress(0);
+
+        const additions = [];
+        try {
+          for (let idx = 0; idx < files.length; idx++) {
+            if (cancelRef.current) throw new Error('キャンセル');
+            const file = files[idx];
+
+            if (file.type.startsWith('image/')) {
+              const src = await readFileAsDataURL(file);
+              additions.push({
+                id: uid(),
+                src,
+                name: file.name,
+                delayMs: settings.ms,
+                customDelay: false,
+              });
+              setProgress(Math.round(((idx + 1) / files.length) * 100));
+              continue;
+            }
+
+            if (file.type.startsWith('video/')) {
+              setStatusMessage(tRef.current.statusFramingVideo(file.name));
+              const extracted = await extractFramesFromVideo(
+                file,
+                (p, current, total) => {
+                  const base = (idx / files.length) * 100;
+                  const share = 100 / files.length;
+                  setProgress(Math.round(base + (p / 100) * share));
+                  setStatusMessage(tRef.current.statusFramingProgress(file.name, current, total));
+                }
+              );
+              additions.push(...extracted);
+            }
+          }
+
+          if (additions.length > 0) {
+            setToGifFrames((prev) => [...prev, ...additions]);
+            setStatusMessage(tRef.current.statusLoadDone(additions.length));
+          } else {
+            setStatusMessage(tRef.current.statusNoFiles);
+          }
+          setStatus('idle');
+          setProgress(0);
+        } catch (err) {
+          if (isCancelError(err)) {
+            setStatus('idle');
+            setStatusMessage(tRef.current.statusCancelled);
+            setProgress(0);
+            return;
+          }
+          console.error(err);
+          setStatus('error');
+          setStatusMessage(err.message || tRef.current.errLoad);
+        }
+      }, [extractFramesFromVideo, settings.ms]);
+
+      const loadGifSource = useCallback(async (fileList) => {
+        const files = Array.from(fileList || []);
+        const gifFile = files.find((f) => f.type === 'image/gif' || /\.gif$/i.test(f.name));
+        if (!gifFile) {
+          setStatus('error');
+          setStatusMessage(tRef.current.errNoGif);
+          return;
+        }
+
+        setStatus('processing');
+        setStatusMessage(tRef.current.statusAnalyzing(gifFile.name));
+        setProgress(0);
+
+        try {
+          const frames = await decodeGifFrames(gifFile, (p, current, total) => {
+            setProgress(p);
+            setStatusMessage(tRef.current.statusAnalyzingProgress(gifFile.name, current, total));
+          });
+          if (!frames.length) throw new Error(tRef.current.errNoGifFrames);
+          setGifFrames(frames);
+          setSourceGifName(gifFile.name);
+          setStatus('idle');
+          setStatusMessage(tRef.current.statusAnalyzeDone(frames.length));
+          setProgress(0);
+          setPreviewIdx(0);
+          setIsPlaying(false);
+        } catch (err) {
+          if (isCancelError(err)) {
+            setStatus('idle');
+            setStatusMessage(tRef.current.statusCancelled);
+            setProgress(0);
+            return;
+          }
+          console.error(err);
+          setStatus('error');
+          setStatusMessage(err.message || tRef.current.errAnalyze);
+        }
+      }, [decodeGifFrames]);
+
+      const handleFiles = useCallback(async (fileList) => {
+        cancelRef.current = false;
+        clearOutput();
+        if (mode === MODES.TO_GIF) {
+          await loadToGifSources(fileList);
+        } else {
+          await loadGifSource(fileList);
+        }
+      }, [mode, clearOutput, loadToGifSources, loadGifSource]);
+
+      const generateGif = useCallback(async () => {
+        if (!workerReady) throw new Error(tRef.current.errNoWorker);
+        if (!toGifFrames.length) throw new Error(tRef.current.errNoFrames);
+        if (gifEncoderRef.current) {
+          try { gifEncoderRef.current.abort(); } catch (_) {}
+          gifEncoderRef.current = null;
+        }
+
+        setStatus('generating');
+        setStatusMessage(tRef.current.statusGeneratingGif);
+        setProgress(0);
+
+        const images = await Promise.all(toGifFrames.map((f) => loadImageFromSrc(f.src)));
+        if (cancelRef.current) throw new Error('キャンセル');
+
+        const first = images[0];
+        const outW = Math.round(clamp(settings.width, MIN_WIDTH, MAX_WIDTH));
+        const outH = Math.max(1, Math.round(first.naturalHeight * outW / Math.max(1, first.naturalWidth)));
+        const gif = new GIF({
+          workers: 2,
+          quality: Math.max(1, Math.round(21 - settings.quality * 2)),
+          workerScript: workerUrlRef.current,
+          width: outW,
+          height: outH,
+          repeat: settings.loop,
+        });
+        gifEncoderRef.current = gif;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+
+        for (let i = 0; i < images.length; i++) {
+          if (cancelRef.current) throw new Error('キャンセル');
+          const img = images[i];
+          const delayMs = getFrameDelayMs(toGifFrames[i]);
+          const frameSavedMs = Math.max(10, Math.round(delayMs / 10) * 10);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, outW, outH);
+          const scale = Math.min(outW / img.naturalWidth, outH / img.naturalHeight);
+          const dw = Math.max(1, Math.round(img.naturalWidth * scale));
+          const dh = Math.max(1, Math.round(img.naturalHeight * scale));
+          const dx = Math.round((outW - dw) / 2);
+          const dy = Math.round((outH - dh) / 2);
+          ctx.drawImage(img, dx, dy, dw, dh);
+          quantizeCanvasColors(ctx, outW, outH, settings.maxColors);
+          gif.addFrame(canvas, { delay: frameSavedMs, copy: true });
+          setProgress(Math.round(((i + 1) / images.length) * 30));
+        }
+
+        const blob = await new Promise((resolve, reject) => {
+          gif.on('progress', (p) => setProgress(30 + Math.round(p * 70)));
+          gif.on('finished', (resultBlob) => resolve(resultBlob));
+          gif.on('abort', () => reject(new Error('キャンセル')));
+          gif.on('error', (err) => reject(err instanceof Error ? err : new Error('GIF 生成失敗')));
+          gif.render();
+        });
+
+        setBlobOutput(blob, 'gif', 'animation.gif', {
+          width: outW,
+          height: outH,
+          frameCount: toGifFrames.length,
+          savedMs: toGifDelayStats?.savedMin,
+          savedHz: toGifDelayStats?.savedMin ? 1000 / toGifDelayStats.savedMin : null,
+          delayStats: toGifDelayStats,
+        });
+        setStatus('done');
+        setStatusMessage(tRef.current.statusGifDone(toGifFrames.length, savedMs, savedHz.toFixed(2)));
+        if (toGifDelayStats && toGifDelayStats.savedMin !== toGifDelayStats.savedMax) {
+          setStatusMessage(tRef.current.statusGifDoneMulti(toGifFrames.length, toGifDelayStats.savedMin, toGifDelayStats.savedMax));
+        }
+        setProgress(100);
+        gifEncoderRef.current = null;
+      }, [
+        workerReady,
+        toGifFrames,
+        settings.width,
+        settings.quality,
+        settings.loop,
+        settings.maxColors,
+        savedMs,
+        savedHz,
+        getFrameDelayMs,
+        setBlobOutput,
+        toGifDelayStats,
+      ]);
+
+      const generateVideoFromGif = useCallback(async () => {
+        if (!gifFrames.length) throw new Error(tRef.current.errNoGifVideoFrames);
+        if (!window.MediaRecorder) throw new Error(tRef.current.errBrowserNoVideo);
+
+        setStatus('generating');
+        setStatusMessage(tRef.current.statusGeneratingVideo);
+        setProgress(0);
+
+        const imgs = await Promise.all(gifFrames.map((f) => loadImageFromSrc(f.src)));
+        if (cancelRef.current) throw new Error('キャンセル');
+
+        const w = Math.max(1, imgs[0].naturalWidth);
+        const h = Math.max(1, imgs[0].naturalHeight);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        const minDelayMs = gifFrames.reduce(
+          (minV, f) => Math.min(minV, Math.max(10, f.delayMs || 100)),
+          1000
+        );
+        const autoHz = 1000 / minDelayMs;
+        const captureFps = clamp(Math.max(settings.hz, autoHz), MIN_HZ, MAX_HZ);
+        const stream = canvas.captureStream(captureFps);
+
+        const mimeType = getSupportedVideoMime(effectiveVideoFormat);
+        const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+        recorderRef.current = recorder;
+
+        const chunks = [];
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        const done = new Promise((resolve, reject) => {
+          recorder.onstop = () => resolve();
+          recorder.onerror = () => reject(new Error('動画生成中にエラーが発生しました'));
+        });
+
+        try {
+          recorder.start(250);
+          const totalMs = gifFrames.reduce((sum, f) => sum + Math.max(10, f.delayMs || 100), 0);
+          let elapsed = 0;
+          for (let i = 0; i < imgs.length; i++) {
+            if (cancelRef.current) throw new Error('キャンセル');
+            ctx.drawImage(imgs[i], 0, 0, w, h);
+            const waitMs = Math.max(10, gifFrames[i].delayMs || 100);
+            elapsed += waitMs;
+            setProgress(Math.min(99, Math.round((elapsed / totalMs) * 100)));
+            await sleep(waitMs);
+          }
+          await sleep(60);
+          recorder.stop();
+          await done;
+        } finally {
+          stream.getTracks().forEach((t) => t.stop());
+          recorderRef.current = null;
+        }
+
+        const blob = new Blob(chunks, { type: mimeType || effectiveVideoOutput.mimeCandidates.at(-1) });
+        setBlobOutput(blob, 'video', `animation.${effectiveVideoOutput.extension}`, {
+          width: w,
+          height: h,
+          frameCount: gifFrames.length,
+          sourceGifName,
+          captureFps,
+          format: effectiveVideoOutput.id,
+        });
+        setStatus('done');
+        setStatusMessage(tRef.current.statusVideoDone(gifFrames.length, captureFps.toFixed(2), effectiveVideoOutput.label));
+        setProgress(100);
+      }, [gifFrames, settings.hz, effectiveVideoFormat, effectiveVideoOutput, sourceGifName, setBlobOutput, getSupportedVideoMime]);
+
+      const generateZipFromGif = useCallback(async () => {
+        if (!gifFrames.length) throw new Error(tRef.current.errNoGifVideoFrames);
+        if (!window.JSZip) throw new Error(tRef.current.errNoZip);
+
+        setStatus('generating');
+        setStatusMessage(tRef.current.statusGeneratingZip);
+        setProgress(0);
+
+        const zip = new window.JSZip();
+        gifFrames.forEach((frame, i) => {
+          const base64 = frame.src.split(',')[1];
+          zip.file(`frame-${String(i + 1).padStart(4, '0')}.png`, base64, { base64: true });
+        });
+        zip.file('frames.json', JSON.stringify({
+          source: sourceGifName,
+          frameCount: gifFrames.length,
+          frames: gifFrames.map((f, i) => ({
+            index: i + 1,
+            delayMs: f.delayMs || 100,
+            file: `frame-${String(i + 1).padStart(4, '0')}.png`,
+          })),
+        }, null, 2));
+
+        const blob = await zip.generateAsync(
+          { type: 'blob', compression: 'DEFLATE' },
+          (meta) => setProgress(Math.round(meta.percent))
+        );
+
+        const base = sourceGifName.replace(/\.gif$/i, '');
+        setBlobOutput(blob, 'zip', `${base || 'frames'}-frames.zip`, {
+          frameCount: gifFrames.length,
+          sourceGifName,
+        });
+        setStatus('done');
+        setStatusMessage(tRef.current.statusZipDone(gifFrames.length));
+        setProgress(100);
+      }, [gifFrames, sourceGifName, setBlobOutput]);
+
+      const runConvert = useCallback(async () => {
+        cancelRef.current = false;
+        clearOutput();
+        setProgress(0);
+        try {
+          if (mode === MODES.TO_GIF) {
+            await generateGif();
+            return;
+          }
+          if (mode === MODES.GIF_TO_VIDEO) {
+            await generateVideoFromGif();
+            return;
+          }
+          await generateZipFromGif();
+        } catch (err) {
+          if (isCancelError(err)) {
+            setStatus('idle');
+            setStatusMessage(tRef.current.statusCancelled);
+            setProgress(0);
+            return;
+          }
+          console.error(err);
+          setStatus('error');
+          setStatusMessage(err.message || tRef.current.errConvert);
+          setProgress(0);
+        }
+      }, [mode, clearOutput, generateGif, generateVideoFromGif, generateZipFromGif]);
+
+      const cancelCurrent = useCallback(() => {
+        stopOngoingWork();
+        setStatus('idle');
+        setStatusMessage(tRef.current.statusCancelled);
+        setProgress(0);
+      }, [stopOngoingWork]);
+
+      const clearCurrent = useCallback(() => {
+        stopOngoingWork();
+        if (mode === MODES.TO_GIF) setToGifFrames([]);
+        else setGifFrames([]);
+        setPreviewIdx(0);
+        setIsPlaying(false);
+        setStatus('idle');
+        setStatusMessage('');
+        setProgress(0);
+        clearOutput();
+      }, [mode, clearOutput, stopOngoingWork]);
+
+      const deleteToGifFrame = useCallback((idx) => {
+        setToGifFrames((prev) => {
+          const next = prev.filter((_, i) => i !== idx);
+          setPreviewIdx((p) => Math.min(p, Math.max(0, next.length - 1)));
+          return next;
+        });
+      }, []);
+
+      const moveToGifFrame = useCallback((idx, dir) => {
+        setToGifFrames((prev) => {
+          const arr = [...prev];
+          const ni = idx + dir;
+          if (ni < 0 || ni >= arr.length) return arr;
+          [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
+          setPreviewIdx((p) => (p === idx ? ni : (p === ni ? idx : p)));
+          return arr;
+        });
+      }, []);
+
+      const dropReorderFrame = useCallback((fromIdx, toIdx) => {
+        if (fromIdx == null || toIdx == null || fromIdx === toIdx) {
+          setDragFrameIdx(null);
+          setDropFrameIdx(null);
+          return;
+        }
+        setToGifFrames((prev) => moveArrayItem(prev, fromIdx, toIdx));
+        setPreviewIdx((p) => remapMovedIndex(p, fromIdx, toIdx));
+        setDragFrameIdx(null);
+        setDropFrameIdx(null);
+      }, []);
+
+      const switchMode = useCallback((nextMode) => {
+        if (nextMode === mode) return;
+        stopOngoingWork();
+        setMode(nextMode);
+        setPreviewIdx(0);
+        setIsPlaying(false);
+        setStatus('idle');
+        setStatusMessage('');
+        setProgress(0);
+        clearOutput();
+        cancelRef.current = false;
+      }, [mode, clearOutput, stopOngoingWork]);
+
+      const downloadOutput = useCallback(() => {
+        if (!output?.url) return;
+        const a = document.createElement('a');
+        a.href = output.url;
+        a.download = output.name || (
+          output.type === 'gif' ? 'animation.gif' :
+          output.type === 'video' ? 'animation.webm' :
+          'frames.zip'
+        );
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, [output]);
+
+      const modeLabel = (
+        mode === MODES.TO_GIF ? t.modeLabel[MODES.TO_GIF] :
+        mode === MODES.GIF_TO_VIDEO ? `${t.modeLabel[MODES.GIF_TO_VIDEO]}(${effectiveVideoOutput.label})` :
+        t.modeLabel[MODES.GIF_TO_IMAGES]
+      );
+
+      const actionLabel = (
+        mode === MODES.TO_GIF ? t.actionGif :
+        mode === MODES.GIF_TO_VIDEO ? t.actionVideo(effectiveVideoOutput.label) :
+        t.actionZip
+      );
+
+      const readyForConvert = mode === MODES.TO_GIF
+        ? (toGifFrames.length > 0 && workerReady)
+        : (gifFrames.length > 0);
+
+      const idleSummary = (() => {
+        if (mode === MODES.TO_GIF) {
+          if (!toGifFrames.length) return t.idleToGifEmpty;
+          return [
+            t.framesUnit(toGifFrames.length),
+            t.idleInput(settings.ms.toFixed(3), settings.hz.toFixed(2)),
+            t.idleSaved(savedMs, savedHz.toFixed(2)),
+            t.idleWidth(Math.round(settings.width)),
+            t.idleColors(Math.round(settings.maxColors)),
+          ].join(' · ');
+        }
+        if (!gifFrames.length) return t.idleGifEmpty;
+        return t.idleGifSummary(gifFrames.length, sourceGifName);
+      })();
+
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <header className="sticky top-0 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur border-b border-gray-200 dark:border-gray-700">
+            <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IcoFilm size={22} className="text-blue-500" />
+                <span className="font-bold text-lg tracking-tight">GIF昆布</span>
+                <span className="hidden sm:inline text-xs text-gray-400 font-normal ml-1">
+                  — {modeLabel}
+                </span>
+              </div>
+              <button
+                onClick={() => setLang((l) => l === 'ja' ? 'en' : 'ja')}
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-semibold text-xs tracking-wide"
+                title="Switch language / 言語切替"
+              >
+                {t.langToggle}
+              </button>
+              <button
+                onClick={() => setDarkMode((d) => !d)}
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                title={darkMode ? t.darkTitle : t.lightTitle}
+              >
+                {darkMode ? <IcoSun size={18} /> : <IcoMoon size={18} />}
+              </button>
+            </div>
+          </header>
+
+          <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+              <div className="grid sm:grid-cols-3 gap-2">
+                {[MODES.TO_GIF, MODES.GIF_TO_VIDEO, MODES.GIF_TO_IMAGES].map((modeId) => (
+                  <button
+                    key={modeId}
+                    onClick={() => switchMode(modeId)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                      mode === modeId
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {t.modeLabel[modeId]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                if (busy) return;
+                handleFiles(e.dataTransfer.files);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (!busy) setIsDragOver(true);
+              }}
+              onDragLeave={() => setIsDragOver(false)}
+              className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer select-none transition-all duration-150
+                ${isDragOver
+                  ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/60 dark:hover:bg-gray-800/60'}
+                ${busy ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={inputAccept}
+                multiple={mode === MODES.TO_GIF}
+                className="hidden"
+                disabled={busy}
+                onChange={(e) => {
+                  if (busy) return;
+                  handleFiles(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+              <IcoUpload size={40} className={`mx-auto mb-3 transition-colors ${isDragOver ? 'text-blue-500' : 'text-gray-300 dark:text-gray-600'}`} />
+              <p className="font-semibold text-gray-700 dark:text-gray-300">
+                {mode === MODES.TO_GIF
+                  ? (isDragOver ? t.dropToGifOver : t.dropToGifIdle)
+                  : (isDragOver ? t.dropGifOver : t.dropGifIdle)}
+              </p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                {mode === MODES.TO_GIF ? t.dropToGifHint : t.dropGifHint}
+              </p>
+              {activeFrames.length > 0 && (
+                <p className="text-xs text-blue-500 mt-2">{t.framesLoaded(activeFrames.length)}</p>
+              )}
+            </div>
+
+            {activeFrames.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 animate-in">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+                    {t.secFrames} <span className="font-normal text-gray-400">({activeFrames.length})</span>
+                  </h2>
+                  <div className="flex gap-2">
+                    {mode === MODES.TO_GIF && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                        className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 font-medium transition-colors"
+                      >
+                        <IcoPlus size={11} /> {t.btnAdd}
+                      </button>
+                    )}
+                    <button
+                      onClick={clearCurrent}
+                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 font-medium transition-colors"
+                    >
+                      <IcoX size={11} /> {t.btnClear}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                  {activeFrames.map((frame, idx) => (
+                    <div
+                      key={frame.id}
+                      onClick={() => { setPreviewIdx(idx); setIsPlaying(false); }}
+                      draggable={mode === MODES.TO_GIF}
+                      onDragStart={mode === MODES.TO_GIF ? (e) => { e.dataTransfer.effectAllowed = 'move'; setDragFrameIdx(idx); } : undefined}
+                      onDragOver={mode === MODES.TO_GIF ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropFrameIdx(idx); } : undefined}
+                      onDragLeave={mode === MODES.TO_GIF ? () => setDropFrameIdx((p) => p === idx ? null : p) : undefined}
+                      onDrop={mode === MODES.TO_GIF ? (e) => { e.preventDefault(); dropReorderFrame(dragFrameIdx, idx); } : undefined}
+                      onDragEnd={mode === MODES.TO_GIF ? () => { setDragFrameIdx(null); setDropFrameIdx(null); } : undefined}
+                      className={`relative group aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all
+                        ${previewIdx === idx
+                          ? 'border-blue-500 shadow-md shadow-blue-200 dark:shadow-blue-900/60'
+                          : dropFrameIdx === idx && dragFrameIdx !== idx
+                            ? 'border-green-400 bg-green-50/20 dark:bg-green-900/20 scale-105'
+                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500'}`}
+                    >
+                      <img src={frame.src} alt={`Frame ${idx + 1}`} className="w-full h-full object-cover" />
+                      <span className="absolute top-0 left-0 bg-black/60 text-white text-[9px] font-bold px-1 py-0.5 rounded-br leading-tight">
+                        {idx + 1}
+                      </span>
+                      {mode !== MODES.TO_GIF && (
+                        <span className="absolute bottom-0 left-0 bg-black/60 text-white text-[9px] font-bold px-1 py-0.5 rounded-tr leading-tight">
+                          {Math.round(frame.delayMs || 100)}ms
+                        </span>
+                      )}
+                      {mode === MODES.TO_GIF && (
+                        <>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors" />
+                          <div className="absolute bottom-0 inset-x-0 flex justify-around items-center bg-black/70 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveToGifFrame(idx, -1); }}
+                              disabled={idx === 0}
+                              className="p-0.5 text-white disabled:opacity-25 hover:text-blue-300 transition-colors"
+                              title={t.btnMoveLeft}
+                            ><IcoChevLeft size={10} /></button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteToGifFrame(idx); }}
+                              className="p-0.5 text-white hover:text-red-300 transition-colors"
+                              title={t.btnDelete}
+                            ><IcoX size={10} /></button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveToGifFrame(idx, 1); }}
+                              disabled={idx === activeFrames.length - 1}
+                              className="p-0.5 text-white disabled:opacity-25 hover:text-blue-300 transition-colors"
+                              title={t.btnMoveRight}
+                            ><IcoChevRight size={10} /></button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid lg:grid-cols-5 gap-5">
+              <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-5">
+                <h2 className="font-semibold text-sm text-gray-700 dark:text-gray-300">{t.secSettings}</h2>
+
+                <NumericControl
+                  label={t.labelHz}
+                  value={settings.hz}
+                  min={MIN_HZ}
+                  max={MAX_HZ}
+                  step={0.01}
+                  decimals={2}
+                  unit="Hz"
+                  onChange={setHz}
+                  lowLabel="1Hz"
+                  highLabel="240Hz"
+                />
+                <NumericControl
+                  label={t.labelMs}
+                  value={settings.ms}
+                  min={MIN_MS}
+                  max={MAX_MS}
+                  step={0.001}
+                  decimals={3}
+                  unit="ms"
+                  onChange={setMs}
+                  lowLabel={`${MIN_MS.toFixed(3)}ms`}
+                  highLabel="1000.000ms"
+                />
+
+                {mode === MODES.TO_GIF && (
+                  <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-900/20 p-3 text-xs text-amber-700 dark:text-amber-300">
+                    <p>{t.gifSaveNote(savedMs, savedHz.toFixed(2))}</p>
+                    <p className="mt-1">{t.gifSaveHint}</p>
+                  </div>
+                )}
+
+                {mode === MODES.TO_GIF && (
+                  <>
+                    <NumericControl
+                      label={t.labelLoop}
+                      value={settings.loop}
+                      min={0}
+                      max={10}
+                      step={1}
+                      decimals={0}
+                      unit=""
+                      onChange={setLoop}
+                      lowLabel={t.loopLow}
+                      highLabel="10"
+                    />
+                    <NumericControl
+                      label={t.labelWidth}
+                      value={settings.width}
+                      min={MIN_WIDTH}
+                      max={MAX_WIDTH}
+                      step={1}
+                      decimals={0}
+                      unit="px"
+                      onChange={setWidth}
+                      lowLabel="1px"
+                      highLabel="4000px"
+                    />
+                    <NumericControl
+                      label={t.labelQuality}
+                      value={settings.quality}
+                      min={1}
+                      max={10}
+                      step={1}
+                      decimals={0}
+                      unit="/10"
+                      onChange={setQuality}
+                      lowLabel={t.qualityLow}
+                      highLabel={t.qualityHigh}
+                    />
+                    <NumericControl
+                      label={t.labelMaxColors}
+                      value={settings.maxColors}
+                      min={MIN_COLORS}
+                      max={MAX_COLORS}
+                      step={1}
+                      decimals={0}
+                      unit={t.unitColors}
+                      onChange={setMaxColors}
+                      lowLabel={t.lowColors}
+                      highLabel={t.highColors}
+                    />
+                    <NumericControl
+                      label={t.labelVideoLimit}
+                      value={settings.videoFrameLimit}
+                      min={MIN_VIDEO_FRAME_LIMIT}
+                      max={MAX_VIDEO_FRAME_LIMIT}
+                      step={1}
+                      decimals={0}
+                      unit={t.unitFrames}
+                      onChange={setVideoFrameLimit}
+                      lowLabel="1"
+                      highLabel="2000"
+                    />
+                  </>
+                )}
+
+                {mode === MODES.GIF_TO_VIDEO && (
+                  <div>
+                    <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block">{t.labelFormat}</label>
+                    <div className="flex gap-2">
+                      {Object.values(VIDEO_OUTPUTS).map((fmt) => {
+                        const supported = fmt.id === 'webm' || !!mp4MimeType;
+                        return (
+                          <button
+                            key={fmt.id}
+                            disabled={!supported}
+                            onClick={() => setVideoFormat(fmt.id)}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                              effectiveVideoFormat === fmt.id
+                                ? 'bg-blue-500 text-white border-blue-500'
+                                : supported
+                                  ? 'bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                  : 'opacity-40 cursor-not-allowed bg-gray-50 dark:bg-gray-700/60 text-gray-400 border-gray-200 dark:border-gray-600'
+                            }`}
+                          >
+                            {fmt.label}{!supported && ` ${t.unsupported}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {mode !== MODES.TO_GIF && (
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-3 text-xs text-gray-500 dark:text-gray-400">
+                    <p>{t.reverseNote}</p>
+                    <p className="mt-1">{t.reverseHint}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+                <h2 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-3">{t.secPreview}</h2>
+                {activeFrames.length > 0 ? (
+                  <>
+                    <div className="flex-1 bg-gray-100 dark:bg-gray-900/60 rounded-lg overflow-hidden flex items-center justify-center mb-3" style={{ minHeight: 220 }}>
+                      <img
+                        src={activeFrames[previewIdx]?.src}
+                        alt={`Frame ${previewIdx + 1}`}
+                        className="max-w-full max-h-72 object-contain"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => { setIsPlaying(false); setPreviewIdx(0); }}
+                        className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title={t.btnFirst}
+                      ><IcoSkipBack size={15} /></button>
+                      <button onClick={() => { setIsPlaying(false); setPreviewIdx((p) => Math.max(0, p - 1)); }}
+                        className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title={t.btnPrev}
+                      ><IcoChevLeft size={15} /></button>
+                      <button
+                        onClick={() => setIsPlaying((p) => !p)}
+                        className="mx-1 p-2.5 rounded-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white transition-colors shadow"
+                        title={isPlaying ? t.btnPause : t.btnPlay}
+                      >
+                        {isPlaying ? <IcoPause size={15} /> : <IcoPlay size={15} />}
+                      </button>
+                      <button onClick={() => { setIsPlaying(false); setPreviewIdx((p) => Math.min(activeFrames.length - 1, p + 1)); }}
+                        className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title={t.btnNext}
+                      ><IcoChevRight size={15} /></button>
+                      <button onClick={() => { setIsPlaying(false); setPreviewIdx(activeFrames.length - 1); }}
+                        className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title={t.btnLast}
+                      ><IcoSkipFwd size={15} /></button>
+                    </div>
+
+                    <p className="text-center text-xs text-gray-400 mt-2">
+                      {t.frameCounter(previewIdx + 1, activeFrames.length)}
+                      {isPlaying && <span className="ml-2 text-blue-500 font-medium">{t.playing}</span>}
+                    </p>
+
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{t.delayLabel}</span>
+                      <input
+                        type="number"
+                        min={mode === MODES.TO_GIF ? Math.ceil(MIN_MS) : 10}
+                        max={MAX_FRAME_DELAY_MS}
+                        step={mode === MODES.TO_GIF ? 1 : 10}
+                        value={Math.round(activeFrameDelayMs)}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          if (Number.isFinite(v) && v > 0) updateFrameDelayAt(mode, previewIdx, v);
+                        }}
+                        className="w-20 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-0.5 text-xs text-right"
+                      />
+                      <span className="text-xs text-gray-400">ms</span>
+                      {mode === MODES.TO_GIF && activeFrame?.customDelay && (
+                        <button
+                          onClick={resetSelectedToGifFrameDelay}
+                          className="text-xs text-blue-500 hover:underline"
+                          title={t.resetTitle}
+                        >{t.btnReset}</button>
+                      )}
+                    </div>
+                    {mode === MODES.TO_GIF && toGifFrames.some((f) => f.customDelay) && (
+                      <div className="flex items-center justify-center mt-1">
+                        <button
+                          onClick={applyDefaultDelayToAllToGifFrames}
+                          className="text-xs text-gray-400 hover:text-blue-500 transition-colors"
+                        >{t.btnApplyAll}</button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 py-10">
+                    <IcoImage size={48} className="mb-3 opacity-60" />
+                    <p className="text-sm">
+                      {mode === MODES.TO_GIF ? t.emptyToGif : t.emptyGif}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex-1 min-w-0 w-full">
+                  {status === 'idle' && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{idleSummary}</p>
+                  )}
+                  {(status === 'processing' || status === 'generating') && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                          <IcoLoader size={13} className="animate-spin text-blue-500" />
+                          {statusMessage || t.processing}
+                        </span>
+                        <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-blue-600 to-blue-400 h-2 rounded-full transition-all duration-200"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {status === 'done' && (
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <IcoCheck size={16} />
+                      <span className="text-sm font-medium">
+                        {statusMessage} {output ? `— ${fmtSize(output.size)}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {status === 'error' && (
+                    <div className="flex items-center gap-2 text-red-500">
+                      <IcoAlert size={16} />
+                      <span className="text-sm">{statusMessage}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 shrink-0">
+                  {busy ? (
+                    <button
+                      onClick={cancelCurrent}
+                      className="px-4 py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-500 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      {t.btnCancel}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={runConvert}
+                      disabled={!readyForConvert}
+                      className="px-6 py-2 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 active:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+                    >
+                      {mode === MODES.TO_GIF && !workerReady ? t.preparing : actionLabel}
+                    </button>
+                  )}
+                  {output?.url && (
+                    <button
+                      onClick={downloadOutput}
+                      className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 active:bg-emerald-700 transition-colors shadow-sm"
+                    >
+                      <IcoDownload size={14} /> {t.btnDownload}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {output?.url && (
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 animate-in">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{t.outPreview}</p>
+                  {output.type === 'gif' && (
+                    <img
+                      src={output.url}
+                      alt="Generated GIF"
+                      className="max-h-72 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm"
+                    />
+                  )}
+                  {output.type === 'video' && (
+                    <video
+                      src={output.url}
+                      controls
+                      className="max-h-72 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm"
+                    />
+                  )}
+                  {output.type === 'zip' && (
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <p>{t.zipMsg}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {output.meta?.frameCount ? t.framesUnit(output.meta.frameCount) : ''}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </main>
+
+          <footer className="text-center py-6 text-xs text-gray-400 dark:text-gray-500 space-y-1">
+            <p>{t.footerCopyright} · {t.footerLicense}</p>
+            <p>{t.footerAssisted}</p>
+            <p className="text-gray-300 dark:text-gray-600">{t.footerLibs}</p>
+          </footer>
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

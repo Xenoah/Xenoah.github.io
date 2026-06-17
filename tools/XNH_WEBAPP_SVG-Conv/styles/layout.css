@@ -1,0 +1,187 @@
+/* layout.css — アプリ全体の三段レイアウトと分割プレビュー */
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__logo {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.brand__title {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.brand__badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
+}
+
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel--controls {
+  border-right: 1px solid var(--border);
+  background: var(--bg-elev);
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: 1fr 6px 1fr;
+  min-height: 0;
+}
+
+.preview__pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.preview__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 12px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sunken);
+  min-height: 38px;
+}
+
+.preview__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    repeating-conic-gradient(var(--bg-sunken) 0 25%, transparent 0 50%) 0 0 / 20px 20px;
+  touch-action: none;
+}
+
+.viewport__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.preview__divider {
+  background: var(--border);
+  cursor: col-resize;
+  transition: background var(--transition-fast);
+  touch-action: none;
+}
+
+.preview__divider:hover,
+.preview__divider:active {
+  background: var(--accent);
+}
+
+.preview__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.brush-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 6px;
+  border-right: 1px solid var(--border);
+  margin-right: 2px;
+}
+
+.brush-tools .brush-size {
+  width: 70px;
+  accent-color: var(--accent);
+}
+
+.preview__viewport[data-brush-tool='paint'] {
+  cursor: crosshair;
+}
+
+.preview__viewport[data-brush-tool='erase'] {
+  cursor: cell;
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+@media (max-width: 880px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .panel--controls {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 40vh;
+  }
+  .preview {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 6px 1fr;
+  }
+  .preview__divider {
+    cursor: row-resize;
+  }
+}

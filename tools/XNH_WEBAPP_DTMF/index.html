@@ -1,0 +1,146 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DTMF Toolkit</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --bg:#f6f8fb;--panel:#ffffffee;--text:#0f172a;--muted:#475569;--line:#cbd5e1;--accent:#0f766e;
+}
+:root.dark{
+  --bg:#0b1220;--panel:#111b2fd9;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;--accent:#14b8a6;
+}
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.header{position:sticky;top:0;z-index:20;padding:10px 14px;border-bottom:1px solid var(--line);background:#0f172a;color:#e2e8f0}
+.container{max-width:1400px;margin:0 auto;padding:12px;display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:1280px){.container{grid-template-columns:4fr 5fr 3fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.h2{font-weight:800;margin:0 0 8px 0}.small{font-size:12px;color:var(--muted)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.key{border:1px solid #94a3b8;background:transparent;color:var(--text);border-radius:10px;padding:14px 0;font-weight:700}
+.key.on,.key:active{box-shadow:inset 0 0 0 2px #0f766e66}
+input,button,select{font:inherit}
+input[type="text"],input[type="file"],textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text)}
+.btn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:8px;font-weight:600}
+.btn.acc{background:var(--accent);color:#fff;border-color:transparent}.btn.stop{background:#e11d48;color:#fff;border-color:transparent}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.table{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.table table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{padding:6px;border-top:1px solid var(--line);text-align:left;color:var(--text)}
+.log{max-height:230px;overflow:auto;font-size:12px}.log .item{border:1px solid var(--line);border-radius:8px;padding:6px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div><div style="font-size:34px;font-weight:900;line-height:1">DTMF Toolkit</div><div class="small">送信・検出・可視化・エクスポート</div></div>
+    <button id="themeBtn" class="btn">Theme</button>
+  </div>
+</div>
+
+<div class="container">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="panel"><p class="h2">キーパッド</p><div id="pad" class="grid4"></div><p id="pairInfo" class="small mono">キー押下で周波数を表示</p></div>
+    <div class="panel"><p class="h2">送信パラメータ</p>
+      <label>tone <span id="toneV"></span>ms<input id="tone" type="range" min="30" max="300" value="80" /></label>
+      <label>gap <span id="gapV"></span>ms<input id="gap" type="range" min="20" max="400" value="60" /></label>
+      <label>volume <span id="volV"></span>%<input id="vol" type="range" min="5" max="100" value="40" /></label>
+      <label>twist <span id="twV"></span>dB<input id="tw" type="range" min="-6" max="6" step="0.5" value="0" /></label>
+    </div>
+    <div class="panel"><p class="h2">連続送出</p>
+      <input id="seq" type="text" class="mono" value="18005551234#" />
+      <p class="small">使用可能: 0-9, A-D, *, #, , , P</p>
+      <div class="grid3"><button id="playQ" class="btn acc">再生</button><button id="pauseQ" class="btn">一時停止</button><button id="stopQ" class="btn stop">停止</button></div>
+      <p class="small">進捗: <span id="qProg">0/0</span></p>
+      <div class="grid2"><button id="wavBtn" class="btn">WAV書き出し</button><button id="copySeq" class="btn">シーケンスコピー</button></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="panel"><p class="h2">検出エンジン</p>
+      <div class="grid2"><button id="fftBtn" class="btn acc">FFT</button><button id="goBtn" class="btn">Goertzel</button></div>
+      <label>threshold <span id="thV"></span>dB<input id="th" type="range" min="-70" max="-25" value="-50" /></label>
+      <div class="grid3"><label>minTone <span id="mtV"></span><input id="mt" type="range" min="20" max="150" value="40" /></label><label>minSilence <span id="msV"></span><input id="ms" type="range" min="10" max="120" value="35" /></label><label>debounce <span id="dbV"></span><input id="db" type="range" min="40" max="300" value="120" /></label></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn preset" data-p="normal">標準</button><button class="btn preset" data-p="noisy">ノイズ</button><button class="btn preset" data-p="harsh">厳格</button></div>
+      <div class="grid2"><button id="micBtn" class="btn acc">マイク開始</button><label class="btn" style="display:block;text-align:center;cursor:pointer">音声ファイル<input id="audioFile" type="file" accept="audio/*" style="display:none" /></label></div>
+      <p class="small">source: <span id="src">none</span></p>
+    </div>
+    <div class="panel"><p class="h2">スペクトラム</p><canvas id="spec" width="900" height="220" style="width:100%;border:1px solid var(--line);border-radius:8px"></canvas></div>
+    <div class="panel"><p class="h2">受信結果</p><div id="recv" class="mono" style="min-height:40px;border:1px solid var(--line);border-radius:8px;padding:8px"></div>
+      <div class="grid2" style="grid-template-columns:repeat(4,1fr);margin-top:8px"><button id="copyRecv" class="btn">コピー</button><button id="clearRecv" class="btn">クリア</button><button id="csvBtn" class="btn">CSV</button><button id="jsonBtn" class="btn">JSON</button></div>
+      <div class="table" style="margin-top:8px"><table><thead><tr><th>t</th><th>key</th><th>src</th><th>mode</th></tr></thead><tbody id="events"></tbody></table></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="panel"><p class="h2">テンプレート</p>
+      <input id="phoneTpl" type="text" value="+1-800-555-1234" />
+      <button id="phoneApply" class="btn" style="width:100%;margin-top:8px">電話テンプレート適用</button>
+      <input id="ivrTpl" type="text" class="mono" value="9,1,1234#,*0" style="margin-top:8px" />
+      <div class="grid2" style="margin-top:8px"><button id="ivrLoad" class="btn">読込</button><button id="ivrRun" class="btn acc">実行</button></div>
+    </div>
+    <div class="panel"><p class="h2">プリセット保存</p><div class="grid2" style="grid-template-columns:1fr auto"><input id="presetName" type="text" placeholder="Preset名" /><button id="savePreset" class="btn acc">保存</button></div><div id="presetList" style="margin-top:8px;max-height:180px;overflow:auto"></div></div>
+    <div class="panel"><button id="debugToggle" class="btn" style="width:100%">デバッグ表示</button><pre id="debug" class="mono" style="display:none;margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:260px;overflow:auto"></pre></div>
+    <div class="panel"><p class="h2">ログ</p><div id="logs" class="log"></div></div>
+  </div>
+</div>
+
+<script>
+const M=[['1','2','3','A'],['4','5','6','B'],['7','8','9','C'],['*','0','#','D']],R=[697,770,852,941],C=[1209,1336,1477,1633],ALL=[...R,...C],PRE='dtmf_presets_v1';
+let AC=null,G=null,AN=null,mic=null,micSrc=null,loop=0,raf=0,src='none',recv='',events=[],logs=[];
+let q={arr:[],i:0,run:false,pause:false,stop:false},det={cand:null,cStart:0,lastK:null,lastAt:0,lastSil:0,base:performance.now()};
+const $=id=>document.getElementById(id);const qsa=s=>[...document.querySelectorAll(s)];
+const pair=k=>{for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(M[r][c]===k)return{l:R[r],h:C[c]};return null};
+const key=(l,h)=>M[R.indexOf(l)]?.[C.indexOf(h)]||null;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const san=t=>(t||'').toUpperCase().replace(/[^0-9A-D*#,P]/g,'');
+const upd=()=>{['tone','gap','th','mt','ms','db'].forEach(id=>$(id+'V').textContent=$(id).value);$('volV').textContent=$('vol').value;$('twV').textContent=$('tw').value;};
+const addLog=(k,m='')=>{logs.unshift({t:new Date().toLocaleTimeString(),k,m});logs=logs.slice(0,240);$('logs').innerHTML=logs.map(x=>`<div class="item"><span class="mono" style="color:var(--muted)">[${x.t}]</span> <b>${x.k}</b> ${x.m}</div>`).join('');};
+const render=()=>{$('recv').textContent=recv||'(empty)';$('events').innerHTML=events.slice().reverse().map(e=>`<tr><td class="mono">${e.t}</td><td>${e.k}</td><td>${e.s}</td><td>${e.m}</td></tr>`).join('');$('qProg').textContent=`${q.i}/${q.arr.length}`;};
+const gpow=(x,fs,f)=>{const n=x.length,k=Math.round(n*f/fs),w=2*Math.PI*k/n,a=2*Math.cos(w);let s0=0,s1=0,s2=0;for(let i=0;i<n;i++){s0=x[i]+a*s1-s2;s2=s1;s1=s0}return Math.max(s1*s1+s2*s2-a*s1*s2,1e-12)};
+const rms=x=>{let s=0;for(let i=0;i<x.length;i++)s+=x[i]*x[i];return 20*Math.log10(Math.sqrt(s/Math.max(1,x.length))+1e-9)};
+async function ensure(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();G=AC.createGain();AN=AC.createAnalyser();AN.fftSize=2048;AN.smoothingTimeConstant=.18;G.connect(AN);AN.connect(AC.destination)}if(AC.state==='suspended')await AC.resume();G.gain.value=+$('vol').value/100}
+function mark(k,on){const b=[...$('pad').children].find(x=>x.dataset.k===k);if(b)b.classList.toggle('on',on)}
+async function playTone(k,d=+$('tone').value){const p=pair(k);if(!p)return;await ensure();const tw=+$('tw').value,la=Math.pow(10,Math.min(0,tw)/20),ha=Math.pow(10,Math.min(0,-tw)/20),n=Math.max(la+ha,1e-5);const lo=AC.createOscillator(),hi=AC.createOscillator(),lg=AC.createGain(),hg=AC.createGain();lo.type=hi.type='sine';lo.frequency.value=p.l;hi.frequency.value=p.h;lg.gain.value=la/n;hg.gain.value=ha/n;lo.connect(lg).connect(G);hi.connect(hg).connect(G);lo.start();hi.start();lo.stop(AC.currentTime+d/1000);hi.stop(AC.currentTime+d/1000);$('pairInfo').textContent=`Key ${k}: ${p.l}Hz + ${p.h}Hz`;mark(k,true);setTimeout(()=>mark(k,false),d+6);addLog('send',`${k} ${d}ms`) }
+function detPush(k,ext={}){const t=((performance.now()-det.base)/1000).toFixed(3)+'s';recv+=k;events.push({t,k,s:src,m:$('goBtn').classList.contains('acc')?'goertzel':'fft',...ext});events=events.slice(-500);addLog('recv',k);render()}
+function detStep(cand,meta){const now=performance.now();if(!cand){det.cand=null;det.lastSil=now;return}if(det.cand!==cand){det.cand=cand;det.cStart=now;return}const stable=now-det.cStart,sil=now-det.lastSil,dup=det.lastK===cand&&(now-det.lastAt)<+$('db').value;if(stable>=+$('mt').value&&sil>=+$('ms').value&&!dup){det.lastK=cand;det.lastAt=now;detPush(cand,meta)}}
+function detectFrame(td,fd,fs){const top=a=>{const r=[...a].sort((x,y)=>y.db-x.db);return{b:r[0],s:r[1]||{db:-200}}};let lb,hb;if($('goBtn').classList.contains('acc')){lb=R.map(f=>{const p=gpow(td,fs,f),amp=Math.sqrt(p)/(td.length/2);return{f,db:20*Math.log10(amp+1e-9)}});hb=C.map(f=>{const p=gpow(td,fs,f),amp=Math.sqrt(p)/(td.length/2);return{f,db:20*Math.log10(amp+1e-9)}})}else{const ny=fs/2,idx=f=>Math.round(f/ny*(fd.length-1));lb=R.map(f=>({f,db:fd[idx(f)]??-160}));hb=C.map(f=>({f,db:fd[idx(f)]??-160}))}const l=top(lb),h=top(hb),r=rms(td),ok=l.b.db>+$('th').value&&h.b.db>+$('th').value&&(l.b.db-l.s.db)>3&&(h.b.db-h.s.db)>3&&r>-62,k=ok?key(l.b.f,h.b.f):null;detStep(k,{ld:l.b.db.toFixed(1),hd:h.b.db.toFixed(1),r:r.toFixed(1)});$('debug').textContent=JSON.stringify({sampleRate:fs,frame:AN?.fftSize||0,rms:r.toFixed(2),mode:$('goBtn').classList.contains('acc')?'goertzel':'fft',key:k||'-',low:l.b.f,high:h.b.f,scores:Object.fromEntries([...lb,...hb].map(x=>[x.f,x.db.toFixed(1)]))},null,2)}
+function startLoop(){if(!AN||!AC)return;clearInterval(loop);const td=new Float32Array(AN.fftSize),fd=new Float32Array(AN.frequencyBinCount);loop=setInterval(()=>{AN.getFloatTimeDomainData(td);AN.getFloatFrequencyData(fd);detectFrame(td,fd,AC.sampleRate)},20)}
+function stopLoop(){clearInterval(loop);loop=0}
+function draw(){const cv=$('spec'),ctx=cv.getContext('2d');ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--panel');ctx.fillRect(0,0,cv.width,cv.height);if(AN&&AC){const a=new Float32Array(AN.frequencyBinCount);AN.getFloatFrequencyData(a);const max=2200,ny=AC.sampleRate/2;ctx.strokeStyle='#0f766e';ctx.beginPath();for(let x=0;x<cv.width;x++){const f=x/cv.width*max,i=Math.floor(f/ny*(a.length-1)),db=a[Math.max(0,Math.min(a.length-1,i))]||-130,y=((-db-20)/110)*cv.height;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ALL.forEach(f=>{ctx.strokeStyle=f<1000?'#f59e0b99':'#38bdf899';const x=f/max*cv.width;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke()})}raf=requestAnimationFrame(draw)}
+async function runQueue(){q.arr=san($('seq').value).split('').filter(Boolean);if(!q.arr.length)return;q.run=true;q.stop=false;q.pause=false;for(let i=q.i;i<q.arr.length;i++){if(q.stop)break;while(q.pause&&!q.stop)await sleep(40);if(q.stop)break;q.i=i+1;render();const ch=q.arr[i];if(ch===','||ch==='P'){await sleep(Math.max(120,3*+$('gap').value));continue}await playTone(ch,+$('tone').value);await sleep(+$('tone').value + +$('gap').value)}q.run=false;q.pause=false}
+function setMode(m){$('fftBtn').classList.toggle('acc',m==='fft');$('goBtn').classList.toggle('acc',m==='go');}
+async function startMic(){try{await ensure();mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});micSrc=AC.createMediaStreamSource(mic);micSrc.connect(AN);src='mic';$('src').textContent=src;det.base=performance.now();startLoop();$('micBtn').textContent='マイク停止';addLog('system','mic start')}catch(e){alert('マイク権限エラー');addLog('error',e.message)}}
+function stopMic(){if(micSrc){try{micSrc.disconnect()}catch{}micSrc=null}if(mic){mic.getTracks().forEach(t=>t.stop());mic=null}src='none';$('src').textContent='none';stopLoop();$('micBtn').textContent='マイク開始'}
+async function detectFile(file){if(!file)return;await ensure();try{const ab=await file.arrayBuffer(),buf=await AC.decodeAudioData(ab.slice(0)),ch=buf.getChannelData(0),frame=1024,hop=512,td=new Float32Array(frame),fd=new Float32Array(1024);src='file:'+file.name;$('src').textContent=src;det.base=performance.now();det.cand=null;det.lastK=null;det.lastAt=0;det.lastSil=0;for(let p=0;p+frame<ch.length;p+=hop){for(let i=0;i<frame;i++)td[i]=ch[p+i];detectFrame(td,fd,buf.sampleRate)}addLog('system','file analyzed '+file.name)}catch(e){alert('音声ファイル解析に失敗');addLog('error',e.message)}}
+function saveWav(){const seq=san($('seq').value).split('').filter(Boolean);if(!seq.length)return;const sr=48000,tN=Math.floor(+$('tone').value/1000*sr),gN=Math.floor(+$('gap').value/1000*sr),out=[],tw=+$('tw').value,la=Math.pow(10,Math.min(0,tw)/20),ha=Math.pow(10,Math.min(0,-tw)/20),nm=Math.max(la+ha,1e-5),v=+$('vol').value/100;seq.forEach(ch=>{if(ch===','||ch==='P'){for(let i=0;i<gN*3;i++)out.push(0);return}const p=pair(ch);if(!p)return;for(let n=0;n<tN;n++){const t=n/sr;out.push(((la*Math.sin(2*Math.PI*p.l*t)+ha*Math.sin(2*Math.PI*p.h*t))/nm)*v*.95)}for(let i=0;i<gN;i++)out.push(0)});const pcm=new Int16Array(out.length);for(let i=0;i<out.length;i++){const s=Math.max(-1,Math.min(1,out[i]));pcm[i]=s<0?s*0x8000:s*0x7fff}const data=pcm.length*2,b=new ArrayBuffer(44+data),dv=new DataView(b),ws=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i))};ws(0,'RIFF');dv.setUint32(4,36+data,true);ws(8,'WAVE');ws(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,data,true);let o=44;for(let i=0;i<pcm.length;i++,o+=2)dv.setInt16(o,pcm[i],true);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([b],{type:'audio/wav'}));a.download='dtmf-seq.wav';a.click();URL.revokeObjectURL(a.href)}
+function download(kind){const rows=events.map(e=>({time:e.t,key:e.k,source:e.s,mode:e.m,low:e.ld||'',high:e.hd||'',rms:e.r||''}));const blob=kind==='json'?new Blob([JSON.stringify(rows,null,2)],{type:'application/json'}):new Blob([['time,key,source,mode,low,high,rms',...rows.map(r=>`${r.time},${r.key},${r.source},${r.mode},${r.low},${r.high},${r.rms}`)].join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dtmf-events.'+(kind==='json'?'json':'csv');a.click();URL.revokeObjectURL(a.href)}
+function savePreset(){const n=$('presetName').value.trim();if(!n)return;const p={id:Date.now(),name:n,t:+$('tone').value,g:+$('gap').value,v:+$('vol').value,tw:+$('tw').value,m:$('goBtn').classList.contains('acc')?'go':'fft',th:+$('th').value,mt:+$('mt').value,ms:+$('ms').value,db:+$('db').value};let arr=JSON.parse(localStorage.getItem('dtmf_presets_v1')||'[]');arr=[p,...arr.filter(x=>x.name!==n)].slice(0,20);localStorage.setItem('dtmf_presets_v1',JSON.stringify(arr));$('presetName').value='';renderPreset()}
+function renderPreset(){const arr=JSON.parse(localStorage.getItem('dtmf_presets_v1')||'[]');$('presetList').innerHTML=arr.map(p=>`<div class="panel" style="padding:8px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:8px"><div class="small"><b style="color:var(--text)">${p.name}</b><div class="mono">${p.m}/${p.th}dB</div></div><div style="display:flex;gap:4px"><button class="btn lp" data-id="${p.id}">読込</button><button class="btn dp" data-id="${p.id}">削除</button></div></div></div>`).join('');qsa('.lp').forEach(b=>b.onclick=()=>{const x=arr.find(v=>v.id==b.dataset.id);if(!x)return;$('tone').value=x.t;$('gap').value=x.g;$('vol').value=x.v;$('tw').value=x.tw;$('th').value=x.th;$('mt').value=x.mt;$('ms').value=x.ms;$('db').value=x.db;setMode(x.m==='go'?'go':'fft');upd()});qsa('.dp').forEach(b=>b.onclick=()=>{localStorage.setItem('dtmf_presets_v1',JSON.stringify(arr.filter(v=>v.id!=b.dataset.id)));renderPreset()})}
+
+M.flat().forEach(k=>{const b=document.createElement('button');b.className='key';b.textContent=k;b.dataset.k=k;b.setAttribute('aria-label','DTMF '+k);b.onmousedown=()=>playTone(k);b.ontouchstart=()=>playTone(k);$('pad').appendChild(b)});
+window.addEventListener('keydown',e=>{const k=e.key.toUpperCase();if('0123456789ABCD*#'.includes(k)){playTone(k);e.preventDefault()}});
+$('themeBtn').onclick=()=>document.documentElement.classList.toggle('dark');
+['tone','gap','vol','tw','th','mt','ms','db'].forEach(id=>$(id).oninput=upd);
+$('seq').oninput=e=>e.target.value=san(e.target.value);
+$('copySeq').onclick=()=>navigator.clipboard.writeText($('seq').value);
+$('playQ').onclick=()=>{if(!q.run){q.i=0;runQueue()}};
+$('pauseQ').onclick=()=>{q.pause=!q.pause;$('pauseQ').textContent=q.pause?'再開':'一時停止'};
+$('stopQ').onclick=()=>{q.stop=true;q.run=false;q.pause=false;q.i=0;$('pauseQ').textContent='一時停止';render()};
+$('wavBtn').onclick=saveWav;
+$('fftBtn').onclick=()=>setMode('fft');$('goBtn').onclick=()=>setMode('go');
+$('micBtn').onclick=()=>mic?stopMic():startMic();
+$('audioFile').onchange=e=>detectFile(e.target.files?.[0]);
+qsa('.preset').forEach(b=>b.onclick=()=>{const p=b.dataset.p;if(p==='normal'){$('th').value=-50;$('mt').value=40;$('ms').value=35;$('db').value=120}if(p==='noisy'){$('th').value=-44;$('mt').value=55;$('ms').value=45;$('db').value=160}if(p==='harsh'){$('th').value=-40;$('mt').value=70;$('ms').value=55;$('db').value=220}upd()});
+$('copyRecv').onclick=()=>navigator.clipboard.writeText(recv);
+$('clearRecv').onclick=()=>{recv='';events=[];render()};
+$('csvBtn').onclick=()=>download('csv');$('jsonBtn').onclick=()=>download('json');
+$('phoneApply').onclick=()=>$('seq').value=$('phoneTpl').value.toUpperCase().replace(/[^0-9*#A-D,P]/g,'');
+$('ivrTpl').oninput=e=>e.target.value=san(e.target.value);$('ivrLoad').onclick=()=>$('seq').value=$('ivrTpl').value;$('ivrRun').onclick=async()=>{$('seq').value=$('ivrTpl').value;q.i=0;await runQueue()};
+$('savePreset').onclick=savePreset;
+$('debugToggle').onclick=()=>{$('debug').style.display=$('debug').style.display==='none'?'block':'none'};
+upd();render();renderPreset();setMode('fft');$('debug').style.display='none';draw();
+window.addEventListener('beforeunload',()=>{stopLoop();if(mic)stopMic();if(AC)AC.close()});
+</script>
+</body>
+</html>
