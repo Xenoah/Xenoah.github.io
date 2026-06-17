@@ -429,7 +429,7 @@
     let currentLang = 'ja';
 
     // --- State & History ---
-    const state = { ans: 0, memory: 0, angleMode: 'rad', calcHistory: [], graphHistory: [], csvData: [], csvStats: null };
+    const state = { ans: 0, memory: 0, angleMode: 'rad', resultLocked: false, calcHistory: [], graphHistory: [], csvData: [], csvStats: null };
 
     // --- DOM Elements ---
     const el = {
@@ -484,7 +484,28 @@
     });
 
     // --- Calculator Engine ---
+    function isContinuationInput(val) {
+        return ['+', '-', '*', '/', '×', '÷', '^'].includes(String(val).trim()) || String(val).trim().toLowerCase() === 'mod';
+    }
+
+    function lockResult() {
+        state.resultLocked = true;
+        el.dispRes.readOnly = true;
+        el.dispRes.setSelectionRange(0, el.dispRes.value.length);
+    }
+
+    function unlockResultForInput(val = '') {
+        if (!state.resultLocked) return;
+        const previousResult = el.dispRes.value || formatNumber(state.ans);
+        state.resultLocked = false;
+        el.dispRes.readOnly = false;
+        el.dispRes.value = isContinuationInput(val) ? previousResult : '';
+        el.dispRes.setSelectionRange(el.dispRes.value.length, el.dispRes.value.length);
+        el.dispExp.innerText = '';
+    }
+
     function insert(val) {
+        unlockResultForInput(val);
         const input = el.dispRes;
         const currentPos = input.selectionStart ?? input.value.length;
         const valStr = val.toString();
@@ -494,8 +515,17 @@
         input.setSelectionRange(currentPos + valStr.length, currentPos + valStr.length);
     }
     
-    function clearAll() { el.dispRes.value = ''; el.dispExp.innerText = ''; }
+    function clearAll() {
+        state.resultLocked = false;
+        el.dispRes.readOnly = false;
+        el.dispRes.value = '';
+        el.dispExp.innerText = '';
+    }
     function backspace() {
+        if (state.resultLocked) {
+            clearAll();
+            return;
+        }
         const input = el.dispRes;
         const start = input.selectionStart ?? input.value.length;
         const end = input.selectionEnd ?? input.value.length;
@@ -623,6 +653,7 @@
             el.dispExp.innerText = expr + ' =';
             el.dispRes.value = resFixed;
             state.ans = Number(res);
+            lockResult();
             state.calcHistory.unshift({ expr, res: resFixed });
             if(state.calcHistory.length > 20) state.calcHistory.pop();
             renderCalcHistory();
@@ -643,6 +674,8 @@
             const row = document.createElement('div');
             row.className = 'history-item';
             row.addEventListener('click', () => {
+                state.resultLocked = false;
+                el.dispRes.readOnly = false;
                 el.dispRes.value = item.res;
                 el.dispRes.focus();
             });
@@ -667,6 +700,24 @@
     el.dispRes.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); calculate(); }
         if (e.key === 'Escape') { e.preventDefault(); clearAll(); }
+        if (!state.resultLocked || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+            e.preventDefault();
+            clearAll();
+            return;
+        }
+        if (e.key.length === 1) {
+            e.preventDefault();
+            insert(e.key);
+        }
+    });
+
+    el.dispRes.addEventListener('paste', (e) => {
+        if (!state.resultLocked) return;
+        e.preventDefault();
+        const text = e.clipboardData?.getData('text') || '';
+        clearAll();
+        if (text) insert(text);
     });
 
     // --- Graphing ---
