@@ -2,8 +2,8 @@
 
 ## 基本情報
 
-- 配置場所: `game/synth-wave-match/synth-wave-match.html`
-- 公開時のリンク: `https://xenoah.github.io/game/synth-wave-match/synth-wave-match.html`
+- 配置場所: `games/synth-wave-match/synth-wave-match.html`
+- 公開時のリンク: `https://xenoah.github.io/games/synth-wave-match/synth-wave-match.html`
 - ジャンル: 音作り・シンセパラメータ一致ゲーム
 - 実装形式: HTML / CSS / JavaScript の単体ページ
 - 主な使用技術: Web Audio API、Canvas、Cookie

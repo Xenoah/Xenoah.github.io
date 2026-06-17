@@ -2,8 +2,8 @@
 
 ## 基本情報
 
-- 配置場所: `game/font-sense/font-sense.html`
-- 公開時のリンク: `https://xenoah.github.io/game/font-sense/font-sense.html`
+- 配置場所: `games/font-sense/font-sense.html`
+- 公開時のリンク: `https://xenoah.github.io/games/font-sense/font-sense.html`
 - ジャンル: 絶対フォント感トレーニング / フォント名当てクイズ
 - 実装形式: HTML / CSS / JavaScript の単体ページ
 

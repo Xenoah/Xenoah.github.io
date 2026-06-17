@@ -2,8 +2,8 @@
 
 ## 基本情報
 
-- 配置場所: `game/perfect-pitch-quiz/perfect-pitch-quiz.html`
-- 公開時のリンク: `https://xenoah.github.io/game/perfect-pitch-quiz/perfect-pitch-quiz.html`
+- 配置場所: `games/perfect-pitch-quiz/perfect-pitch-quiz.html`
+- 公開時のリンク: `https://xenoah.github.io/games/perfect-pitch-quiz/perfect-pitch-quiz.html`
 - ジャンル: 絶対音感・音名当てクイズゲーム
 - 実装形式: HTML / CSS / JavaScript の単体ページ
 - 主な使用技術: Web Audio API、Canvas、Cookie または localStorage
