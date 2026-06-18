@@ -119,6 +119,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xenoah.github.io/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm</loc>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xenoah.github.io/tools/scientific-calculator/scientific-calculator.htm</loc>
     <lastmod>2026-01-26</lastmod>
     <changefreq>monthly</changefreq>

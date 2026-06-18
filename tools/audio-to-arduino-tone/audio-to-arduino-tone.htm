@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="MP3やWAVからメロディーを解析し、Arduinoのtone()で再生できるスケッチへ変換するブラウザツール。">
+<title>Audio to Arduino tone()</title>
+<style>
+:root{color-scheme:dark;--bg:#090d18;--panel:#11182a;--panel2:#172138;--text:#eef3ff;--muted:#9eabc7;--line:#2c3853;--accent:#62e6a7;--accent2:#52a8ff;--warn:#ffc766;--danger:#ff6b78}
+:root.light{color-scheme:light;--bg:#eef3fa;--panel:#fff;--panel2:#f4f7fc;--text:#142038;--muted:#5f6d87;--line:#ccd6e6;--accent:#087b53;--accent2:#126fd1;--warn:#9b6100;--danger:#c32f40}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#18315b55,transparent 34%),var(--bg);color:var(--text);font-family:Inter,"Segoe UI","Meiryo",system-ui,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}.top{border-bottom:1px solid var(--line);background:#090d18e8;backdrop-filter:blur(14px);position:sticky;top:0;z-index:10}.topin{max-width:1180px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:clamp(22px,4vw,34px);font-weight:900;letter-spacing:-.04em}.brand span{color:var(--accent)}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.wrap{max-width:1180px;margin:auto;padding:22px 18px 60px}.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:16px}@media(max-width:850px){.grid{grid-template-columns:1fr}.topin{padding:12px 15px}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 14px 40px #0002}.panel h2{font-size:16px;margin:0 0 14px}.drop{border:2px dashed var(--line);border-radius:16px;padding:36px 16px;text-align:center;cursor:pointer;background:linear-gradient(145deg,var(--panel2),transparent);transition:.2s}.drop:hover,.drop.over{border-color:var(--accent);transform:translateY(-1px)}.drop strong{display:block;font-size:19px}.drop small{color:var(--muted)}.icon{font-size:38px;margin-bottom:8px}
+.fileinfo{display:none;margin-top:13px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);justify-content:space-between;gap:8px;align-items:center}.fileinfo.show{display:flex}.truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid var(--line);border-radius:13px;margin-top:14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.row{grid-template-columns:1fr}}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.control{margin-bottom:13px}select,input[type=number]{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:10px 11px}input[type=range]{width:100%;accent-color:var(--accent)}.rangehead{display:flex;justify-content:space-between;gap:10px}.value{color:var(--accent);font-weight:800}
+.btn{border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);padding:10px 14px;cursor:pointer;font-weight:750}.btn:hover:not(:disabled){filter:brightness(1.12)}.btn:disabled{opacity:.45;cursor:not-allowed}.primary{background:linear-gradient(135deg,var(--accent),#3fc7a5);border:0;color:#071611}.blue{background:var(--accent2);border:0;color:#fff}.danger{color:var(--danger)}.actions{display:flex;flex-wrap:wrap;gap:8px}.wide{width:100%;padding:13px;font-size:15px}
+.notice{font-size:12px;line-height:1.6;color:var(--muted);border-left:3px solid var(--warn);padding:8px 11px;background:var(--panel2);border-radius:0 9px 9px 0}.progress{height:9px;background:var(--panel2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin-top:12px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .15s}.status{font-size:12px;color:var(--muted);margin-top:7px;min-height:18px}
+.result{display:none;margin-top:16px}.result.show{display:block}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.stat{padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;text-align:center}.stat b{display:block;font-size:19px;color:var(--accent)}.stat span{font-size:11px;color:var(--muted)}@media(max-width:420px){.stats{grid-template-columns:1fr}}
+.timeline{max-height:270px;overflow:auto;border:1px solid var(--line);border-radius:12px}.timeline table{width:100%;border-collapse:collapse;font-size:12px}.timeline th,.timeline td{padding:8px;border-bottom:1px solid var(--line);text-align:left}.timeline th{position:sticky;top:0;background:var(--panel2)}textarea{width:100%;min-height:390px;resize:vertical;background:#070b12;color:#c9f8dd;border:1px solid var(--line);border-radius:12px;padding:13px;line-height:1.5;font-size:12px}.codehead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.pill{font-size:11px;padding:4px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+.theme{width:42px;height:42px;padding:0;border-radius:50%}.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:26px}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><div><div class="brand">Audio → Arduino <span>tone()</span></div><div class="sub">MP3 / WAVから単音メロディー用スケッチを生成</div></div><button id="theme" class="btn theme" title="テーマ切替">☼</button></div></header>
+<main class="wrap">
+  <div class="grid">
+    <section>
+      <div class="panel">
+        <h2>1. 音声ファイル</h2>
+        <div id="drop" class="drop" tabindex="0" role="button">
+          <div class="icon">♫</div><strong>MP3 / WAVをドロップ</strong><small>クリックしてファイルを選択（ブラウザが再生できる音声形式に対応）</small>
+          <input id="file" type="file" accept="audio/*,.mp3,.wav" hidden>
+        </div>
+        <div id="fileinfo" class="fileinfo"><div class="truncate"><b id="filename"></b><div id="meta" class="sub"></div></div><button id="clear" class="btn danger">解除</button></div>
+        <canvas id="wave" width="1000" height="210" aria-label="音声波形"></canvas>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <h2>2. 解析設定</h2>
+        <div class="row">
+          <div class="control"><div class="rangehead"><label for="step">時間分解能</label><span id="stepv" class="value">10 ms</span></div><input id="step" type="range" min="1" max="200" step="1" value="10"></div>
+          <div class="control"><div class="rangehead"><label for="silence">無音しきい値</label><span id="silencev" class="value">-42 dB</span></div><input id="silence" type="range" min="-65" max="-20" step="1" value="-42"></div>
+        </div>
+        <div class="row">
+          <div class="control"><label for="low">最低音</label><select id="low"><option value="36">C2 (65 Hz)</option><option value="48" selected>C3 (131 Hz)</option><option value="55">G3 (196 Hz)</option><option value="60">C4 (262 Hz)</option></select></div>
+          <div class="control"><label for="high">最高音</label><select id="high"><option value="72">C6 (1047 Hz)</option><option value="84" selected>C7 (2093 Hz)</option><option value="96">C8 (4186 Hz)</option></select></div>
+        </div>
+        <div class="row">
+          <div class="control"><div class="rangehead"><label for="smooth">メロディー追従</label><span id="smoothv" class="value">標準</span></div><input id="smooth" type="range" min="0" max="2" step="1" value="1"></div>
+          <div class="control"><div class="rangehead"><label for="minnote">最短ノート</label><span id="minnotev" class="value">40 ms</span></div><input id="minnote" type="range" min="1" max="300" step="1" value="40"></div>
+        </div>
+        <div class="notice">倍音構造から主旋律候補を複数抽出し、前後の音程のつながりを動的計画法で追跡します。1ms解析は高精度ですが処理が重いため、先頭60秒までが対象です。</div>
+        <button id="analyze" class="btn primary wide" style="margin-top:14px" disabled>音程を解析してArduinoコードを生成</button>
+        <div class="progress"><div id="bar" class="bar"></div></div><div id="status" class="status">音声ファイルを選択してください。</div>
+      </div>
+
+      <div id="result" class="panel result">
+        <h2>3. 解析結果</h2>
+        <div class="stats"><div class="stat"><b id="notesN">0</b><span>ノート数</span></div><div class="stat"><b id="restsN">0</b><span>休符数</span></div><div class="stat"><b id="codeSize">0 B</b><span>コード容量目安</span></div></div>
+        <div class="actions" style="margin-bottom:12px"><button id="preview" class="btn blue">▶ 変換結果を試聴</button><button id="stop" class="btn">■ 停止</button></div>
+        <div class="timeline"><table><thead><tr><th>#</th><th>音名</th><th>周波数</th><th>長さ</th></tr></thead><tbody id="events"></tbody></table></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="codehead"><h2 style="margin:0">Arduinoスケッチ</h2><span class="pill">tone() / PROGMEM</span></div>
+      <div class="row">
+        <div class="control"><label for="pin">ブザーピン</label><input id="pin" type="number" min="0" max="99" value="8"></div>
+        <div class="control"><div class="rangehead"><label for="gate">発音率</label><span id="gatev" class="value">90%</span></div><input id="gate" type="range" min="40" max="100" step="5" value="90"></div>
+      </div>
+      <textarea id="code" class="mono" readonly spellcheck="false">// 音声を解析すると、ここにArduinoコードが生成されます。</textarea>
+      <div class="actions" style="margin-top:10px"><button id="copy" class="btn primary" disabled>コードをコピー</button><button id="download" class="btn" disabled>.inoを保存</button></div>
+      <p class="sub">UNO / NanoなどのAVR系を想定しています。圧電ブザーを指定ピンとGNDの間へ接続してください。大音量で鳴らす場合はトランジスタ等を使用してください。</p>
+    </aside>
+  </div>
+  <div class="foot">音声データはサーバーへ送信されず、すべてブラウザ内で処理されます。</div>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+let audioBuffer=null,sourceName="",events=[],previewCtx=null,previewNodes=[],cancelToken=0;
+const noteNames=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const noteName=m=>m<0?"REST":noteNames[m%12]+(Math.floor(m/12)-1);
+const midiFreq=m=>440*Math.pow(2,(m-69)/12);
+const formatTime=s=>{const m=Math.floor(s/60),x=(s%60).toFixed(1).padStart(4,"0");return `${m}:${x}`};
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nextPow2=n=>{let p=1;while(p<n)p<<=1;return p};
+
+function fft(re,im){
+  const n=re.length;
+  for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}}
+  for(let len=2;len<=n;len<<=1){const a=-2*Math.PI/len,wlr=Math.cos(a),wli=Math.sin(a);for(let i=0;i<n;i+=len){let wr=1,wi=0;for(let j=0;j<len/2;j++){const u=i+j,v=u+len/2,tr=re[v]*wr-im[v]*wi,ti=re[v]*wi+im[v]*wr;re[v]=re[u]-tr;im[v]=im[u]-ti;re[u]+=tr;im[u]+=ti;const x=wr*wlr-wi*wli;wi=wr*wli+wi*wlr;wr=x}}}
+}
+
+function spectrumAt(samples,start,frameSize){
+  let sum=0;const re=new Float64Array(frameSize),im=new Float64Array(frameSize);
+  for(let i=0;i<frameSize;i++){const x=samples[start+i]||0;sum+=x*x;re[i]=x*(.5-.5*Math.cos(2*Math.PI*i/(frameSize-1)))}
+  const db=20*Math.log10(Math.sqrt(sum/frameSize)+1e-9);
+  fft(re,im);const half=frameSize>>1,mag=new Float32Array(half);
+  for(let i=1;i<half;i++)mag[i]=Math.hypot(re[i],im[i]);
+  return{mag,db};
+}
+
+function binValue(mag,bin){
+  const i=Math.floor(bin),f=bin-i;if(i<1||i+1>=mag.length)return 0;return mag[i]*(1-f)+mag[i+1]*f;
+}
+
+function peakContrast(mag,bin){
+  const peak=binValue(mag,bin),side=(binValue(mag,bin-2)+binValue(mag,bin+2)+binValue(mag,bin-4)+binValue(mag,bin+4))/4;
+  return Math.max(0,20*Math.log10((peak+1e-7)/(side+1e-7)));
+}
+
+function melodyCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,count=6){
+  if(spec.db<threshold)return[{midi:-1,emission:10}];
+  const scored=[];
+  for(let midi=minMidi;midi<=maxMidi;midi++){
+    const f=midiFreq(midi),b=f*frameSize/sr;
+    let score=peakContrast(spec.mag,b);
+    if(b*2<spec.mag.length)score+=.72*peakContrast(spec.mag,b*2);
+    if(b*3<spec.mag.length)score+=.46*peakContrast(spec.mag,b*3);
+    if(b*4<spec.mag.length)score+=.28*peakContrast(spec.mag,b*4);
+    if(b*.5>1)score-=.42*peakContrast(spec.mag,b*.5);
+    score+=.018*(midi-minMidi); // 共有倍音を低い基音と誤認しにくくする
+    scored.push({midi,emission:score});
+  }
+  scored.sort((a,b)=>b.emission-a.emission);
+  const out=[];for(const c of scored){if(out.every(x=>Math.abs(x.midi-c.midi)>1)){out.push(c);if(out.length===count)break}}
+  out.push({midi:-1,emission:Math.max(-4,8-(spec.db-threshold)*.7)});
+  return out;
+}
+
+function transitionCost(a,b,strength){
+  if(a<0&&b<0)return 0;if(a<0||b<0)return 2.4+strength*1.2;
+  const jump=Math.abs(a-b);return jump===0?-1.2-strength*.5:Math.min(18,jump*(.38+strength*.3)+Math.max(0,jump-7)*.7);
+}
+
+function trackMelody(candidateFrames,strength){
+  if(!candidateFrames.length)return[];const parents=[];
+  let prevScores=Float64Array.from(candidateFrames[0],c=>c.emission);parents[0]=new Uint8Array(candidateFrames[0].length);
+  for(let i=1;i<candidateFrames.length;i++){
+    const cur=candidateFrames[i],prev=candidateFrames[i-1],row=new Float64Array(cur.length),back=new Uint8Array(cur.length);
+    for(let c=0;c<cur.length;c++){let best=-Infinity,bestP=0;for(let p=0;p<prev.length;p++){const v=prevScores[p]-transitionCost(prev[p].midi,cur[c].midi,strength);if(v>best){best=v;bestP=p}}row[c]=best+cur[c].emission;back[c]=bestP}
+    const offset=Math.max(...row);for(let c=0;c<row.length;c++)row[c]-=offset;prevScores=row;parents[i]=back;
+  }
+  let state=0;for(let i=1;i<prevScores.length;i++)if(prevScores[i]>prevScores[state])state=i;
+  const path=new Array(candidateFrames.length);for(let i=candidateFrames.length-1;i>=0;i--){path[i]=candidateFrames[i][state].midi;state=parents[i][state]||0}
+  return path;
+}
+
+function mergeFrames(seq,stepMs,minMs){
+  if(!seq.length)return[];const out=[];let cur=seq[0],count=1;
+  const push=()=>out.push({midi:cur,duration:count*stepMs});
+  for(let i=1;i<seq.length;i++){if(seq[i]===cur)count++;else{push();cur=seq[i];count=1}}push();
+  for(let i=0;i<out.length;i++){if(out[i].duration>=minMs||out.length===1)continue;const left=out[i-1],right=out[i+1];if(left&&right&&left.midi===right.midi){left.duration+=out[i].duration+right.duration;out.splice(i,2);i--}else if(left){left.duration+=out[i].duration;out.splice(i,1);i--}else if(right){right.duration+=out[i].duration;out.splice(i,1);i--}}
+  return out;
+}
+
+async function analyze(){
+  if(!audioBuffer)return;const token=++cancelToken;$("analyze").disabled=true;$("result").classList.remove("show");$("bar").style.width="0%";$("status").textContent="解析用データを準備中…";
+  const stepMs=+$("step").value,sr=12000,duration=audioBuffer.duration,maxDuration=stepMs<=1?60:stepMs<=4?120:180,used=Math.min(duration,maxDuration),length=Math.floor(used*sr),samples=new Float32Array(length);
+  const channels=[];for(let c=0;c<audioBuffer.numberOfChannels;c++)channels.push(audioBuffer.getChannelData(c));
+  for(let i=0;i<length;i++){const p=i*audioBuffer.sampleRate/sr,j=Math.floor(p),f=p-j;let v=0;for(const ch of channels)v+=(ch[j]||0)*(1-f)+(ch[j+1]||0)*f;samples[i]=v/channels.length}
+  const hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[];
+  for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize);candidateFrames.push(melodyCandidates(spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value));if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=`倍音から主旋律候補を抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
+  $("status").textContent="前後のつながりからメインメロディーを追跡中…";$("bar").style.width="90%";await new Promise(r=>setTimeout(r,0));
+  const path=trackMelody(candidateFrames,+$("smooth").value);events=mergeFrames(path,stepMs,+$("minnote").value);
+  if(duration>maxDuration)$("status").textContent=`完了。${stepMs}ms解析では先頭${maxDuration}秒を変換しました。`;else $("status").textContent=`解析完了。${stepMs}ms間隔で主旋律を追跡しました。`;
+  $("bar").style.width="100%";renderResult();$("analyze").disabled=false;
+}
+
+function generateCode(){
+  if(!events.length)return"";const pin=Math.max(0,Math.round(+$("pin").value||8)),gate=+$("gate").value;
+  const freqs=events.map(e=>e.midi<0?0:Math.round(midiFreq(e.midi))),dur=events.map(e=>Math.max(1,Math.round(e.duration))),names=events.map(e=>noteName(e.midi));
+  const rows=(arr,per=12)=>{const r=[];for(let i=0;i<arr.length;i+=per)r.push("  "+arr.slice(i,i+per).join(", "));return r.join(",\n")};
+  return `/*
+  Generated by Audio to Arduino tone()
+  Source: ${sourceName.replace(/\*\//g,"")}
+  Monophonic approximation: ${events.length} events
+*/
+#include <Arduino.h>
+#include <avr/pgmspace.h>
+
+const uint8_t BUZZER_PIN = ${pin};
+const uint16_t melody[] PROGMEM = {
+${rows(freqs)}
+};
+const uint16_t durations[] PROGMEM = {
+${rows(dur)}
+};
+// ${names.join(", ")}
+const uint16_t NOTE_COUNT = sizeof(melody) / sizeof(melody[0]);
+
+void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void loop() {
+  for (uint16_t i = 0; i < NOTE_COUNT; i++) {
+    uint16_t frequency = pgm_read_word(&melody[i]);
+    uint16_t duration = pgm_read_word(&durations[i]);
+
+    if (frequency > 0) {
+      tone(BUZZER_PIN, frequency, duration * ${gate}UL / 100UL);
+    }
+    delay(duration);
+    noTone(BUZZER_PIN);
+  }
+
+  delay(1500); // 曲の繰り返し間隔
+}
+`;
+}
+
+function renderResult(){
+  const code=generateCode();$("code").value=code;$("result").classList.add("show");$("notesN").textContent=events.filter(e=>e.midi>=0).length;$("restsN").textContent=events.filter(e=>e.midi<0).length;$("codeSize").textContent=(events.length*4).toLocaleString()+" B";
+  $("events").innerHTML=events.map((e,i)=>`<tr><td>${i+1}</td><td><b>${escapeHtml(noteName(e.midi))}</b></td><td class="mono">${e.midi<0?"—":Math.round(midiFreq(e.midi))+" Hz"}</td><td>${e.duration} ms</td></tr>`).join("");
+  $("copy").disabled=$("download").disabled=false;
+}
+
+async function loadFile(file){
+  if(!file)return;stopPreview();++cancelToken;$("status").textContent="音声を読み込み中…";$("bar").style.width="0%";
+  try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),ab=await file.arrayBuffer();audioBuffer=await ctx.decodeAudioData(ab.slice(0));await ctx.close();sourceName=file.name;$("filename").textContent=file.name;$("meta").textContent=`${formatTime(audioBuffer.duration)} / ${audioBuffer.sampleRate.toLocaleString()} Hz / ${audioBuffer.numberOfChannels} ch / ${(file.size/1048576).toFixed(2)} MB`;$("fileinfo").classList.add("show");$("analyze").disabled=false;$("status").textContent="準備完了。解析設定を確認してください。";drawWave()}catch(e){audioBuffer=null;$("status").textContent="音声を読み込めませんでした。別のMP3/WAVをお試しください。";alert("音声ファイルの読み込みに失敗しました。\n"+e.message)}
+}
+
+function drawWave(){
+  const cv=$("wave"),ctx=cv.getContext("2d"),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="#070b12";ctx.fillRect(0,0,w,h);ctx.strokeStyle="#26334b";ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();if(!audioBuffer)return;
+  const data=audioBuffer.getChannelData(0),step=Math.max(1,Math.floor(data.length/w));ctx.strokeStyle="#62e6a7";ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<w;x++){let lo=1,hi=-1;for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<lo)lo=v;if(v>hi)hi=v}ctx.moveTo(x,(1+lo)*h/2);ctx.lineTo(x,(1+hi)*h/2)}ctx.stroke();
+}
+
+async function preview(){
+  if(!events.length)return;stopPreview();previewCtx=new(window.AudioContext||window.webkitAudioContext)();let t=previewCtx.currentTime+.04;const gate=+$("gate").value/100;
+  for(const e of events){const d=e.duration/1000;if(e.midi>=0){const o=previewCtx.createOscillator(),g=previewCtx.createGain();o.type="square";o.frequency.value=midiFreq(e.midi);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.008);g.gain.setValueAtTime(.12,t+Math.max(.009,d*gate-.008));g.gain.exponentialRampToValueAtTime(.0001,t+d*gate);o.connect(g).connect(previewCtx.destination);o.start(t);o.stop(t+d*gate+.01);previewNodes.push(o)}t+=d}
+}
+function stopPreview(){previewNodes.forEach(n=>{try{n.stop()}catch{}});previewNodes=[];if(previewCtx){previewCtx.close();previewCtx=null}}
+function clearAll(){stopPreview();++cancelToken;audioBuffer=null;sourceName="";events=[];$("file").value="";$("fileinfo").classList.remove("show");$("result").classList.remove("show");$("analyze").disabled=true;$("copy").disabled=$("download").disabled=true;$("code").value="// 音声を解析すると、ここにArduinoコードが生成されます。";$("status").textContent="音声ファイルを選択してください。";$("bar").style.width="0%";drawWave()}
+
+const rangeMap={step:v=>v+" ms",silence:v=>v+" dB",smooth:v=>["弱め","標準","強め"][v],minnote:v=>v+" ms",gate:v=>v+"%"};
+Object.entries(rangeMap).forEach(([id,fmt])=>{$(id).oninput=()=>{$(id+"v").textContent=fmt($(id).value);if((id==="gate")&&events.length)$("code").value=generateCode()}});
+$("pin").oninput=()=>{if(events.length)$("code").value=generateCode()};
+$("drop").onclick=()=>$("file").click();$("drop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("file").click()}};
+$("file").onchange=e=>loadFile(e.target.files[0]);["dragenter","dragover"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.add("over")}));["dragleave","drop"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.remove("over")}));$("drop").addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
+$("clear").onclick=clearAll;$("analyze").onclick=analyze;$("preview").onclick=preview;$("stop").onclick=stopPreview;
+$("copy").onclick=async()=>{await navigator.clipboard.writeText($("code").value);$("copy").textContent="コピーしました";setTimeout(()=>$("copy").textContent="コードをコピー",1200)};
+$("download").onclick=()=>{const a=document.createElement("a"),blob=new Blob([$("code").value],{type:"text/x-arduino"});a.href=URL.createObjectURL(blob);a.download=(sourceName.replace(/\.[^.]+$/,"").replace(/[^\w\-]+/g,"_")||"melody")+".ino";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$("theme").onclick=()=>{document.documentElement.classList.toggle("light");localStorage.setItem("tone_theme",document.documentElement.classList.contains("light")?"light":"dark")};
+if(localStorage.getItem("tone_theme")==="light")document.documentElement.classList.add("light");drawWave();
+</script>
+</body>
+</html>
