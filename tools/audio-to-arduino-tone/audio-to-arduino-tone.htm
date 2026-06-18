@@ -14,6 +14,7 @@ button,input,select,textarea{font:inherit}.top{border-bottom:3px solid #006d70;b
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;box-shadow:0 2px 5px #0002}.panel h2{color:var(--accent);font-size:16px;margin:0 0 14px}.drop{border:2px dashed var(--accent2);border-radius:6px;padding:36px 16px;text-align:center;cursor:pointer;background:var(--panel2);transition:.2s}.drop:hover,.drop.over{border-color:var(--accent-dark);background:color-mix(in srgb,var(--accent) 14%,var(--panel2));transform:translateY(-1px)}.drop strong{display:block;font-size:19px;color:var(--accent)}.drop small{color:var(--muted)}.icon{font-size:38px;margin-bottom:8px;color:var(--accent)}
 .fileinfo{display:none;margin-top:13px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);justify-content:space-between;gap:8px;align-items:center}.fileinfo.show{display:flex}.truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 canvas{width:100%;height:150px;display:block;background:var(--canvas);border:3px solid var(--accent-dark);border-radius:2px;margin-top:14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.row{grid-template-columns:1fr}}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.control{margin-bottom:13px}select,input[type=number]{width:100%;border:1px solid #8aa3a5;border-radius:3px;background:var(--panel);color:var(--text);padding:10px 11px}select:focus,input:focus{outline:2px solid #1ba4a766;outline-offset:1px}input[type=range]{width:100%;accent-color:var(--accent)}.rangehead{display:flex;justify-content:space-between;gap:10px}.value{color:var(--accent);font-weight:800}
+.rangeinput{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:9px;align-items:center}.rangeinput input[type=number]{padding:7px 8px}.unitbox{position:relative}.unitbox input{padding-right:31px!important}.unitbox span{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none}.effective{margin-top:4px;font-size:11px;color:var(--muted)}
 .sourceplayer{display:none;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}.sourceplayer.show{display:block}.playerrow{display:grid;grid-template-columns:auto auto minmax(90px,1fr) auto;gap:8px;align-items:center}.time{min-width:94px;text-align:right;font-size:12px;color:var(--muted)}@media(max-width:520px){.playerrow{grid-template-columns:auto auto 1fr}.time{grid-column:1/-1;text-align:center}}
 .btn{border:1px solid #7d999b;border-radius:4px;background:#d9e2e2;color:#234044;padding:10px 14px;cursor:pointer;font-weight:750}.btn:hover:not(:disabled){background:#c5dddd}.btn:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--accent2);border-color:var(--accent-dark);color:#fff}.primary:hover:not(:disabled),.blue:hover:not(:disabled){background:var(--accent-dark)}.blue{background:var(--accent);border-color:var(--accent-dark);color:#fff}.danger{color:var(--danger)}.actions{display:flex;flex-wrap:wrap;gap:8px}.wide{width:100%;padding:13px;font-size:15px}
 .notice{font-size:12px;line-height:1.6;color:var(--muted);border-left:4px solid var(--accent);padding:8px 11px;background:#e8f4f4;border-radius:0 3px 3px 0}.progress{height:12px;background:#d6dddd;border-radius:2px;overflow:hidden;border:1px solid #83999b;margin-top:12px}.bar{height:100%;width:0;background:var(--accent2);transition:width .15s}.status{font-size:12px;color:var(--muted);margin-top:7px;min-height:18px}
@@ -53,7 +54,7 @@ canvas{width:100%;height:150px;display:block;background:var(--canvas);border:3px
           <optgroup label="追跡特性"><option value="stable">安定追従</option><option value="agile">高速メロディー追従</option><option value="topNote">最高音優先</option><option value="bass">ベースライン抽出</option><option value="instant">フレーム最大候補</option><option value="viterbi">Viterbi強連続追跡</option><option value="onset">アタック追従</option></optgroup>
         </select><button id="algorithmInfo" class="btn helpbtn" type="button" aria-label="選択中の解析アルゴリズムの説明">?</button></div><div id="algorithmHelp" class="sub" style="margin-top:6px"></div></div>
         <div class="row">
-          <div class="control"><div class="rangehead"><label for="step">時間分解能</label><span id="stepv" class="value">10 ms</span></div><input id="step" type="range" min="1" max="200" step="1" value="10"></div>
+          <div class="control"><div class="rangehead"><label for="step">時間分解能</label><span id="stepv" class="value">10 ms</span></div><div class="rangeinput"><input id="step" type="range" min="0.001" max="200" step="0.001" value="10"><div class="unitbox"><input id="stepInput" type="number" min="0.001" max="200" step="0.001" value="10" inputmode="decimal" aria-label="時間分解能をミリ秒で入力"><span>ms</span></div></div><div id="stepEffective" class="effective">実効分解能は音声のサンプルレートにより決まります。</div></div>
           <div class="control"><div class="rangehead"><label for="silence">無音しきい値</label><span id="silencev" class="value">-42 dB</span></div><input id="silence" type="range" min="-65" max="-20" step="1" value="-42"></div>
         </div>
         <div class="row">
@@ -160,6 +161,7 @@ function applyLanguage(){
   if(sourceAudio&&!sourceAudio.paused)$("sourcePlay").textContent=currentLang==="en"?"❚❚ Pause":"❚❚ 一時停止";
   if(!audioBuffer){$("status").textContent=currentLang==="en"?"Select an audio file.":"音声ファイルを選択してください。";$("code").value=currentLang==="en"?"// Analyze audio to generate Arduino code here.":"// 音声を解析すると、ここにArduinoコードが生成されます。"}
   if(typeof rangeMap!=="undefined")Object.entries(rangeMap).forEach(([id,fmt])=>{if($(id+"v"))$(id+"v").textContent=fmt($(id).value)});
+  setStepValue($("stepInput").value,"number-live");
   updateAlgorithmHelp();if($("algorithmModal").classList.contains("show"))openAlgorithmInfo();
 }
 function englishAlgorithmInfo(id){
@@ -186,6 +188,12 @@ const CHORD_TYPES=[
 const noteName=m=>m<0?"REST":noteNames[m%12]+(Math.floor(m/12)-1);
 const midiFreq=m=>440*Math.pow(2,(m-69)/12);
 const formatTime=s=>{const m=Math.floor(s/60),x=(s%60).toFixed(1).padStart(4,"0");return `${m}:${x}`};
+const formatMs=v=>{const n=Number(v);return `${n<1?n.toFixed(3).replace(/0+$/,"").replace(/\.$/,""):Number.isInteger(n)?n:n.toFixed(3).replace(/0+$/,"").replace(/\.$/,"")} ms`};
+const normalizeStep=v=>Math.min(200,Math.max(.001,Math.round((Number.parseFloat(String(v).replace(",","."))||.001)*1000)/1000));
+function setStepValue(value,source){
+  const v=normalizeStep(value);$("step").value=v;if(source!=="number-live")$("stepInput").value=v.toFixed(3).replace(/0+$/,"").replace(/\.$/,"");$("stepv").textContent=formatMs(v);
+  if(audioBuffer){const sampleMs=1000/Math.min(48000,audioBuffer.sampleRate),effective=Math.max(v,sampleMs);$("stepEffective").textContent=currentLang==="en"?`Requested ${formatMs(v)} / minimum effective ${formatMs(effective)} from the sample rate`:`指定 ${formatMs(v)} / サンプルレート上の最小実効値 ${formatMs(effective)}`}
+}
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const nextPow2=n=>{let p=1;while(p<n)p<<=1;return p};
 const A=(category,feature,mechanism,good,bad)=>({category,feature,mechanism,good,bad});
@@ -412,10 +420,11 @@ function mergeFrames(seq,stepMs,minMs){
 
 async function analyze(){
   if(!audioBuffer)return;const token=++cancelToken;$("analyze").disabled=true;$("result").classList.remove("show");$("bar").style.width="0%";$("status").textContent=currentLang==="en"?"Preparing analysis data…":"解析用データを準備中…";
-  const stepMs=+$("step").value,sr=12000,duration=audioBuffer.duration,maxDuration=stepMs<=1?60:stepMs<=4?120:180,used=Math.min(duration,maxDuration),length=Math.floor(used*sr),samples=new Float32Array(length);
+  const requestedStepMs=normalizeStep($("stepInput").value),sr=Math.min(48000,audioBuffer.sampleRate),sampleMs=1000/sr,stepMs=Math.max(requestedStepMs,sampleMs),duration=audioBuffer.duration,maxFrames=60000,maxDuration=Math.min(180,maxFrames*stepMs/1000),used=Math.min(duration,maxDuration),length=Math.floor(used*sr),samples=new Float32Array(length);
+  $("stepEffective").textContent=currentLang==="en"?`Requested ${formatMs(requestedStepMs)} / effective ${formatMs(stepMs)} at ${sr.toLocaleString()} Hz`:`指定 ${formatMs(requestedStepMs)} / 実効 ${formatMs(stepMs)}（${sr.toLocaleString()} Hz）`;
   const channels=[];for(let c=0;c<audioBuffer.numberOfChannels;c++)channels.push(audioBuffer.getChannelData(c));
   for(let i=0;i<length;i++){const p=i*audioBuffer.sampleRate/sr,j=Math.floor(p),f=p-j;let v=0;for(const ch of channels)v+=(ch[j]||0)*(1-f)+(ch[j+1]||0)*f;samples[i]=v/channels.length}
-  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[],chordRaw=[],chordStride=Math.max(1,Math.round(20/stepMs)),chordStepMs=stepMs*chordStride;let prevSpec=null;
+  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),effectiveStepMs=hop/sr*1000,frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[],chordRaw=[],chordStride=Math.max(1,Math.round(20/effectiveStepMs)),chordStepMs=effectiveStepMs*chordStride;let prevSpec=null;
   for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize),args=[spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value];let candidates;if(algorithm==="autoCompare")candidates=autoCompareCandidates(...args);else if(algorithm==="consensus")candidates=consensusCandidates(...args,prevSpec);else candidates=melodyCandidates(...args,algorithm,7,prevSpec);candidateFrames.push(candidates);if($("chordEnable").checked&&i%chordStride===0)chordRaw.push(detectChord(spec,frameSize,sr,+$("silence").value,+$("chordSensitivity").value));prevSpec=spec;if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=currentLang==="en"?`Extracting candidates with ${$("algorithm").selectedOptions[0].textContent}… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`:`${$("algorithm").selectedOptions[0].textContent}で候補抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
   $("status").textContent=currentLang==="en"?"Separating and tracking upper, middle, and lower voices…":"高・中・低の音層を分離して追跡中…";$("bar").style.width="90%";await new Promise(r=>setTimeout(r,0));
   const strength=+$("smooth").value,separation=+$("separation").value;
@@ -424,14 +433,14 @@ async function analyze(){
   const scores=paths.map(p=>pathMelodicScore(p,+$("low").value,+$("high").value));analysisAutoLayer=scores.indexOf(Math.max(...scores));
   const path=paths[selectedLayerIndex()];analysisPath=Int16Array.from(path);analysisCandidates=new Int16Array(candidateFrames.length*5);analysisCandidates.fill(-1);
   for(let i=0;i<candidateFrames.length;i++){let n=0;for(const c of candidateFrames[i])if(c.midi>=0&&n<5)analysisCandidates[i*5+n++]=c.midi}
-  analysisStepMs=stepMs;analysisUsed=used;events=mergeFrames(path,stepMs,+$("minnote").value);chordEvents=$("chordEnable").checked?mergeChordFrames(chordRaw,chordStepMs,+$("chordMin").value):[];
+  analysisStepMs=effectiveStepMs;analysisUsed=used;events=mergeFrames(path,effectiveStepMs,+$("minnote").value);chordEvents=$("chordEnable").checked?mergeChordFrames(chordRaw,chordStepMs,+$("chordMin").value):[];
   const layerNames=currentLang==="en"?["upper voice","middle voice","lower voice"]:["上声部","中声部","低声部"],algorithmName=$("algorithm").selectedOptions[0].textContent;if(duration>maxDuration)$("status").textContent=currentLang==="en"?`Completed with ${algorithmName}. Selected the ${layerNames[selectedLayerIndex()]} and converted the first ${maxDuration} seconds.`:`${algorithmName}で完了。${layerNames[selectedLayerIndex()]}を採用し、先頭${maxDuration}秒を変換しました。`;else $("status").textContent=currentLang==="en"?`Analysis complete with ${algorithmName}. Selected the ${layerNames[selectedLayerIndex()]}.`:`${algorithmName}で解析完了。${layerNames[selectedLayerIndex()]}を採用しました。`;
   $("bar").style.width="100%";renderResult();$("analyze").disabled=false;
 }
 
 function generateCode(){
   if(!events.length)return"";const pin=Math.max(0,Math.round(+$("pin").value||8)),gate=+$("gate").value;
-  const freqs=events.map(e=>e.midi<0?0:Math.round(midiFreq(e.midi))),dur=events.map(e=>Math.max(1,Math.round(e.duration))),names=events.map(e=>noteName(e.midi));
+  const freqs=events.map(e=>e.midi<0?0:Math.round(midiFreq(e.midi))),dur=events.map(e=>Math.max(1,Math.round(e.duration*1000))),names=events.map(e=>noteName(e.midi));
   const rows=(arr,per=12)=>{const r=[];for(let i=0;i<arr.length;i+=per)r.push("  "+arr.slice(i,i+per).join(", "));return r.join(",\n")};
   return `/*
   Generated by Audio to Arduino tone()
@@ -445,11 +454,19 @@ const uint8_t BUZZER_PIN = ${pin};
 const uint16_t melody[] PROGMEM = {
 ${rows(freqs)}
 };
-const uint16_t durations[] PROGMEM = {
+const uint32_t durationsUs[] PROGMEM = {
 ${rows(dur)}
 };
 // ${names.join(", ")}
 const uint16_t NOTE_COUNT = sizeof(melody) / sizeof(melody[0]);
+
+void waitMicroseconds32(uint32_t us) {
+  while (us >= 16000UL) {
+    delayMicroseconds(16000);
+    us -= 16000UL;
+  }
+  if (us > 0) delayMicroseconds((unsigned int)us);
+}
 
 void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
@@ -458,13 +475,17 @@ void setup() {
 void loop() {
   for (uint16_t i = 0; i < NOTE_COUNT; i++) {
     uint16_t frequency = pgm_read_word(&melody[i]);
-    uint16_t duration = pgm_read_word(&durations[i]);
+    uint32_t durationUs = pgm_read_dword(&durationsUs[i]);
+    uint32_t soundUs = durationUs * ${gate}UL / 100UL;
 
     if (frequency > 0) {
-      tone(BUZZER_PIN, frequency, duration * ${gate}UL / 100UL);
+      tone(BUZZER_PIN, frequency);
+      waitMicroseconds32(soundUs);
+      noTone(BUZZER_PIN);
+      waitMicroseconds32(durationUs - soundUs);
+    } else {
+      waitMicroseconds32(durationUs);
     }
-    delay(duration);
-    noTone(BUZZER_PIN);
   }
 
   delay(1500); // 曲の繰り返し間隔
@@ -473,15 +494,15 @@ void loop() {
 }
 
 function renderResult(){
-  const code=generateCode();$("code").value=code;$("result").classList.add("show");$("notesN").textContent=events.filter(e=>e.midi>=0).length;$("restsN").textContent=events.filter(e=>e.midi<0).length;$("codeSize").textContent=(events.length*4).toLocaleString()+" B";
-  $("events").innerHTML=events.map((e,i)=>`<tr><td>${i+1}</td><td><b>${escapeHtml(noteName(e.midi))}</b></td><td class="mono">${e.midi<0?"—":Math.round(midiFreq(e.midi))+" Hz"}</td><td>${e.duration} ms</td></tr>`).join("");
-  $("chordResult").classList.toggle("show",$("chordEnable").checked);$("chordEvents").innerHTML=chordEvents.map((e,i)=>{const c=chordInfo(e.id);return`<tr><td>${i+1}</td><td><span class="chordtag">${escapeHtml(c.name)}</span></td><td>${c.tones.join(" / ")||"—"}</td><td>${Math.round(e.duration)} ms</td><td>${Math.round(e.score*100)}%</td></tr>`}).join("")||'<tr><td colspan="5">和音を検出できませんでした。</td></tr>';
+  const code=generateCode();$("code").value=code;$("result").classList.add("show");$("notesN").textContent=events.filter(e=>e.midi>=0).length;$("restsN").textContent=events.filter(e=>e.midi<0).length;$("codeSize").textContent=(events.length*6).toLocaleString()+" B";
+  $("events").innerHTML=events.map((e,i)=>`<tr><td>${i+1}</td><td><b>${escapeHtml(noteName(e.midi))}</b></td><td class="mono">${e.midi<0?"—":Math.round(midiFreq(e.midi))+" Hz"}</td><td>${formatMs(e.duration)}</td></tr>`).join("");
+  $("chordResult").classList.toggle("show",$("chordEnable").checked);$("chordEvents").innerHTML=chordEvents.map((e,i)=>{const c=chordInfo(e.id);return`<tr><td>${i+1}</td><td><span class="chordtag">${escapeHtml(c.name)}</span></td><td>${c.tones.join(" / ")||"—"}</td><td>${formatMs(e.duration)}</td><td>${Math.round(e.score*100)}%</td></tr>`}).join("")||'<tr><td colspan="5">和音を検出できませんでした。</td></tr>';
   $("copy").disabled=$("download").disabled=false;updateVizRange();drawAnalysisViz();
 }
 
 async function loadFile(file){
   if(!file)return;stopPreview();disposeSourceAudio();++cancelToken;$("status").textContent=currentLang==="en"?"Loading audio…":"音声を読み込み中…";$("bar").style.width="0%";
-  try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),ab=await file.arrayBuffer();audioBuffer=await ctx.decodeAudioData(ab.slice(0));await ctx.close();sourceName=file.name;sourceUrl=URL.createObjectURL(file);sourceAudio=new Audio(sourceUrl);bindSourceAudio();$("filename").textContent=file.name;$("meta").textContent=`${formatTime(audioBuffer.duration)} / ${audioBuffer.sampleRate.toLocaleString()} Hz / ${audioBuffer.numberOfChannels} ch / ${(file.size/1048576).toFixed(2)} MB`;$("fileinfo").classList.add("show");$("sourceplayer").classList.add("show");$("sourceTime").textContent=`0:00.0 / ${formatTime(audioBuffer.duration)}`;$("analyze").disabled=false;$("status").textContent=currentLang==="en"?"Ready. Play the source audio or review the analysis settings.":"準備完了。元音声を再生するか、解析設定を確認してください。";drawWave()}catch(e){audioBuffer=null;disposeSourceAudio();$("status").textContent=currentLang==="en"?"Could not load the audio. Try another MP3/WAV file.":"音声を読み込めませんでした。別のMP3/WAVをお試しください。";alert((currentLang==="en"?"Failed to load the audio file.\n":"音声ファイルの読み込みに失敗しました。\n")+e.message)}
+  try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),ab=await file.arrayBuffer();audioBuffer=await ctx.decodeAudioData(ab.slice(0));await ctx.close();sourceName=file.name;sourceUrl=URL.createObjectURL(file);sourceAudio=new Audio(sourceUrl);bindSourceAudio();$("filename").textContent=file.name;$("meta").textContent=`${formatTime(audioBuffer.duration)} / ${audioBuffer.sampleRate.toLocaleString()} Hz / ${audioBuffer.numberOfChannels} ch / ${(file.size/1048576).toFixed(2)} MB`;$("fileinfo").classList.add("show");$("sourceplayer").classList.add("show");$("sourceTime").textContent=`0:00.0 / ${formatTime(audioBuffer.duration)}`;$("analyze").disabled=false;setStepValue($("stepInput").value);$("status").textContent=currentLang==="en"?"Ready. Play the source audio or review the analysis settings.":"準備完了。元音声を再生するか、解析設定を確認してください。";drawWave()}catch(e){audioBuffer=null;disposeSourceAudio();$("status").textContent=currentLang==="en"?"Could not load the audio. Try another MP3/WAV file.":"音声を読み込めませんでした。別のMP3/WAVをお試しください。";alert((currentLang==="en"?"Failed to load the audio file.\n":"音声ファイルの読み込みに失敗しました。\n")+e.message)}
 }
 
 function bindSourceAudio(){
@@ -532,8 +553,9 @@ async function previewChords(){
 function stopChordPreview(){chordNodes.forEach(n=>{try{n.stop()}catch{}});chordNodes=[];if(chordCtx){chordCtx.close();chordCtx=null}}
 function clearAll(){stopPreview();stopChordPreview();disposeSourceAudio();++cancelToken;audioBuffer=null;sourceName="";events=[];chordEvents=[];analysisPath=null;analysisCandidates=null;analysisLayers=null;analysisAutoLayer=0;analysisStepMs=0;analysisUsed=0;$("file").value="";$("fileinfo").classList.remove("show");$("result").classList.remove("show");$("chordResult").classList.remove("show");$("analyze").disabled=true;$("copy").disabled=$("download").disabled=true;$("code").value=currentLang==="en"?"// Analyze audio to generate Arduino code here.":"// 音声を解析すると、ここにArduinoコードが生成されます。";$("status").textContent=currentLang==="en"?"Select an audio file.":"音声ファイルを選択してください。";$("bar").style.width="0%";drawWave()}
 
-const rangeMap={step:v=>v+" ms",silence:v=>v+" dB",smooth:v=>(currentLang==="en"?["Low","Standard","High"]:["弱め","標準","強め"])[v],minnote:v=>v+" ms",separation:v=>(currentLang==="en"?["Off","Standard","High","Maximum"]:["なし","標準","強め","最強"])[v],chordSensitivity:v=>(currentLang==="en"?["Low","Standard","High","Maximum"]:["低め","標準","高め","最高"])[v],chordMin:v=>v+" ms",gate:v=>v+"%"};
+const rangeMap={silence:v=>v+" dB",smooth:v=>(currentLang==="en"?["Low","Standard","High"]:["弱め","標準","強め"])[v],minnote:v=>v+" ms",separation:v=>(currentLang==="en"?["Off","Standard","High","Maximum"]:["なし","標準","強め","最強"])[v],chordSensitivity:v=>(currentLang==="en"?["Low","Standard","High","Maximum"]:["低め","標準","高め","最高"])[v],chordMin:v=>v+" ms",gate:v=>v+"%"};
 Object.entries(rangeMap).forEach(([id,fmt])=>{$(id).oninput=()=>{$(id+"v").textContent=fmt($(id).value);if(id==="gate"&&events.length)$("code").value=generateCode();if(id==="minnote"&&analysisLayers)applySelectedLayer()}});
+$("step").oninput=()=>setStepValue($("step").value,"range");$("stepInput").oninput=()=>{const raw=$("stepInput").value.replace(",",".");if(/^(?:\d+\.?\d*|\.\d+)$/.test(raw))setStepValue(raw,"number-live")};$("stepInput").onchange=$("stepInput").onblur=()=>setStepValue($("stepInput").value,"number-final");
 $("voiceLayer").onchange=()=>{if(analysisLayers){applySelectedLayer();const names=currentLang==="en"?["upper voice","middle voice","lower voice"]:["上声部","中声部","低声部"];$("status").textContent=currentLang==="en"?`Switched the display and Arduino code to the ${names[selectedLayerIndex()]}.`:`表示とArduinoコードを${names[selectedLayerIndex()]}へ切り替えました。`}};
 function updateAlgorithmHelp(){const id=$("algorithm").value,a=currentLang==="en"?englishAlgorithmInfo(id):ALGORITHMS[id];$("algorithmHelp").textContent=a.feature;if(id==="bass")$("voiceLayer").value="low";if(id==="topNote"||id==="upperEnsemble"||id==="chordReject")$("voiceLayer").value="high"}
 function openAlgorithmInfo(){const a=currentLang==="en"?englishAlgorithmInfo($("algorithm").value):ALGORITHMS[$("algorithm").value];$("algorithmTitle").textContent=$("algorithm").selectedOptions[0].textContent;$("algorithmCategory").textContent=a.category;$("algorithmFeature").textContent=a.feature;$("algorithmMechanism").textContent=a.mechanism;$("algorithmGood").textContent=a.good;$("algorithmBad").textContent=a.bad;$("algorithmModal").classList.add("show");$("algorithmClose").focus()}
