@@ -19,6 +19,7 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
 .notice{font-size:12px;line-height:1.6;color:var(--muted);border-left:3px solid var(--warn);padding:8px 11px;background:var(--panel2);border-radius:0 9px 9px 0}.progress{height:9px;background:var(--panel2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin-top:12px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .15s}.status{font-size:12px;color:var(--muted);margin-top:7px;min-height:18px}
 .result{display:none;margin-top:16px}.result.show{display:block}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.stat{padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;text-align:center}.stat b{display:block;font-size:19px;color:var(--accent)}.stat span{font-size:11px;color:var(--muted)}@media(max-width:420px){.stats{grid-template-columns:1fr}}
 .viz{margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}.vizhead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.vizcontrols{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.vizcontrols label{margin:0}.vizcontrols select{width:auto;padding:6px 9px}.viz canvas{height:270px;margin-top:10px;cursor:crosshair}.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:7px;font-size:11px;color:var(--muted)}.legend i{display:inline-block;width:18px;height:3px;border-radius:3px;margin-right:5px;vertical-align:middle}.vizseek{margin-top:8px}.vizrange{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.experimental{margin-top:12px;padding:12px;border:1px solid #ffc76688;border-radius:12px;background:#ffc7660b}.checkline{display:flex;gap:9px;align-items:center;color:var(--text);font-size:14px;font-weight:750}.checkline input{width:18px;height:18px;accent-color:var(--warn)}.chordresult{display:none;margin-top:14px;padding:13px;border:1px solid #ffc76688;border-radius:13px;background:#ffc7660b}.chordresult.show{display:block}.chordtag{display:inline-block;padding:3px 8px;border-radius:7px;background:#ffc766;color:#251700;font-weight:900}
 .timeline{max-height:270px;overflow:auto;border:1px solid var(--line);border-radius:12px}.timeline table{width:100%;border-collapse:collapse;font-size:12px}.timeline th,.timeline td{padding:8px;border-bottom:1px solid var(--line);text-align:left}.timeline th{position:sticky;top:0;background:var(--panel2)}textarea{width:100%;min-height:390px;resize:vertical;background:#070b12;color:#c9f8dd;border:1px solid var(--line);border-radius:12px;padding:13px;line-height:1.5;font-size:12px}.codehead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.pill{font-size:11px;padding:4px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
 .theme,.helpbtn{width:42px;height:42px;padding:0;border-radius:50%}.selecthelp{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.helpbtn{font-size:20px;color:var(--accent);border-color:var(--accent)}.modalback{display:none;position:fixed;inset:0;z-index:50;background:#02050bd9;padding:18px;overflow:auto}.modalback.show{display:grid;place-items:center}.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 25px 80px #0008}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:start}.modalhead h2{margin:0;font-size:22px}.closebtn{font-size:20px;padding:5px 10px}.algobadge{display:inline-block;margin:8px 0;padding:4px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--accent);font-size:12px}.algosection{margin-top:16px}.algosection h3{margin:0 0 5px;font-size:14px}.algosection p{margin:0;color:var(--muted);line-height:1.7}.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:26px}
 </style>
@@ -66,6 +67,14 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
           <div class="control"><label for="voiceLayer">取り出す音の層</label><select id="voiceLayer"><option value="high" selected>上声部（主旋律向け）</option><option value="auto">自動判定</option><option value="middle">中声部</option><option value="low">低声部</option></select></div>
           <div class="control"><div class="rangehead"><label for="separation">層の分離強度</label><span id="separationv" class="value">強め</span></div><input id="separation" type="range" min="0" max="3" step="1" value="2"></div>
         </div>
+        <div class="experimental">
+          <label class="checkline"><input id="chordEnable" type="checkbox">和音を抽出する（試験）</label>
+          <div id="chordSettings" class="row" style="display:none;margin-top:11px">
+            <div class="control"><div class="rangehead"><label for="chordSensitivity">和音感度</label><span id="chordSensitivityv" class="value">標準</span></div><input id="chordSensitivity" type="range" min="0" max="3" step="1" value="1"></div>
+            <div class="control"><div class="rangehead"><label for="chordMin">最短和音</label><span id="chordMinv" class="value">200 ms</span></div><input id="chordMin" type="range" min="50" max="1000" step="50" value="200"></div>
+          </div>
+          <div class="sub">メジャー、マイナー、7th、m7、sus2、sus4、dim、augを推定します。Arduinoの単音コードには含めません。</div>
+        </div>
         <div class="notice">解析方式は音源によって得意不得意があります。迷った場合は「多層アンサンブル」、和音が強い曲は「コード除外」、口笛や単音は「基音ピーク」、速い曲は「高速メロディー追従」を試してください。</div>
         <button id="analyze" class="btn primary wide" style="margin-top:14px" disabled>音程を解析してArduinoコードを生成</button>
         <div class="progress"><div id="bar" class="bar"></div></div><div id="status" class="status">音声ファイルを選択してください。</div>
@@ -77,11 +86,16 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
         <div class="viz">
           <div class="vizhead"><b>音程候補とメインメロディー</b><div class="vizcontrols"><label for="vizSeconds">表示時間</label><select id="vizSeconds"><option value="5">5秒</option><option value="10" selected>10秒</option><option value="30">30秒</option><option value="60">60秒</option></select><label for="vizCandidates">候補</label><select id="vizCandidates"><option value="1">1本</option><option value="3" selected>3本</option><option value="5">5本</option></select></div></div>
           <canvas id="analysisViz" width="1100" height="390" aria-label="解析した音程候補とメインメロディー"></canvas>
-          <div class="legend"><span><i style="background:#62e6a7"></i>採用した層</span><span><i style="background:#c27cff"></i>分離した他の層</span><span><i style="background:#52a8ff"></i>候補音程</span><span><i style="background:#9eabc7"></i>元音声波形</span><span><i style="background:#ffc766"></i>再生位置</span></div>
+          <div class="legend"><span><i style="background:#62e6a7"></i>採用した層</span><span><i style="background:#c27cff"></i>分離した他の層</span><span><i style="background:#52a8ff"></i>候補音程</span><span><i style="background:#ffc766"></i>和音</span><span><i style="background:#9eabc7"></i>元音声波形</span></div>
           <div class="vizseek"><input id="vizStart" type="range" min="0" max="0" step="0.1" value="0"><div class="vizrange"><span id="vizFrom">0:00.0</span><span id="vizTo">0:10.0</span></div></div>
         </div>
         <div class="actions" style="margin-bottom:12px"><button id="preview" class="btn blue">▶ 変換結果を試聴</button><button id="stop" class="btn">■ 停止</button></div>
         <div class="timeline"><table><thead><tr><th>#</th><th>音名</th><th>周波数</th><th>長さ</th></tr></thead><tbody id="events"></tbody></table></div>
+        <div id="chordResult" class="chordresult">
+          <div class="vizhead"><b>和音抽出（試験）</b><div class="actions"><button id="chordPreview" class="btn">▶ 和音を試聴</button><button id="chordStop" class="btn">■ 停止</button></div></div>
+          <p class="sub">推定結果は多声音の目安です。転回形やテンションコードは近い基本コードへ丸められます。</p>
+          <div class="timeline"><table><thead><tr><th>#</th><th>和音</th><th>構成音</th><th>長さ</th><th>確度</th></tr></thead><tbody id="chordEvents"></tbody></table></div>
+        </div>
       </div>
     </section>
 
@@ -109,8 +123,12 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
-let audioBuffer=null,sourceName="",events=[],previewCtx=null,previewNodes=[],cancelToken=0,sourceAudio=null,sourceUrl="",analysisPath=null,analysisCandidates=null,analysisLayers=null,analysisAutoLayer=0,analysisStepMs=0,analysisUsed=0;
+let audioBuffer=null,sourceName="",events=[],chordEvents=[],previewCtx=null,previewNodes=[],chordCtx=null,chordNodes=[],cancelToken=0,sourceAudio=null,sourceUrl="",analysisPath=null,analysisCandidates=null,analysisLayers=null,analysisAutoLayer=0,analysisStepMs=0,analysisUsed=0;
 const noteNames=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const CHORD_TYPES=[
+  {id:"",label:"",tones:[0,4,7]},{id:"m",label:"m",tones:[0,3,7]},{id:"7",label:"7",tones:[0,4,7,10]},{id:"m7",label:"m7",tones:[0,3,7,10]},
+  {id:"sus2",label:"sus2",tones:[0,2,7]},{id:"sus4",label:"sus4",tones:[0,5,7]},{id:"dim",label:"dim",tones:[0,3,6]},{id:"aug",label:"aug",tones:[0,4,8]}
+];
 const noteName=m=>m<0?"REST":noteNames[m%12]+(Math.floor(m/12)-1);
 const midiFreq=m=>440*Math.pow(2,(m-69)/12);
 const formatTime=s=>{const m=Math.floor(s/60),x=(s%60).toFixed(1).padStart(4,"0");return `${m}:${x}`};
@@ -255,6 +273,31 @@ function consensusCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,prevSpe
   voiced.forEach((c,i)=>c.layer=voiced.length===1?.5:i/(voiced.length-1));out.push({midi:-1,emission:Math.max(-4,8-(spec.db-threshold)*.7),layer:-1});return out;
 }
 
+function chromaFromSpectrum(spec,frameSize,sr){
+  const chroma=new Float64Array(12),half=spec.mag.length;
+  for(let bin=3;bin<half;bin++){const f=bin*sr/frameSize;if(f<65||f>4200)continue;const midi=Math.round(69+12*Math.log2(f/440)),pc=(midi%12+12)%12,weight=Math.log1p(spec.mag[bin])/Math.sqrt(Math.max(1,f/130));chroma[pc]+=weight}
+  const max=Math.max(...chroma,1e-9);for(let i=0;i<12;i++)chroma[i]/=max;return chroma;
+}
+
+function detectChord(spec,frameSize,sr,threshold,sensitivity){
+  if(spec.db<threshold+4)return{id:-1,score:0};const chroma=chromaFromSpectrum(spec,frameSize,sr),scores=[];
+  for(let root=0;root<12;root++)for(let type=0;type<CHORD_TYPES.length;type++){const tones=CHORD_TYPES[type].tones,inside=tones.reduce((s,n)=>s+chroma[(root+n)%12],0)/tones.length;let outside=0;for(let pc=0;pc<12;pc++)if(!tones.includes((pc-root+12)%12))outside+=chroma[pc];outside/=12-tones.length;const rootBonus=chroma[root]*.18,fifth=chroma[(root+7)%12]*.08;complexity=tones.length===4?.05:0;scores.push({id:root*CHORD_TYPES.length+type,score:inside-outside*(.7+sensitivity*.1)+rootBonus+fifth-complexity})}
+  scores.sort((a,b)=>b.score-a.score);const best=scores[0],margin=best.score-(scores[1]?.score||0),minimum=[.24,.18,.12,.07][sensitivity];return best.score<minimum?{id:-1,score:best.score}:{id:best.id,score:Math.min(1,Math.max(0,best.score*.65+margin*1.8))};
+}
+
+function mergeChordFrames(seq,stepMs,minMs){
+  if(!seq.length)return[];const out=[];let id=seq[0].id,count=1,score=seq[0].score;
+  const push=()=>out.push({id,duration:count*stepMs,score:score/count});
+  for(let i=1;i<seq.length;i++){if(seq[i].id===id){count++;score+=seq[i].score}else{push();id=seq[i].id;count=1;score=seq[i].score}}push();
+  for(let i=0;i<out.length;i++){if(out[i].duration>=minMs||out.length===1)continue;const left=out[i-1],right=out[i+1];if(left&&right&&left.id===right.id){left.duration+=out[i].duration+right.duration;left.score=(left.score+right.score)/2;out.splice(i,2);i--}else if(left){left.duration+=out[i].duration;out.splice(i,1);i--}else if(right){right.duration+=out[i].duration;out.splice(i,1);i--}}
+  return out;
+}
+
+function chordInfo(id){
+  if(id<0)return{name:"N.C.",tones:[],midi:[]};const root=Math.floor(id/CHORD_TYPES.length),type=CHORD_TYPES[id%CHORD_TYPES.length],pcs=type.tones.map(n=>(root+n)%12);
+  return{name:noteNames[root]+type.label,tones:pcs.map(p=>noteNames[p]),midi:type.tones.map(n=>60+root+n)};
+}
+
 function transitionCost(a,b,strength,layerA,layerB,separation){
   if(a<0&&b<0)return 0;if(a<0||b<0)return 2.4+strength*1.2;
   const jump=Math.abs(a-b),layerSlip=Math.abs(layerA-layerB)*(2+separation*2.2);
@@ -318,8 +361,8 @@ async function analyze(){
   const stepMs=+$("step").value,sr=12000,duration=audioBuffer.duration,maxDuration=stepMs<=1?60:stepMs<=4?120:180,used=Math.min(duration,maxDuration),length=Math.floor(used*sr),samples=new Float32Array(length);
   const channels=[];for(let c=0;c<audioBuffer.numberOfChannels;c++)channels.push(audioBuffer.getChannelData(c));
   for(let i=0;i<length;i++){const p=i*audioBuffer.sampleRate/sr,j=Math.floor(p),f=p-j;let v=0;for(const ch of channels)v+=(ch[j]||0)*(1-f)+(ch[j+1]||0)*f;samples[i]=v/channels.length}
-  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[];let prevSpec=null;
-  for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize),args=[spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value];let candidates;if(algorithm==="autoCompare")candidates=autoCompareCandidates(...args);else if(algorithm==="consensus")candidates=consensusCandidates(...args,prevSpec);else candidates=melodyCandidates(...args,algorithm,7,prevSpec);candidateFrames.push(candidates);prevSpec=spec;if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=`${$("algorithm").selectedOptions[0].textContent}で候補抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
+  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[],chordRaw=[],chordStride=Math.max(1,Math.round(20/stepMs)),chordStepMs=stepMs*chordStride;let prevSpec=null;
+  for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize),args=[spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value];let candidates;if(algorithm==="autoCompare")candidates=autoCompareCandidates(...args);else if(algorithm==="consensus")candidates=consensusCandidates(...args,prevSpec);else candidates=melodyCandidates(...args,algorithm,7,prevSpec);candidateFrames.push(candidates);if($("chordEnable").checked&&i%chordStride===0)chordRaw.push(detectChord(spec,frameSize,sr,+$("silence").value,+$("chordSensitivity").value));prevSpec=spec;if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=`${$("algorithm").selectedOptions[0].textContent}で候補抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
   $("status").textContent="高・中・低の音層を分離して追跡中…";$("bar").style.width="90%";await new Promise(r=>setTimeout(r,0));
   const strength=+$("smooth").value,separation=+$("separation").value;
   const paths=[trackVoice(candidateFrames,strength,.9,separation,algorithm),trackVoice(candidateFrames,strength,.52,separation,algorithm),trackVoice(candidateFrames,strength,.12,separation,algorithm)];
@@ -327,7 +370,7 @@ async function analyze(){
   const scores=paths.map(p=>pathMelodicScore(p,+$("low").value,+$("high").value));analysisAutoLayer=scores.indexOf(Math.max(...scores));
   const path=paths[selectedLayerIndex()];analysisPath=Int16Array.from(path);analysisCandidates=new Int16Array(candidateFrames.length*5);analysisCandidates.fill(-1);
   for(let i=0;i<candidateFrames.length;i++){let n=0;for(const c of candidateFrames[i])if(c.midi>=0&&n<5)analysisCandidates[i*5+n++]=c.midi}
-  analysisStepMs=stepMs;analysisUsed=used;events=mergeFrames(path,stepMs,+$("minnote").value);
+  analysisStepMs=stepMs;analysisUsed=used;events=mergeFrames(path,stepMs,+$("minnote").value);chordEvents=$("chordEnable").checked?mergeChordFrames(chordRaw,chordStepMs,+$("chordMin").value):[];
   const layerNames=["上声部","中声部","低声部"],algorithmName=$("algorithm").selectedOptions[0].textContent;if(duration>maxDuration)$("status").textContent=`${algorithmName}で完了。${layerNames[selectedLayerIndex()]}を採用し、先頭${maxDuration}秒を変換しました。`;else $("status").textContent=`${algorithmName}で解析完了。${layerNames[selectedLayerIndex()]}を採用しました。`;
   $("bar").style.width="100%";renderResult();$("analyze").disabled=false;
 }
@@ -378,6 +421,7 @@ void loop() {
 function renderResult(){
   const code=generateCode();$("code").value=code;$("result").classList.add("show");$("notesN").textContent=events.filter(e=>e.midi>=0).length;$("restsN").textContent=events.filter(e=>e.midi<0).length;$("codeSize").textContent=(events.length*4).toLocaleString()+" B";
   $("events").innerHTML=events.map((e,i)=>`<tr><td>${i+1}</td><td><b>${escapeHtml(noteName(e.midi))}</b></td><td class="mono">${e.midi<0?"—":Math.round(midiFreq(e.midi))+" Hz"}</td><td>${e.duration} ms</td></tr>`).join("");
+  $("chordResult").classList.toggle("show",$("chordEnable").checked);$("chordEvents").innerHTML=chordEvents.map((e,i)=>{const c=chordInfo(e.id);return`<tr><td>${i+1}</td><td><span class="chordtag">${escapeHtml(c.name)}</span></td><td>${c.tones.join(" / ")||"—"}</td><td>${Math.round(e.duration)} ms</td><td>${Math.round(e.score*100)}%</td></tr>`}).join("")||'<tr><td colspan="5">和音を検出できませんでした。</td></tr>';
   $("copy").disabled=$("download").disabled=false;updateVizRange();drawAnalysisViz();
 }
 
@@ -393,7 +437,7 @@ function bindSourceAudio(){
   sourceAudio.onpause=()=>{$("sourcePlay").textContent="▶ 元音声を再生"};
   sourceAudio.onended=()=>{$("sourceSeek").value=0;$("sourcePlay").textContent="▶ 元音声を再生"};
 }
-function toggleSourceAudio(){if(!sourceAudio)return;if(sourceAudio.paused){stopPreview();sourceAudio.play().catch(e=>alert("元音声を再生できませんでした。\n"+e.message))}else sourceAudio.pause()}
+function toggleSourceAudio(){if(!sourceAudio)return;if(sourceAudio.paused){stopPreview();stopChordPreview();sourceAudio.play().catch(e=>alert("元音声を再生できませんでした。\n"+e.message))}else sourceAudio.pause()}
 function stopSourceAudio(){if(!sourceAudio)return;sourceAudio.pause();sourceAudio.currentTime=0;$("sourceSeek").value=0}
 function disposeSourceAudio(){if(sourceAudio){sourceAudio.pause();sourceAudio.src="";sourceAudio=null}if(sourceUrl){URL.revokeObjectURL(sourceUrl);sourceUrl=""}$("sourceplayer").classList.remove("show");$("sourceSeek").value=0}
 
@@ -417,18 +461,24 @@ function drawAnalysisViz(){
   for(let rank=candidateCount-1;rank>=0;rank--){ctx.strokeStyle=`rgba(82,168,255,${.18+(candidateCount-rank)*.1})`;ctx.lineWidth=1.3;ctx.beginPath();let pen=false;for(let i=first;i<=last;i++){const m=analysisCandidates[i*5+rank],x=xFor(i*analysisStepMs/1000);if(m<0){pen=false;continue}const y=yFor(m);if(!pen){ctx.moveTo(x,y);pen=true}else ctx.lineTo(x,y)}ctx.stroke()}
   if(analysisLayers){const selected=selectedLayerIndex();for(let layer=0;layer<3;layer++){if(layer===selected)continue;ctx.strokeStyle="rgba(194,124,255,.58)";ctx.lineWidth=1.8;ctx.beginPath();let layerPen=false;for(let i=first;i<=last;i++){const m=analysisLayers[i*3+layer],x=xFor(i*analysisStepMs/1000);if(m<0){layerPen=false;continue}const y=yFor(m);if(!layerPen){ctx.moveTo(x,y);layerPen=true}else ctx.lineTo(x,y)}ctx.stroke()}}
   ctx.strokeStyle="#62e6a7";ctx.lineWidth=3;ctx.beginPath();let pen=false;for(let i=first;i<=last;i++){const m=analysisPath[i],x=xFor(i*analysisStepMs/1000);if(m<0){pen=false;continue}const y=yFor(m);if(!pen){ctx.moveTo(x,y);pen=true}else ctx.lineTo(x,y)}ctx.stroke();
+  if(chordEvents.length){let chordTime=0;ctx.font="bold 11px ui-sans-serif,system-ui";for(const chord of chordEvents){const cStart=chordTime/1000,cEnd=(chordTime+chord.duration)/1000;chordTime+=chord.duration;if(cEnd<start||cStart>end)continue;const x1=Math.max(0,xFor(Math.max(start,cStart))),x2=Math.min(w,xFor(Math.min(end,cEnd))),info=chordInfo(chord.id);ctx.fillStyle=chord.id<0?"#394258":"#ffc766";ctx.globalAlpha=.82;ctx.fillRect(x1,pitchBottom+5,Math.max(1,x2-x1),waveTop-pitchBottom-9);ctx.globalAlpha=1;if(x2-x1>28){ctx.fillStyle=chord.id<0?"#cbd5e1":"#251700";ctx.fillText(info.name,x1+4,waveTop-6)}}}
   const data=audioBuffer.getChannelData(0),s0=Math.floor(start*audioBuffer.sampleRate),s1=Math.min(data.length,Math.ceil(end*audioBuffer.sampleRate)),samplesPerPixel=Math.max(1,Math.floor((s1-s0)/w));ctx.strokeStyle="#9eabc7";ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<w;x++){let lo=1,hi=-1;for(let j=0;j<samplesPerPixel;j++){const v=data[s0+x*samplesPerPixel+j]||0;if(v<lo)lo=v;if(v>hi)hi=v}ctx.moveTo(x,waveTop+(1+lo)*(waveBottom-waveTop)/2);ctx.lineTo(x,waveTop+(1+hi)*(waveBottom-waveTop)/2)}ctx.stroke();
   if(sourceAudio&&!sourceAudio.paused&&sourceAudio.currentTime>=start&&sourceAudio.currentTime<=end){const x=xFor(sourceAudio.currentTime);ctx.strokeStyle="#ffc766";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,pitchTop);ctx.lineTo(x,waveBottom);ctx.stroke()}
 }
 
 async function preview(){
-  if(!events.length)return;stopSourceAudio();stopPreview();previewCtx=new(window.AudioContext||window.webkitAudioContext)();let t=previewCtx.currentTime+.04;const gate=+$("gate").value/100;
+  if(!events.length)return;stopSourceAudio();stopChordPreview();stopPreview();previewCtx=new(window.AudioContext||window.webkitAudioContext)();let t=previewCtx.currentTime+.04;const gate=+$("gate").value/100;
   for(const e of events){const d=e.duration/1000;if(e.midi>=0){const o=previewCtx.createOscillator(),g=previewCtx.createGain();o.type="square";o.frequency.value=midiFreq(e.midi);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.008);g.gain.setValueAtTime(.12,t+Math.max(.009,d*gate-.008));g.gain.exponentialRampToValueAtTime(.0001,t+d*gate);o.connect(g).connect(previewCtx.destination);o.start(t);o.stop(t+d*gate+.01);previewNodes.push(o)}t+=d}
 }
 function stopPreview(){previewNodes.forEach(n=>{try{n.stop()}catch{}});previewNodes=[];if(previewCtx){previewCtx.close();previewCtx=null}}
-function clearAll(){stopPreview();disposeSourceAudio();++cancelToken;audioBuffer=null;sourceName="";events=[];analysisPath=null;analysisCandidates=null;analysisLayers=null;analysisAutoLayer=0;analysisStepMs=0;analysisUsed=0;$("file").value="";$("fileinfo").classList.remove("show");$("result").classList.remove("show");$("analyze").disabled=true;$("copy").disabled=$("download").disabled=true;$("code").value="// 音声を解析すると、ここにArduinoコードが生成されます。";$("status").textContent="音声ファイルを選択してください。";$("bar").style.width="0%";drawWave()}
+async function previewChords(){
+  if(!chordEvents.length)return;stopSourceAudio();stopPreview();stopChordPreview();chordCtx=new(window.AudioContext||window.webkitAudioContext)();let t=chordCtx.currentTime+.04;
+  for(const e of chordEvents){const d=e.duration/1000,c=chordInfo(e.id);if(e.id>=0)for(const midi of c.midi){const o=chordCtx.createOscillator(),g=chordCtx.createGain();o.type="triangle";o.frequency.value=midiFreq(midi);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.055,t+.015);g.gain.setValueAtTime(.055,t+Math.max(.02,d-.03));g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(chordCtx.destination);o.start(t);o.stop(t+d+.01);chordNodes.push(o)}t+=d}
+}
+function stopChordPreview(){chordNodes.forEach(n=>{try{n.stop()}catch{}});chordNodes=[];if(chordCtx){chordCtx.close();chordCtx=null}}
+function clearAll(){stopPreview();stopChordPreview();disposeSourceAudio();++cancelToken;audioBuffer=null;sourceName="";events=[];chordEvents=[];analysisPath=null;analysisCandidates=null;analysisLayers=null;analysisAutoLayer=0;analysisStepMs=0;analysisUsed=0;$("file").value="";$("fileinfo").classList.remove("show");$("result").classList.remove("show");$("chordResult").classList.remove("show");$("analyze").disabled=true;$("copy").disabled=$("download").disabled=true;$("code").value="// 音声を解析すると、ここにArduinoコードが生成されます。";$("status").textContent="音声ファイルを選択してください。";$("bar").style.width="0%";drawWave()}
 
-const rangeMap={step:v=>v+" ms",silence:v=>v+" dB",smooth:v=>["弱め","標準","強め"][v],minnote:v=>v+" ms",separation:v=>["なし","標準","強め","最強"][v],gate:v=>v+"%"};
+const rangeMap={step:v=>v+" ms",silence:v=>v+" dB",smooth:v=>["弱め","標準","強め"][v],minnote:v=>v+" ms",separation:v=>["なし","標準","強め","最強"][v],chordSensitivity:v=>["低め","標準","高め","最高"][v],chordMin:v=>v+" ms",gate:v=>v+"%"};
 Object.entries(rangeMap).forEach(([id,fmt])=>{$(id).oninput=()=>{$(id+"v").textContent=fmt($(id).value);if(id==="gate"&&events.length)$("code").value=generateCode();if(id==="minnote"&&analysisLayers)applySelectedLayer()}});
 $("voiceLayer").onchange=()=>{if(analysisLayers){applySelectedLayer();const names=["上声部","中声部","低声部"];$("status").textContent=`表示とArduinoコードを${names[selectedLayerIndex()]}へ切り替えました。`}};
 function updateAlgorithmHelp(){const id=$("algorithm").value,a=ALGORITHMS[id];$("algorithmHelp").textContent=a.feature;if(id==="bass")$("voiceLayer").value="low";if(id==="topNote"||id==="upperEnsemble"||id==="chordReject")$("voiceLayer").value="high"}
@@ -440,6 +490,8 @@ $("pin").oninput=()=>{if(events.length)$("code").value=generateCode()};
 $("drop").onclick=()=>$("file").click();$("drop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("file").click()}};
 $("file").onchange=e=>loadFile(e.target.files[0]);["dragenter","dragover"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.add("over")}));["dragleave","drop"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.remove("over")}));$("drop").addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
 $("sourcePlay").onclick=toggleSourceAudio;$("sourceStop").onclick=stopSourceAudio;$("sourceSeek").oninput=()=>{if(sourceAudio&&sourceAudio.duration)sourceAudio.currentTime=+$("sourceSeek").value/1000*sourceAudio.duration};
+$("chordEnable").onchange=()=>{$("chordSettings").style.display=$("chordEnable").checked?"grid":"none";if(!$("chordEnable").checked)$("chordResult").classList.remove("show")};
+$("chordPreview").onclick=previewChords;$("chordStop").onclick=stopChordPreview;
 $("vizSeconds").onchange=()=>{updateVizRange();drawAnalysisViz()};$("vizCandidates").onchange=drawAnalysisViz;$("vizStart").oninput=()=>{updateVizRange();drawAnalysisViz()};
 $("analysisViz").onclick=e=>{if(!sourceAudio||!analysisPath)return;const r=$("analysisViz").getBoundingClientRect(),start=+$("vizStart").value,span=Math.min(+$("vizSeconds").value,analysisUsed-start);sourceAudio.currentTime=start+(e.clientX-r.left)/r.width*span;drawAnalysisViz()};
 $("clear").onclick=clearAll;$("analyze").onclick=analyze;$("preview").onclick=preview;$("stop").onclick=stopPreview;
@@ -447,7 +499,7 @@ $("copy").onclick=async()=>{await navigator.clipboard.writeText($("code").value)
 $("download").onclick=()=>{const a=document.createElement("a"),blob=new Blob([$("code").value],{type:"text/x-arduino"});a.href=URL.createObjectURL(blob);a.download=(sourceName.replace(/\.[^.]+$/,"").replace(/[^\w\-]+/g,"_")||"melody")+".ino";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $("theme").onclick=()=>{document.documentElement.classList.toggle("light");localStorage.setItem("tone_theme",document.documentElement.classList.contains("light")?"light":"dark")};
 if(localStorage.getItem("tone_theme")==="light")document.documentElement.classList.add("light");drawWave();
-window.addEventListener("beforeunload",()=>{stopPreview();disposeSourceAudio()});
+window.addEventListener("beforeunload",()=>{stopPreview();stopChordPreview();disposeSourceAudio()});
 </script>
 </body>
 </html>
