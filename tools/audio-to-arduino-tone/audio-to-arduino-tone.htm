@@ -20,7 +20,7 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
 .result{display:none;margin-top:16px}.result.show{display:block}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.stat{padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;text-align:center}.stat b{display:block;font-size:19px;color:var(--accent)}.stat span{font-size:11px;color:var(--muted)}@media(max-width:420px){.stats{grid-template-columns:1fr}}
 .viz{margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}.vizhead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.vizcontrols{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.vizcontrols label{margin:0}.vizcontrols select{width:auto;padding:6px 9px}.viz canvas{height:270px;margin-top:10px;cursor:crosshair}.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:7px;font-size:11px;color:var(--muted)}.legend i{display:inline-block;width:18px;height:3px;border-radius:3px;margin-right:5px;vertical-align:middle}.vizseek{margin-top:8px}.vizrange{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
 .timeline{max-height:270px;overflow:auto;border:1px solid var(--line);border-radius:12px}.timeline table{width:100%;border-collapse:collapse;font-size:12px}.timeline th,.timeline td{padding:8px;border-bottom:1px solid var(--line);text-align:left}.timeline th{position:sticky;top:0;background:var(--panel2)}textarea{width:100%;min-height:390px;resize:vertical;background:#070b12;color:#c9f8dd;border:1px solid var(--line);border-radius:12px;padding:13px;line-height:1.5;font-size:12px}.codehead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.pill{font-size:11px;padding:4px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
-.theme{width:42px;height:42px;padding:0;border-radius:50%}.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:26px}
+.theme,.helpbtn{width:42px;height:42px;padding:0;border-radius:50%}.selecthelp{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.helpbtn{font-size:20px;color:var(--accent);border-color:var(--accent)}.modalback{display:none;position:fixed;inset:0;z-index:50;background:#02050bd9;padding:18px;overflow:auto}.modalback.show{display:grid;place-items:center}.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 25px 80px #0008}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:start}.modalhead h2{margin:0;font-size:22px}.closebtn{font-size:20px;padding:5px 10px}.algobadge{display:inline-block;margin:8px 0;padding:4px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--accent);font-size:12px}.algosection{margin-top:16px}.algosection h3{margin:0 0 5px;font-size:14px}.algosection p{margin:0;color:var(--muted);line-height:1.7}.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:26px}
 </style>
 </head>
 <body>
@@ -43,11 +43,13 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
 
       <div class="panel" style="margin-top:16px">
         <h2>2. 解析設定</h2>
-        <div class="control"><label for="algorithm">解析アルゴリズム</label><select id="algorithm">
-          <optgroup label="総合・多層"><option value="ensemble" selected>多層アンサンブル（推奨）</option><option value="chordReject">コード除外メロディー</option><option value="upperEnsemble">上声部アンサンブル</option><option value="autoCompare">複数方式比較・自動選択</option></optgroup>
-          <optgroup label="スペクトル・倍音"><option value="harmonic">倍音加算（Harmonic Summation）</option><option value="hps">倍音積（HPS）</option><option value="fundamental">基音ピーク</option><option value="subharmonic">サブハーモニック加算</option><option value="odd">奇数倍音強調</option><option value="overtone">倍音豊富な楽器向け</option></optgroup>
-          <optgroup label="追跡特性"><option value="stable">安定追従</option><option value="agile">高速メロディー追従</option><option value="topNote">最高音優先</option><option value="bass">ベースライン抽出</option><option value="instant">フレーム最大候補</option></optgroup>
-        </select><div id="algorithmHelp" class="sub" style="margin-top:6px"></div></div>
+        <div class="control"><label for="algorithm">解析アルゴリズム</label><div class="selecthelp"><select id="algorithm">
+          <optgroup label="総合・多層"><option value="ensemble" selected>多層アンサンブル（推奨）</option><option value="autoCompare">複数方式比較・自動選択</option><option value="chordReject">コード除外メロディー</option><option value="upperEnsemble">上声部アンサンブル</option><option value="consensus">候補合議制</option></optgroup>
+          <optgroup label="スペクトル・倍音"><option value="harmonic">倍音加算（Harmonic Summation）</option><option value="hps">倍音積（HPS）</option><option value="fundamental">基音ピーク</option><option value="subharmonic">サブハーモニック加算</option><option value="odd">奇数倍音強調</option><option value="overtone">倍音豊富な楽器向け</option><option value="comb">櫛形フィルタ・サリエンス</option><option value="spectralPeak">スペクトル局所ピーク</option><option value="spectralFlux">スペクトル変化量強調</option><option value="missingFundamental">ミッシングファンダメンタル</option></optgroup>
+          <optgroup label="時間領域"><option value="autocorrelation">自己相関（ACF）</option><option value="yin">YIN差分法</option><option value="amdf">平均振幅差（AMDF）</option><option value="nsdf">正規化平方差（NSDF）</option><option value="zeroCross">ゼロ交差補助</option></optgroup>
+          <optgroup label="知覚・楽器特化"><option value="vocal">ボーカル・フォルマント抑制</option><option value="whistle">口笛・正弦波</option><option value="square">矩形波・電子音</option><option value="bright">明るいリード楽器</option><option value="soft">柔らかい主旋律</option></optgroup>
+          <optgroup label="追跡特性"><option value="stable">安定追従</option><option value="agile">高速メロディー追従</option><option value="topNote">最高音優先</option><option value="bass">ベースライン抽出</option><option value="instant">フレーム最大候補</option><option value="viterbi">Viterbi強連続追跡</option><option value="onset">アタック追従</option></optgroup>
+        </select><button id="algorithmInfo" class="btn helpbtn" type="button" aria-label="選択中の解析アルゴリズムの説明">?</button></div><div id="algorithmHelp" class="sub" style="margin-top:6px"></div></div>
         <div class="row">
           <div class="control"><div class="rangehead"><label for="step">時間分解能</label><span id="stepv" class="value">10 ms</span></div><input id="step" type="range" min="1" max="200" step="1" value="10"></div>
           <div class="control"><div class="rangehead"><label for="silence">無音しきい値</label><span id="silencev" class="value">-42 dB</span></div><input id="silence" type="range" min="-65" max="-20" step="1" value="-42"></div>
@@ -96,6 +98,14 @@ canvas{width:100%;height:150px;display:block;background:#070b12;border:1px solid
   </div>
   <div class="foot">音声データはサーバーへ送信されず、すべてブラウザ内で処理されます。</div>
 </main>
+<div id="algorithmModal" class="modalback" role="dialog" aria-modal="true" aria-labelledby="algorithmTitle">
+  <div class="modal"><div class="modalhead"><div><h2 id="algorithmTitle"></h2><span id="algorithmCategory" class="algobadge"></span></div><button id="algorithmClose" class="btn closebtn" aria-label="閉じる">×</button></div>
+    <div class="algosection"><h3>特徴</h3><p id="algorithmFeature"></p></div>
+    <div class="algosection"><h3>仕組み</h3><p id="algorithmMechanism"></p></div>
+    <div class="algosection"><h3>得意</h3><p id="algorithmGood"></p></div>
+    <div class="algosection"><h3>不得意</h3><p id="algorithmBad"></p></div>
+  </div>
+</div>
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
@@ -106,22 +116,40 @@ const midiFreq=m=>440*Math.pow(2,(m-69)/12);
 const formatTime=s=>{const m=Math.floor(s/60),x=(s%60).toFixed(1).padStart(4,"0");return `${m}:${x}`};
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const nextPow2=n=>{let p=1;while(p<n)p<<=1;return p};
+const A=(category,feature,mechanism,good,bad)=>({category,feature,mechanism,good,bad});
 const ALGORITHMS={
-  ensemble:["倍音加算・HPS・基音ピーク・サブハーモニック抑制を混合し、3声部へ分離します。"],
-  chordReject:["長く停滞するコード構成音と低い共有倍音を強く抑え、動く上声部を優先します。"],
-  upperEnsemble:["複合スコアに高音域の重みを加え、ボーカルやリード楽器を拾いやすくします。"],
-  autoCompare:["複数の抽出方式を実行し、音程の連続性・動き・上声らしさから自動選択します。"],
-  harmonic:["基音から第4倍音までのピーク強度を加算します。一般的な楽器音向けです。"],
-  hps:["基音と倍音の対数強度を掛け合わせるHarmonic Product Spectrum系です。"],
-  fundamental:["基音付近の局所ピークだけを重視します。口笛・正弦波・ビープ音向けです。"],
-  subharmonic:["倍音を加算しつつ、1/2・1/3周波数の影響を補正します。低い誤検出を減らします。"],
-  odd:["1・3・5倍音を重視します。矩形波、クラリネット系、電子音向けです。"],
-  overtone:["第2〜第6倍音を広く利用します。基音が弱い声や明るい楽器向けです。"],
-  stable:["音程の移動コストを強くし、伴奏音への細かな乗り移りを抑えます。"],
-  agile:["移動コストを弱くし、装飾音や速いフレーズへ追従します。"],
-  topNote:["各時点の上側候補を強く優先します。トップノートが旋律の曲向けです。"],
-  bass:["低声部を優先し、ベースラインを抽出します。"],
-  instant:["時間方向の追跡を最小化し、各フレームの最強候補を採用します。"]
+  ensemble:A("総合・多層","複数の音程手掛かりを均衡よく使う標準方式。","基音ピーク、倍音加算、対数振幅、低次サブハーモニック抑制を合成し、Viterbi型追跡で3声部へ分離します。","一般的な楽曲、ボーカル入り音源、方式選びに迷う場合。","強い打楽器、極端に弱い主旋律、密集した同音域の楽器。"),
+  autoCompare:A("総合・多層","複数方式の結果を比較して候補を決めます。","倍音加算、HPS、基音ピーク、サブハーモニック、奇数倍音、倍音重視の順位を投票で統合します。","音色が途中で変わる曲、方式を手動で決めにくい素材。","計算量が多い。全方式が同じ誤りをすると改善しません。"),
+  consensus:A("総合・多層","独立方式で一致した音だけを強く採用します。","周波数領域と時間領域の複数スコアを正規化し、支持数と順位から合議スコアを作ります。","ノイズや伴奏の中で主音が比較的安定している素材。","弱い装飾音、短い音、方式間で結果が割れる音色。"),
+  chordReject:A("総合・多層","コード構成音への張り付きを抑えます。","低い共有倍音を減点し、停滞音を弱め、層をまたぐ経路へ強いコストを与えます。","ピアノ伴奏、ギターコード、パッド上の歌やリード。","旋律自体が長い同音を保つ曲、低音旋律。"),
+  upperEnsemble:A("総合・多層","複合判定に上声優先を加えます。","アンサンブルスコアへ音域位置の重みを加え、上側声部を追跡します。","トップノートが主旋律のポップスやゲーム音楽。","主旋律より高いハイハット、倍音、装飾音が強い素材。"),
+  harmonic:A("スペクトル・倍音","分かりやすい倍音加算方式。","候補周波数の1〜4倍音に重みを付けてピーク対コントラストを加算します。","多くの楽器、明瞭な単旋律、軽い伴奏。","非整数倍音、鐘、強いコード、基音が極端に弱い音。"),
+  hps:A("スペクトル・倍音","倍音が同じ基音へ重なる性質を利用します。","基音と2〜4倍音の対数振幅を合算し、サブハーモニックを減点するHPS系スコアです。","周期性の強い楽器、低〜中音の旋律。","高音、短い窓、倍音の少ない正弦波、ノイズ。"),
+  fundamental:A("スペクトル・倍音","基音そのものを最重視します。","候補周波数の局所ピークを強く評価し、半分の周波数にあるピークを減点します。","口笛、正弦波、ビープ音、基音の強いシンセ。","基音欠落音、声、ギターなど倍音優勢の音。"),
+  subharmonic:A("スペクトル・倍音","1/2・1/3音程への誤認を抑えます。","倍音加算から候補の1/2・1/3周波数のピークを強く減点します。","オクターブ下へ誤検出しやすい音、明るい楽器。","本当に低い基音と上音が同時に鳴る素材。"),
+  odd:A("スペクトル・倍音","奇数倍音列を重視します。","1・3・5倍音を加算し、偶数倍音への依存を弱めます。","矩形波、クラリネット、8bit系電子音。","鋸歯状波、ピアノ、偶数倍音の強い声。"),
+  overtone:A("スペクトル・倍音","基音が弱くても高次倍音から推定します。","第2〜6倍音を広く加算し、基音の重みを下げます。","明るい声、金管、ギター、基音欠落音。","複数音の倍音が密集するコード。"),
+  comb:A("スペクトル・倍音","倍音間隔全体の規則性を評価します。","候補基音の整数倍位置を櫛形にサンプリングし、間の谷との比率を評価します。","周期性の明瞭な持続音、弦、管、シンセ。","短い打音、非調和音、強いリバーブ。"),
+  spectralPeak:A("スペクトル・倍音","局所スペクトルピークの純度を見ます。","候補ビンと周辺ビンのレベル差を中心に評価します。","単音、純音、周波数の明瞭な電子音。","倍音優勢、広帯域ノイズ、複数音。"),
+  spectralFlux:A("スペクトル・倍音","前フレームから増えた成分を重視します。","候補周波数と倍音で正のスペクトル差分を計算し、音の立ち上がりを強調します。","音符のアタックが明瞭なピアノ、撥弦、速い旋律。","レガート、持続音、強いドラム。"),
+  missingFundamental:A("スペクトル・倍音","鳴っていない基音を倍音列から復元します。","基音自体より2〜6倍音の整列を強く評価します。","電話音質、声、小型スピーカー録音、基音欠落音。","コードの倍音が偶然整列する場面。"),
+  autocorrelation:A("時間領域","波形が繰り返す周期を直接探します。","候補周期だけずらした波形同士の正規化相関を計算します。","単音、声、低音、スペクトル分解能が不足する場合。","和音、ノイズ、周期が不安定な打音。"),
+  yin:A("時間領域","YINに近い差分関数で周期を選びます。","候補周期での二乗差を信号エネルギーで正規化し、小さい差分を高得点化します。","声、ベース、滑らかな単旋律。","多声音、非常に短いフレーム、高音。"),
+  amdf:A("時間領域","計算の軽い振幅差周期推定です。","候補周期でずらした波形の平均絶対差を求め、差が小さい周期を評価します。","単純波形、組み込み的な挙動の比較、低〜中音。","雑音、音量変動、複雑な和音。"),
+  nsdf:A("時間領域","相関をエネルギーで正規化します。","McLeod系のNSDFに近い2倍相関÷両区間エネルギーで周期を評価します。","音量変化のある声や楽器、明瞭な単音。","コード、非周期音、強い残響。"),
+  zeroCross:A("時間領域","ゼロ交差数から周波数を推定します。","フレーム内の符号反転回数から概算周波数を出し、近い候補へ得点を与えます。","正弦波、矩形波、ノイズの少ない高音。","声、複雑な倍音、ノイズ、DCオフセット。"),
+  vocal:A("知覚・楽器特化","声の広いフォルマントより倍音間隔を優先します。","局所ピーク、奇数・偶数倍音の均衡、サブハーモニック抑制を組み合わせます。","歌声、ハミング、母音が変化するメロディー。","ささやき、デスボイス、コーラス、多人数歌唱。"),
+  whistle:A("知覚・楽器特化","純音に近い一本のピークを強く選びます。","基音ピークと周辺とのコントラストを最大化し、高次倍音の寄与を抑えます。","口笛、サイン波、テストトーン。","一般楽器、歌声、コード。"),
+  square:A("知覚・楽器特化","矩形波の奇数倍音構造へ特化します。","1・3・5倍音の整列とゼロ交差周波数を合わせて評価します。","ゲーム機音源、ブザー、矩形波シンセ。","アコースティック楽器、鋸歯状波。"),
+  bright:A("知覚・楽器特化","高次倍音が強いリード音を追います。","2〜6倍音のサリエンスと上声位置を強めます。","金管、鋸歯状波、ディストーション系リード。","柔らかい音、低音、密なコード。"),
+  soft:A("知覚・楽器特化","基音と低次倍音を穏やかに評価します。","基音・第2倍音を中心にし、高次倍音や急な音程移動を弱めます。","フルート、柔らかいシンセ、レガート。","明るい音、速い装飾、強い打音。"),
+  stable:A("追跡特性","時間方向の安定を最優先します。","同音維持へ加点し、音程ジャンプと声部移動へ大きなコストを与えます。","ゆっくりした旋律、伴奏が強い曲、ノイズ。","トリル、速いパッセージ、大跳躍。"),
+  agile:A("追跡特性","短い音と速い移動へ追従します。","音程ジャンプと層移動のコストを弱め、現在フレームの証拠を優先します。","高速フレーズ、装飾音、チップチューン。","ノイズ、コード伴奏、誤候補が多い素材。"),
+  topNote:A("追跡特性","最上声を主旋律とみなします。","候補の音域順位へ強い高音ボーナスを与えます。","トップノート旋律、ピアノ右手、コード最上音。","ハイハットや高い倍音が旋律より強い曲。"),
+  bass:A("追跡特性","最低声部を追跡します。","低音域と下側声部へボーナスを与え、低音経路をViterbi追跡します。","ベースライン、左手、低音リフ。","主旋律抽出、高いベース倍音が強い素材。"),
+  instant:A("追跡特性","各フレームをほぼ独立に判定します。","時間連続性のコストを最小にし、瞬間スコア最大の候補を選びます。","アルゴリズムの生出力確認、急激な音程変化。","結果がちらつきやすく、コード構成音へ移りやすい。"),
+  viterbi:A("追跡特性","経路全体の整合性を強く最適化します。","音程・休符・声部間の遷移確率を強く効かせた動的計画法で全区間の経路を選びます。","長い旋律、伴奏混在、安定した主旋律。","急な転調、短い装飾音、旋律の交差。"),
+  onset:A("追跡特性","音符の開始点で候補を切り替えやすくします。","スペクトル増加量を候補得点へ加え、アタック時だけ追跡の移動コストを弱めます。","ピアノ、ギター、マリンバ、発音の明瞭な旋律。","レガート、持続音、ドラムが強い曲。")
 };
 
 function fft(re,im){
@@ -131,12 +159,12 @@ function fft(re,im){
 }
 
 function spectrumAt(samples,start,frameSize){
-  let sum=0;const re=new Float64Array(frameSize),im=new Float64Array(frameSize);
-  for(let i=0;i<frameSize;i++){const x=samples[start+i]||0;sum+=x*x;re[i]=x*(.5-.5*Math.cos(2*Math.PI*i/(frameSize-1)))}
+  let sum=0,crossings=0,last=0;const re=new Float64Array(frameSize),im=new Float64Array(frameSize),frame=new Float32Array(frameSize);
+  for(let i=0;i<frameSize;i++){const x=samples[start+i]||0;frame[i]=x;sum+=x*x;if(i&&((x>=0)!=(last>=0)))crossings++;last=x;re[i]=x*(.5-.5*Math.cos(2*Math.PI*i/(frameSize-1)))}
   const db=20*Math.log10(Math.sqrt(sum/frameSize)+1e-9);
   fft(re,im);const half=frameSize>>1,mag=new Float32Array(half);
   for(let i=1;i<half;i++)mag[i]=Math.hypot(re[i],im[i]);
-  return{mag,db};
+  return{mag,db,frame,zcr:crossings/frameSize};
 }
 
 function binValue(mag,bin){
@@ -148,12 +176,24 @@ function peakContrast(mag,bin){
   return Math.max(0,20*Math.log10((peak+1e-7)/(side+1e-7)));
 }
 
-function pitchMetrics(spec,bin){
+function pitchMetrics(spec,bin,prevSpec){
   const c=n=>peakContrast(spec.mag,bin*n),a=n=>Math.log1p(binValue(spec.mag,bin*n));
-  return{base:c(1),h2:c(2),h3:c(3),h4:c(4),h5:c(5),h6:c(6),a1:a(1),a2:a(2),a3:a(3),a4:a(4),sub2:bin*.5>1?c(.5):0,sub3:bin/3>1?c(1/3):0};
+  const flux=n=>prevSpec?Math.max(0,Math.log1p(binValue(spec.mag,bin*n))-Math.log1p(binValue(prevSpec.mag,bin*n))):0;
+  return{base:c(1),h2:c(2),h3:c(3),h4:c(4),h5:c(5),h6:c(6),a1:a(1),a2:a(2),a3:a(3),a4:a(4),sub2:bin*.5>1?c(.5):0,sub3:bin/3>1?c(1/3):0,flux:flux(1)+.6*flux(2)+.35*flux(3)};
 }
 
-function algorithmPitchScore(metrics,midi,minMidi,maxMidi,algorithm){
+function timePitchScore(spec,freq,sr,algorithm){
+  const x=spec.frame,lag=Math.max(2,Math.round(sr/freq)),limit=x.length-lag;if(limit<32)return-20;
+  let xy=0,x2=0,y2=0,abs=0,sq=0,n=0;for(let i=0;i<limit;i+=3){const a=x[i],b=x[i+lag],d=a-b;xy+=a*b;x2+=a*a;y2+=b*b;abs+=Math.abs(d);sq+=d*d;n++}
+  const ac=xy/Math.sqrt(x2*y2+1e-12),nsdf=2*xy/(x2+y2+1e-12),amdf=1-abs/(Math.sqrt((x2+y2)/Math.max(1,n))+1e-9),yin=1-sq/(x2+y2+1e-12);
+  if(algorithm==="autocorrelation")return ac*24;
+  if(algorithm==="yin")return yin*25;
+  if(algorithm==="amdf")return amdf*18;
+  if(algorithm==="nsdf")return nsdf*24;
+  const zFreq=spec.zcr*sr/2;return 18-Math.min(24,Math.abs(12*Math.log2((zFreq+1)/(freq+1)))*3);
+}
+
+function algorithmPitchScore(metrics,midi,minMidi,maxMidi,algorithm,spec,sr){
   const m=metrics,pos=(midi-minMidi)/Math.max(1,maxMidi-minMidi),harm=m.base+.72*m.h2+.46*m.h3+.28*m.h4;
   switch(algorithm){
     case"hps":return m.a1+m.a2+m.a3+m.a4-.45*(m.sub2+m.sub3);
@@ -161,6 +201,16 @@ function algorithmPitchScore(metrics,midi,minMidi,maxMidi,algorithm){
     case"subharmonic":return harm-.9*m.sub2-.55*m.sub3;
     case"odd":return m.base+.82*m.h3+.52*m.h5-.24*m.h2;
     case"overtone":return .45*m.base+.8*m.h2+.72*m.h3+.52*m.h4+.35*m.h5+.22*m.h6;
+    case"comb":return m.base+.66*m.h2+.5*m.h3+.4*m.h4+.3*m.h5+.22*m.h6-.42*(m.sub2+m.sub3);
+    case"spectralPeak":return m.base*2.1-.25*(m.h2+m.h3);
+    case"spectralFlux":case"onset":return harm*.55+m.flux*6;
+    case"missingFundamental":return .12*m.base+.95*m.h2+.8*m.h3+.58*m.h4+.4*m.h5+.28*m.h6;
+    case"autocorrelation":case"yin":case"amdf":case"nsdf":case"zeroCross":return timePitchScore(spec,midiFreq(midi),sr,algorithm)+.15*harm;
+    case"vocal":return .75*m.base+.62*m.h2+.58*m.h3+.34*m.h4-.6*m.sub2;
+    case"whistle":return 2.3*m.base-.18*(m.h2+m.h3+m.h4);
+    case"square":return m.base+.88*m.h3+.58*m.h5+timePitchScore(spec,midiFreq(midi),sr,"zeroCross")*.18;
+    case"bright":return .35*m.base+.9*m.h2+.8*m.h3+.62*m.h4+.44*m.h5+.3*m.h6+pos*2;
+    case"soft":return 1.35*m.base+.48*m.h2+.15*m.h3-.2*m.h5;
     case"upperEnsemble":return harm+.35*(m.a1+m.a2)-.5*m.sub2+pos*3;
     case"topNote":return harm+pos*7;
     case"bass":return harm+(1-pos)*5;
@@ -170,12 +220,12 @@ function algorithmPitchScore(metrics,midi,minMidi,maxMidi,algorithm){
   }
 }
 
-function melodyCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,algorithm,count=7){
+function melodyCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,algorithm,count=7,prevSpec=null){
   if(spec.db<threshold)return[{midi:-1,emission:10}];
   const scored=[];
   for(let midi=minMidi;midi<=maxMidi;midi++){
     const f=midiFreq(midi),b=f*frameSize/sr;
-    let score=algorithmPitchScore(pitchMetrics(spec,b),midi,minMidi,maxMidi,algorithm);
+    let score=algorithmPitchScore(pitchMetrics(spec,b,prevSpec),midi,minMidi,maxMidi,algorithm,spec,sr);
     score+=.012*(midi-minMidi);
     scored.push({midi,emission:score});
   }
@@ -197,6 +247,14 @@ function autoCompareCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold){
   out.push({midi:-1,emission:Math.max(-4,8-(spec.db-threshold)*.7),layer:-1});return out;
 }
 
+function consensusCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,prevSpec){
+  if(spec.db<threshold)return[{midi:-1,emission:10,layer:-1}];
+  const methods=["harmonic","hps","fundamental","subharmonic","autocorrelation","yin","nsdf"],votes=new Map();
+  for(const method of methods){const list=melodyCandidates(spec,frameSize,sr,minMidi,maxMidi,threshold,method,5,prevSpec).filter(c=>c.midi>=0);list.forEach((c,rank)=>votes.set(c.midi,(votes.get(c.midi)||0)+(rank===0?5:Math.max(1,3-rank))));}
+  const out=[...votes].map(([midi,emission])=>({midi,emission:emission*2})).sort((a,b)=>b.emission-a.emission).slice(0,7),voiced=out.slice().sort((a,b)=>a.midi-b.midi);
+  voiced.forEach((c,i)=>c.layer=voiced.length===1?.5:i/(voiced.length-1));out.push({midi:-1,emission:Math.max(-4,8-(spec.db-threshold)*.7),layer:-1});return out;
+}
+
 function transitionCost(a,b,strength,layerA,layerB,separation){
   if(a<0&&b<0)return 0;if(a<0||b<0)return 2.4+strength*1.2;
   const jump=Math.abs(a-b),layerSlip=Math.abs(layerA-layerB)*(2+separation*2.2);
@@ -208,6 +266,9 @@ function trackingProfile(algorithm,strength,separation){
   if(algorithm==="agile")return{strength:Math.max(-.5,strength-1),separation:Math.max(0,separation-1),staticBonus:-.35};
   if(algorithm==="instant")return{strength:-1.2,separation:0,staticBonus:-.8};
   if(algorithm==="chordReject")return{strength:strength+.4,separation:separation+1.5,staticBonus:-.45};
+  if(algorithm==="viterbi")return{strength:strength+3,separation:separation+2,staticBonus:1.15};
+  if(algorithm==="onset")return{strength:Math.max(0,strength-.6),separation,staticBonus:-.25};
+  if(algorithm==="soft")return{strength:strength+1,separation:separation+.4,staticBonus:.45};
   return{strength,separation,staticBonus:0};
 }
 
@@ -215,6 +276,7 @@ function trackVoice(candidateFrames,strength,target,separation,algorithm){
   const profile=trackingProfile(algorithm,strength,separation);strength=profile.strength;separation=profile.separation;
   if(!candidateFrames.length)return[];const parents=[];
   const layerScore=c=>c.midi<0?c.emission:c.emission-Math.abs(c.layer-target)*(4+separation*3);
+  if(algorithm==="instant")return candidateFrames.map(frame=>frame.reduce((best,c)=>layerScore(c)>layerScore(best)?c:best,frame[0]).midi);
   let prevScores=Float64Array.from(candidateFrames[0],layerScore);parents[0]=new Uint8Array(candidateFrames[0].length);
   for(let i=1;i<candidateFrames.length;i++){
     const cur=candidateFrames[i],prev=candidateFrames[i-1],row=new Float64Array(cur.length),back=new Uint8Array(cur.length);
@@ -256,8 +318,8 @@ async function analyze(){
   const stepMs=+$("step").value,sr=12000,duration=audioBuffer.duration,maxDuration=stepMs<=1?60:stepMs<=4?120:180,used=Math.min(duration,maxDuration),length=Math.floor(used*sr),samples=new Float32Array(length);
   const channels=[];for(let c=0;c<audioBuffer.numberOfChannels;c++)channels.push(audioBuffer.getChannelData(c));
   for(let i=0;i<length;i++){const p=i*audioBuffer.sampleRate/sr,j=Math.floor(p),f=p-j;let v=0;for(const ch of channels)v+=(ch[j]||0)*(1-f)+(ch[j+1]||0)*f;samples[i]=v/channels.length}
-  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[];
-  for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize),args=[spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value];candidateFrames.push(algorithm==="autoCompare"?autoCompareCandidates(...args):melodyCandidates(...args,algorithm));if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=`${$("algorithm").selectedOptions[0].textContent}で候補抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
+  const algorithm=$("algorithm").value,hop=Math.max(1,Math.round(sr*stepMs/1000)),frameSize=1024,frames=Math.max(1,Math.floor((samples.length-frameSize)/hop)+1),candidateFrames=[];let prevSpec=null;
+  for(let i=0;i<frames;i++){if(token!==cancelToken)return;const spec=spectrumAt(samples,i*hop,frameSize),args=[spec,frameSize,sr,+$("low").value,+$("high").value,+$("silence").value];let candidates;if(algorithm==="autoCompare")candidates=autoCompareCandidates(...args);else if(algorithm==="consensus")candidates=consensusCandidates(...args,prevSpec);else candidates=melodyCandidates(...args,algorithm,7,prevSpec);candidateFrames.push(candidates);prevSpec=spec;if(i%Math.max(8,Math.round(80/stepMs))===0){const p=Math.round(i/frames*85);$("bar").style.width=p+"%";$("status").textContent=`${$("algorithm").selectedOptions[0].textContent}で候補抽出中… ${p}% (${i.toLocaleString()}/${frames.toLocaleString()})`;await new Promise(r=>setTimeout(r,0))}}
   $("status").textContent="高・中・低の音層を分離して追跡中…";$("bar").style.width="90%";await new Promise(r=>setTimeout(r,0));
   const strength=+$("smooth").value,separation=+$("separation").value;
   const paths=[trackVoice(candidateFrames,strength,.9,separation,algorithm),trackVoice(candidateFrames,strength,.52,separation,algorithm),trackVoice(candidateFrames,strength,.12,separation,algorithm)];
@@ -369,8 +431,11 @@ function clearAll(){stopPreview();disposeSourceAudio();++cancelToken;audioBuffer
 const rangeMap={step:v=>v+" ms",silence:v=>v+" dB",smooth:v=>["弱め","標準","強め"][v],minnote:v=>v+" ms",separation:v=>["なし","標準","強め","最強"][v],gate:v=>v+"%"};
 Object.entries(rangeMap).forEach(([id,fmt])=>{$(id).oninput=()=>{$(id+"v").textContent=fmt($(id).value);if(id==="gate"&&events.length)$("code").value=generateCode();if(id==="minnote"&&analysisLayers)applySelectedLayer()}});
 $("voiceLayer").onchange=()=>{if(analysisLayers){applySelectedLayer();const names=["上声部","中声部","低声部"];$("status").textContent=`表示とArduinoコードを${names[selectedLayerIndex()]}へ切り替えました。`}};
-function updateAlgorithmHelp(){const id=$("algorithm").value;$("algorithmHelp").textContent=ALGORITHMS[id][0];if(id==="bass")$("voiceLayer").value="low";if(id==="topNote"||id==="upperEnsemble"||id==="chordReject")$("voiceLayer").value="high"}
+function updateAlgorithmHelp(){const id=$("algorithm").value,a=ALGORITHMS[id];$("algorithmHelp").textContent=a.feature;if(id==="bass")$("voiceLayer").value="low";if(id==="topNote"||id==="upperEnsemble"||id==="chordReject")$("voiceLayer").value="high"}
+function openAlgorithmInfo(){const a=ALGORITHMS[$("algorithm").value];$("algorithmTitle").textContent=$("algorithm").selectedOptions[0].textContent;$("algorithmCategory").textContent=a.category;$("algorithmFeature").textContent=a.feature;$("algorithmMechanism").textContent=a.mechanism;$("algorithmGood").textContent=a.good;$("algorithmBad").textContent=a.bad;$("algorithmModal").classList.add("show");$("algorithmClose").focus()}
+function closeAlgorithmInfo(){$("algorithmModal").classList.remove("show");$("algorithmInfo").focus()}
 $("algorithm").onchange=updateAlgorithmHelp;updateAlgorithmHelp();
+$("algorithmInfo").onclick=openAlgorithmInfo;$("algorithmClose").onclick=closeAlgorithmInfo;$("algorithmModal").onclick=e=>{if(e.target===$("algorithmModal"))closeAlgorithmInfo()};window.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("algorithmModal").classList.contains("show"))closeAlgorithmInfo()});
 $("pin").oninput=()=>{if(events.length)$("code").value=generateCode()};
 $("drop").onclick=()=>$("file").click();$("drop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("file").click()}};
 $("file").onchange=e=>loadFile(e.target.files[0]);["dragenter","dragover"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.add("over")}));["dragleave","drop"].forEach(x=>$("drop").addEventListener(x,e=>{e.preventDefault();$("drop").classList.remove("over")}));$("drop").addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
