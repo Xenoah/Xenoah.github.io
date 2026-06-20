@@ -2,10 +2,21 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="MP3やWAVからメロディーを解析し、Arduinoのtone()で再生できるスケッチへ変換するブラウザツール。">
-<title>Audio to Arduino tone()</title>
-<style>
+  <title>音声からArduino tone変換 | Audio to Arduino Tone | Xenoah</title>
+  <meta name="description" content="MP3やWAVからメロディーと音程を解析し、Arduinoのtone関数で再生できるコードへ変換します。 / Analyze MP3 or WAV melodies and generate Arduino tone function code.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="author" content="Xenoah">
+  <link rel="canonical" href="https://xenoah.github.io/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm">
+  <meta property="og:site_name" content="Xenoah">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="音声からArduino tone変換 | Audio to Arduino Tone | Xenoah">
+  <meta property="og:description" content="MP3やWAVからメロディーと音程を解析し、Arduinoのtone関数で再生できるコードへ変換します。 / Analyze MP3 or WAV melodies and generate Arduino tone function code.">
+  <meta property="og:url" content="https://xenoah.github.io/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="音声からArduino tone変換 | Audio to Arduino Tone | Xenoah">
+  <meta name="twitter:description" content="MP3やWAVからメロディーと音程を解析し、Arduinoのtone関数で再生できるコードへ変換します。 / Analyze MP3 or WAV melodies and generate Arduino tone function code.">
+<meta name="viewport" content="width=device-width,initial-scale=1"><style>
 :root,:root.light{color-scheme:light;--bg:#e6e6e6;--panel:#ffffff;--panel2:#f1f1f1;--text:#434f54;--muted:#66777d;--line:#b7c4c6;--accent:#00979c;--accent2:#1ba4a7;--accent-dark:#008184;--warn:#d68200;--danger:#c0392b;--canvas:#000000;--canvas-grid:#16484a;--candidate:#69d5d7;--layer:#a7a2cc}
 :root.dark{color-scheme:dark;--bg:#242b2d;--panel:#30383a;--panel2:#394345;--text:#e5eeee;--muted:#b4c3c5;--line:#596b6e;--accent:#1ba4a7;--accent2:#008f93;--accent-dark:#006d70;--warn:#e99b25;--danger:#ff766b;--canvas:#000;--canvas-grid:#16484a;--candidate:#69d5d7;--layer:#c3bd6d}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI","Meiryo",system-ui,sans-serif;min-height:100vh}

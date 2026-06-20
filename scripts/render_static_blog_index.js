@@ -84,10 +84,20 @@ const html = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog | Xenoahのホームページ</title>
-  <meta name="description" content="Xenoahの制作、学び、VRChat、電子工作、プログラミングの記事一覧。">
-  <meta name="robots" content="index,follow,max-image-preview:large">
+  <title>ブログ・制作記録 | Blog and Build Notes | Xenoah</title>
+  <meta name="description" content="Web開発、VRChat、電子工作、制作過程、学び直しについて記録するXenoahのブログです。 / Xenoah's blog about web development, VRChat, electronics, creative processes and continuous learning.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/blog/">
+  <meta property="og:site_name" content="Xenoah">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ブログ・制作記録 | Blog and Build Notes | Xenoah">
+  <meta property="og:description" content="Web開発、VRChat、電子工作、制作過程、学び直しについて記録するXenoahのブログです。 / Xenoah's blog about web development, VRChat, electronics, creative processes and continuous learning.">
+  <meta property="og:url" content="https://xenoah.github.io/blog/">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ブログ・制作記録 | Blog and Build Notes | Xenoah">
+  <meta name="twitter:description" content="Web開発、VRChat、電子工作、制作過程、学び直しについて記録するXenoahのブログです。 / Xenoah's blog about web development, VRChat, electronics, creative processes and continuous learning.">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/blog/assets/blog.css">
 </head>

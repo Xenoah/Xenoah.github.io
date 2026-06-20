@@ -68,9 +68,12 @@ function stripHtml(value) {
 }
 
 function renderArticle(data, htmlBody) {
-  const siteTitle = "Xenoahのホームページ";
   const title = data.title || "Blog Article";
+  const titleEn = data.title_en || "";
   const description = data.description || stripHtml(htmlBody).trim().slice(0, 160);
+  const descriptionEn = data.description_en || "";
+  const seoTitle = [title, titleEn, "Xenoah"].filter(Boolean).join(" | ");
+  const metaDescription = [description, descriptionEn].filter(Boolean).join(" / ");
   const permalink = data.permalink || "/blog/";
   const image = data.image || "/favicon_katakana.png";
   const tags = Array.isArray(data.tags) ? data.tags : [];
@@ -83,27 +86,31 @@ function renderArticle(data, htmlBody) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(title)} | ${escapeHtml(siteTitle)}</title>
-  <meta name="description" content="${escapeHtml(description)}">
-  <meta name="robots" content="index,follow,max-image-preview:large">
+  <title>${escapeHtml(seoTitle)}</title>
+  <meta name="description" content="${escapeHtml(metaDescription)}">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="author" content="Xenoah">
   <link rel="canonical" href="${escapeHtml(fullUrl)}">
-  <meta property="og:site_name" content="${escapeHtml(siteTitle)}">
+  <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="${escapeHtml(title)}">
-  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:title" content="${escapeHtml(seoTitle)}">
+  <meta property="og:description" content="${escapeHtml(metaDescription)}">
   <meta property="og:url" content="${escapeHtml(fullUrl)}">
   <meta property="og:image" content="${escapeHtml(imageUrl)}">
   <meta property="og:locale" content="ja_JP">
   <meta property="article:published_time" content="${escapeHtml(data.date || "")}">
   ${tags.map((tag) => `<meta property="article:tag" content="${escapeHtml(tag)}">`).join("\n  ")}
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(seoTitle)}">
+  <meta name="twitter:description" content="${escapeHtml(metaDescription)}">
+  <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/blog/assets/blog.css">
   <script type="application/ld+json">${JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    headline: title,
-    description,
+    headline: seoTitle,
+    description: metaDescription,
     datePublished: data.date || "",
     author: { "@type": "Person", name: "Xenoah" },
     publisher: { "@type": "Person", name: "Xenoah" },

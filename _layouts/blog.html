@@ -6,26 +6,30 @@
   <!-- title/description の組み立ては静的生成スクリプト側の出力規則と揃える -->
   {% assign page_title = page.title | default: site.title %}
   {% assign raw_description = page.description | default: site.description %}
-  {% assign meta_description = raw_description | strip_html | strip_newlines | truncate: 160 %}
-  <title>{{ page_title }}{% unless page_title == site.title %} | {{ site.title }}{% endunless %}</title>
+  {% capture seo_title %}{{ page_title }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
+  {% capture meta_description %}{{ raw_description | strip_html | strip_newlines }}{% if page.description_en %} / {{ page.description_en | strip_html | strip_newlines }}{% endif %}{% endcapture %}
+  <title>{{ seo_title | strip }}</title>
   <meta name="description" content="{{ meta_description }}">
-  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' }}">
+  <meta name="author" content="Xenoah">
   <link rel="canonical" href="{{ page.url | absolute_url }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url }}">
   <meta property="og:site_name" content="{{ site.title }}">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ page_title }}">
+  <meta property="og:title" content="{{ seo_title | strip }}">
   <meta property="og:description" content="{{ meta_description }}">
   <meta property="og:url" content="{{ page.url | absolute_url }}">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ seo_title | strip }}">
+  <meta name="twitter:description" content="{{ meta_description }}">
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
   <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url }}">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": {{ page_title | jsonify }},
+    "name": {{ seo_title | strip | jsonify }},
     "description": {{ meta_description | jsonify }},
     "url": {{ page.url | absolute_url | jsonify }},
     "publisher": {
