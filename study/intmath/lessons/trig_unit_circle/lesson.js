@@ -41,6 +41,7 @@ Globals.subscribe(state => {
         const dict = {
             'back': { en: '← Back to Menu', ja: '← メニューに戻る' },
             'title': { en: 'Unit Circle', ja: '単位円' },
+            'desc': { en: 'Connect angles, coordinates and trigonometric waves.', ja: '単位円上の角度と座標、サイン・コサイン波の対応を動かしながら確認できます。' },
             'playback': { en: 'Playback', ja: '再生操作' },
             'share': { en: 'Share', ja: '共有' }
         };

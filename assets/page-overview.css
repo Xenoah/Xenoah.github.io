@@ -1,0 +1,64 @@
+/* 操作画面より目立たせず、検索・初見ユーザー向けの概要だけを上部へ補足する */
+.page-overview {
+  box-sizing: border-box;
+  width: min(920px, calc(100% - 24px));
+  margin: 10px auto;
+  padding: 9px 13px;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  border-radius: 9px;
+  background: rgba(148, 163, 184, 0.09);
+  color: inherit;
+  opacity: 0.72;
+  font: 400 12px/1.65 system-ui, -apple-system, "Segoe UI", "Meiryo", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.page-overview p {
+  margin: 0;
+}
+
+/* 高さ固定の制作画面ではレイアウト計算へ入れず、上端に薄く重ねる */
+.page-overview--overlay {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  z-index: 100;
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.page-overview [lang="en"] {
+  display: none;
+}
+
+html[lang="en"] .page-overview [lang="ja"] {
+  display: none;
+}
+
+html[lang="en"] .page-overview [lang="en"] {
+  display: block;
+}
+
+html.dark .page-overview,
+html.theme-dark .page-overview,
+html[data-theme="dark"] .page-overview {
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.07);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not([data-theme="light"]) .page-overview {
+    border-color: rgba(148, 163, 184, 0.18);
+    background: rgba(148, 163, 184, 0.07);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-overview {
+    width: calc(100% - 16px);
+    margin-block: 7px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}

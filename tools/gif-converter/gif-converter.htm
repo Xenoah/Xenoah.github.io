@@ -7,6 +7,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/tools/gif-converter/gif-converter.htm">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="GIF・動画・連番画像変換 | GIF Converter | Xenoah">
@@ -620,6 +621,10 @@
       useEffect(() => {
         document.documentElement.classList.toggle('dark', darkMode);
       }, [darkMode]);
+
+      useEffect(() => {
+        document.documentElement.lang = lang;
+      }, [lang]);
 
       useEffect(() => {
         fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')
@@ -1359,6 +1364,11 @@
               </button>
             </div>
           </header>
+
+          <aside className="page-overview" aria-label={lang === 'ja' ? 'ページ概要' : 'Page overview'}>
+            <p lang="ja">動画や連番画像からGIFを作成し、GIFからMP4・WebM・連番画像への変換も行えるブラウザツールです。フレーム速度、幅、色数を調整できます。</p>
+            <p lang="en">Create GIFs from videos or image sequences, or convert GIFs into MP4, WebM and image frames while adjusting timing, width and color count.</p>
+          </aside>
 
           <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3">

@@ -7,6 +7,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/tools/qr-code-tool/qr-code-tool.htm">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="QRコード読取・生成・保存 | QR Code Reader and Generator | Xenoah">
@@ -1578,6 +1579,10 @@
       }, [theme]);
 
       useEffect(() => {
+        document.documentElement.lang = lang===Language.JP ? 'ja' : 'en';
+      }, [lang]);
+
+      useEffect(() => {
         setDebugState('app', {
           activeTab,
           lang,
@@ -1657,6 +1662,11 @@
               </div>
             </div>
           </header>
+
+          <aside className="page-overview" aria-label={lang===Language.JP?'ページ概要':'Page overview'}>
+            <p lang="ja">画像やカメラからQRコードを読み取り、URL、テキスト、Wi-Fi接続情報などのQRコードを作成・デザイン・保存できるブラウザツールです。</p>
+            <p lang="en">Scan QR codes from images or a camera, then create, style and save codes for URLs, text, Wi-Fi credentials and other data.</p>
+          </aside>
 
           {/* Tabs */}
           <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">

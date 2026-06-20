@@ -2316,6 +2316,7 @@
 
         // --- TRANSLATION ---
         function updateText() {
+            document.documentElement.lang = state.lang === 'EN' ? 'en' : 'ja';
             const T = TEXT[state.lang];
             const setTxt = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
             

@@ -9,11 +9,16 @@ export const Globals = {
 
     init() {
         this.applyTheme();
+        this.applyLanguage();
         this.injectControls();
     },
 
     applyTheme() {
         document.documentElement.setAttribute('data-theme', this.state.theme);
+    },
+
+    applyLanguage() {
+        document.documentElement.lang = this.state.lang;
     },
 
     injectControls() {
@@ -52,6 +57,7 @@ export const Globals = {
     toggleLang() {
         this.state.lang = this.state.lang === 'en' ? 'ja' : 'en';
         localStorage.setItem('math-lang', this.state.lang);
+        this.applyLanguage();
         this.injectControls();
         this.notify();
     },

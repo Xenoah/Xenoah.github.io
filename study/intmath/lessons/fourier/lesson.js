@@ -32,6 +32,7 @@ Globals.subscribe(state => {
         const dict = {
             'back': { en: '← Back to Menu', ja: '← メニューに戻る' },
             'title': { en: 'Fourier Transform', ja: 'フーリエ変換' },
+            'desc': { en: 'Explore frequency components and reconstructed waveforms.', ja: '波形を周波数成分へ分解し、高調波から元の形が再構成される過程を可視化します。' },
             'share': { en: 'Share', ja: '共有' }
         };
         if (dict[key]) el.textContent = Globals.getText(key, dict[key].en, dict[key].ja);

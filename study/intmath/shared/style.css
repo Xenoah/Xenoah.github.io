@@ -96,6 +96,18 @@ body::before {
     /* Lighter shadow for light mode appropriateness */
 }
 
+/* レッスン概要は操作項目と区別しつつ、両テーマで控えめに見せる */
+.sidebar > p[data-i18n="desc"] {
+    margin: 10px 0 18px !important;
+    padding: 8px 10px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-highlight);
+    color: var(--text-muted) !important;
+    font-size: 0.78rem !important;
+    line-height: 1.6;
+}
+
 /* Layout */
 .app-container {
     display: flex;

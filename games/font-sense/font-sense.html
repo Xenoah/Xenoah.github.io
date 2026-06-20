@@ -7,6 +7,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/games/font-sense/font-sense.html">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="絶対フォント感・書体判別ゲーム | Absolute Font Sense | Xenoah">
@@ -219,7 +220,7 @@ button:disabled {
 .app {
     min-height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     position: relative;
     z-index: 1;
 }
@@ -1421,6 +1422,10 @@ button:disabled {
             <button class="text-btn" id="restartBtn" type="button">RESTART</button>
         </div>
     </header>
+    <aside class="page-overview" aria-label="ページ概要">
+        <p lang="ja">表示された文字の輪郭、字間、重心などを観察してフォント名を当てる書体クイズです。苦手フォントの復習や、利用可能なフォントの比較にも対応します。</p>
+        <p lang="en">Identify typefaces by examining letter shapes, spacing and visual balance, then review difficult fonts and compare available specimens.</p>
+    </aside>
 
     <main>
         <section class="screen active" id="startScreen">
@@ -2152,6 +2157,7 @@ button:disabled {
     }
 
     function renderLanguageButton() {
+        document.documentElement.lang = currentLanguage();
         els.languageBtn.textContent = currentLanguage() === "ja" ? "JP" : "EN";
     }
 

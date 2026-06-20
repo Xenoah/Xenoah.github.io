@@ -8,6 +8,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="日本の人工衛星・探査機データベース | Japanese Spacecraft Database | Xenoah">
@@ -500,6 +501,10 @@
             const [lang, setLang] = useState('ja'); // 'ja' | 'en'
 
             useEffect(() => {
+                document.documentElement.lang = lang;
+            }, [lang]);
+
+            useEffect(() => {
                 const fetchData = async () => {
                     try {
                         // HTMLと同じディレクトリを基準に読み込むため、配置変更時はJSONも一緒に移動する。
@@ -816,6 +821,10 @@
                     <header style={{ textAlign: 'center', marginBottom: '40px' }}>
                         <h1 style={{ fontSize: '3rem', marginBottom: '16px' }}>{t[lang].appTitle}</h1>
                         <p style={{ color: 'var(--text-muted)' }}>{t[lang].appSubtitle}</p>
+                        <aside className="page-overview" aria-label={lang === 'ja' ? 'ページ概要' : 'Page overview'}>
+                            <p lang="ja">日本の人工衛星・宇宙探査機を名称、打上げ年、ミッション種別から検索し、目的、軌道、搭載機器、開発機関、成果を確認できるデータベースです。</p>
+                            <p lang="en">Search Japanese satellites and space probes by name, launch year and mission type, with details on objectives, orbits, instruments, organizations and achievements.</p>
+                        </aside>
                     </header>
 
                     <div className="glass" style={{ padding: '24px', marginBottom: '40px' }}>

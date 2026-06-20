@@ -7,6 +7,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/tools/scientific-calculator/scientific-calculator.htm">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="科学計算・グラフ・統計・数式OCR | Scientific Calculator | Xenoah">
@@ -167,6 +168,10 @@
     </style>
 </head>
 <body>
+<aside class="page-overview" aria-label="ページ概要">
+  <p lang="ja">関数計算、数式入力、グラフ描画、画像からの数式認識、CSV統計解析をひとつにまとめたブラウザ科学計算機です。</p>
+  <p lang="en">A browser scientific calculator combining functions, expression input, graph plotting, image-based formula recognition and CSV statistical analysis.</p>
+</aside>
 
 <div class="container py-4" style="max-width: 960px;">
     <!-- ヘッダー -->
@@ -462,6 +467,7 @@
     // --- Localization ---
     function setLang(lang) {
         currentLang = lang;
+        document.documentElement.lang = lang;
         const data = i18n[lang];
         document.querySelectorAll('[data-i18n]').forEach(e => {
             const key = e.getAttribute('data-i18n');

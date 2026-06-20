@@ -7,6 +7,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/games/chord-breaker/chord-breaker.html">
+  <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
   <meta property="og:title" content="コードブレイカー・和音進行ゲーム | Chord Breaker | Xenoah">
@@ -67,7 +68,7 @@ button {
 .app {
     min-height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
 }
 
 .topbar {
@@ -864,6 +865,10 @@ body.touch-device .touch-btn.active {
             <button class="primary-btn" id="launchBtn" type="button">スタート</button>
         </div>
     </header>
+    <aside class="page-overview" aria-label="ページ概要">
+        <p lang="ja">ブロックに割り当てられた和音を鳴らし、自然なコード進行を組み立てながら遊ぶ音楽ブロック崩しです。進行の響きによってパドルやボールの挙動が変化します。</p>
+        <p lang="en">A musical brick-breaker where each block plays a chord and the resulting progression changes paddle and ball behavior.</p>
+    </aside>
 
     <main class="stage">
         <section class="game-wrap">

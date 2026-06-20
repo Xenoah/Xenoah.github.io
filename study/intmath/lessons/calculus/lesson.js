@@ -50,6 +50,7 @@ Globals.subscribe(state => {
         const dict = {
             'back': { en: '← Back to Menu', ja: '← メニューに戻る' },
             'title': { en: 'Calculus', ja: '微分積分' },
+            'desc': { en: 'Visualize derivatives, integrals and changing functions.', ja: '関数の変化、微分、積分の関係をグラフで操作しながら可視化します。' },
             'controls': { en: 'Controls', ja: '操作' },
             'share': { en: 'Share', ja: '共有' }
         };
