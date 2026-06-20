@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- title/description の組み立ては静的生成スクリプト側の出力規則と揃える -->
   {% assign page_title = page.title | default: site.title %}
   {% assign raw_description = page.description | default: site.description %}
   {% assign meta_description = raw_description | strip_html | strip_newlines | truncate: 160 %}
@@ -46,6 +47,7 @@
     </nav>
   </header>
   <main class="blog-shell">
+    <!-- 一覧など各ページ固有の本文を、この共通ヘッダーの下へ差し込む -->
     {{ content }}
   </main>
 </body>

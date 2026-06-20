@@ -1,3 +1,4 @@
+// 記事ソースを front matter と本文に分け、permalink 配下の公開HTMLを生成する。
 const fs = require("fs");
 const path = require("path");
 
@@ -12,6 +13,7 @@ const inputPath = path.resolve(root, input);
 const raw = fs.readFileSync(inputPath, "utf8").replace(/^\uFEFF/, "");
 
 function parseFrontMatter(source) {
+  // editor.js が出力する限定的なfront matter形式を前提とする。
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
   if (!match) {
     return { data: {}, body: source };
@@ -147,6 +149,7 @@ const htmlBody = parsed.body.trim();
 const html = renderArticle(parsed.data, htmlBody);
 
 if (parsed.data.permalink && String(parsed.data.permalink).startsWith("/")) {
+  // 記事ソースは残し、GitHub Pagesで直接配信する別パスへ生成物を書き出す。
   const permalinkDir = path.join(root, parsed.data.permalink.replace(/^\//, ""));
   fs.mkdirSync(permalinkDir, { recursive: true });
   fs.writeFileSync(path.join(permalinkDir, "index.html"), html, "utf8");

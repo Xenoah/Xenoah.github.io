@@ -124,6 +124,8 @@ canvas{width:100%;height:150px;display:block;background:var(--canvas);border:3px
 </div>
 <script>
 "use strict";
+// 音声解析・候補比較・ノート整形・Arduinoコード生成を同じ解析状態から派生させる。
+// 高密度の時間刻みはサンプルレート以下にならないため、画面に実効値も併記する。
 const $=id=>document.getElementById(id);
 let audioBuffer=null,sourceName="",events=[],chordEvents=[],previewCtx=null,previewNodes=[],chordCtx=null,chordNodes=[],cancelToken=0,sourceAudio=null,sourceUrl="",analysisPath=null,analysisCandidates=null,analysisLayers=null,analysisAutoLayer=0,analysisStepMs=0,analysisUsed=0;
 let currentLang=localStorage.getItem("tone_lang")||"ja";

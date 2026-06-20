@@ -1,3 +1,5 @@
+// game.js が参照するゲーム調整用データ。実在製品の公式分類ではない。
+// 単位や重量条件が項目ごとに異なるため、metadata の解釈規則を維持する。
 window.DRONE_CLASS_DATA = {
   "metadata": {
     "generated_at": "2026-03-27",

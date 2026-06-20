@@ -1,3 +1,4 @@
+# absolute_url を使うレイアウトの基準URL。GitHub Pagesの公開先と揃える。
 title: Xenoahのホームページ
 description: Xenoahの制作、学び、VRChat、電子工作、プログラミングの記事置き場。
 url: "https://xenoah.github.io"
@@ -5,11 +6,13 @@ lang: ja
 timezone: Asia/Tokyo
 author: Xenoah
 
+# _posts と記事生成スクリプトで同じ公開URL形式を共有する。
 permalink: /blog/:year/:month/:day/:title/
 
 plugins:
   - jekyll-sitemap
 
+# _posts 配下だけに適用し、blog/articles の記事には front matter 側で指定する。
 defaults:
   - scope:
       path: ""

@@ -326,7 +326,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: 署名ライブラリ -->
+  <!-- 署名画像はブラウザ内のライブラリから注釈として挿入する -->
   <div id="signature-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -343,7 +343,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: スタンプライブラリ -->
+  <!-- スタンプは保存時に画像化されるため、ここでは文言と見た目だけを管理する -->
   <div id="stamp-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -377,7 +377,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: 透かし -->
+  <!-- 透かしはページ単位の注釈ではなく、保存時に対象ページへ一括適用する -->
   <div id="watermark-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -425,7 +425,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: ページ番号 -->
+  <!-- ページ番号は論理ページ順を基準に採番する -->
   <div id="pagenum-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -485,7 +485,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: ヘッダー/フッター -->
+  <!-- ヘッダー/フッターは保存時に全ページへ適用する -->
   <div id="hf-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -545,7 +545,7 @@
     </div>
   </div>
 
-  <!-- Phase 4: QRコード -->
+  <!-- QRコードはベクター矩形としてPDFへ保存する -->
   <div id="qr-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner">
       <div class="phase4-modal-header">
@@ -583,7 +583,7 @@
     </div>
   </div>
 
-  <!-- Phase 7: ショートカット一覧 / カスタマイズ -->
+  <!-- ショートカット変更はlocalStorageへ保存し、PDFを替えても維持する -->
   <div id="shortcuts-modal" class="phase4-modal hidden" role="dialog" aria-modal="true">
     <div class="phase4-modal-inner shortcuts-modal-inner">
       <div class="phase4-modal-header">

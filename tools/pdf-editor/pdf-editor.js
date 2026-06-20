@@ -1,21 +1,16 @@
-/**
- * pdf-editor.js — PDF Editor (vanilla JS, ES module)
- * pdfjs-dist: ES module (lib/pdf.min.mjs)
- * pdf-lib:    UMD global PDFLib (lib/pdf-lib.min.js, loaded via <script>)
- */
+/* PDF.jsで表示・解析し、pdf-libでページ編集と保存を行う。
+ * pdf-libはHTMLからグローバル読込、PDF.jsはES moduleとして読み込む。 */
 
 import * as pdfjsLib from './lib/pdf.min.mjs';
 
-// Worker を lib/ のローカルファイルに向ける（CDN 不使用）
+// 本体とWorkerの版ずれを避けるため、同梱したPDF.js Workerを必ず使う。
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./lib/pdf.worker.min.mjs', import.meta.url).href;
 
-// ============================================================
-// STATE
-// ============================================================
+// ページ順序・注釈・表示・保存設定を共有する単一状態。
 
 const S = {
   pdfDoc:      null,   // PDFDocumentProxy（元PDFのみ）
-  originalPdfDoc: null, // Phase 2: Before 用に保持する未編集の PDFDocumentProxy
+  originalPdfDoc: null, // Before表示用に保持する未編集のPDFDocumentProxy
   pdfBytes:    null,   // Uint8Array
   fileName:    '',
   totalPages:  0,      // 論理ページ数 = pageOrder.length
@@ -32,12 +27,12 @@ const S = {
   selectedIds: [],     // サムネで複数選択中の論理ページID配列
   selectionAnchor: null, // 範囲選択用のアンカー（pageId）
   selectedId:  null,
-  selectedAnnIds: [],  // Phase 3: 複数選択中の注釈IDの配列
-  clipboard: [],       // Phase 3: 注釈クリップボード（内部状態）
+  selectedAnnIds: [],  // 複数選択中の注釈ID
+  clipboard: [],       // 注釈専用の内部クリップボード
   activeTool:  'select',
   fitMode:     null, // 'page' | 'width'
   pageIdCounter: 0,
-  // Phase 2: Before / After 比較
+  // Before / After 比較
   compareMode: 'off',  // 'off' | 'before' | 'split'
   compareDiff: false,  // 差分ハイライトの ON/OFF
   compareTempActive: false, // 長押し中のBefore表示中フラグ
@@ -50,7 +45,7 @@ const S = {
     fontColor:  '#1a202c',
     editBgColor: '#ffffff',
   },
-  // Phase 4: 全ページに適用するグローバル設定
+  // 全ページに適用する装飾設定
   watermarkConfig: { enabled: false, text: '', fontSize: 80, color: '#e53e3e', opacity: 0.2, angle: -30, placement: 'center', scope: 'all', appliedToPageId: null },
   pageNumberConfig: { enabled: false, format: '{n}/{total}', customFormat: '', position: 'bc', fontSize: 11, color: '#1a202c', start: 1, fromPage: 1, offsetX: 0, offsetY: 0 },
   headerFooterConfig: {
@@ -60,7 +55,7 @@ const S = {
   history:     [createSnapshot([], [], {}, {}, {})],
   histIdx:     0,
   dirty:       false,  // 未保存変更フラグ
-  // Phase 5: PDF内検索
+  // PDF内検索
   searchOpen:        false,
   searchQuery:       '',
   searchCaseSensitive: false,
@@ -68,7 +63,7 @@ const S = {
   searchIndexBuilding: false,
   searchResults:     [],     // [{ pageId, itemIndex, rect }]
   searchActiveIndex: -1,     // searchResults 内のアクティブインデックス
-  // Phase 6: 保存方式・書き出し設定
+  // 保存方式・書き出し設定
   saveSettings: {
     mode: 'standard',                   // 'standard' | 'flatten' | 'project'
     filenameTemplate: '{original}_edited',
@@ -80,7 +75,7 @@ const S = {
       producer: '',
       creator: '',
     },
-    metadataUserEdited: {               // ユーザー上書きフラグ
+    metadataUserEdited: {               // PDF再読込時に上書きしない項目を記録
       title: false, author: false, subject: false,
       keywords: false, producer: false, creator: false,
     },
@@ -92,7 +87,7 @@ function nextPageId(prefix) {
   return `${prefix}-${S.pageIdCounter}`;
 }
 
-// ---- History ----
+// 履歴には表示状態を含めず、保存結果へ影響する編集内容だけを保持する。
 
 function createSnapshot(annotations, pageOrder, pageRotations, pageSources, pageDims) {
   return {
@@ -101,7 +96,7 @@ function createSnapshot(annotations, pageOrder, pageRotations, pageSources, page
     pageRotations: { ...pageRotations },
     pageSources: cloneSources(pageSources || {}),
     pageDims:    clonePageDims(pageDims || {}),
-    // Phase 4: 全ページ適用の設定もスナップショットに含める
+    // 全ページ装飾もUndo対象なので、注釈・ページ順序と同じスナップショットへ含める。
     watermarkConfig: typeof S !== 'undefined' && S.watermarkConfig ? { ...S.watermarkConfig } : null,
     pageNumberConfig: typeof S !== 'undefined' && S.pageNumberConfig ? { ...S.pageNumberConfig } : null,
     headerFooterConfig: typeof S !== 'undefined' && S.headerFooterConfig
@@ -139,7 +134,7 @@ function applySnapshot(snap) {
   S.pageRotations = { ...snap.pageRotations };
   if (snap.pageSources) S.pageSources = cloneSources(snap.pageSources);
   if (snap.pageDims) S.pageDims = clonePageDims(snap.pageDims);
-  // Phase 4: 全ページ適用設定の復元
+  // 全ページ装飾も注釈と同時点の状態へ戻す。
   if (snap.watermarkConfig) S.watermarkConfig = { ...snap.watermarkConfig };
   if (snap.pageNumberConfig) S.pageNumberConfig = { ...snap.pageNumberConfig };
   if (snap.headerFooterConfig) {
@@ -158,7 +153,7 @@ function applySnapshot(snap) {
   S.selectionAnchor = null;
 }
 
-// Phase 3: 注釈の選択管理
+// 注釈の複数選択管理
 function setSelectedAnnIds(ids) {
   S.selectedAnnIds = Array.isArray(ids) ? ids.filter((id) => S.annotations.some((a) => a.id === id)) : [];
   S.selectedId = S.selectedAnnIds[S.selectedAnnIds.length - 1] || null;
@@ -222,7 +217,7 @@ function deleteAnnotation(id) {
   updateOptionsPanel();
 }
 
-// Phase 3: 複数注釈の削除
+// 複数注釈の削除
 function deleteAnnotations(ids) {
   const set = new Set(ids);
   if (!set.size) return;
@@ -235,7 +230,7 @@ function deleteAnnotations(ids) {
   updateOptionsPanel();
 }
 
-// Phase 3: 注釈をコピーしてオフセット付きで複製
+// 貼り付け結果が元注釈と重ならないよう、一定量ずらして複製する。
 function copySelectedAnnotations() {
   const sel = getSelectedAnnotations();
   if (!sel.length) return false;
@@ -246,13 +241,12 @@ function copySelectedAnnotations() {
 
 function pasteAnnotations() {
   if (!S.clipboard.length) return;
-  const offset = 10 / S.zoom; // 10px in PDF units
+  const offset = 10 / S.zoom; // 画面上で約10pxずらす
   const newIds = [];
   const newAnns = S.clipboard.map((a) => {
     const c = cloneAnnotation(a);
     c.id = genId();
-    c.pageIndex = S.currentPage; // 現在ページに貼り付け
-    // オフセットを与える
+    c.pageIndex = S.currentPage;
     c.rect = { ...c.rect, x: c.rect.x + offset, y: c.rect.y - offset };
     if (c.startPoint) c.startPoint = { x: c.startPoint.x + offset, y: c.startPoint.y - offset };
     if (c.endPoint) c.endPoint = { x: c.endPoint.x + offset, y: c.endPoint.y - offset };
@@ -283,11 +277,11 @@ function cloneAnnotation(a) {
   if (c.startPoint) c.startPoint = { ...c.startPoint };
   if (c.endPoint) c.endPoint = { ...c.endPoint };
   if (c.inkLists) c.inkLists = c.inkLists.map((stroke) => stroke.map((p) => ({ ...p })));
-  // Phase 4: image/signature/stamp/qrcode は src/text などをそのまま継承
+  // 画像系注釈のsrc/textは浅いコピーで共有しても不変値として扱える。
   return c;
 }
 
-// Phase 3: 配列内の並び順を変更（前面/背面）
+// 配列順がSVGの描画順になるため、前面・背面操作は配列を並べ替える。
 function reorderSelectedAnnotations(direction) {
   const ids = (S.selectedAnnIds.length ? S.selectedAnnIds : (S.selectedId ? [S.selectedId] : []));
   if (!ids.length) return;
@@ -321,7 +315,7 @@ function reorderSelectedAnnotations(direction) {
   updateUndoRedo();
 }
 
-// Phase 3: 整列
+// 複数注釈の整列
 function alignSelectedAnnotations(mode) {
   const sel = getSelectedAnnotations();
   if (sel.length < 2) return;
@@ -413,7 +407,7 @@ function distributeSelected(sel, mode) {
 
 function genId() { return `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`; }
 
-// ---- Page order / rotation ----
+// 論理ページIDを介し、元PDF・白紙・複製・結合ページを同じ順序配列で扱う。
 
 function normalizeRotation(angle) {
   return ((angle % 360) + 360) % 360;
@@ -574,7 +568,7 @@ function movePageNear(pageId, targetPageId, placeAfter) {
   updateUndoRedo();
 }
 
-// ---- Phase 1: page edit operations ----
+// ページ追加・削除・複製・結合
 
 function deletePages(pageIds) {
   if (!S.pdfDoc) return;
@@ -713,7 +707,7 @@ async function mergePdfFile(file) {
         const vp = p.getViewport({ scale: 1 });
         S.pageDims[newId] = { width: vp.width, height: vp.height };
         p.cleanup();
-      } catch (_) { /* noop */ }
+      } catch (_) { /* 寸法取得に失敗したページは後続の既定値を使う */ }
     }
     // 結合元PDFのレンダリング用に保持（generateThumb / renderPage が参照）
     S.importedPdfs[sourceKey].pdfDoc = importDoc;
@@ -762,9 +756,7 @@ async function extractPages(pageIds) {
   }
 }
 
-// ============================================================
-// COORDINATE UTILS
-// ============================================================
+// Canvas/SVGの左上原点とPDFの左下原点を相互変換する。
 
 function canvasToPdf(cx, cy, dims, zoom) {
   return { x: cx / zoom, y: dims.height - cy / zoom };
@@ -793,14 +785,12 @@ function hitTest(px, py, r, pad = 4) {
          py >= r.y - pad && py <= r.y + r.height + pad;
 }
 
-// ============================================================
-// PDF LOAD
-// ============================================================
+// PDF読込
 
 async function loadPdf(file) {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const doc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
-  // Phase 2: Before 用の未編集 doc を別途保持
+  // 編集表示とは別に未編集文書を保持し、比較表示の基準にする。
   let originalDoc = null;
   try {
     originalDoc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
@@ -834,18 +824,18 @@ async function loadPdf(file) {
   S.compareMode = 'off';
   S.compareDiff = false;
   S.compareTempActive = false;
-  // Phase 4: 全ページ適用設定もリセット
+  // 別PDFへ装飾設定を持ち越さない。
   S.watermarkConfig = { enabled: false, text: '', fontSize: 80, color: '#e53e3e', opacity: 0.2, angle: -30, placement: 'center', scope: 'all', appliedToPageId: null };
   S.pageNumberConfig = { enabled: false, format: '{n}/{total}', customFormat: '', position: 'bc', fontSize: 11, color: '#1a202c', start: 1, fromPage: 1, offsetX: 0, offsetY: 0 };
   S.headerFooterConfig = {
     header: { enabled: false, text: '', align: 'center', fontSize: 11, color: '#1a202c' },
     footer: { enabled: false, text: '', align: 'center', fontSize: 11, color: '#1a202c' },
   };
-  // 履歴を初期スナップショットで再作成（リセット後の Phase 4 設定を含める）
+  // リセット後の全状態をUndoの起点として再登録する。
   S.history = [createSnapshot([], S.pageOrder, S.pageRotations, S.pageSources, S.pageDims)];
   S.histIdx = 0;
   S.savedHistIdx = 0;
-  // Phase 5: 検索状態をリセット
+  // 検索索引は元PDFに紐づくため破棄する。
   S.searchIndex = null;
   S.searchIndexBuilding = false;
   S.searchResults = [];
@@ -853,7 +843,7 @@ async function loadPdf(file) {
   S.searchQuery = '';
   closeSearchBar();
   setDirty(false);
-  // Phase 6: PDF を開き直したらメタデータの「ユーザー編集フラグ」をリセットしてプレフィル
+  // 新しいPDFのメタデータで再初期化できるよう、手動編集フラグを戻す。
   for (const k of Object.keys(S.saveSettings.metadataUserEdited)) {
     S.saveSettings.metadataUserEdited[k] = false;
   }
@@ -884,9 +874,7 @@ function onPdfLoaded() {
   setStatus(`${S.fileName} / ${S.totalPages}ページ`);
 }
 
-// ============================================================
-// PDF SAVE
-// ============================================================
+// PDF保存
 
 function cssToRgb(color) {
   const h = color.replace('#', '');
@@ -1071,7 +1059,7 @@ async function buildPdfBytes(pageIds, options = {}) {
         break;
       }
       case 'redaction': {
-        // Phase 5: 完全不透明の黒矩形でページ内容を覆い隠す（焼き込み）
+        // 墨消しは注釈を残さず、完全不透明の黒矩形として本文へ焼き込む。
         page.drawRectangle({ x: r.x, y: r.y, width: r.width, height: r.height, color: rgb(0, 0, 0), opacity: 1 });
         break;
       }
@@ -1091,7 +1079,7 @@ async function buildPdfBytes(pageIds, options = {}) {
     }
   }
 
-  // Phase 4: 全ページ適用 — 透かし / ページ番号 / ヘッダー / フッター
+  // 透かし・ページ番号・ヘッダー・フッターはページ再構成後に適用する。
   for (const pageId of pageIds) {
     const page = pageById.get(pageId);
     if (!page) continue;
@@ -1099,25 +1087,25 @@ async function buildPdfBytes(pageIds, options = {}) {
     await applyPhase4PageDecorations(page, pdfDoc, pageId, orderIndex, pageIds.length);
   }
 
-  // Phase 6: フラット化 — コピー元 PDF の注釈オブジェクトを削除
+  // フラット化ではコピー元PDFの注釈オブジェクトを削除し、編集結果だけを残す。
   if (flatten) {
     try {
       const PDFName = PDFLib.PDFName;
       for (const page of pdfDoc.getPages()) {
-        try { page.node.delete(PDFName.of('Annots')); } catch (_) { /* noop */ }
+        try { page.node.delete(PDFName.of('Annots')); } catch (_) { /* 注釈辞書がないページはそのまま保存する */ }
       }
     } catch (err) {
       console.warn('flatten: failed to strip Annots', err);
     }
   }
 
-  // Phase 6: メタデータ反映
+  // 保存直前にメタデータを反映する。
   applyPdfMetadata(pdfDoc, metadata, { flatten });
 
   return pdfDoc.save();
 }
 
-// Phase 6: pdf-lib のメタデータ API を呼ぶ。flatten 時は Producer/Creator を空に近づける
+// フラット化時は生成元情報を残しにくいよう、Producer/Creatorを空に近づける。
 function applyPdfMetadata(pdfDoc, metadata, opts = {}) {
   const flatten = !!opts.flatten;
   const safeSet = (fnName, value) => {
@@ -1150,7 +1138,7 @@ function applyPdfMetadata(pdfDoc, metadata, opts = {}) {
   }
 }
 
-// Phase 6: メタデータのキーワード入力（カンマ/読点区切り）を配列へ
+// キーワード入力は半角カンマ・読点のどちらでも分割する。
 function parseKeywordsInput(raw) {
   if (Array.isArray(raw)) return raw.filter((k) => typeof k === 'string' && k.trim()).map((k) => k.trim());
   return String(raw || '')
@@ -1164,7 +1152,7 @@ function keywordsToString(value) {
   return value == null ? '' : String(value);
 }
 
-// Phase 4: 画像（PNG/JPEG）注釈の埋め込み
+// 画像注釈をPNG/JPEGとしてPDFへ埋め込む。
 async function drawEmbeddedImage(page, pdfDoc, ann) {
   if (!ann.src) return;
   try {
@@ -1202,7 +1190,7 @@ async function convertToPngDataUrl(srcDataUrl) {
   });
 }
 
-// Phase 4: スタンプの描画（矩形＋テキストを画像化して埋め込み）
+// スタンプは矩形と文字を一度画像化し、PDF側の描画差を抑える。
 async function drawStampAnnotation(page, pdfDoc, ann) {
   const r = ann.rect;
   const pngBytes = stampToPngBytes(ann);
@@ -1239,7 +1227,7 @@ function stampToPngBytes(ann) {
   return dataUrlToUint8Array(canvas.toDataURL('image/png'));
 }
 
-// Phase 4: QRコードを pdf-lib の矩形群で描画
+// QRコードは拡大時もぼけないよう、pdf-libの矩形群として描画する。
 async function drawQrAnnotation(page, pdfDoc, ann) {
   if (!ann.text) return;
   let qr;
@@ -1269,7 +1257,7 @@ async function drawQrAnnotation(page, pdfDoc, ann) {
   }
 }
 
-// Phase 4: 透かし / ページ番号 / ヘッダー / フッターを全ページに適用
+// 透かし・ページ番号・ヘッダー・フッターを全ページへ適用する。
 async function applyPhase4PageDecorations(page, pdfDoc, pageId, orderIndex, total) {
   const { width: pw, height: ph } = page.getSize();
   // 透かし
@@ -1381,7 +1369,7 @@ async function drawTextBoxOnPage(page, pdfDoc, pw, ph, text, position, fontSize,
     case 'bc': x = pw / 2 - w / 2; y = margin; break;
     case 'br': x = pw - margin - w; y = margin; break;
   }
-  // Phase 7: ページ番号などの微調整オフセット（PDF座標、Y は上向きが正）
+  // 位置調整値はPDF座標系を使うため、Yの正方向は画面表示と逆になる。
   if (offset) {
     x += offset.x || 0;
     y += offset.y || 0;
@@ -1402,9 +1390,7 @@ async function savePdf() {
   setDirty(false);
 }
 
-// ============================================================
-// THUMBNAIL PANEL
-// ============================================================
+// サムネイルは論理ページ順序の編集UIを兼ねる。
 
 const SOURCE_TAG_LABEL = { blank: '白紙', duplicate: '複製', imported: '結合' };
 
@@ -1656,9 +1642,7 @@ function updateThumbActive() {
   if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-// ============================================================
-// VIEWER
-// ============================================================
+// 表示モードごとにページCanvasを再構成するビューアー。
 
 function renderViewer() {
   const viewer = document.getElementById('viewer');
@@ -1925,18 +1909,18 @@ async function renderPage(pageId, canvas, wrapper, opts = {}) {
     renderAnnotationsSvg(svg, pageId);
   }
 
-  // Phase 2: 差分ハイライト（注釈/本文編集位置を半透明矩形で示す）
+  // 差分表示は注釈・本文編集位置を半透明矩形で重ねる。
   renderDiffOverlay(wrapper, pageId, vp.width, vp.height);
 
-  // Phase 5: 検索ハイライトを当該ページに描画
+  // 検索結果は該当ページの表示後に重ねる。
   if (S.searchOpen && S.searchQuery && S.searchResults.length) {
     renderSearchOverlayForPage(pageId);
   }
-  // Phase 7: ページ番号オーバーレイ（ドラッグで位置微調整）
+  // ページ番号の位置調整用オーバーレイは保存結果と同じ座標へ変換する。
   renderPageNumberOverlay(wrapper, pageId);
 }
 
-// Phase 2: Before 表示専用ページレンダラー
+// Before表示は未編集PDFだけを参照し、編集後のページ構成から分離する。
 async function renderBeforePage(pageId, canvas, wrapper) {
   const surface = wrapper.querySelector('.page-surface');
   // wrapper のサイズ計算: 元PDFサイズ（編集の回転は反映しない）
@@ -1989,7 +1973,7 @@ async function renderBeforePage(pageId, canvas, wrapper) {
   }
 }
 
-// Phase 2: 差分ハイライトオーバーレイ
+// 差分ハイライトオーバーレイ
 function renderDiffOverlay(wrapper, pageId, width, height) {
   // 既存のオーバーレイを除去
   const existing = wrapper.querySelector('.diff-overlay');
@@ -2073,9 +2057,7 @@ async function loadTextItems(page, pageId, viewport) {
     .filter((item) => item.text && item.text.trim() && item.rect.width > 2 && item.rect.height > 2);
 }
 
-// ============================================================
-// ANNOTATION SVG LAYER
-// ============================================================
+// 注釈SVGレイヤー。PDF座標の注釈を画面座標へ変換して操作する。
 
 // 描画中の一時状態（グローバル、ページをまたがないので問題なし）
 const draw = {
@@ -2094,12 +2076,12 @@ const draw = {
 const drag = {
   active:  false,
   annId:   null,
-  ids:     [],     // Phase 3: 一括移動対象
+  ids:     [],     // 一括移動対象
   origin:  { x: 0, y: 0 },
   moved:   false,  // 実際に動いたか（履歴に積むかの判定）
 };
 
-// Phase 3: リサイズドラッグ状態
+// リサイズドラッグ状態
 const resize = {
   active:   false,
   annId:    null,
@@ -2113,7 +2095,7 @@ const resize = {
   svgEl:    null,
 };
 
-// Phase 3: マーキー（範囲）選択状態
+// マーキー（範囲）選択状態
 const marquee = {
   active:    false,
   pageIndex: -1,
@@ -2248,7 +2230,7 @@ function attachSvgEvents(svg, pageIndex) {
   });
 }
 
-// Phase 3: 注釈クリック処理（Shift/Ctrlで複数選択）
+// Shift/Ctrlを押した注釈クリックでは選択集合を維持する。
 function handleAnnotationClick(e, svg, pageIndex, annId) {
   const additive = e.shiftKey || e.ctrlKey || e.metaKey;
   if (additive) {
@@ -2350,7 +2332,7 @@ function endMarquee(svg, pageIndex, cancel = false) {
   updateOptionsPanel();
 }
 
-// Phase 3: リサイズ
+// 注釈のリサイズ
 function startResize(e, svg, pageIndex, handle, annId) {
   const ann = S.annotations.find((a) => a.id === annId);
   if (!ann) return;
@@ -2460,7 +2442,7 @@ function handleTextEditClick(e, svg, pageIndex) {
 
   let ann = S.annotations.find((a) => a.type === 'textedit' && a.sourceId === item.id);
   if (!ann) {
-    // Phase 5: 背景色を自動推定（クリック位置のページ canvas から周辺ピクセル平均を取る）
+    // 文字編集の背景色は、クリック周辺のページCanvasから推定する。
     const autoBg = sampleBackgroundColor(pageIndex, item.rect) || S.toolOptions.editBgColor;
     ann = {
       id: genId(),
@@ -2485,7 +2467,7 @@ function handleTextEditClick(e, svg, pageIndex) {
   setTimeout(() => beginTextEdit(ann.id, pageIndex), 20);
 }
 
-// Phase 5: クリック位置のページ canvas から背景色を推定する
+// クリック位置周辺から、文字を避けて背景色を推定する。
 // rect は PDF 座標。注釈の上端 / 左外 / 右外 / 下端 の数点を平均する。
 function sampleBackgroundColor(pageIndex, rect) {
   try {
@@ -2965,7 +2947,7 @@ function renderAnnotationsSvg(svg, pageIndex) {
   }
 }
 
-// Phase 3: 複数行テキストを SVG に描画
+// SVGのtext要素は自動改行しないため、行ごとにtspanへ分ける。
 function appendMultilineText(parent, ns, ann, cr, zoom, text, pageIndex) {
   const lines = String(text).split(/\r?\n/);
   const lineHeight = ann.fontSize * 1.25 * zoom;
@@ -3038,7 +3020,7 @@ function beginTextEdit(annId, pageId) {
   // foreignObject でテキストエリアを差し込む
   const ns  = 'http://www.w3.org/2000/svg';
   const fo  = document.createElementNS(ns, 'foreignObject');
-  // Phase 5: 複数行入力のため freetext / textedit ともに最低限の高さを確保
+  // 複数行入力が隠れないよう、テキスト注釈に最低限の高さを確保する。
   const multilineMin = Math.max(60, ann.fontSize * S.zoom * 2.4);
   const minH = (ann.type === 'freetext' || ann.type === 'textedit') ? multilineMin : 24;
   const w = Math.max(cr.width, 200);
@@ -3048,7 +3030,7 @@ function beginTextEdit(annId, pageId) {
 
   const ta = document.createElement('textarea');
   ta.value = ann.text || '';
-  // Phase 3: Enterで改行（Ctrl+Enter で確定）
+  // Enterは改行に使うため、Ctrl+Enterを確定操作に割り当てる。
   Object.assign(ta.style, {
     width: '100%', height: '100%',
     background: 'rgba(255,255,255,0.92)',
@@ -3068,7 +3050,7 @@ function beginTextEdit(annId, pageId) {
   ta.addEventListener('blur', () => {
     if (ta._committed) return;
     ta._committed = true;
-    // Phase 5: 行数に合わせて高さを自動拡張（freetext / textedit ともに対応）
+    // 入力行数に合わせて注釈の高さを自動拡張する。
     const lines = ta.value.split(/\r?\n/).length;
     const minHeightPdf = (ann.fontSize * 1.25 * lines + 6);
     const changes = { text: ta.value };
@@ -3124,9 +3106,7 @@ function setBusy(isBusy, text = '') {
   if (text) setStatus(text);
 }
 
-// ============================================================
-// Phase 6: 保存設定（localStorage 永続化）
-// ============================================================
+// 保存設定は次回利用へ引き継ぐが、開いたPDF固有の状態は保存しない。
 
 const SAVE_SETTINGS_KEY = 'pdf-editor-save-settings';
 const PROJECT_SCHEMA_VERSION = 1;
@@ -3203,7 +3183,7 @@ function renderFilename(template, mode, ext) {
   return out;
 }
 
-// Phase 6: PDF メタデータのプレフィル（ユーザー未編集なら反映）
+// ユーザーが未編集の項目だけ、元PDFのメタデータで補う。
 function prefillMetadataFromPdf() {
   try {
     if (!S.pdfDoc?.getMetadata) return;
@@ -3233,7 +3213,7 @@ function prefillMetadataFromPdf() {
   }).catch((err) => console.warn('prefillMetadataFromPdf failed', err));
 }
 
-// Phase 6: モーダル内の入力欄を S.saveSettings に同期
+// 保存モーダルの入力を共有状態へ同期する。
 function populateSaveModalControls() {
   const modeRadios = document.querySelectorAll('input[name="save-mode"]');
   modeRadios.forEach((el) => { el.checked = (el.value === S.saveSettings.mode); });
@@ -3259,7 +3239,7 @@ function renderFilenamePreview() {
   el.textContent = renderFilename(tmpl, mode, 'pdf');
 }
 
-// Phase 6: 保存モーダルのセクション切替
+// 保存モーダルのセクション切替
 function setSaveModalSection(sectionName) {
   const valid = ['preview', 'mode', 'metadata'];
   const target = valid.includes(sectionName) ? sectionName : 'preview';
@@ -3271,7 +3251,7 @@ function setSaveModalSection(sectionName) {
   });
 }
 
-// Phase 6: エラー詳細モーダル
+// 保存失敗時の詳細表示
 function showSaveErrorModal(err) {
   const modal = document.getElementById('save-error-modal');
   if (!modal) { showToast('PDFの保存に失敗しました', 'error'); return; }
@@ -3311,7 +3291,7 @@ async function copySaveErrorToClipboard() {
   }
 }
 
-// Phase 6: プロジェクトファイル（JSON サイドカー）の生成
+// プロジェクトJSONには元PDF本体を含めず、再編集に必要な差分だけを保存する。
 function buildProjectJson() {
   return {
     schemaVersion: PROJECT_SCHEMA_VERSION,
@@ -3332,7 +3312,7 @@ function buildProjectJson() {
   };
 }
 
-// Phase 6: プロジェクトファイルから State を復元（PDF が既に開かれている前提）
+// プロジェクト復元は、対応する元PDFが先に開かれていることを前提とする。
 function applyProjectJson(project) {
   if (!project || typeof project !== 'object') {
     throw new Error('プロジェクトファイルの内容が不正です');
@@ -3454,7 +3434,7 @@ function applyFit(mode) {
 }
 
 // ============================================================
-// UI UPDATES
+// 状態からUI表示を更新する。
 // ============================================================
 
 function updatePageNav() {
@@ -3494,7 +3474,7 @@ function updateUndoRedo() {
   document.getElementById('btn-redo').disabled = S.histIdx >= S.history.length - 1;
 }
 
-// Phase 3: 選択中の注釈すべてに変更を適用
+// プロパティ変更は選択中の全注釈へまとめて適用する。
 function applyToSelected(changes) {
   const ids = S.selectedAnnIds.length ? S.selectedAnnIds : (S.selectedId ? [S.selectedId] : []);
   if (!ids.length) return;
@@ -3505,7 +3485,7 @@ function applyToSelected(changes) {
 }
 
 // ============================================================
-// Phase 3: ANNOTATION PRESETS (localStorage)
+// 注釈プリセットはPDFに依存しないためlocalStorageへ保存する。
 // ============================================================
 
 const PRESET_KEY = 'pdf-editor-annotation-presets';
@@ -3580,7 +3560,7 @@ function deletePreset(id) {
 }
 
 // ============================================================
-// Phase 4: 挿入系ツール（画像 / 署名 / スタンプ / QR / 透かし / ページ番号 / ヘッダー・フッター）
+// 画像・署名・スタンプ・QR・全ページ装飾の挿入処理
 // ============================================================
 
 const SIGNATURE_STORE_KEY = 'pdf-editor-signatures';
@@ -4152,7 +4132,7 @@ function setActiveTool(tool) {
   document.querySelectorAll('.tool-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.tool === tool);
   });
-  // Phase 3: ツールごとのカーソル
+  // 描画ツールごとのカーソル
   const viewer = document.getElementById('viewer');
   if (viewer) {
     viewer.classList.remove('tool-mode-select','tool-mode-rectangle','tool-mode-circle','tool-mode-line','tool-mode-arrow','tool-mode-freetext','tool-mode-textedit','tool-mode-ink','tool-mode-highlight','tool-mode-redaction');
@@ -4176,7 +4156,7 @@ function setActiveTool(tool) {
 }
 
 // ============================================================
-// Phase 2: COMPARE (Before / After)
+// Before / After 比較
 // ============================================================
 
 function setCompareMode(mode) {
@@ -4234,7 +4214,7 @@ function maybeWarnNoBefore(pageId) {
 }
 
 // ============================================================
-// Phase 2: SAVE PREVIEW MODAL
+// 保存前プレビュー
 // ============================================================
 
 const saveModalState = {
@@ -4291,7 +4271,7 @@ async function buildSaveModalAfterDoc() {
   }
 }
 
-// Phase 6: 現在の保存設定から buildPdfBytes 用 options を作る
+// UIの保存設定をbuildPdfBytes用のオプションへ変換する。
 function buildPdfOptionsFromSettings() {
   const mode = S.saveSettings.mode || 'standard';
   return {
@@ -4461,7 +4441,7 @@ async function openPdfFile(file) {
 }
 
 // ============================================================
-// Phase 5: PDF内検索
+// PDF内検索
 // ============================================================
 
 // 全ページのテキスト位置を索引化する（初回検索時に構築）
@@ -4686,7 +4666,7 @@ function closeSearchBar() {
 }
 
 // ============================================================
-// CONTEXT MENU
+// 右クリックメニュー
 // ============================================================
 
 let contextMenuEl = null;
@@ -4697,7 +4677,7 @@ function addContextMenuItem(parent, label, action, disabled = false) {
   btn.className = 'context-menu-item';
   btn.textContent = label;
   btn.disabled = disabled;
-  // Phase 7: 別項目ホバー時は開いているサブメニューを閉じる（ただし submenu 自体の項目は除く）
+  // 別項目へ移動した場合だけサブメニューを閉じ、内部操作では維持する。
   btn.addEventListener('mouseenter', () => {
     if (parent === contextMenuEl) closeContextSubmenu();
   });
@@ -4714,7 +4694,7 @@ function addContextMenuDivider(parent) {
   parent.appendChild(div);
 }
 
-// Phase 7: 階層化メニュー対応のサブメニュー機構
+// 階層メニューの表示位置と開閉を共通管理する。
 let contextSubmenuEl = null;
 let contextSubmenuOpener = null;
 
@@ -4873,7 +4853,7 @@ function showContextMenu(x, y, ctx = {}) {
     addContextMenuItem(contextMenuEl, 'ここに貼り付け', () => pasteAnnotations());
   }
 
-  // 挿入（Phase 4）
+  // 挿入ツール
   if (S.pdfDoc) {
     addContextSubmenuItem(contextMenuEl, '挿入', [
       { kind: 'item', label: '画像を挿入', action: () => pickPdfFile(document.getElementById('file-input-image')) },
@@ -4919,7 +4899,7 @@ function hideContextMenu() {
 }
 
 // ============================================================
-// EVENT WIRING
+// DOMイベントの接続
 // ============================================================
 
 function init() {
@@ -4931,13 +4911,13 @@ function init() {
     e.target.value = '';
   });
 
-  // 保存（Phase 2: 保存前モーダルで最終確認）
+  // 保存前モーダルで最終確認してから書き出す。
   document.getElementById('btn-save').addEventListener('click', () => {
     if (!S.pdfDoc) return;
     openSavePreviewModal();
   });
 
-  // Phase 2: 保存前モーダル
+  // 保存前プレビュー
   document.getElementById('save-modal-close').addEventListener('click', closeSavePreviewModal);
   document.getElementById('save-modal-cancel').addEventListener('click', closeSavePreviewModal);
   document.getElementById('save-modal-confirm').addEventListener('click', async () => {
@@ -4967,12 +4947,12 @@ function init() {
     if (e.target.id === 'save-modal') closeSavePreviewModal();
   });
 
-  // Phase 6: 保存モーダルのセクションタブ
+  // 保存モーダルのセクションタブ
   document.querySelectorAll('.save-modal-section').forEach((el) => {
     el.addEventListener('click', () => setSaveModalSection(el.dataset.section));
   });
 
-  // Phase 6: 保存モードラジオ
+  // 保存モード
   document.querySelectorAll('input[name="save-mode"]').forEach((el) => {
     el.addEventListener('change', () => {
       if (!el.checked) return;
@@ -4984,7 +4964,7 @@ function init() {
     });
   });
 
-  // Phase 6: ファイル名テンプレート
+  // ファイル名テンプレート
   const tmplInput = document.getElementById('save-filename-template');
   if (tmplInput) {
     tmplInput.addEventListener('input', () => {
@@ -4996,7 +4976,7 @@ function init() {
     });
   }
 
-  // Phase 6: メタデータ入力
+  // メタデータ入力
   const metaWires = [
     ['meta-title', 'title'],
     ['meta-author', 'author'],
@@ -5022,7 +5002,7 @@ function init() {
     metaKwEl.addEventListener('change', () => persistSaveSettings());
   }
 
-  // Phase 6: エラーモーダル
+  // エラーモーダル
   document.getElementById('save-error-close')?.addEventListener('click', closeSaveErrorModal);
   document.getElementById('save-error-dismiss')?.addEventListener('click', closeSaveErrorModal);
   document.getElementById('save-error-copy')?.addEventListener('click', copySaveErrorToClipboard);
@@ -5030,7 +5010,7 @@ function init() {
     if (e.target.id === 'save-error-modal') closeSaveErrorModal();
   });
 
-  // Phase 6: プロジェクト復元
+  // プロジェクト復元
   const restoreInput = document.getElementById('file-input-project');
   const btnRestore = document.getElementById('btn-restore-project');
   if (btnRestore) btnRestore.disabled = true;
@@ -5078,7 +5058,7 @@ function init() {
     }
   });
 
-  // Phase 2: 比較ボタン
+  // 比較ボタン
   const btnCompare = document.getElementById('btn-compare');
   const btnCompareMenu = document.getElementById('btn-compare-menu');
   const compareMenu = document.getElementById('compare-menu');
@@ -5152,7 +5132,7 @@ function init() {
     goToOrderIndex(v - 1);
   });
 
-  // Phase 1: ページ編集 + 結合 + 抽出
+  // ページ編集・結合・抽出
   const mergeInput = document.getElementById('file-input-merge');
   document.getElementById('btn-merge').addEventListener('click', () => pickPdfFile(mergeInput));
   mergeInput.addEventListener('change', async (e) => {
@@ -5284,14 +5264,14 @@ function init() {
     applyToSelected({ fontColor: e.target.value });
   });
 
-  // Phase 3: プリセット保存・適用
+  // 注釈プリセットの保存・適用
   const presetSaveBtn = document.getElementById('btn-preset-save');
   if (presetSaveBtn) {
     presetSaveBtn.addEventListener('click', () => savePresetFromCurrent());
   }
   loadPresets();
   renderPresetsUI();
-  // Phase 6: 保存設定を localStorage から復元
+  // PDF固有でない保存設定だけをlocalStorageから復元する。
   loadSaveSettings();
 
   document.getElementById('btn-delete-ann').addEventListener('click', () => {
@@ -5302,7 +5282,7 @@ function init() {
     }
   });
 
-  // Phase 4: 挿入メニュー
+  // 挿入メニュー
   loadSignatures();
   loadStamps();
   const insertBtn = document.getElementById('btn-insert');
@@ -5412,7 +5392,7 @@ function init() {
   });
   document.getElementById('qr-apply')?.addEventListener('click', applyQrFromModal);
 
-  // Phase 5: 検索バー
+  // 検索バー
   const searchInput = document.getElementById('search-input');
   const searchCase = document.getElementById('search-case');
   const btnSearch = document.getElementById('btn-search');
@@ -5488,7 +5468,7 @@ function init() {
   document.addEventListener('click', hideContextMenu);
   document.addEventListener('scroll', hideContextMenu, true);
 
-  // Phase 7: キーボードショートカット（カスタマイズ可能）
+  // カスタマイズ可能なキーボードショートカット
   window.addEventListener('keydown', handleShortcutKeydown);
 
   // 未保存変更がある場合の離脱警告
@@ -5524,7 +5504,7 @@ function init() {
 }
 
 // ============================================================
-// Phase 7: ショートカット定義 / カスタマイズ
+// ショートカット定義とカスタマイズ
 // ============================================================
 
 const SHORTCUT_STORAGE_KEY = 'pdf-editor-shortcuts';
@@ -5850,7 +5830,7 @@ function resetShortcutsToDefault() {
 }
 
 // ============================================================
-// Phase 7: ページ番号ドラッグ用オーバーレイ
+// ページ番号をドラッグ調整するためのオーバーレイ
 // ============================================================
 
 function refreshPageNumberOverlays() {
@@ -5961,7 +5941,7 @@ function attachPageNumberDrag(overlay, pageId) {
 }
 
 // ============================================================
-// Phase 7: サムネイル幅リサイズ
+// サムネイル幅のリサイズ
 // ============================================================
 
 function loadThumbnailWidth() {
@@ -6018,7 +5998,7 @@ function setupThumbResizer() {
 }
 
 // ============================================================
-// Phase 7: ズーム時の表示位置維持
+// ズーム前後で表示中心がずれないようスクロール位置を補正する。
 // ============================================================
 
 function setZoomKeepingCenter(nextZoom, anchor) {
@@ -6120,7 +6100,7 @@ function setupZoomKeepCenter() {
 }
 
 // ============================================================
-// Phase 7: 初期化フック
+// 初期化フック
 // ============================================================
 
 function initPhase7() {

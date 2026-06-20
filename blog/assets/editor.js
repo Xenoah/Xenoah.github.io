@@ -1,5 +1,8 @@
+// ブログ記事のfront matter・本文・画像を、配置可能なフォルダ一式として書き出す。
+// 公開URLと保存先の規則は scripts/render_static_blog_*.js と共有する。
 (function () {
   const $ = (id) => document.getElementById(id);
+  // 保存形式を変更した場合に旧下書きと混在しないよう、キー末尾で世代を管理する。
   const draftKey = "xenoah_blog_editor_draft_html_v1";
   const encoder = new TextEncoder();
   let assets = [];
@@ -150,6 +153,7 @@
   }
 
   function sanitizeArticleHtml(html) {
+    // プレビューへの再挿入と公開HTML出力の両方で、実行可能な属性・要素を除外する。
     const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
     doc.querySelectorAll("script,style,noscript,iframe[srcdoc]").forEach((node) => node.remove());
     doc.body.querySelectorAll("*").forEach((node) => {
@@ -425,6 +429,7 @@
   }
 
   async function createZip(files) {
+    // エディター単体で配布できるよう、無圧縮の最小ZIPを外部ライブラリなしで組み立てる。
     const localParts = [];
     const centralParts = [];
     let offset = 0;
@@ -481,6 +486,7 @@
   }
 
   async function saveFolder() {
+    // File System Access API 非対応ブラウザでは、同じ内容を作れるZIP出力へ誘導する。
     if (!window.showDirectoryPicker) {
       setStatus(exportStatus, "このブラウザはフォルダ保存に未対応です。ZIP書き出しを使ってください。");
       return;

@@ -1,3 +1,4 @@
+// questions.json を出題順・採点状態へ展開し、学習履歴をブラウザ内に保存する。
 const STORAGE_KEY = "xenoah-sanrikutoku-state-v1";
 
 const dom = {
@@ -78,6 +79,7 @@ function loadState() {
         localStorage.removeItem(STORAGE_KEY);
     }
 
+    // 保存形式を拡張しても旧データを読めるよう、追加プロパティをここで補完する。
     state.selected = state.selected || {};
     state.correct = state.correct || {};
     state.missed = state.missed || {};
@@ -133,6 +135,7 @@ function totalQuestionCount() {
 }
 
 function computeExamResult() {
+    // 本試験相当の配点・科目別基準を表示と結果判定の共通ルールにする。
     const answered = answeredIds();
     const scored = { "法規": 0, "無線工学": 0 };
 
@@ -205,6 +208,7 @@ function renderPalette() {
 function setChoiceClasses(question) {
     const selected = state.selected[question.id];
     const revealed = state.revealed[question.id];
+    // 試験モードでは全問終了まで正誤を見せず、途中の採点結果を推測できないようにする。
     const hideAnswer = state.examMode && !computeExamResult().allAnswered;
 
     Array.from(dom.choices.children).forEach((button) => {
@@ -590,6 +594,7 @@ async function init() {
     loadState();
 
     try {
+        // 問題修正を即時反映するため、ブラウザキャッシュを使わず取得する。
         const response = await fetch("questions.json", { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();

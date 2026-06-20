@@ -1,3 +1,5 @@
+// vrchat.htm の本文と参照画像をブログ記事ソースへ複製する移行用スクリプト。
+// 再実行すると同じ出力先を上書きするため、元ページ側の変更確認後に使う。
 const fs = require("fs");
 const path = require("path");
 

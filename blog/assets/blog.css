@@ -1,3 +1,4 @@
+/* Jekyllレイアウト、静的生成HTML、記事エディターで共有する見た目を一元管理する。 */
 :root {
   --bg: #f6f8fb;
   --paper: #ffffff;

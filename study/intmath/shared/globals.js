@@ -1,8 +1,4 @@
-/**
- * Globals Manager
- * Handles Theme (Light/Dark) and Language (EN/JA) state.
- * Injects toggle controls into the sidebar.
- */
+/* 全レッスンで共有するテーマと言語の状態。サイドバーへ共通操作を後付けする。 */
 export const Globals = {
     state: {
         theme: localStorage.getItem('math-theme') || 'dark',
@@ -24,7 +20,7 @@ export const Globals = {
         const sidebar = document.querySelector('.sidebar');
         if (!sidebar) return;
 
-        // Check if exists
+        // 各レッスンのHTMLを重複修正せずに済むよう、共通操作を実行時に注入する。
         let container = document.getElementById('global-settings');
         if (!container) {
             container = document.createElement('div');
@@ -49,20 +45,20 @@ export const Globals = {
         this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
         localStorage.setItem('math-theme', this.state.theme);
         this.applyTheme();
-        this.injectControls(); // Update button text
+        this.injectControls();
         this.notify();
     },
 
     toggleLang() {
         this.state.lang = this.state.lang === 'en' ? 'ja' : 'en';
         localStorage.setItem('math-lang', this.state.lang);
-        this.injectControls(); // Update button text
+        this.injectControls();
         this.notify();
     },
 
     subscribe(cb) {
         this.listeners.push(cb);
-        // Immediate callback
+        // 初回描画にも現在値を使わせるため、購読登録時に一度通知する。
         cb(this.state);
     },
 
@@ -70,9 +66,7 @@ export const Globals = {
         this.listeners.forEach(cb => cb(this.state));
     },
 
-    // Helper to get text based on current lang
-    // usage: t('Play') -> looks up simple dictionary or returns key
-    // usage: t('key', 'En Text', 'Ja Text') -> direct provision
+    // 辞書キー未登録のレッスンでも、英日テキストの直接指定で段階的に対応できる。
     getText(key, en, ja) {
         if (this.state.lang === 'ja' && ja) return ja;
         return en || key;

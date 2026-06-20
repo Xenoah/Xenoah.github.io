@@ -1,3 +1,4 @@
+// 記事内の /blog/articles/... 参照がリポジトリ内に存在するか検査する。
 const fs = require("fs");
 const path = require("path");
 

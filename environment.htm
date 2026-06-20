@@ -22,9 +22,7 @@ h2 {
     text-align: center;
 }
 
-/* =========================
-   目次
-   ========================= */
+/* 目次と本文カードで同じ情報階層を見せるため、見出し表現を揃える */
 .toc {
     border: 1px solid #2a6cff;
     border-radius: 10px;
@@ -59,9 +57,6 @@ h2 {
     color: #555;
 }
 
-/* =========================
-   ソフト枠
-   ========================= */
 .software-box {
     border: 2px solid #2a6cff;
     border-radius: 14px;
@@ -70,7 +65,6 @@ h2 {
     background-color: #f8fbff;
 }
 
-/* 本文側：ソフト見出し（アイコン＋2段） */
 .software-header {
     display: flex;
     align-items: center;
@@ -99,7 +93,7 @@ h2 {
     margin: 3px 0 0 0;
 }
 
-/* 画像＋説明 */
+/* PCでは画像と説明を並べ、狭い画面では同じ順序のまま縦積みにする */
 .content {
     display: flex;
     gap: 20px;
@@ -123,7 +117,6 @@ h2 {
     word-break: break-all;
 }
 
-/* スマホ対応 */
 @media screen and (max-width: 768px) {
     .content {
         flex-direction: column;
@@ -145,9 +138,7 @@ h2 {
 <h2>使用しているソフト一覧</h2>
 <hr>
 
-<!-- =========================
-     目次（アイコン＋2段）
-     ========================= -->
+<!-- 目次の href と各ソフト項目の id は対になっている -->
 <div class="toc">
 <b>目次</b>
 
@@ -209,11 +200,7 @@ h2 {
 
 </div>
 
-<!-- =========================
-     各ソフト詳細（本文側もアイコン＋2段）
-     ========================= -->
-
-<!-- VS Code -->
+<!-- ソフト項目を追加する場合は、上の目次にも同じ id へのリンクを追加する -->
 <div class="software-box" id="vscode">
 
   <div class="software-header">
@@ -242,7 +229,6 @@ h2 {
   </div>
 </div>
 
-<!-- Fusion 360 -->
 <div class="software-box" id="fusion360">
 
   <div class="software-header">
@@ -271,7 +257,6 @@ h2 {
   </div>
 </div>
 
-<!-- Blender -->
 <div class="software-box" id="blender">
 
   <div class="software-header">
@@ -300,7 +285,6 @@ h2 {
   </div>
 </div>
 
-<!-- KiCad -->
 <div class="software-box" id="kicad">
 
   <div class="software-header">
@@ -329,7 +313,6 @@ h2 {
   </div>
 </div>
 
-<!-- GIMP -->
 <div class="software-box" id="gimp">
 
   <div class="software-header">
@@ -358,7 +341,6 @@ h2 {
   </div>
 </div>
 
-<!-- DaVinci Resolve -->
 <div class="software-box" id="davinci">
 
   <div class="software-header">
@@ -387,7 +369,6 @@ h2 {
   </div>
 </div>
 
-<!-- FL Studio Mobile -->
 <div class="software-box" id="flstudio">
 
   <div class="software-header">

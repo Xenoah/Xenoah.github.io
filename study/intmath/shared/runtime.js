@@ -1,7 +1,4 @@
-/**
- * LessonRuntime
- * Manages the animation loop, time delta, and visibility.
- */
+/* 各レッスンで共通利用する描画ループ。非表示中の時間を進行量へ含めない。 */
 export class LessonRuntime {
     constructor(updateCallback) {
         this.updateCallback = updateCallback;
@@ -10,9 +7,8 @@ export class LessonRuntime {
         this.lastTime = this.startTime;
         this.totalPausedTime = 0;
         this.lastPauseStart = 0;
-        this.time = 0; // Simulation time in seconds
+        this.time = 0;
 
-        // Controls
         this.controls = {
             playPause: null,
             reset: null
@@ -47,7 +43,6 @@ export class LessonRuntime {
         this.time = 0;
         this.startTime = performance.now();
         this.lastTime = this.startTime;
-        // Optionally callback for immediate render
         this.updateCallback(0, 0);
     }
 
@@ -59,7 +54,8 @@ export class LessonRuntime {
             } else {
                 if (this.wasRunningBeforeHidden) {
                     this.isRunning = true;
-                    this.lastTime = performance.now(); // Reset lastTime to avoid huge dt jump
+                    // 復帰直後の経過時間を捨て、シミュレーションの跳ねを防ぐ。
+                    this.lastTime = performance.now();
                 }
             }
         });
@@ -76,7 +72,7 @@ export class LessonRuntime {
         const dt = (now - this.lastTime) / 1000;
         this.lastTime = now;
 
-        // Cap dt to prevent huge jumps if tab was inactive but visibility loop didn't catch it
+        // visibilitychange を取りこぼしても、1フレームの進行量が暴走しないよう上限を設ける。
         const safeDt = Math.min(dt, 0.1);
 
         this.time += safeDt;

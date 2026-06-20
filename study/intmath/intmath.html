@@ -612,6 +612,7 @@
         };
 
         const ctx = el.canvas.getContext('2d');
+        // 日付を乱数種に使い、同じ日のデイリー出題内容を端末間で揃える。
         const today = new Date();
         const seed = Number(`${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`);
         let rngState = seed;

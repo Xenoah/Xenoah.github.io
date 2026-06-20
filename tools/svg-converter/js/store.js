@@ -1,19 +1,14 @@
-/* store.js — 軽量状態管理。EventTarget を継承し、`change` を発火する。
- * UI 側は store.subscribe(fn) で購読、store.update(patch) で更新する。 */
+/* UI・前処理・トレース設定の共有状態。変更通知と永続化をこのファイルへ集約する。 */
 
 const STORAGE_KEY = 'svg-converter:state';
 
 const DEFAULT_STATE = Object.freeze({
-  // ファイル
   source: null, // { name, type, width, height, imageBitmap }
   brushDirty: 0, // ブラシキャンバスに描き込みがあるたびインクリメント（リアクティブ更新用）
-  // 出力
   svg: null, // string
   svgMeta: null, // { bytes, nodes }
   palette: null, // 直近のカラートレースで使ったパレット（[r,g,b][]）
-  // モード
   mode: 'outline', // 'outline' | 'centerline' | 'edges' | 'color' | 'binary' | 'silhouette'
-  // 前処理
   preprocess: {
     brightness: 0, // -100..100
     contrast: 0, // -100..100
@@ -26,7 +21,6 @@ const DEFAULT_STATE = Object.freeze({
     invert: false,
     sepia: false,
   },
-  // トレースパラメータ
   trace: {
     simplify: 1.0, // path tolerance
     smoothing: 0.7, // 0..1
@@ -36,7 +30,6 @@ const DEFAULT_STATE = Object.freeze({
     strokeWidth: 0, // 0=fill mode
     thinning: true, // edges/centerline モードで Zhang-Suen 細線化を行うか
   },
-  // UI 状態
   ui: {
     locale: 'ja', // 'ja' | 'en'
     theme: 'auto', // 'auto' | 'light' | 'dark'
@@ -69,11 +62,7 @@ class Store extends EventTarget {
     this.#loadPersisted();
   }
 
-  /** Shallow-merge a patch into a section, or top-level if no section.
-   *  Examples:
-   *    store.update({ mode: 'binary' })
-   *    store.update({ preprocess: { brightness: 10 } })
-   */
+  // セクション単位の浅いマージに限定し、各UIから部分更新できるようにする。
   update(patch) {
     let changed = false;
     let userParamsTouched = false;
@@ -149,7 +138,7 @@ class Store extends EventTarget {
   canUndo() { return this.#undoStack.length > 1; }
   canRedo() { return this.#redoStack.length > 0; }
 
-  /** Subscribe to state changes. Returns unsubscribe fn. */
+  // 購読直後にも現在値を渡し、各UIの初期描画を同じ経路で行う。
   subscribe(handler) {
     const wrapped = (event) => handler(event.detail);
     this.addEventListener('change', wrapped);
@@ -168,7 +157,7 @@ class Store extends EventTarget {
       const { ui, mode, preprocess, trace } = this.state;
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ui, mode, preprocess, trace }));
     } catch {
-      /* private mode / quota */
+      /* プライベートモードや容量超過時も変換機能は継続する */
     }
   }
 
@@ -187,7 +176,7 @@ class Store extends EventTarget {
         };
       }
     } catch {
-      /* ignore corrupt */
+      /* 破損した保存値は既定値へ戻す */
     }
   }
 }

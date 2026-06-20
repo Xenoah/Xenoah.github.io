@@ -29,7 +29,7 @@ body {
   line-height: 1.4;
 }
 
-/* ---- App Layout ---- */
+/* アプリ全体は画面内に固定し、各パネル側でスクロールを受け持つ */
 #app { display: flex; flex-direction: column; }
 
 #workspace { display: flex; flex: 1; overflow: hidden; }
@@ -44,7 +44,7 @@ body {
   flex-shrink: 0;
 }
 
-/* ---- Toolbar ---- */
+/* ツールバー */
 #toolbar {
   display: flex;
   align-items: center;
@@ -141,7 +141,7 @@ body {
   text-overflow: ellipsis; max-width: 220px;
 }
 
-/* ---- Tool Options ---- */
+/* 選択ツールに応じて差し替えるオプション領域 */
 #tool-options {
   display: flex; align-items: center; gap: 8px;
   height: var(--options-h); padding: 0 12px;
@@ -181,7 +181,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 #opt-opacity { width: 80px; cursor: pointer; }
 #opt-opacity-val { font-size: 11px; color: var(--text-muted); min-width: 32px; }
 
-/* ---- Thumbnail Panel ---- */
+/* サムネイルパネル */
 #thumbnail-panel {
   width: var(--thumb-w);
   flex-shrink: 0;
@@ -286,7 +286,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 
 .thumb-num { font-size: 11px; color: var(--text-muted); }
 
-/* ---- Viewer ---- */
+/* PDFビューアー */
 #viewer {
   flex: 1; overflow: auto;
   background: var(--bg-canvas);
@@ -377,7 +377,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   to { transform: rotate(360deg); }
 }
 
-/* ---- Drop Overlay ---- */
+/* ファイルドロップ時のオーバーレイ */
 .drop-overlay {
   position: fixed; inset: 0; z-index: 9999;
   background: rgba(26,26,46,.85);
@@ -419,7 +419,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   font-size: 12px;
 }
 
-/* ---- Context Menu ---- */
+/* 右クリックメニュー */
 .context-menu {
   position: fixed;
   z-index: 10002;
@@ -460,7 +460,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ---- Toast ---- */
+/* 操作結果の一時通知 */
 .toast {
   position: fixed;
   left: 50%;
@@ -487,7 +487,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .toast[data-variant="error"] { background: #7f1d1d; border-color: #ef4444; }
 .toast[data-variant="info"] { background: #1f2937; }
 
-/* ---- Save button dirty indicator ---- */
+/* 未保存時だけ保存ボタンを強調する */
 .tb-btn.primary.has-changes {
   position: relative;
   box-shadow: 0 0 0 2px rgba(251, 191, 36, .35);
@@ -503,7 +503,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   box-shadow: 0 0 6px rgba(251, 191, 36, .75);
 }
 
-/* ---- Phase 2: Before / After 比較 ---- */
+/* Before / After 比較 */
 .compare-wrap { position: relative; display: flex; align-items: center; gap: 2px; }
 .tb-btn.compare-active {
   background: var(--bg-active);
@@ -570,7 +570,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   z-index: 2;
 }
 
-/* ---- Phase 2: 保存前モーダル ---- */
+/* 保存前プレビュー */
 .save-modal {
   position: fixed; inset: 0; z-index: 10005;
   display: flex; align-items: center; justify-content: center;
@@ -635,7 +635,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   border-top: 1px solid var(--border);
 }
 
-/* ---- Phase 6: 保存モーダル拡張（セクション切替・モード選択・メタデータ） ---- */
+/* 保存モーダルのセクション切替・モード選択・メタデータ */
 .save-modal-sections {
   display: flex; align-items: center; gap: 4px;
   padding: 8px 14px 0;
@@ -725,7 +725,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   overflow: auto;
 }
 
-/* ---- Phase 3: ツールカーソル ---- */
+/* 描画ツールごとのカーソル */
 #viewer.tool-mode-select { cursor: default; }
 #viewer.tool-mode-rectangle .ann-svg,
 #viewer.tool-mode-circle .ann-svg,
@@ -736,7 +736,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 #viewer.tool-mode-freetext .ann-svg,
 #viewer.tool-mode-textedit .ann-svg { cursor: text; }
 
-/* ---- Phase 3: 注釈リサイズハンドル ---- */
+/* 注釈リサイズハンドル */
 .ann-resize-handle { cursor: pointer; }
 .ann-resize-handle.handle-nw, .ann-resize-handle.handle-se { cursor: nwse-resize; }
 .ann-resize-handle.handle-ne, .ann-resize-handle.handle-sw { cursor: nesw-resize; }
@@ -745,10 +745,10 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .ann-resize-handle.handle-start, .ann-resize-handle.handle-end { cursor: grab; }
 .ann-resize-handle:hover { fill: #e8f3ff; }
 
-/* ---- Phase 3: マーキー ---- */
+/* 範囲選択マーキー */
 .marquee-rect { pointer-events: none; }
 
-/* ---- Phase 3: スタイルプリセット ---- */
+/* 注釈スタイルのプリセット */
 .preset-wrap {
   display: flex; align-items: center; gap: 6px;
   flex-shrink: 0;
@@ -786,7 +786,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 }
 .preset-chip-del:hover { color: var(--danger); background: rgba(229,62,62,.18); }
 
-/* ---- Phase 4: 挿入メニュー ---- */
+/* 挿入メニュー */
 .insert-group { position: relative; }
 .insert-menu {
   position: absolute;
@@ -818,7 +818,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .insert-menu-item:hover { background: #e8f3ff; color: #0f5fa8; }
 .insert-menu-divider { height: 1px; margin: 5px 2px; background: rgba(15,23,42,.12); }
 
-/* ---- Phase 4: 共通モーダル ---- */
+/* 挿入機能で共有するモーダル */
 .phase4-modal {
   position: fixed; inset: 0; z-index: 10006;
   display: flex; align-items: center; justify-content: center;
@@ -917,7 +917,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   font-size: 12px; color: var(--text-muted);
 }
 
-/* ---- Phase 4: ライブラリグリッド（署名 / スタンプ） ---- */
+/* 署名・スタンプのライブラリグリッド */
 .library-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -1003,7 +1003,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   color: #94a3b8; font-size: 12px;
 }
 
-/* ---- Phase 5: 検索バー ---- */
+/* PDF内検索バー */
 .search-bar {
   display: flex; align-items: center; gap: 6px;
   height: 36px;
@@ -1038,7 +1038,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   text-align: right;
 }
 
-/* ---- Phase 5: 検索ハイライトオーバーレイ ---- */
+/* 検索結果のハイライト */
 .search-overlay {
   position: absolute; top: 0; left: 0;
   pointer-events: none;
@@ -1047,7 +1047,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .search-hit { fill: rgba(246, 224, 94, .45); stroke: rgba(214, 158, 46, .8); stroke-width: 1; }
 .search-hit-active { fill: rgba(237, 137, 54, .55); stroke: rgba(192, 86, 33, .95); stroke-width: 1.5; }
 
-/* ---- Phase 5: 墨消し（編集中の見た目） ---- */
+/* 墨消し編集中の表示 */
 #viewer.tool-mode-redaction .ann-svg { cursor: crosshair; }
 .redaction-shape {
   fill: rgba(0, 0, 0, .82);
@@ -1056,7 +1056,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 }
 .redaction-stripe { fill: rgba(255, 255, 255, .25); }
 
-/* ---- Phase 7: サムネイル幅リサイザー ---- */
+/* サムネイル幅リサイザー */
 .thumb-resizer {
   width: 6px;
   flex-shrink: 0;
@@ -1070,7 +1070,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .thumb-resizer:hover,
 .thumb-resizer.dragging { background: var(--accent); }
 
-/* ---- Phase 7: ページ番号オーバーレイ（ドラッグで微調整） ---- */
+/* ページ番号をドラッグ調整するオーバーレイ */
 .page-number-overlay {
   position: absolute;
   z-index: 6;
@@ -1089,7 +1089,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 .page-number-overlay:hover { border-color: var(--accent); background: rgba(255,255,255,.96); }
 .page-number-overlay.dragging { cursor: grabbing; box-shadow: 0 4px 12px rgba(66,153,225,.4); }
 
-/* ---- Phase 7: ショートカットモーダル ---- */
+/* ショートカット設定モーダル */
 .shortcuts-modal-inner { width: min(640px, calc(100vw - 48px)); }
 .shortcuts-list {
   display: flex; flex-direction: column;
@@ -1146,7 +1146,7 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
 }
 .shortcuts-row .sc-edit:hover { background: var(--bg-hover); border-color: var(--accent); }
 
-/* ---- Phase 7: 階層化された右クリックメニュー ---- */
+/* 階層化された右クリックメニュー */
 .context-menu-item.has-submenu {
   position: relative;
   padding-right: 22px;
@@ -1172,4 +1172,3 @@ input#opt-fontcolor { width: 24px; height: 24px; padding: 1px; cursor: pointer; 
   box-shadow: 0 18px 44px rgba(0,0,0,.32);
 }
 .context-submenu.hidden { display: none; }
-

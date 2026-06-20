@@ -1,4 +1,5 @@
 (function () {
+    // Three.jsなどのCDN読込失敗も拾えるよう、通常の例外とは別にリソースエラーを監視する。
     function showFailure(message, detail) {
         const el = document.getElementById('loading-screen');
         if (!el) return;

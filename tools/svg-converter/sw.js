@@ -53,7 +53,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-/* Network-first for navigation, cache-first for static assets. */
+/* HTMLは更新を優先し、版が固定された静的資産はキャッシュを優先する。 */
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;

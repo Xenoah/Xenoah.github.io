@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Converter</title>
-    <!-- Bootstrap 5 CSS -->
+    <!-- CDN依存のため、オフライン対応時はBootstrap・アイコン・lamejsをローカル配信へ切り替える -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
@@ -256,11 +255,10 @@
 
 </div>
 
-<!-- MP3 Encoder Library (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 
 <script>
-    // --- DOM Elements ---
+    // プレビューと変換で同じ速度・音量設定を共有し、表示値とのずれを防ぐ。
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const themeToggle = document.getElementById('themeToggle');
@@ -292,7 +290,7 @@
     let audioBuffer = null;
     let originalFile = null;
     
-    // Playback state
+    // 再生位置は AudioContext の時刻と速度から再計算する。
     let sourceNode = null;
     let gainNode = null;
     let isPlaying = false;
@@ -300,17 +298,14 @@
     let pausedTime = 0;
     let animationId = null;
 
-    // --- Init ---
-    // Dark mode default
-    themeToggle.checked = false; // dark
+    themeToggle.checked = false;
 
-    // --- Events ---
     themeToggle.addEventListener('change', () => {
         document.documentElement.setAttribute('data-theme', themeToggle.checked ? 'light' : 'dark');
-        drawWaveform(); // Redraw waveform with new colors
+        drawWaveform();
     });
 
-    // Pitch Mode UI
+    // 固定音程は変換時のみ近似できるため、プレビューとの差を説明文で明示する。
     const updatePitchHelp = () => {
         if(pitchFixed.checked) {
             pitchHelp.innerHTML = "<i class='bi bi-exclamation-triangle'></i> 音程を維持しますが、ブラウザの制限により簡易処理となります（音質優先なら「速度に合わせる」を推奨）。";
@@ -321,13 +316,12 @@
     pitchVarispeed.addEventListener('change', updatePitchHelp);
     pitchFixed.addEventListener('change', updatePitchHelp);
 
-    // Format UI
     formatSelect.addEventListener('change', () => {
         const fmt = formatSelect.value;
         const isMp3 = (fmt === 'mp3');
         document.getElementById('bitrateGroup').style.display = isMp3 ? 'block' : 'none';
         
-        // M4A/OGG warning
+        // M4A/OGGはWAVコンテナで代替する仕様のため、選択時に警告する。
         if(fmt === 'm4a' || fmt === 'ogg') {
             formatWarning.classList.remove('hidden');
         } else {
@@ -336,13 +330,11 @@
         updateEstimate();
     });
 
-    // File Drop
     const handleFile = async (file) => {
         if(!file) return;
         stopPlayback();
         originalFile = file;
         
-        // UI Reset
         editorPanel.classList.remove('hidden');
         settingsPanel.classList.add('disabled-overlay');
         document.getElementById('resultArea').classList.add('hidden');
@@ -378,7 +370,7 @@
     });
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-    // --- Waveform & Playhead ---
+    // 長い音声でも描画負荷を一定にするため、表示幅ごとに最小・最大値へ間引く。
     function drawWaveform() {
         if(!audioBuffer) return;
         const width = waveContainer.offsetWidth;
@@ -414,7 +406,6 @@
         ctx.stroke();
     }
 
-    // Seek Interaction
     let isDragging = false;
     const seekTo = (percent) => {
         if(!audioBuffer) return;
@@ -449,7 +440,6 @@
         ctx.stroke();
     }
 
-    // --- Playback ---
     function startPlayback() {
         if(!audioBuffer) return;
         if(isPlaying) sourceNode.stop();
@@ -509,7 +499,6 @@
         }
     }
 
-    // Params
     function applyParams() {
         if(!sourceNode || !gainNode) return;
         sourceNode.playbackRate.value = parseFloat(speedRange.value);
@@ -529,12 +518,10 @@
         if(gainNode) gainNode.gain.value = e.target.value / 100;
     });
     
-    // Play Controls
     const pausePlayback = () => { if(isPlaying){ pausedTime = getCurrentTime(); stopPlayback(false); } };
     btnPlayPause.addEventListener('click', () => isPlaying ? pausePlayback() : startPlayback());
     btnStop.addEventListener('click', () => stopPlayback(true));
 
-    // Helper
     function updateTimeDisplay(t) {
         const fmt = (s) => {
             const m = Math.floor(s/60).toString().padStart(2,'0');
@@ -556,22 +543,20 @@
             const kbps = parseInt(bitrateSelect.value);
             size = (kbps * 1000 * dur) / 8;
         } else {
-            // WAV, M4A, OGG (WAV container)
-            // 44.1kHz 16bit Stereo assumed
+            // 代替出力の44.1kHz・16bitステレオWAVとして容量を見積もる。
             size = dur * 44100 * 2 * 2;
         }
         estSize.innerText = (size/1024/1024).toFixed(2) + " MB";
     }
     bitrateSelect.addEventListener('change', updateEstimate);
 
-    // --- Logger ---
     const log = (msg) => {
         const d = document.createElement('div');
         d.textContent = `> ${msg}`;
         document.getElementById('logArea').prepend(d);
     };
 
-    // --- Conversion Logic ---
+    // OfflineAudioContextで全体を先にレンダリングし、その結果を各形式へエンコードする。
     convertBtn.addEventListener('click', async () => {
         if(!audioBuffer) return;
         convertBtn.disabled = true;
@@ -589,7 +574,6 @@
 
         log(`Starting conversion... Target: ${format.toUpperCase()}`);
         
-        // Setup Offline Context
         const offlineCtx = new OfflineAudioContext(ch, newDur * sr, sr);
         const src = offlineCtx.createBufferSource();
         src.buffer = audioBuffer;
@@ -597,10 +581,8 @@
         const gain = offlineCtx.createGain();
         gain.gain.value = vol;
 
-        // Pitch Mode Handling
         if(isPitchFixed) {
-            // Native Web Audio lacks high-quality time stretching.
-            // Using Varispeed fallback to prevent artifacts, as noted in UI.
+            // 高品質な時間伸縮を持たない環境では、破綻を避けるため速度連動へフォールバックする。
             log("Note: Applying Varispeed for stability (Pitch will change).");
             src.playbackRate.value = speed;
         } else {
@@ -611,7 +593,6 @@
         gain.connect(offlineCtx.destination);
         src.start(0);
 
-        // Rendering
         updateProgress(20);
         try {
             const renderedBuffer = await offlineCtx.startRendering();
@@ -624,14 +605,13 @@
             if(format === 'mp3') {
                 blob = await encodeMp3(renderedBuffer);
             } else {
-                // WAV encoding for WAV, M4A, OGG options
+                // M4A/OGGはエンコーダー未搭載のため、互換用にWAVデータを書き出す。
                 blob = encodeWav(renderedBuffer);
                 if(format !== 'wav') {
                     log(`Note: saving as .${format} (WAV container) for compatibility.`);
                 }
             }
 
-            // Download Link
             const url = URL.createObjectURL(blob);
             const dl = document.getElementById('dlLink');
             const baseName = originalFile.name.replace(/\.[^/.]+$/, "");
@@ -659,8 +639,7 @@
         document.getElementById('progressStatus').innerText = (val===100) ? "完了" : "処理中...";
     }
 
-    // --- Encoders ---
-    // WAV Encoder (Pure JS)
+    // WAVは自前実装し、MP3だけをlamejsへ委譲する。
     function encodeWav(buffer) {
         const numChannels = buffer.numberOfChannels;
         const length = buffer.length * numChannels * 2 + 44;
@@ -689,7 +668,6 @@
         return new Blob([arr], { type: 'audio/wav' });
     }
 
-    // MP3 Encoder (Lamejs)
     function encodeMp3(buffer) {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -703,7 +681,6 @@
                 const sLeft = new Int16Array(left.length);
                 const sRight = new Int16Array(right.length);
                 
-                // Convert Float to Int16
                 for(let i=0; i<left.length; i++) {
                     sLeft[i] = left[i]<0?left[i]*0x8000:left[i]*0x7FFF;
                     sRight[i] = right[i]<0?right[i]*0x8000:right[i]*0x7FFF;
@@ -723,7 +700,6 @@
         });
     }
 </script>
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

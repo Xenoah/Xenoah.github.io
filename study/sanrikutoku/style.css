@@ -1,3 +1,4 @@
+/* index.html の出題画面・結果ダイアログ・印刷表示を一つのスタイルシートで管理する。 */
 :root {
     color-scheme: light;
     --bg: #f3f5f8;

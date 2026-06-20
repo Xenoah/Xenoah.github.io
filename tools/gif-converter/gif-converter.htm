@@ -34,6 +34,7 @@
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
   <div id="root"></div>
   <script type="text/babel">
+    // GIF・動画・連番画像を共通のフレーム列へ正規化し、編集後に各形式へ書き出す。
     const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     const MODES = {

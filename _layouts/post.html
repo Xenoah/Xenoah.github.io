@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- front matter が不足してもSNS用説明・画像が空にならないよう既定値を補う -->
   {% assign fallback_description = page.excerpt | strip_html | strip_newlines | truncate: 160 %}
   {% assign meta_description = page.description | default: fallback_description %}
   {% assign page_image = page.image | default: '/favicon_katakana.png' %}
@@ -77,6 +78,7 @@
       </figure>
       {% endif %}
       <div class="article-body">
+        <!-- blog/articles の記事ソースは、この位置へHTML本文として展開される -->
         {{ content }}
       </div>
     </article>

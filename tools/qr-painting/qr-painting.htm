@@ -521,6 +521,7 @@ textarea {
 (function () {
     "use strict";
 
+    // QRの機能パターンを予約領域として保持し、データ領域だけを手描き編集させる。
     var alignmentPatternCenters = [
         [],
         [],
@@ -875,6 +876,7 @@ textarea {
     }
 
     function scheduleDecode() {
+        // ポインター移動ごとの重い再解析を避け、最後の描画後にまとめて検証する。
         window.clearTimeout(state.decodeTimer);
         state.decodeTimer = window.setTimeout(runDecode, 80);
     }

@@ -1018,6 +1018,8 @@ body.touch-device .touch-btn.active {
 (() => {
     "use strict";
 
+    // 進行評価・ゲーム状態・描画・音声を単一ループで同期する。
+    // 評価規則は chord-probabilities.json を正とし、読込失敗時だけ内蔵値を使う。
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const overlay = document.getElementById("overlay");
@@ -2450,6 +2452,7 @@ body.touch-device .touch-btn.active {
             harmonyData = await response.json();
             harmonySource = "file";
         } catch (error) {
+            // file:// 実行や通信失敗でも遊べるよう、同形式の内蔵データへ切り替える。
             harmonyData = fallbackHarmonyData;
             harmonySource = "fallback";
         }

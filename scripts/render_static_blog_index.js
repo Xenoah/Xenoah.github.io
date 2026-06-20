@@ -1,3 +1,4 @@
+// blog/articles の front matter を読み、配信用の blog/index.html を再生成する。
 const fs = require("fs");
 const path = require("path");
 
@@ -5,6 +6,7 @@ const root = process.cwd();
 const articlesDir = path.join(root, "blog", "articles");
 
 function parseFrontMatter(source) {
+  // 外部YAMLパーサーを使わないため、単純なキー値と箇条書きだけを扱う。
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
   if (!match) {
     return {};
