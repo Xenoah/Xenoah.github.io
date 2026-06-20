@@ -1,5 +1,5 @@
-/* workers/trace.worker.js — トレース処理の実体。
- * Message protocol:
+/* CPU負荷の高いトレースをUIスレッドから分離するWorker。
+ * メッセージ契約:
  *   in:  { id, type: 'trace', mode, imageData, params }
  *   out: { id, type: 'progress', value }
  *   out: { id, type: 'done', svg }
@@ -16,6 +16,7 @@ self.addEventListener('message', async (event) => {
   if (!msg || typeof msg !== 'object') return;
 
   if (msg.type === 'cancel') {
+    // アルゴリズム内部の区切りでisCancelledを確認し、途中結果を返さず終了する。
     cancelled.add(msg.id);
     return;
   }

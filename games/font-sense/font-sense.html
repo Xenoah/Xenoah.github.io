@@ -1607,6 +1607,8 @@ button:disabled {
 
 <script>
 (() => {
+    // ブラウザで利用可能なフォントを推定し、出題・採点・苦手書体の復習履歴を同じ保存状態で管理する。
+    // Local Font Access APIは権限とHTTPSが必要なため、未対応時は字幅比較による候補一覧へフォールバックする。
     const STORAGE_KEY = "absolute-font-sense-v1";
     const FONT_DEFS = [
         { name: "Arial", stack: "Arial, Helvetica, sans-serif", family: "Arial", group: "Sans" },

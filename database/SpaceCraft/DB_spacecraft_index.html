@@ -476,7 +476,8 @@
     <script type="text/babel">
         const { useState, useEffect, useContext, createContext, useMemo } = React;
 
-        // --- Context ---
+        // DB_spacecraft_data.jsonを一次データとし、検索・詳細・統計・AI解説で同じ配列を共有する。
+        // Gemini APIキーは公開ファイルへ含めず、このブラウザのlocalStorageだけへ保存する。
         const SatelliteContext = createContext();
 
         const SatelliteProvider = ({ children }) => {
@@ -489,6 +490,7 @@
             useEffect(() => {
                 const fetchData = async () => {
                     try {
+                        // HTMLと同じディレクトリを基準に読み込むため、配置変更時はJSONも一緒に移動する。
                         const response = await fetch('./DB_spacecraft_data.json');
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);

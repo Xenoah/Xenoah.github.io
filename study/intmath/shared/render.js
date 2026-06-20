@@ -1,9 +1,8 @@
-/**
- * Render Utilities for HTML5 Canvas
- */
+/* 各数学レッスンで共有するCanvas描画補助。
+ * devicePixelRatioを内部解像度へ反映しつつ、呼出側はCSSピクセル座標で描画する。 */
 
 export const Render = {
-    // Helper to get CSS variable value
+    // テーマ切替後の色をCSS変数から都度取得し、Canvas側にも即時反映する。
     getThemeColor(varName) {
         return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
     },
@@ -16,6 +15,7 @@ export const Render = {
     },
 
     setupCanvas(canvas) {
+        // Canvasの内部画素数だけを高DPI化し、論理幅・高さは親要素のCSS寸法で保持する。
         const dpr = window.devicePixelRatio || 1;
         const parent = canvas.parentElement;
         const rect = parent.getBoundingClientRect();
@@ -33,6 +33,7 @@ export const Render = {
     },
 
     toScreen(x, y, ctx, xRange, yRange) {
+        // 数学座標のY上向きをCanvasのY下向きへ反転する。
         const w = ctx.logicalWidth;
         const h = ctx.logicalHeight;
 
@@ -54,7 +55,7 @@ export const Render = {
 
         ctx.strokeStyle = gridColor;
 
-        // Vertical lines
+        // 指定範囲内の整数位置へ縦線を引く。
         for (let x = Math.ceil(xRange[0]); x <= Math.floor(xRange[1]); x += step) {
             const pos = this.toScreen(x, 0, ctx, xRange, yRange);
             ctx.beginPath();
@@ -63,7 +64,7 @@ export const Render = {
             ctx.stroke();
         }
 
-        // Horizontal lines
+        // 指定範囲内の整数位置へ横線を引く。
         for (let y = Math.ceil(yRange[0]); y <= Math.floor(yRange[1]); y += step) {
             const pos = this.toScreen(0, y, ctx, xRange, yRange);
             ctx.beginPath();
@@ -72,11 +73,10 @@ export const Render = {
             ctx.stroke();
         }
 
-        // Axes
+        // 0が表示範囲に含まれる場合だけ主軸を強調する。
         ctx.lineWidth = 2;
         ctx.strokeStyle = axisColor;
 
-        // Y Axis
         if (xRange[0] <= 0 && xRange[1] >= 0) {
             const origin = this.toScreen(0, 0, ctx, xRange, yRange);
             ctx.beginPath();
@@ -85,7 +85,6 @@ export const Render = {
             ctx.stroke();
         }
 
-        // X Axis
         if (yRange[0] <= 0 && yRange[1] >= 0) {
             const origin = this.toScreen(0, 0, ctx, xRange, yRange);
             ctx.beginPath();

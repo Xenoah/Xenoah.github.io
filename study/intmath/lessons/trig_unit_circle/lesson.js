@@ -1,3 +1,4 @@
+/* 単位円上の角度と三角関数値を連動表示するレッスン。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

@@ -1,3 +1,4 @@
+/* 因数分解の式と幾何的な面積表現を同じパラメーターから描画する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

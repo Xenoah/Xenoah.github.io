@@ -1,8 +1,8 @@
-/* engine/export.js — SVG を多様な拡張子へエクスポートする。
+/* SVGを各出力形式へ変換する。
  *
  * SVG / SVGZ はテキストおよび圧縮済 Blob を返す。
  * PNG / JPEG / WebP は Image にロードして Canvas に描画したうえで toBlob で書き出す。
- * PDF は最小構成の PDF ドキュメントへ PNG として埋め込む。
+ * PDFはベクター保持ではなく、一度PNG化して最小構成PDFへ埋め込む。
  *
  * 全ての関数は { blob, filename, mime } を返すか、null（非対応）を返す。 */
 
@@ -17,7 +17,7 @@ const FORMATS = {
   pdf:  { mime: 'application/pdf', ext: 'pdf' },
 };
 
-/** 出力サイズテンプレート — width/height (px), 'native' は元画像サイズに従う */
+// A4も含め単位はすべてpx。印刷物としての物理寸法やDPIは保証しない。
 export const SIZE_TEMPLATES = {
   'native':            { width: null, height: null, label: '元サイズ' },
   'square-512':        { width: 512,  height: 512,  label: '正方 512' },
@@ -58,12 +58,12 @@ export async function exportSvgAs(svgString, {
   if (!fmt) throw new Error(`unknown format: ${format}`);
   const filename = `${baseName || 'image'}.${fmt.ext}`;
 
-  // テンプレートに合わせて出力サイズを決める
+  // nativeだけは入力画像寸法を使い、それ以外はテンプレート寸法を優先する。
   const tpl = SIZE_TEMPLATES[sizeTemplate] ?? SIZE_TEMPLATES.native;
   const targetW = tpl.width ?? width;
   const targetH = tpl.height ?? height;
 
-  // SVG はテンプレートサイズで width/height/viewBox を書き換える
+  // SVGの内部viewBoxは維持し、指定枠への収まり方をpreserveAspectRatioへ任せる。
   let svgOut = svgString;
   if (tpl.width && tpl.height) {
     svgOut = resizeSvg(svgString, targetW, targetH);
@@ -78,7 +78,7 @@ export async function exportSvgAs(svgString, {
     return { blob, filename, mime: fmt.mime };
   }
 
-  // 以降はラスタライズが必要
+  // PNG/JPEG/WebP/PDFはCanvasへ描画するため、極端な拡大はメモリ消費に注意する。
   const sizedW = Math.max(1, Math.round(targetW * rasterScale));
   const sizedH = Math.max(1, Math.round(targetH * rasterScale));
   const pngBlob = await rasterizeSvg(svgOut, sizedW, sizedH, 'image/png', 1.0);
@@ -98,8 +98,7 @@ export async function exportSvgAs(svgString, {
   return null;
 }
 
-/** SVG 文字列の width/height/viewBox を書き換えて新サイズで返す。
- *  オリジナルの viewBox を維持して比率は preserveAspectRatio="xMidYMid meet" で吸収。 */
+// 外枠寸法だけを書き換え、元viewBoxと縦横比は中央寄せmeetで維持する。
 function resizeSvg(svgString, w, h) {
   // 既存 width/height/viewBox を抽出
   const widthMatch = svgString.match(/<svg[^>]*\swidth="([^"]+)"/);

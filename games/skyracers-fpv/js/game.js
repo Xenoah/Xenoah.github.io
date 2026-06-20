@@ -1,4 +1,7 @@
-        // --- LOCALIZATION ---
+        // Three.jsの描画、飛行物理、入力、レース進行、保存データを単一状態で同期する。
+        // 機体基礎値はdrone-data.js、起動前エラー表示はerror-handler.jsに依存する。
+
+        // 画面文言はUI更新関数からTEXTキーを参照し、言語切替時に再適用する。
         const TEXT = {
             EN: {
                 startRace: "Time Attack",
@@ -40,7 +43,7 @@
             }
         };
 
-        // --- DATA & CONSTANTS ---
+        // DRONE_CLASS_PROFILESは実データをゲーム向け速度・応答・抗力へ正規化する基準値。
         const CONSTANTS = {
             GRAVITY: 25.0,
             TERRAINS: { PLAINS: 'Plains', MOUNTAINS: 'Mountains', STADIUM: 'Stadium', RUINS: 'Ruins' }
@@ -595,8 +598,7 @@
                 return getEmptyLapDataStore();
             }
         }
-        // --- GAME STATE ---
-        // Show virtual controls only on genuine mobile devices (phones/tablets), not Windows touchscreens
+        // タッチ対応PCへ仮想スティックを誤表示しないよう、UAと小画面・粗いポインターを併用する。
         const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isSmallTouchScreen = (window.matchMedia?.('(pointer: coarse)')?.matches ?? false) && window.innerWidth < 1024;
         const prefersTouchControls = isMobileUA || isSmallTouchScreen;
@@ -611,14 +613,14 @@
             terrain: CONSTANTS.TERRAINS.PLAINS,
             customStats: { speed: 50, agility: 4.0, weight: 1.0 },
             
-            // Physics
+            // Three.js座標系で保持する飛行物理状態。
             pos: new THREE.Vector3(0, 2, 0),
             quat: new THREE.Quaternion(),
             vel: new THREE.Vector3(),
             angVel: new THREE.Vector3(),
             throttleStick: 0,
             
-            // Race
+            // レース・損傷・バッテリー・記録の進行状態。
             status: 'READY',
             startTime: 0,
             finishTime: 0,
@@ -637,10 +639,10 @@
             settings: { volume: 0.4, videoQuality: 'TEXTURED', rate: 1.0, expo: 0.2, deadzone: 0.05, showInput: false, showCompass: true, showHorizon: true },
             bestTimes: loadBestTimesFromCookie(),
             
-            // Controller
+            // 前フレームのボタン状態を残し、押しっぱなしによる多重実行を防ぐ。
             lastControls: { throttle: 0, yaw: 0, pitch: 0, roll: 0 },
-            btnState: {}, // Track previous frame button state for debouncing
-            menuIndex: 0, // Virtual focus index
+            btnState: {},
+            menuIndex: 0,
             worldColliders: [],
             menuSceneTrack: null,
             menuCamera: { center: new THREE.Vector3(), radius: 140, height: 70 },
@@ -1403,7 +1405,7 @@
 
 
         function getControls() {
-            // Find the first connected gamepad (index 0 is not guaranteed to be active)
+            // Gamepad配列には空きがあり得るため、index 0固定ではなく最初の接続済みを使う。
             const gp = Array.from(navigator.getGamepads()).find(g => g && g.connected) ?? null;
             let throt = 0, yaw = 0, pitch = 0, roll = 0, reset = false, respawn = false;
 
@@ -1413,7 +1415,7 @@
             }
 
             if (gp) {
-                // Raw axis read: clamp to [-1,1] to guard against trigger axes that start at -1
+                // 機種差で範囲外値や-1始まりの軸が来ても、操作値を必ず-1〜1へ収める。
                 const padDz = Math.max(state.settings.deadzone, 0.15);
                 const axis = i => Number.isFinite(gp.axes?.[i]) ? Math.max(-1, Math.min(1, gp.axes[i])) : 0;
 
@@ -1422,7 +1424,7 @@
                 const rightX = axis(2);
                 const rightY = axis(3);
 
-                // Throttle: left stick up (leftY negative) → 0..1, no expo
+                // スロットルだけは片方向0〜1へ変換し、姿勢軸のexpoを適用しない。
                 const rawThrot = -leftY;
                 throt = rawThrot < padDz ? 0 : (rawThrot - padDz) / (1 - padDz);
 
@@ -1433,7 +1435,7 @@
                 reset = gp.buttons[2]?.pressed; // X button
                 respawn = gp.buttons[3]?.pressed; // Y button
 
-                // Pause (Start=9)
+                // Startボタンは立上り時だけ反応させる。
                 if (gp.buttons[9]?.pressed && !state.btnState[9]) togglePause();
                 state.btnState[9] = gp.buttons[9]?.pressed;
 
@@ -1465,7 +1467,7 @@
                 state.throttleStick = 0;
             }
 
-            // Curves
+            // 姿勢軸はデッドゾーン除去後に線形値と3次曲線を混合する。
             const dz = state.settings.deadzone;
             const apply = (v) => {
                 if(Math.abs(v) < dz) return 0;
@@ -1477,7 +1479,7 @@
             return { throttle: throt, yaw: apply(yaw), pitch: apply(pitch), roll: apply(roll), reset, respawn };
         }
 
-        // --- MENU NAVIGATION (CONTROLLER) ---
+        // ゲームパッド操作時だけ、表示中の最前面画面へ仮想フォーカスを与える。
         function isMenuInteractionActive() {
             const isVisible = id => {
                 const el = document.getElementById(id);
@@ -1494,22 +1496,22 @@
         }
 
         function updateMenuNavigation() {
-            // Only runs if NOT racing/openworld or if Paused
+            // 飛行中はスティックを操縦へ専有し、一時停止中だけメニューへ戻す。
             if (['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode) && !state.isPaused) return;
 
             const gp = Array.from(navigator.getGamepads()).find(g => g && g.connected) ?? null;
             if (!gp) return;
 
-            // Find all interactive elements in the currently visible screen/popup
+            // 表示中の画面とポップアップから操作可能要素を抽出する。
             const visibleScreens = Array.from(document.querySelectorAll('.screen:not(.hidden), div[id^="popup-"]:not(.hidden)'));
-            // Use the last visible one (topmost popup)
+            // DOM順で最後の表示要素を最前面ポップアップとして扱う。
             const activeContainer = visibleScreens[visibleScreens.length - 1];
             if (!activeContainer) return;
 
             const interactables = Array.from(activeContainer.querySelectorAll('button:not(:disabled), input[type="range"]'));
             if (interactables.length === 0) return;
 
-            // Debounce D-pad
+            // D-padとスティックの連続入力は150ms間隔へ制限する。
             const now = Date.now();
             if (now - (state.lastMenuMove || 0) < 150) return;
 
@@ -1519,7 +1521,7 @@
                 return Number.isFinite(value) ? value : 0;
             };
             const menuThreshold = 0.6;
-            // D-Pad Up/Down/Left/Right or Stick
+            // 左スティックとD-padを同じ移動操作へ割り当てる。
             if (menuAxis(1) < -menuThreshold || gp.buttons[12]?.pressed) move = -1; // Up
             if (menuAxis(1) > menuThreshold || gp.buttons[13]?.pressed) move = 1; // Down
             if (menuAxis(0) < -menuThreshold || gp.buttons[14]?.pressed) move = -1; // Left
@@ -1528,17 +1530,17 @@
             if (move !== 0) {
                 state.lastMenuMove = now;
                 state.menuIndex += move;
-                // Wrap around
+                // 端を越えたら反対端へ循環する。
                 if (state.menuIndex < 0) state.menuIndex = interactables.length - 1;
                 if (state.menuIndex >= interactables.length) state.menuIndex = 0;
                 
-                // Focus
+                // ネイティブfocusではなく、ゲーム用クラスで選択位置を表示する。
                 interactables.forEach(el => el.classList.remove('btn-focus'));
                 interactables[state.menuIndex].classList.add('btn-focus');
                 interactables[state.menuIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
-            // Select (A button = 0)
+            // Aボタンで現在項目をクリックする。
             if (gp.buttons[0]?.pressed && !state.btnState[0]) {
                 state.btnState[0] = true;
                 interactables[state.menuIndex].click();
@@ -1546,10 +1548,10 @@
                 state.btnState[0] = false;
             }
 
-            // Back (B button = 1)
+            // Bボタンは各画面に用意された戻る・閉じる操作へ寄せる。
             if (gp.buttons[1]?.pressed && !state.btnState[1]) {
                 state.btnState[1] = true;
-                // Try find a "Back" or "Close" button
+                // 画面ごとに異なる戻るボタンIDから、現在存在するものを選ぶ。
                 const closeBtn = activeContainer.querySelector('#btn-back-menu, #btn-back-free, #btn-close-settings, #btn-quit, #btn-finish-menu');
                 if (closeBtn) closeBtn.click();
             } else if (!gp.buttons[1]?.pressed) {
@@ -1557,7 +1559,7 @@
             }
         }
 
-        // --- PHYSICS UPDATE ---
+        // 固定物理状態をdtで進め、描画フレームレート差を吸収する。
         function updatePhysics(dt) {
             if (state.isPaused) return;
 

@@ -1,13 +1,9 @@
-/**
- * core.js - Global state, geometry utilities, snap system, undo/redo history
- */
+/* 図面データと座標系、幾何計算、スナップ、Undo/Redoを管理する中核。
+ * stateの構造はrender.js・tools.js・dxf.jsで共有されるため、変更時は各参照先も確認する。 */
 
-// ─────────────────────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────────────────────
+// 図面の永続データと、操作中だけ使う一時状態を同じオブジェクトで共有する。
 
 export const state = {
-  // Drawing data
   entities: [],
   layers: [
     { id: 'layer0', name: '0', color: '#c9d1d9', visible: true, locked: false, lineType: 'solid', lineWeight: 0.25 },
@@ -17,47 +13,43 @@ export const state = {
   ],
   activeLayerId: 'layer0',
 
-  // Viewport
+  // view.x/yは画面上の原点位置、zoomはワールド単位から画面pxへの倍率。
   view: { x: 0, y: 0, zoom: 1 },
 
-  // Tool state
+  // drawPhaseとdrawPointsは複数クリックを必要とするツール間で共通利用する。
   tool: 'SELECT',
   isDrawing: false,
   drawPhase: 0,         // Phase within a tool (e.g., 0=first click, 1=second click)
   drawPoints: [],       // Accumulated world-coord points for current op
   previewEntity: null,  // Entity shown as drawing preview
 
-  // Selection
+  // 選択IDは図形配列とは別管理し、保存データへ含めない。
   selectedIds: new Set(),
   selectionBox: null,   // { start:{x,y}, end:{x,y}, crossing:bool }
 
-  // Snap
+  // snapEnabledは図形スナップの切替で、グリッドスナップは無効時にも残す仕様。
   snapEnabled: true,
   snapPoint: null,      // { world:{x,y}, type:string } - current best snap
   gridEnabled: true,
   gridSize: 20,
 
-  // Ortho
   orthoEnabled: false,
 
-  // Mouse
+  // ステータス表示とプレビュー用の最新ポインター位置。
   mouseWorld: { x: 0, y: 0 },
   mouseScreen: { x: 0, y: 0 },
 
-  // Pan
+  // パン開始時の画面座標。
   isPanning: false,
   panStart: null,       // { x, y } screen coords
 
-  // Move/Copy tool
+  // 移動・複製で基準点を共有する。
   moveBase: null,       // base point in world coords
 
-  // Text tool
   textInsertPoint: null,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Utilities
-// ─────────────────────────────────────────────────────────────────────────────
+// ワールド座標は画面と同じY下向き。DXF出力時だけYを反転する。
 
 let _idCounter = Date.now();
 export const genId = () => (++_idCounter).toString(36);
@@ -72,9 +64,7 @@ export const screenToWorld = (sx, sy) => ({
   y: (sy - state.view.y) / state.view.zoom,
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Geometry
-// ─────────────────────────────────────────────────────────────────────────────
+// 図形判定で共有する幾何ユーティリティ。
 
 export const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
 export const angle2 = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
@@ -97,17 +87,16 @@ export function applyOrtho(start, curr) {
     : { x: start.x, y: curr.y };
 }
 
-/** Apply ortho constraint if enabled */
+// ORTHO有効時は、始点から変化量が大きい軸だけを残す。
 export function constrainPoint(start, curr) {
   if (state.orthoEnabled && start) return applyOrtho(start, curr);
   return curr;
 }
 
-/** Build arc SVG path from center, radius, startAngle, endAngle (radians, Y-down) */
+// 円弧角度はY下向き座標系の時計回りとして保持し、SVGのsweep方向と揃える。
 export function arcPath(cx, cy, r, startAngle, endAngle) {
-  // Compute angular sweep (clockwise in SVG/Y-down)
   let sweep = endAngle - startAngle;
-  // Normalize to [0, 2π)
+  // 角度差を0以上2π未満へ正規化し、0跨ぎの円弧も同じ判定にする。
   while (sweep < 0) sweep += Math.PI * 2;
   while (sweep >= Math.PI * 2) sweep -= Math.PI * 2;
   const largeArc = sweep > Math.PI ? 1 : 0;
@@ -119,7 +108,7 @@ export function arcPath(cx, cy, r, startAngle, endAngle) {
   return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
 }
 
-/** Find circumscribed circle through 3 points. Returns {cx,cy,r} or null if collinear. */
+// 3点円弧の基礎計算。ほぼ一直線の場合は不安定になるためnullを返す。
 export function circumcircle(p1, p2, p3) {
   const ax = p1.x, ay = p1.y;
   const bx = p2.x, by = p2.y;
@@ -131,7 +120,7 @@ export function circumcircle(p1, p2, p3) {
   return { cx: ux, cy: uy, r: Math.hypot(ax - ux, ay - uy) };
 }
 
-/** Hit test a single entity against a world point. Returns true if within tolerance. */
+// 当たり判定の許容値は呼出側で画面pxからワールド単位へ換算する。
 export function hitTest(ent, p, tolWorld) {
   switch (ent.type) {
     case 'line':
@@ -172,7 +161,7 @@ export function hitTest(ent, p, tolWorld) {
   }
 }
 
-/** Check if angle `a` lies on arc from startAngle to endAngle (CW in Y-down) */
+// Y下向き時計回りの開始角から終了角までに対象角が含まれるか判定する。
 function isAngleOnArc(a, startAngle, endAngle) {
   let sweep = endAngle - startAngle;
   while (sweep < 0) sweep += Math.PI * 2;
@@ -181,7 +170,7 @@ function isAngleOnArc(a, startAngle, endAngle) {
   return offset <= sweep;
 }
 
-/** Get bounding box of an entity {minX, minY, maxX, maxY} */
+// 選択・全体表示に使う軸平行バウンディングボックスを返す。
 export function entityBounds(ent) {
   switch (ent.type) {
     case 'line':
@@ -208,7 +197,7 @@ export function entityBounds(ent) {
   }
 }
 
-/** Translate an entity by dx, dy - returns a new entity */
+// 元図形を変更せず、平行移動した複製を返す。
 export function translateEntity(ent, dx, dy) {
   const e = JSON.parse(JSON.stringify(ent));
   switch (e.type) {
@@ -233,15 +222,13 @@ export function translateEntity(ent, dx, dy) {
   return e;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Snap System
-// ─────────────────────────────────────────────────────────────────────────────
+// 図形候補を優先度順に比較し、画面上12px以内の最適なスナップ点を返す。
 
-const SNAP_SCREEN_TOLERANCE = 12; // pixels
+const SNAP_SCREEN_TOLERANCE = 12;
 
 export function computeSnapPoint(mouseWorld) {
   if (!state.snapEnabled) {
-    // Still snap to grid if grid snap is enabled
+    // 図形スナップを切ってもグリッド入力は維持するCAD寄りの仕様。
     const gs = state.gridSize;
     const gx = Math.round(mouseWorld.x / gs) * gs;
     const gy = Math.round(mouseWorld.y / gs) * gs;
@@ -282,7 +269,7 @@ export function computeSnapPoint(mouseWorld) {
         c.forEach(p => candidates.push({ point: p, type: 'endpoint', pri: 1 }));
         for (let i = 0; i < 4; i++)
           candidates.push({ point: midpoint(c[i], c[(i + 1) % 4]), type: 'midpoint', pri: 2 });
-        // Center
+        // 矩形中心も円中心と同じ優先度で候補にする。
         candidates.push({ point: { x: ent.x + ent.width / 2, y: ent.y + ent.height / 2 }, type: 'center', pri: 2 });
         break;
       }
@@ -306,13 +293,13 @@ export function computeSnapPoint(mouseWorld) {
     }
   }
 
-  // Grid snap candidate
+  // グリッドは図形端点・中心より低い優先度にする。
   const gs = state.gridSize;
   const gx = Math.round(mouseWorld.x / gs) * gs;
   const gy = Math.round(mouseWorld.y / gs) * gs;
   candidates.push({ point: { x: gx, y: gy }, type: 'grid', pri: 3 });
 
-  // Find best candidate
+  // 距離より候補種別の優先度を先に比較する。
   let best = null;
   let bestDist = Infinity;
   for (const c of candidates) {
@@ -328,9 +315,7 @@ export function computeSnapPoint(mouseWorld) {
   return best ? { world: best.point, type: best.type } : null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Undo / Redo History
-// ─────────────────────────────────────────────────────────────────────────────
+// 履歴には図面とレイヤーだけを保存し、ズーム・選択・操作途中の状態は戻さない。
 
 const MAX_HISTORY = 100;
 let _historyStack = [];
@@ -345,7 +330,7 @@ export function takeSnapshot() {
 }
 
 export function pushHistory() {
-  // Drop any redo states
+  // Undo後に新規編集した場合、分岐前のRedo履歴は破棄する。
   _historyStack = _historyStack.slice(0, _historyIndex + 1);
   _historyStack.push(takeSnapshot());
   if (_historyStack.length > MAX_HISTORY) _historyStack.shift();
@@ -380,12 +365,10 @@ function _restoreSnapshot(snap) {
   state.selectedIds = new Set();
 }
 
-// Initialize history with empty state
+// 空図面を最初のUndo地点として登録する。
 pushHistory();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Zoom to Extents
-// ─────────────────────────────────────────────────────────────────────────────
+// 全図形が余白付きで収まる倍率と原点位置を計算する。
 
 export function zoomExtents(canvasW, canvasH) {
   if (state.entities.length === 0) {
@@ -406,9 +389,7 @@ export function zoomExtents(canvasW, canvasH) {
   state.view.y = canvasH / 2 - (minY + ph / 2) * state.view.zoom;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Layer helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// 図形個別値が未指定の場合に、所属レイヤーの見た目を継承する。
 
 export function getActiveLayer() {
   return state.layers.find(l => l.id === state.activeLayerId);
@@ -436,7 +417,7 @@ export function getEffectiveLineWeight(ent) {
   return layer ? layer.lineWeight : 0.25;
 }
 
-/** Build a new entity base object using active layer defaults */
+// 新規図形へIDとアクティブレイヤーを付ける共通基底を生成する。
 export function makeEntityBase(type) {
   return {
     id: genId(),
@@ -448,15 +429,9 @@ export function makeEntityBase(type) {
   };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Extended Geometry Helpers (for OFFSET, TRIM, EXTEND, FILLET)
-// ─────────────────────────────────────────────────────────────────────────────
+// オフセット・トリム・延長・フィレットで共有する交差計算。
 
-/**
- * Infinite line-line intersection.
- * Returns {x, y, t1, t2} where t1/t2 are params along each line direction.
- * Returns null if parallel.
- */
+// 2本の無限直線の交点と、各始点からの媒介変数を返す。平行時はnull。
 export function lineLineIntersect(a1, a2, b1, b2) {
   const dx1 = a2.x - a1.x, dy1 = a2.y - a1.y;
   const dx2 = b2.x - b1.x, dy2 = b2.y - b1.y;
@@ -468,10 +443,7 @@ export function lineLineIntersect(a1, a2, b1, b2) {
   return { x: a1.x + t1 * dx1, y: a1.y + t1 * dy1, t1, t2 };
 }
 
-/**
- * Segment-segment intersection (bounded [0,1]).
- * Returns {x, y} or null.
- */
+// 両方の媒介変数が0〜1に入る場合だけ、線分同士の交点として返す。
 export function segSegIntersect(a1, a2, b1, b2) {
   const r = lineLineIntersect(a1, a2, b1, b2);
   if (!r) return null;
@@ -480,10 +452,7 @@ export function segSegIntersect(a1, a2, b1, b2) {
   return { x: r.x, y: r.y };
 }
 
-/**
- * Line-circle intersections.
- * Returns array of {x, y, t} where t is param along segment (may be outside [0,1]).
- */
+// 無限直線と円の交点を返す。tは線分外も含むため、呼出側で用途別に絞る。
 export function lineCircleIntersect(p1, p2, cx, cy, r) {
   const dx = p2.x - p1.x, dy = p2.y - p1.y;
   const fx = p1.x - cx, fy = p1.y - cy;
@@ -502,10 +471,7 @@ export function lineCircleIntersect(p1, p2, cx, cy, r) {
   return results;
 }
 
-/**
- * Get all intersection points between two entities.
- * Returns array of {x, y}.
- */
+// 図形を線分群へ分解し、円・円弧だけ専用処理を加えて交点を列挙する。
 export function intersectEntities(e1, e2) {
   const segs1 = entitySegments(e1);
   const segs2 = entitySegments(e2);
@@ -516,7 +482,7 @@ export function intersectEntities(e1, e2) {
       if (p) results.push(p);
     }
   }
-  // Also handle circle-line intersections
+  // 円・円弧と線分の交差は線分同士の処理では得られないため別計算する。
   if (e1.type === 'circle' || e1.type === 'arc') {
     for (const s2 of segs2) {
       const pts = lineCircleIntersect(s2.a, s2.b, e1.cx, e1.cy, e1.r);
@@ -548,7 +514,7 @@ export function intersectEntities(e1, e2) {
   return results;
 }
 
-/** Returns true if angle a is in arc range [startAngle, endAngle] CW */
+// Y下向き時計回りの円弧範囲に角度が入るか判定する。
 export function isAngleInArcRange(a, startAngle, endAngle) {
   let sweep = endAngle - startAngle;
   while (sweep < 0) sweep += Math.PI * 2;
@@ -557,11 +523,7 @@ export function isAngleInArcRange(a, startAngle, endAngle) {
   return off <= sweep + 1e-9;
 }
 
-/**
- * Get entity as line segments for intersection tests.
- * Returns [{a:{x,y}, b:{x,y}}]
- * Note: circles/arcs return empty (handled separately in intersectEntities)
- */
+// 交差判定用に図形を線分群へ変換する。円と円弧は専用計算へ回す。
 export function entitySegments(ent) {
   switch (ent.type) {
     case 'line':
@@ -581,16 +543,13 @@ export function entitySegments(ent) {
         { a: { x: x1, y: y2 }, b: { x: x1, y: y1 } },
       ];
     }
-    case 'circle': return []; // handled by lineCircleIntersect
-    case 'arc': return [];    // handled by lineCircleIntersect
+    case 'circle': return [];
+    case 'arc': return [];
     default: return [];
   }
 }
 
-/**
- * Offset a line segment by signed distance (positive = left of direction).
- * Returns { p1, p2 } or null.
- */
+// 始点→終点の左側を正として、指定距離だけ平行移動した線分を返す。
 export function offsetLineSegment(a, b, d) {
   const dx = b.x - a.x, dy = b.y - a.y;
   const len = Math.hypot(dx, dy);
@@ -602,15 +561,12 @@ export function offsetLineSegment(a, b, d) {
   };
 }
 
-/** Sign of which side of directed line a→b the point p is on */
+// 有向線分a→bに対して点pが左右どちら側にあるか符号で返す。
 export function sideOfLine(p, a, b) {
   return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
 }
 
-/**
- * Project point p onto infinite line through a,b.
- * Returns { point, t } where t=0 at a, t=1 at b.
- */
+// 点pを無限直線abへ射影し、射影点と媒介変数tを返す。
 export function projectPointOnLine(p, a, b) {
   const dx = b.x - a.x, dy = b.y - a.y;
   const l2 = dx * dx + dy * dy;
@@ -619,9 +575,7 @@ export function projectPointOnLine(p, a, b) {
   return { point: { x: a.x + t * dx, y: a.y + t * dy }, t };
 }
 
-/**
- * Normalize angle to [0, 2π)
- */
+// 角度を0以上2π未満へ正規化する。
 export function normalizeAngle(a) {
   while (a < 0) a += Math.PI * 2;
   while (a >= Math.PI * 2) a -= Math.PI * 2;

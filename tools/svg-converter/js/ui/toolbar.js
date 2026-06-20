@@ -1,4 +1,4 @@
-/* ui/toolbar.js — ヘッダーボタンの配線。 */
+/* ヘッダー操作をコールバックへ接続し、変換状態に応じてボタンを無効化する。 */
 
 import { store } from '../store.js';
 import { loadFile } from './dropZone.js';
@@ -65,6 +65,7 @@ export function initToolbar(opts) {
 }
 
 async function pasteFromClipboard() {
+  // Clipboard.readは権限やブラウザ対応に左右されるため、失敗時はページ上のCtrl+Vを残す。
   if (!navigator.clipboard?.read) {
     console.warn('[toolbar] clipboard read not supported; use Ctrl+V on the page');
     return;

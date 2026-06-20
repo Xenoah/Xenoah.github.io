@@ -1,5 +1,5 @@
-/* engine/quantize.js — Median Cut によるカラー量子化。
- * RGBA ImageData → 各ピクセルにパレット index を割り当てた Uint8Array と、パレット配列を返す。 */
+/* Median Cutで色空間を分割し、各画素へパレット番号を割り当てる。
+ * 透明度は量子化対象外で、出力パスはRGB色ごとの塗りとして生成される。 */
 
 /** @param {ImageData} imageData
  *  @param {number} colorCount 2..256
@@ -14,6 +14,7 @@ export function medianCutQuantize(imageData, colorCount) {
 
   const buckets = [pixels];
   while (buckets.length < colorCount) {
+    // RGBの最大レンジが最も広いバケットを選び、その軸の中央値で二分する。
     let target = -1;
     let maxRange = -1;
     let axis = 0;
@@ -36,6 +37,7 @@ export function medianCutQuantize(imageData, colorCount) {
 
   const palette = buckets.map(averageColor);
   const indices = new Uint8Array(len);
+  // 分割後は各画素を最近傍色へ再割当てし、色ごとのマスク生成に使う。
   for (let p = 0; p < len; p++) {
     const r = data[p * 4];
     const g = data[p * 4 + 1];

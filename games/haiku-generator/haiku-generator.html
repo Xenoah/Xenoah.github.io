@@ -190,15 +190,13 @@
   <body>
     <div id="root"></div>
     
-    <!-- Application Logic Embedded Here -->
     <script type="text/babel" data-type="module">
       import React, { useState, useEffect } from 'react';
       import ReactDOM from 'react-dom/client';
       import { RefreshCw, Share2, Settings, Info, Feather, User, X, Moon, Sun, Languages, PenTool, Calendar, Check, Loader2, AlertCircle, CheckSquare, Square } from 'lucide-react';
 
-      // ==========================================
-      // UTILS: Generator Logic
-      // ==========================================
+      // haikus.jsonの並び順をカテゴリ表示へ引き継ぎ、絞り込み条件から上・中・下句を選ぶ。
+      // データ項目や時代区分を追加する場合は、固定配列ではなくJSON側の値を正とする。
       const getEras = (data) => {
         if (!data) return [];
         // JSONデータ内での出現順序を維持して一意の時代リストを作成します。

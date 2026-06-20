@@ -49,10 +49,12 @@
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
   <div id="root"></div>
   <script type="text/babel">
+    // 読取結果と生成設定をReact状態で分離し、履歴から生成側へ文字列だけを受け渡す。
+    // QRへロゴを重ねる場合は誤り訂正能力を消費するため、プレビューと保存画像を同じCanvas処理で生成する。
     const { useState, useEffect, useRef, useCallback } = React;
     const ReactDOM = window.ReactDOM;
 
-    // ─── Icons ────────────────────────────────────────────────────────────────
+    // 外部アイコン依存を増やさないため、UI用SVGをこのファイル内で定義する。
     const I = (d, extra) => (p) => <svg {...p} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html: d}} />;
 
     const Icons = {

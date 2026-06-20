@@ -1,6 +1,6 @@
-/* ui/viewport.js — preview pane に共通のズーム・パン操作を提供する。
+/* 原画・結果ペインで共有するズームとパン。
  *
- * 対象要素（content）に CSS transform で scale + translate を適用するだけ。
+ * 元Canvas/SVGの寸法は変更せず、contentのCSS transformだけを更新する。
  * - ホイール: カーソル位置を中心にズーム
  * - ドラッグ（左ボタン or middle）: パン
  * - ダブルクリック: フィット
@@ -37,7 +37,7 @@ export function attachViewport({ host, content }) {
     apply();
   };
 
-  /** zoom around (px, py) — px/py は host のクライアント座標 */
+  // 指定した画面座標の下にある画像位置を固定したまま倍率を変更する。
   const zoomAt = (factor, px, py) => {
     const before = state.scale;
     const after = clamp(before * factor, MIN_SCALE, MAX_SCALE);
@@ -49,7 +49,7 @@ export function attachViewport({ host, content }) {
     apply();
   };
 
-  // wheel zoom
+  // Shift+ホイールは通常スクロールへ残し、それ以外をズームとして扱う。
   host.addEventListener(
     'wheel',
     (e) => {
@@ -65,7 +65,7 @@ export function attachViewport({ host, content }) {
     { passive: false },
   );
 
-  // pointer pan (mouse / pen / touch)
+  // Pointer Eventsへ統一し、マウス・ペン・1本指パン・2本指ピンチを同じ状態で扱う。
   let dragging = false;
   let lastX = 0;
   let lastY = 0;
@@ -118,10 +118,10 @@ export function attachViewport({ host, content }) {
   host.addEventListener('pointercancel', endPointer);
   host.addEventListener('pointerleave', endPointer);
 
-  // double click → fit
+  // ダブルクリックで全体表示へ戻す。
   host.addEventListener('dblclick', () => fit());
 
-  // keyboard
+  // ホストにフォーカスがある場合だけズームキーを受ける。
   host.tabIndex = host.tabIndex >= 0 ? host.tabIndex : 0;
   host.addEventListener('keydown', (e) => {
     const rect = host.getBoundingClientRect();

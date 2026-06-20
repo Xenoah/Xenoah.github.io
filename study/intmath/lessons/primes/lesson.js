@@ -1,15 +1,14 @@
+/* エラトステネスの篩結果を数表とウラム螺旋の2形式で描画する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';
 import { Globals } from '../../shared/globals.js';
 
-// 1. Schema
 const SCHEMA = {
     mode: { label: 'Mode', label_ja: 'モード', type: 'select', options: ['Sieve (Grid)', 'Ulam Spiral'], default: 'Sieve (Grid)', folder: 'View' },
     max: { label: 'Max Number', label_ja: '最大数', type: 'slider', min: 10, max: 2000, step: 10, default: 100, folder: 'Range' },
 };
 
-// 2. Setup
 const canvas = document.getElementById('main-canvas');
 const ctx = Render.setupCanvas(canvas);
 const paramsManager = new ParameterManager(SCHEMA, 'controls-container');
@@ -20,7 +19,7 @@ let isPrime = [];
 const calculatePrimes = () => {
     const p = paramsManager.getParams();
     const max = p.max;
-    // Sieve
+    // エラトステネスの篩。i²未満の倍数は既に除外済みなのでi²から開始する。
     isPrime = new Uint8Array(max + 1).fill(1);
     isPrime[0] = 0;
     isPrime[1] = 0;
@@ -46,20 +45,14 @@ paramsManager.onChange(() => {
     requestRender();
 });
 
-// Initial calc
 calculatePrimes();
 
-// 3. Render
 const runtime = new LessonRuntime(update);
-// Note: Sieve could include animation steps? 
-// For now static vis + param update is fine.
-// Let's allow animation for Sieve in future, but static now.
 
 function requestRender() {
     update();
 }
 
-// UI
 Globals.subscribe(state => {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -73,7 +66,7 @@ Globals.subscribe(state => {
         if (dict[key]) el.textContent = Globals.getText(key, dict[key].en, dict[key].ja);
     });
     document.getElementById('btn-share').textContent = Globals.getText('Share', 'Share', '共有');
-    calculatePrimes(); // Re-render text
+    calculatePrimes();
     update();
 });
 
@@ -93,12 +86,9 @@ function update(time, dt) {
     const cy = h/2;
     
     if (p.mode === 'Sieve (Grid)') {
-        // Simple 10xN grid or square grid best fit?
-        // Let's try to make a square-ish grid
         const count = p.max;
-        const cols = Math.ceil(Math.sqrt(count * (w/h))); // maintain aspect ratio approx?
-        // No, simple rows usually 10 for readability in elementary, but for large numbers square is good
-        
+        const cols = Math.ceil(Math.sqrt(count * (w/h)));
+        // 数表としての読みやすさを優先し、列数は10で固定する。
         const COLS = 10;
         const cellSize = Math.min((w - 40) / COLS, (h - 40) / Math.ceil(count/COLS));
         const startX = (w - COLS * cellSize) / 2;
@@ -116,7 +106,7 @@ function update(time, dt) {
             const x = startX + c * cellSize;
             const y = startY + r * cellSize;
             
-            // Color
+            // 素数だけをアクセント色で強調する。
             if (isPrime[i]) {
                  ctx.fillStyle = Render.getThemeColor('--accent-primary');
             } else {
@@ -125,58 +115,40 @@ function update(time, dt) {
             
             ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
             
-            // Text
             ctx.fillStyle = isPrime[i] ? 'black' : 'rgba(255,255,255,0.5)';
             ctx.fillText(i, x + cellSize/2, y + cellSize/2);
         }
     } else {
-        // Ulam Spiral
-        // Start center, spiral out
+        // 1を中心に置き、右・上・左・下の順で歩幅を2回ごとに増やす。
         const count = p.max;
-        // Calc cell size to fit
-        // Pattern size ~ sqrt(count) x sqrt(count)
+        // おおよそ√N四方へ収まる前提でセル寸法を決める。
         const dim = Math.ceil(Math.sqrt(count));
         const cellSize = Math.min(w, h) / (dim + 2);
         
         let x = cx;
         let y = cy;
         let dx = 1;
-        let dy = 0; // Directions: Right, Up, Left, Down
+        let dy = 0;
         let step = 1;
         let stepCount = 0;
         let turnCounter = 0;
         
-        // 1 is center
-        // Algorithm: Move step, turn, Move step, turn, Move step+1, turn...
-        // x,y are pixel coords
-        // Need grid coords?
-        // Let's simulate walk
-        
         ctx.fillStyle = Render.getThemeColor('--accent-primary');
-        
-        // Correct Ulam start: 1 center
+
         let curr = 1;
-        let currentStep = 1; // steps to take before turn
+        let currentStep = 1;
         let stepsTaken = 0;
-        let turnCount = 0; // every 2 turns, step increases
-        
-        // Directions: Right (1,0), Up (0,-1), Left (-1,0), Down (0,1)
-        // Canvas Y is down, so Up is -1
+        let turnCount = 0;
+
+        // CanvasはY下向きなので、上方向だけdy=-1になる。
         const dirs = [{x:1, y:0}, {x:0, y:-1}, {x:-1, y:0}, {x:0, y:1}];
         let dirIdx = 0;
         
-        // Reset grid pos to center
-        // But we draw rectangles
-        
         while (curr <= count) {
-            // Draw curr
             if (isPrime[curr]) {
                 ctx.fillRect(x - cellSize/2, y - cellSize/2, cellSize-1, cellSize-1);
             } else {
-                // Dot for composite?
-                // ctx.fillStyle = 'rgba(255,255,255,0.1)';
-                // ctx.fillRect(x - 1, y - 1, 2, 2);
-                // ctx.fillStyle = Render.getThemeColor('--accent-primary');
+                // 合成数は描かず、素数が作る斜線パターンを見やすくする。
             }
             
             // Move

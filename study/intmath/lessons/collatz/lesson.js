@@ -1,3 +1,4 @@
+/* コラッツ列の生成結果を数列・軌跡として可視化するレッスン。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

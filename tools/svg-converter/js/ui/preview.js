@@ -1,5 +1,5 @@
-/* ui/preview.js — 原画 Canvas と SVG 結果の表示・ズームパン・Before/After 比較。
- * 前処理（明るさ・コントラスト・ガンマ・ぼかし・2 値化）はこの層でリアルタイム反映する。 */
+/* 原画CanvasとSVG結果の表示を管理する。
+ * Workerへ渡す前処理済み画素もこのCanvasから取得するため、表示と変換入力は同一になる。 */
 
 import { store } from '../store.js';
 import { attachViewport } from './viewport.js';
@@ -45,7 +45,7 @@ export function initPreview(opts) {
     if (brushChanged) lastBrushDirty = state.brushDirty | 0;
 
     if (sourceChanged || modeChanged || preprocessChanged || brushChanged) {
-      // debounce — preprocess は重いのでフレームに 1 回まで
+      // スライダー入力が同一フレームに集中しても、前処理は1フレーム1回にまとめる。
       if (!scheduled) {
         scheduled = true;
         requestAnimationFrame(() => {
@@ -89,7 +89,7 @@ function renderSource(state, { canvasEl, dropzoneEl, sourceMetaEl }) {
   ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
   ctx.drawImage(source.imageBitmap, 0, 0);
 
-  // ブラシキャンバスをソースに合成（前処理の前に適用）
+  // ブラシは前処理の前に合成し、加筆部分にも二値化・色補正を同じ条件で適用する。
   const brush = getBrushCanvas();
   if (brush) ctx.drawImage(brush, 0, 0);
 
@@ -112,7 +112,7 @@ function renderSource(state, { canvasEl, dropzoneEl, sourceMetaEl }) {
 
   let metaText = `${source.width}×${source.height}`;
   if (preprocess.autoThreshold && (mode === 'binary' || mode === 'silhouette' || mode === 'outline' || mode === 'centerline')) {
-    // しきい値表示用に再計算（preprocessForPreview 後の grayscale 値で）
+    // 表示中の画素から再計算し、実際の自動しきい値とメタ表示を一致させる。
     const id = ctx.getImageData(0, 0, source.width, source.height);
     const t = otsuThreshold(id);
     metaText += ` · t=${t}`;

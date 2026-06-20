@@ -1,13 +1,10 @@
-/**
- * ui.js - UI updates: layer panel, properties panel, status bar, command line
- */
+/* レイヤー・プロパティ・ステータス・コマンド履歴をstateから再描画する。
+ * 図面変更を伴うUI操作は、render呼出しに加えてpushHistoryも行う。 */
 
 import { state, pushHistory, canUndo, canRedo } from './core.js';
 import { render } from './render.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Command Log
-// ─────────────────────────────────────────────────────────────────────────────
+// コマンド履歴はDOM増加を抑えるため直近80行だけ保持する。
 
 const MAX_CMD_LINES = 80;
 
@@ -20,7 +17,6 @@ export function log(msg) {
   div.style.whiteSpace = 'nowrap';
   history.appendChild(div);
 
-  // Trim to max lines
   while (history.children.length > MAX_CMD_LINES) {
     history.removeChild(history.firstChild);
   }
@@ -37,9 +33,7 @@ export function logError(msg) {
   history.scrollTop = history.scrollHeight;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Status Bar
-// ─────────────────────────────────────────────────────────────────────────────
+// ステータスバーはスナップ後の座標を優先し、確定される点を事前表示する。
 
 export function updateStatusBar() {
   const coordEl = document.getElementById('status-coords');
@@ -75,16 +69,14 @@ export function updateStatusBar() {
     }
   }
 
-  // Undo/Redo buttons
+  // 履歴位置に応じてUndo/Redoの実行可否を同期する。
   const undoBtn = document.getElementById('btn-undo');
   const redoBtn = document.getElementById('btn-redo');
   if (undoBtn) undoBtn.disabled = !canUndo();
   if (redoBtn) redoBtn.disabled = !canRedo();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Layer Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// レイヤー行は選択・表示・ロック・名称変更を同じstate項目へ反映する。
 
 let _colorPickerCallback = null;
 let _colorPickerLayerId = null;
@@ -100,7 +92,7 @@ export function renderLayerPanel() {
     row.className = `layer-row flex items-center gap-1.5 px-2 py-1.5 cursor-pointer text-xs select-none ${isActive ? 'active-layer' : ''}`;
     row.title = `Click to set active layer: ${layer.name}`;
 
-    // Color swatch (click to open color picker)
+    // 色はレイヤー継承図形にも影響するため、変更後に図面全体を再描画する。
     const swatch = document.createElement('div');
     swatch.className = 'w-3.5 h-3.5 rounded-sm border border-black/30 shrink-0 cursor-pointer hover:ring-1 hover:ring-cad-accent';
     swatch.style.backgroundColor = layer.color;
@@ -110,7 +102,7 @@ export function renderLayerPanel() {
       openColorPicker(layer.id, layer.color);
     });
 
-    // Name (editable on double-click)
+    // レイヤー名はDXFのレイヤー名としても出力される。
     const name = document.createElement('span');
     name.className = 'flex-1 truncate font-mono text-[11px]';
     name.style.color = layer.visible ? layer.color : '#484f58';
@@ -121,7 +113,7 @@ export function renderLayerPanel() {
       startRenameLayer(layer.id, name);
     });
 
-    // Visibility toggle
+    // 非表示レイヤーは描画・スナップ候補から除外する。
     const visBtn = document.createElement('button');
     visBtn.className = 'shrink-0 opacity-60 hover:opacity-100 transition-opacity';
     visBtn.title = layer.visible ? 'Hide layer' : 'Show layer';
@@ -136,7 +128,7 @@ export function renderLayerPanel() {
       render();
     });
 
-    // Lock toggle
+    // ロック中レイヤーの図形は選択・編集対象から除外する。
     const lockBtn = document.createElement('button');
     lockBtn.className = 'shrink-0 opacity-60 hover:opacity-100 transition-opacity';
     lockBtn.title = layer.locked ? 'Unlock layer' : 'Lock layer';
@@ -150,7 +142,7 @@ export function renderLayerPanel() {
       renderLayerPanel();
     });
 
-    // Delete button (not shown for default layer)
+    // 既定レイヤーは削除不可とし、図面の退避先を常に確保する。
     if (layer.id !== 'layer0') {
       const delBtn = document.createElement('button');
       delBtn.className = 'shrink-0 text-red-700 hover:text-red-400 opacity-50 hover:opacity-100 transition-opacity';
@@ -208,7 +200,7 @@ function startRenameLayer(layerId, nameEl) {
 }
 
 function deleteLayer(layerId) {
-  // Move entities to default layer
+  // 削除レイヤー上の図形は失わず、既定レイヤーへ移動する。
   for (const ent of state.entities) {
     if (ent.layerId === layerId) ent.layerId = 'layer0';
   }
@@ -218,9 +210,7 @@ function deleteLayer(layerId) {
   render();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Color Picker
-// ─────────────────────────────────────────────────────────────────────────────
+// レイヤー色と図形個別色で共有するカラーピッカー。
 
 const PRESET_COLORS = [
   '#ffffff', '#c9d1d9', '#8b949e', '#484f58', '#30363d', '#161b22',
@@ -285,9 +275,7 @@ export function initColorPicker() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Properties Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// 単一選択時は図形固有値、複数選択時は共通変更可能な項目だけを表示する。
 
 export function renderPropertiesPanel() {
   const panel = document.getElementById('properties-panel');
@@ -312,10 +300,9 @@ export function renderPropertiesPanel() {
 
   const rows = [];
 
-  // Type
   rows.push(['Type', ent.type.toUpperCase(), false]);
 
-  // Layer (dropdown)
+  // レイヤー変更は選択図形すべてへ適用する。
   const layerSelect = document.createElement('select');
   layerSelect.className = 'prop-input';
   state.layers.forEach(l => {
@@ -331,7 +318,7 @@ export function renderPropertiesPanel() {
     render();
   });
 
-  // Entity-specific properties
+  // 図形種別ごとに編集可能な座標・寸法を追加する。
   switch (ent.type) {
     case 'line':
       rows.push(['Start X', ent.start.x.toFixed(3), true, v => { pushHistory(); ent.start.x = parseFloat(v); render(); }]);
@@ -393,7 +380,6 @@ export function renderPropertiesPanel() {
       break;
   }
 
-  // Render rows
   for (const [label, value, editable, onChange] of rows) {
     const row = document.createElement('div');
     row.className = 'prop-row';
@@ -422,7 +408,7 @@ export function renderPropertiesPanel() {
     panel.appendChild(row);
   }
 
-  // Polyline vertex editor
+  // ポリラインだけは各頂点を個別編集できる一覧を追加する。
   if (ent.type === 'polyline') {
     const hdr = document.createElement('div');
     hdr.className = 'text-[9px] text-gray-500 uppercase tracking-wider mt-2 mb-1 border-b border-cad-border pb-0.5';
@@ -461,7 +447,6 @@ export function renderPropertiesPanel() {
     });
   }
 
-  // Layer selector
   const layerRow = document.createElement('div');
   layerRow.className = 'prop-row mt-1';
   const lbl = document.createElement('div');
@@ -471,7 +456,6 @@ export function renderPropertiesPanel() {
   layerRow.appendChild(layerSelect);
   panel.appendChild(layerRow);
 
-  // Line type selector
   const ltRow = document.createElement('div');
   ltRow.className = 'prop-row';
   const ltLbl = document.createElement('div');
@@ -496,9 +480,7 @@ export function renderPropertiesPanel() {
   panel.appendChild(ltRow);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// New Layer
-// ─────────────────────────────────────────────────────────────────────────────
+// 新規レイヤーは既存名称と衝突しないIDを発行して追加する。
 
 let _layerCounter = 4;
 
@@ -519,5 +501,5 @@ export function createNewLayer() {
   renderLayerPanel();
 }
 
-// Helper for dist in this module
+// プロパティ表示用の簡易距離計算。
 function dist(a, b) { return Math.hypot(b.x - a.x, b.y - a.y); }

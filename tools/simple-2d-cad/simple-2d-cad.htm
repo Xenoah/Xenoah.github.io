@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <title>Simple 2D CAD</title>
+  <!-- Tailwind CDNを使うため、完全オフライン化する場合は生成済みCSSへ置き換える -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -78,11 +79,11 @@
       box-shadow: 0 4px 24px rgba(0,0,0,0.4);
     }
 
-    /* Snap indicator animations */
+    /* スナップ候補は図形と重なっても見失わないよう、明滅で位置を示す */
     @keyframes snapPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     .snap-indicator { animation: snapPulse 0.8s ease-in-out infinite; }
 
-    /* Command autocomplete */
+    /* 候補一覧はコマンド入力欄の上へ展開し、キャンバス領域を押し下げない */
     #cmd-suggestions {
       position: absolute;
       bottom: 100%;
@@ -112,7 +113,7 @@
     .cmd-suggestion .cmd-alias { color: #8b949e; font-size: 10px; min-width: 28px; }
     .cmd-suggestion .cmd-desc { color: #6e7681; font-size: 10px; }
 
-    /* Toolbar tabs */
+    /* タブ切替時もツールバー全体の高さを固定し、キャンバス位置を動かさない */
     .toolbar-tab {
       display: flex; align-items: center; gap: 4px;
       padding: 2px 8px; border-radius: 4px 4px 0 0;
@@ -128,7 +129,7 @@
 </head>
 <body class="flex flex-col h-screen font-mono text-cad-text bg-cad-bg">
 
-  <!-- Title Bar -->
+  <!-- ファイル操作と履歴操作は、作図ツールとは独立した上段へ置く -->
   <header class="h-10 bg-cad-panel border-b border-cad-border flex items-center justify-between px-3 shrink-0 z-20 select-none">
     <div class="flex items-center gap-2">
       <div class="w-6 h-6 bg-gradient-to-tr from-blue-700 to-cyan-400 rounded flex items-center justify-center font-bold text-white text-xs shadow">X</div>
@@ -136,13 +137,11 @@
       <span id="file-name" class="text-xs text-gray-500 ml-2">untitled.xnh</span>
     </div>
     <div class="flex items-center gap-2">
-      <!-- File ops -->
       <button id="btn-new" class="text-xs px-2 py-1 rounded border border-cad-border hover:bg-cad-grid text-gray-400 hover:text-white" title="New drawing">New</button>
       <button id="btn-save" class="text-xs px-2 py-1 rounded border border-cad-border hover:bg-cad-grid text-gray-400 hover:text-white" title="Save JSON">Save</button>
       <button id="btn-load" class="text-xs px-2 py-1 rounded border border-cad-border hover:bg-cad-grid text-gray-400 hover:text-white" title="Load JSON">Open</button>
       <input id="file-input" type="file" accept=".xnh,.json,.dxf,.dwg" class="hidden" />
       <div class="w-px h-4 bg-cad-border mx-1"></div>
-      <!-- Undo/Redo -->
       <button id="btn-undo" class="p-1.5 rounded hover:bg-cad-grid text-gray-400 hover:text-white disabled:opacity-30" title="Undo (Ctrl+Z)" disabled>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
       </button>
@@ -150,7 +149,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
       </button>
       <div class="w-px h-4 bg-cad-border mx-1"></div>
-      <!-- Export -->
       <button id="btn-export-dxf" class="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-xs font-semibold text-white transition-colors">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Export DXF
@@ -158,10 +156,9 @@
     </div>
   </header>
 
-  <!-- Toolbar (Tabbed) -->
+  <!-- ツール数が多いため、機能カテゴリごとに同じ高さのタブへ分割する -->
   <div class="bg-cad-panel border-b border-cad-border shrink-0 z-10">
 
-    <!-- Tab strip -->
     <div class="flex items-center border-b border-cad-border h-7 px-2 gap-0.5">
       <button class="toolbar-tab active" data-tab="draw">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="19" x2="19" y2="5"/><circle cx="19" cy="5" r="2"/></svg>
@@ -183,7 +180,7 @@
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="20" x2="21" y2="20"/><line x1="3" y1="3" x2="3" y2="20"/><line x1="3" y1="11" x2="13" y2="11"/><polygon points="11,8 11,14 17,11"/></svg>
         Dim
       </button>
-      <!-- spacer + AI input -->
+      <!-- AI入力は通常コマンドへ変換して実行し、独自の図面更新経路を持たせない -->
       <div class="flex-1"></div>
       <form id="ai-form" class="flex items-center gap-1.5 mr-1">
         <div class="relative">
@@ -199,10 +196,9 @@
       </form>
     </div>
 
-    <!-- Tool panels (h-12 each) -->
+    <!-- 各パネルの高さを揃え、タブ切替で作図領域が上下しないようにする -->
     <div class="h-12 flex items-center px-2 gap-0.5 overflow-x-auto">
 
-      <!-- DRAW panel -->
       <div id="tab-panel-draw" class="flex items-center gap-0.5">
         <button class="tool-btn w-12 h-10 rounded flex flex-col items-center justify-center gap-0.5 text-xs text-gray-400" data-tool="SELECT" title="Select (Esc)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
@@ -241,7 +237,6 @@
         </button>
       </div>
 
-      <!-- EDIT panel (hidden) -->
       <div id="tab-panel-edit" class="hidden items-center gap-0.5">
         <button class="tool-btn w-12 h-10 rounded flex flex-col items-center justify-center gap-0.5 text-xs text-gray-400" data-tool="MOVE" title="Move (M)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/><path d="M3 12h18M12 3v18"/></svg>
@@ -296,7 +291,6 @@
         </button>
       </div>
 
-      <!-- VIEW panel (hidden) -->
       <div id="tab-panel-view" class="hidden items-center gap-0.5">
         <button id="btn-zoom-extents" class="tool-btn w-14 h-10 rounded flex flex-col items-center justify-center gap-0.5 text-xs text-gray-400" title="Zoom Extents (Z E)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
@@ -305,7 +299,6 @@
         </button>
       </div>
 
-      <!-- DIM panel (hidden) -->
       <div id="tab-panel-dim" class="hidden items-center gap-0.5">
         <button class="tool-btn w-14 h-10 rounded flex flex-col items-center justify-center gap-0.5 text-xs text-gray-400" data-tool="DIMLINEAR" title="Linear Dimension (DLI)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -350,7 +343,6 @@
         </button>
       </div>
 
-      <!-- MODES panel (hidden) -->
       <div id="tab-panel-modes" class="hidden items-center gap-0.5">
         <button id="btn-ortho" class="tool-btn w-12 h-10 rounded flex flex-col items-center justify-center gap-0.5 text-xs text-gray-400" title="Ortho Mode (F8)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="3" x2="21" y2="3"/><line x1="3" y1="3" x2="3" y2="21"/></svg>
@@ -371,13 +363,12 @@
     </div>
   </div>
 
-  <!-- Main Workspace -->
+  <!-- 作図領域と右サイドバーを、画面高の残りへ固定する -->
   <div class="flex flex-1 overflow-hidden relative">
 
-    <!-- Canvas Area -->
     <div id="canvas-container" class="flex-1 bg-[#0b1120] relative overflow-hidden select-mode">
 
-      <!-- SVG Canvas -->
+      <!-- グリッドと図形を同じSVG内に置き、パン・ズーム変換を共有する -->
       <svg id="cad-svg" class="w-full h-full block" tabindex="0" style="outline:none">
         <defs>
           <pattern id="grid-pattern-small" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="translate(0,0) scale(1,1)">
@@ -389,35 +380,31 @@
           </pattern>
         </defs>
 
-        <!-- Grid -->
         <g id="grid-layer">
           <rect id="grid-rect" width="100%" height="100%" fill="url(#grid-pattern-large)"/>
         </g>
 
-        <!-- Viewport transform group -->
+        <!-- このグループ配下だけをワールド座標として変換する -->
         <g id="viewport">
-          <!-- World origin axes -->
           <g id="origin-layer">
             <line x1="-5" y1="0" x2="80" y2="0" stroke="#f87171" stroke-width="0.5" opacity="0.6"/>
             <line x1="0" y1="-5" x2="0" y2="80" stroke="#4ade80" stroke-width="0.5" opacity="0.6"/>
             <circle cx="0" cy="0" r="2" fill="#f87171" opacity="0.6"/>
           </g>
 
-          <!-- Entities -->
           <g id="entities-layer"></g>
 
-          <!-- Preview (current drawing operation) -->
+          <!-- 未確定プレビューは図形本体より前面へ描く -->
           <g id="preview-layer" opacity="0.75" pointer-events="none"></g>
 
-          <!-- Snap indicator -->
+          <!-- スナップ表示はさらに前面へ置き、図形に隠れないようにする -->
           <g id="snap-layer" pointer-events="none"></g>
         </g>
 
-        <!-- Selection box (in screen coords, outside viewport transform) -->
+        <!-- 選択枠は画面座標で扱うため、ワールド変換グループの外へ置く -->
         <g id="selection-box-layer" pointer-events="none"></g>
       </svg>
 
-      <!-- Command Line -->
       <div class="cmd-line absolute bottom-3 left-3 w-80 flex flex-col" style="max-height: 120px;">
         <div id="cmd-history" class="flex-1 overflow-y-auto px-2 pt-2 text-xs text-gray-400 font-mono space-y-0.5" style="max-height: 80px;">
           <div class="text-cad-accent">XNH 2DCAD ready. Type a command or select a tool.</div>
@@ -429,7 +416,7 @@
         </div>
       </div>
 
-      <!-- Text Input Overlay (for TEXT tool) -->
+      <!-- 文字入力欄はSVG外のHTMLとして重ね、IME入力を利用できるようにする -->
       <div id="text-input-overlay" class="hidden absolute bg-cad-panel border border-cad-accent rounded p-2 shadow-xl z-50" style="min-width:200px">
         <div class="text-xs text-gray-400 mb-1">Enter text:</div>
         <input id="text-content-input" type="text" class="bg-cad-bg border border-cad-border rounded px-2 py-1 text-sm text-white font-mono w-full focus:outline-none focus:border-cad-accent" placeholder="Text...">
@@ -440,10 +427,8 @@
       </div>
     </div>
 
-    <!-- Right Sidebar -->
     <div class="w-64 bg-cad-panel border-l border-cad-border flex flex-col z-20 shrink-0">
 
-      <!-- Layers Panel -->
       <div class="flex flex-col" style="height: 50%;">
         <div class="px-3 py-2 bg-cad-bg border-b border-cad-border flex items-center justify-between shrink-0">
           <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-gray-300">
@@ -455,7 +440,6 @@
         <div id="layers-list" class="flex-1 overflow-y-auto"></div>
       </div>
 
-      <!-- Properties Panel -->
       <div class="flex flex-col border-t border-cad-border" style="height: 50%;">
         <div class="px-3 py-2 bg-cad-bg border-b border-cad-border shrink-0">
           <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-gray-300">
@@ -470,7 +454,6 @@
     </div>
   </div>
 
-  <!-- Status Bar -->
   <div class="h-6 bg-cad-bg border-t border-cad-border flex items-center px-3 justify-between text-[10px] text-gray-500 font-mono shrink-0">
     <div class="flex gap-4">
       <span id="status-tool" class="text-cad-accent">SELECT</span>
@@ -485,7 +468,6 @@
     </div>
   </div>
 
-  <!-- Layer Color Picker Dialog -->
   <div id="color-picker-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div class="bg-cad-panel border border-cad-border rounded-lg p-4 shadow-2xl" style="min-width:280px">
       <div class="text-sm font-bold mb-3">Layer Color</div>
@@ -502,7 +484,7 @@
     </div>
   </div>
 
-  <!-- App Modules -->
+  <!-- モジュール間の依存関係はapp.jsを入口として接続する -->
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

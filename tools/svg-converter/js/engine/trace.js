@@ -1,7 +1,5 @@
-/* engine/trace.js — モード別にトレースを実行し、SVG 文字列を生成する。
- *
- * 入力 imageData は preview 側で前処理済み（ToneCurve / Blur / Binarize / Grayscale）。
- * モードごとに必要な追加処理を行ってから tracer 系へ渡す。 */
+/* 前処理済みImageDataをモード別アルゴリズムへ振り分け、SVG文字列へまとめる。
+ * 入力はpreview.jsで処理済みのため、ここでは輪郭・細線・減色など変換固有処理だけを行う。 */
 
 import {
   tracePolygons,
@@ -41,6 +39,7 @@ export function traceImageData(imageData, ctx) {
     }
 
     case 'centerline': {
+      // 面を1px幅の骨格へ細線化し、連続する画素列をストロークとして出力する。
       onProgress(0.1);
       let mask = imageDataToBinaryMask(imageData);
       if (params.trace.thinning !== false) {
@@ -57,6 +56,7 @@ export function traceImageData(imageData, ctx) {
     }
 
     case 'edges': {
+      // 輝度勾配から輪郭候補を作り、必要に応じて細線化してストロークへ変換する。
       onProgress(0.1);
       const mag = sobelMagnitude(imageData);
       if (isCancelled()) return cancelled();
@@ -75,6 +75,7 @@ export function traceImageData(imageData, ctx) {
     }
 
     case 'color': {
+      // 減色後の各パレット色を個別マスクとして輪郭化し、塗りパスを重ねる。
       onProgress(0.05);
       const colors = Math.max(2, Math.min(32, Math.round(params.trace.colors || 8)));
       const { indices, palette } = medianCutQuantize(imageData, colors);
@@ -111,7 +112,7 @@ export function traceImageData(imageData, ctx) {
 }
 
 function imageDataToBinaryMask(imageData) {
-  // preview 側で binarize 済み（白=255, 黒=0）。「黒」を前景=1 とする。
+  // preview側の二値化規則に合わせ、黒をトレース対象の前景1として扱う。
   const data = imageData.data;
   const mask = new Uint8Array(data.length / 4);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {

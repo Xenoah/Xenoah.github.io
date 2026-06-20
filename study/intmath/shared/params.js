@@ -1,19 +1,17 @@
 import { Globals } from './globals.js';
 
-/**
- * ParameterManager
- * Handles UI generation from schema, event binding, and state management.
- */
+/* レッスン固有のSCHEMAから操作UIと現在値を生成する。
+ * URLクエリへの直列化もここで統一し、共有リンクから同じ条件を復元する。 */
 export class ParameterManager {
     constructor(schema, containerId) {
         this.schema = schema;
-        this.containerId = containerId; // Store ID to re-render
+        this.containerId = containerId;
         this.container = document.getElementById(containerId);
         this.params = {};
         this.listeners = [];
         this.uiElements = {};
 
-        // Initialize params with defaults
+        // URL読込前の基準値として、SCHEMAのdefaultをすべて展開する。
         for (const [key, config] of Object.entries(schema)) {
             this.params[key] = config.default;
         }
@@ -31,19 +29,16 @@ export class ParameterManager {
             if (!this.container) return;
         }
 
-        // Preserve focus if re-rendering? 
-        // Simpler to just rebuild for now, but focus loss might annoy if typing.
-        // Given we deal with sliders/selects mainly, full rebuild is ok for language switch.
+        // 言語切替時はラベルも変わるため全体を再生成する。入力途中のフォーカスは維持しない。
 
         this.container.innerHTML = '';
-        this.uiElements = {}; // Reset ref
+        this.uiElements = {};
 
-        // Group by 'folder'
+        // folder名ごとにまとめ、レッスン側のSCHEMA順を保って表示する。
         const groups = {};
         for (const key in this.schema) {
             const config = this.schema[key];
             const groupKey = config.folder || 'Main';
-            // Simple localized group name helper?
             let groupName = groupKey;
 
             if (!groups[groupKey]) groups[groupKey] = [];
@@ -56,8 +51,7 @@ export class ParameterManager {
 
             if (groupName !== 'Main') {
                 const title = document.createElement('h3');
-                // Allow simple mapping for common folder names if we want, or Schema can provide localizations
-                // For now, let's treat folder as a potential key if we want to localize it in Globals later
+                // folder名は現状SCHEMAの文字列をそのまま表示する。
                 title.textContent = groupName;
                 title.style.fontSize = '0.9rem';
                 title.style.marginBottom = '8px';
@@ -67,7 +61,7 @@ export class ParameterManager {
             groups[groupName].forEach(key => {
                 const config = this.schema[key];
 
-                // Determine Label
+                // 日本語ラベルがない項目は英語ラベルへフォールバックする。
                 const labelText = (lang === 'ja' && config.label_ja) ? config.label_ja : config.label;
 
                 const wrapper = document.createElement('div');
@@ -85,13 +79,13 @@ export class ParameterManager {
                     input.min = config.min;
                     input.max = config.max;
                     input.step = config.step;
-                    input.value = this.params[key]; // Use current value
+                    input.value = this.params[key];
                 } else if (config.type === 'select') {
                     input = document.createElement('select');
                     config.options.forEach(opt => {
                         const option = document.createElement('option');
                         option.value = opt;
-                        option.textContent = opt; // Could localize options too if they are keys
+                        option.textContent = opt;
                         option.selected = opt === this.params[key];
                         input.appendChild(option);
                     });
@@ -129,14 +123,14 @@ export class ParameterManager {
     updateParam(key, value, internal = false) {
         this.params[key] = value;
 
-        // Update UI Display
+        // 表示値と内部値を同じformatValue規則で揃える。
         const storedVal = this.params[key];
         const display = document.getElementById(`val-${key}`);
         if (display) {
             display.textContent = this.formatValue(storedVal, this.schema[key]);
         }
 
-        // Update Input if not triggered by input
+        // プリセットなど内部更新の場合だけ、入力要素側へ値を書き戻す。
         if (internal && this.uiElements[key]) {
             if (this.uiElements[key].type === 'checkbox') {
                 this.uiElements[key].checked = storedVal;
@@ -161,6 +155,7 @@ export class ParameterManager {
     }
 
     serializeToUrl() {
+        // 全パラメーターをURLへ含め、レッスン状態を単独リンクで再現できるようにする。
         const params = new URLSearchParams();
         for (const key in this.params) {
             params.set(key, this.params[key]);
@@ -189,7 +184,7 @@ export class ParameterManager {
                 changed = true;
             }
         }
-        // renderUI will update inputs because we set defaults/overrides in params
+        // UI生成前にparamsへ反映しておけば、初回renderUIで入力値も揃う。
         if (changed) this.notifyChange();
     }
 }

@@ -1,4 +1,5 @@
-/* main.js — 起動エントリ。各 UI モジュールを配線し、Worker と Service Worker を初期化。 */
+/* SVG変換画面の起動エントリ。
+ * UI状態、前処理済みCanvas、Worker変換、書き出しをこのファイルで接続する。 */
 
 import { store } from './store.js';
 import { loadLocale, apply as applyI18n, t } from './i18n/index.js';
@@ -52,6 +53,7 @@ const els = {
 };
 
 let traceWorker = null;
+// 古いWorker応答で最新結果を上書きしないよう、変換要求ごとに単調増加IDを付ける。
 let activeJobId = 0;
 let liveTimer = 0;
 
@@ -71,6 +73,7 @@ function getWorker() {
 
 function onWorkerMessage(event) {
   const msg = event.data;
+  // 変換中に設定が変わった場合、旧ジョブの進捗・結果はすべて無視する。
   if (!msg || msg.id !== activeJobId) return;
 
   switch (msg.type) {
@@ -80,7 +83,7 @@ function onWorkerMessage(event) {
     case 'done': {
       let optimized = optimize(msg.svg, { precision: 2 });
       const palette = extractPalette(optimized);
-      // 既存のパレット override を反映
+      // 色置換は再トレースせず、最適化後のfill属性だけを差し替える。
       const override = store.state.paletteOverride;
       if (override) {
         for (const [from, to] of Object.entries(override)) {
@@ -116,7 +119,8 @@ async function convert() {
     svgMeta: null,
   });
 
-  // ソース canvas には preview 側で前処理済みの画像が入っている。
+  // preview.jsが「元画像→ブラシ→前処理」の順で更新したCanvasをWorkerへ渡す。
+  // 前処理をWorker側でも行うと二重適用になるため、ここでは画素をそのまま転送する。
   const ctx = els.sourceCanvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) {
     store.update({ ui: { busy: false, statusKey: 'status.error' } });
@@ -137,7 +141,7 @@ async function convert() {
   );
 }
 
-/** ライブ再トレース：パラメータ変更後 350ms のアイドルで再変換。 */
+// スライダー操作中の連続変換を避け、最後の変更から350ms後に再実行する。
 function scheduleLiveTrace() {
   const { source, ui } = store.state;
   if (!ui.liveTrace || !source) return;
@@ -191,6 +195,7 @@ function baseFileName(source) {
 }
 
 function saveBlob(blob, filename) {
+  // Object URLはクリック直後に破棄すると保存前に無効化されるブラウザがあるため遅延解放する。
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -206,6 +211,7 @@ function escapeRegex(s) {
 }
 
 function extractPalette(svg) {
+  // 出現回数順に並べ、主要色がパレットUIの先頭へ来るようにする。
   const set = new Map();
   const re = /fill="(#[0-9a-fA-F]{3,8})"/g;
   let m;
@@ -313,7 +319,7 @@ function bindLiveTraceToggle() {
     if (els.liveTraceToggle.checked) scheduleLiveTrace();
   });
 
-  // パラメータ・モード・画像の変化でライブ再トレースをスケジュール
+  // 出力色の置換や表示状態は再トレース不要なので、変換入力だけを署名へ含める。
   let lastSig = '';
   store.subscribe((state) => {
     const sig = JSON.stringify({

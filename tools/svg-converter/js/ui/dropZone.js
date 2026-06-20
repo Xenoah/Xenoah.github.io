@@ -1,4 +1,4 @@
-/* ui/dropZone.js — D&D / クリック / クリップボード貼付で画像を取り込む。 */
+/* D&D・ファイル選択・ページ全体への貼り付けを同じ画像読込処理へ集約する。 */
 
 import { store } from '../store.js';
 
@@ -43,7 +43,7 @@ export function initDropZone({ dropzoneEl, fileInputEl }) {
     fileInputEl.value = '';
   });
 
-  // クリップボード貼付（ページ全体で受け付ける）
+  // フォーカス位置に依存せず画像を貼れるよう、pasteはwindowで受ける。
   window.addEventListener('paste', (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -71,6 +71,7 @@ function pickFirstImage(fileList) {
 async function loadFile(file) {
   store.update({ ui: { busy: true, statusKey: 'status.loading' } });
   try {
+    // ImageBitmapへデコードしておき、プレビュー再描画時の画像要素待ちをなくす。
     const bitmap = await createImageBitmap(file);
     store.update({
       source: {

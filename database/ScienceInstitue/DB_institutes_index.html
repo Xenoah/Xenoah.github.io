@@ -422,7 +422,8 @@
     <script type="text/babel">
         const { useState, useEffect, useContext, createContext, useMemo, useRef } = React;
 
-        // --- Context ---
+        // DB_institutes_data.jsonを一次データとし、一覧・絞り込み・統計・AI解説へ同じ配列を供給する。
+        // Gemini APIキーは公開ファイルへ含めず、このブラウザのlocalStorageだけへ保存する。
         const InstituteContext = createContext();
 
         const InstituteProvider = ({ children }) => {
@@ -435,6 +436,7 @@
             useEffect(() => {
                 const fetchData = async () => {
                     try {
+                        // HTMLと同じディレクトリを基準に読み込むため、配置変更時はJSONも一緒に移動する。
                         const response = await fetch('./DB_institutes_data.json');
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);

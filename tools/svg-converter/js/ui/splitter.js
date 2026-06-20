@@ -1,4 +1,5 @@
-/* ui/splitter.js — preview の divider をドラッグして左右（横画面時は上下）比率を変える。 */
+/* 原画・結果ペインの分割比率を管理する。
+ * 880px以下では縦分割へ切り替えるが、同じ比率値を引き継ぐ。 */
 
 const STORAGE_KEY = 'svg-converter:split';
 const MIN_RATIO = 0.15;
@@ -14,6 +15,7 @@ export function initSplitter({ container, divider }) {
 
   divider.addEventListener('pointerdown', (e) => {
     dragging = true;
+    // ドラッグ途中でレイアウト軸が変わらないよう、開始時の向きを固定する。
     isVertical = matchMedia('(max-width: 880px)').matches;
     divider.setPointerCapture(e.pointerId);
     document.body.style.userSelect = 'none';

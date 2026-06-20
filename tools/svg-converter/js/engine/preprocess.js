@@ -1,4 +1,4 @@
-/* engine/preprocess.js — Canvas ImageData 用の前処理。すべて純粋関数で in-place 編集。
+/* Canvas ImageData用の前処理。画素配列をin-place更新して中間コピーを抑える。
  *
  * - applyToneCurve: 明るさ・コントラスト・ガンマを 1 パスで適用
  * - blur: 半径 r の box blur（separable, 3 パスで近似ガウシアン）
@@ -113,7 +113,7 @@ function hueToRgb(p, q, t) {
 }
 
 function buildToneLUT(brightness, contrast, gamma) {
-  // contrast: factor = (259*(c+255)) / (255*(259-c)) where c is -255..255
+  // 3チャンネル共通LUTを先に作り、大きな画像でも画素ごとの指数計算を避ける。
   const c = (contrast / 100) * 255;
   const cf = (259 * (c + 255)) / (255 * (259 - c));
   const b = (brightness / 100) * 255;
@@ -128,7 +128,7 @@ function buildToneLUT(brightness, contrast, gamma) {
   return lut;
 }
 
-/** Box blur, repeated 3 times → near-gaussian. radius is in pixels. */
+// 水平・垂直のBox Blurを3回繰り返し、低コストでガウシアンぼかしへ近似する。
 export function blur(imageData, radius) {
   const r = Math.max(0, Math.round(radius));
   if (!r) return imageData;
@@ -206,7 +206,7 @@ function clampI(v, lo, hi) {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
-/** Convert RGBA → grayscale (Y). アルファは維持。 */
+// RGBを輝度Yへ変換し、アルファ値は変更しない。
 export function toGrayscale(imageData) {
   const data = imageData.data;
   for (let i = 0; i < data.length; i += 4) {
@@ -268,8 +268,8 @@ export function binarize(imageData, threshold = 128) {
   return imageData;
 }
 
-/** Apply the full preprocessing pipeline used by Phase 3 preview.
- *  mode は最終的なトレースモード。preview 用に「2 値化したかった結果」もここで反映する。 */
+// プレビューとWorker入力で共有する前処理順序。
+// modeに応じたグレースケール・二値化までここで完了させる。
 export function preprocessForPreview(imageData, { mode, preprocess }) {
   applyToneCurve(imageData, preprocess);
   if (preprocess.saturation || preprocess.hueRotate) {

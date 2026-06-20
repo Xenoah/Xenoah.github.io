@@ -1,10 +1,9 @@
-/* ui/brush.js — ソース canvas に重ねた "ブラシキャンバス" の管理。
+/* 元画像と同じ解像度のブラシレイヤーを管理する。
  *
  * paint ツール = 黒で描く（前景を加筆）
  * erase ツール = 白で描く（背景化／消しゴム）
  *
- * ブラシキャンバスは単独で持ち、preview.js の renderSource で
- * 「ソース画像 → 前処理 → ブラシ合成」の順に適用する。 */
+ * preview.jsで「元画像→ブラシ合成→前処理」の順に適用し、画面表示と変換入力を一致させる。 */
 
 import { store } from '../store.js';
 
@@ -13,7 +12,7 @@ let drawing = false;
 let lastX = 0;
 let lastY = 0;
 
-/** ソース画像と同じ寸法のブラシキャンバスを取得（必要なら再生成）。 */
+// 画像寸法が変わった場合は旧ストロークを流用できないため、新しいCanvasへ作り直す。
 export function getBrushCanvas() {
   const src = store.state.source;
   if (!src) return null;
@@ -53,7 +52,7 @@ export function attachBrush({ host, sourceCanvas, getViewport }) {
   const onPointerMove = (e) => {
     const tool = store.state.ui.brushTool;
     if (tool === 'paint' || tool === 'erase') {
-      // ブラシモード中は viewport のパンを抑止
+      // 同じpointerイベントをviewportも監視するため、ブラシ中はパン処理への伝播を止める。
       e.stopImmediatePropagation();
     }
     if (!drawing) return;
@@ -61,7 +60,7 @@ export function attachBrush({ host, sourceCanvas, getViewport }) {
     drawLine(lastX, lastY, p.x, p.y);
     lastX = p.x;
     lastY = p.y;
-    // ライブ反映を間引く: ストロークごとに 1 回 + 終端で 1 回
+    // 長いストローク中のCanvas再処理を抑えるため、移動中の通知だけを間引く。
     if (Math.random() < 0.4) {
       store.update({ brushDirty: (store.state.brushDirty | 0) + 1 });
     }

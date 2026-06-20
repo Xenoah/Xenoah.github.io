@@ -1,3 +1,4 @@
+/* フラクタルの反復計算と表示範囲をSCHEMAから制御する描画モジュール。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

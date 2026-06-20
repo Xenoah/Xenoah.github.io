@@ -30,7 +30,7 @@ body {
   --transition-fast: 120ms ease;
   --transition-med: 200ms ease;
 
-  /* light theme tokens */
+  /* ライトテーマでは同じ意味のトークンだけを上書きする */
   --bg: #f8fafc;
   --bg-elev: #ffffff;
   --bg-sunken: #eef2f6;
@@ -87,7 +87,7 @@ p {
   display: none !important;
 }
 
-/* a11y */
+/* キーボード操作時だけフォーカス位置を明示する */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

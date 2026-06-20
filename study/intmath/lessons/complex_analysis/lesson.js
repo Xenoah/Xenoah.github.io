@@ -1,3 +1,4 @@
+/* 複素関数による座標変換を、入力平面と出力平面の対応として描画する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

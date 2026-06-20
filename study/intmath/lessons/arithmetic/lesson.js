@@ -1,3 +1,4 @@
+/* 四則演算の問題生成と可視化。操作UI・描画ループ・テーマはshared配下を共通利用する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

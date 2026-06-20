@@ -1,3 +1,4 @@
+/* 高次元座標を低次元へ投影し、軸と点の関係を操作可能にするレッスン。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

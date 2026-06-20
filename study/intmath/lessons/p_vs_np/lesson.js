@@ -1,3 +1,4 @@
+/* 組合せ探索の増加量を可視化し、PとNPの計算量差を体験させる。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

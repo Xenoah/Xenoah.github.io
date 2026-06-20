@@ -1,4 +1,4 @@
-/* engine/tracer.js — 自前のラスター→ベクター変換コア。
+/* 外部依存なしのラスター→ベクター変換コア。Workerから呼べる純粋関数で構成する。
  *
  * 1. 2 値マスクから境界エッジ（ピクセル間の有向辺）をすべて抽出してチェーン化、
  *    閉路ポリゴンに分解する。CCW 方向に走るので、foreground は常に進行方向の右側になる。
@@ -6,7 +6,7 @@
  * 3. オプションで Catmull-Rom 風のベジェ平滑化。
  * 4. SVG path 文字列に変換。
  *
- * 外部依存なし。Worker からも UI からも呼べる純粋関数。 */
+ * 穴判定とfill-ruleは辺の向きに依存するため、座標系・走査方向を変更しないこと。 */
 
 /** 2 値マスク（Uint8Array, 0 or 1）から閉路ポリゴンを抽出する。
  *  各ポリゴンは { points: [[x,y],...], hole: bool } 形式。 */
@@ -14,7 +14,7 @@ export function tracePolygonsFromMask(mask, w, h) {
   const stride = w + 1;
   const get = (x, y) => (x >= 0 && x < w && y >= 0 && y < h ? mask[y * w + x] : 0);
 
-  // edges: corner -> queue of next corners (Int32 で k = y*(w+1)+x)
+  // 画素の角を整数キー化し、始点から次の角への有向辺リストとして保持する。
   const edges = new Map();
   const pushEdge = (sx, sy, ex, ey) => {
     const k = sy * stride + sx;
@@ -26,7 +26,7 @@ export function tracePolygonsFromMask(mask, w, h) {
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       if (!get(x, y)) continue;
-      // foreground を右手に、CW で囲むように辺を入れる（y 下向き座標系）
+      // Y下向き座標で前景が常に右側へ来る向きに辺を置き、外周と穴を区別する。
       if (!get(x, y - 1)) pushEdge(x, y, x + 1, y);          // top  → right
       if (!get(x + 1, y)) pushEdge(x + 1, y, x + 1, y + 1);  // right→ down
       if (!get(x, y + 1)) pushEdge(x + 1, y + 1, x, y + 1);  // bottom→ left
@@ -35,7 +35,7 @@ export function tracePolygonsFromMask(mask, w, h) {
   }
 
   const paths = [];
-  // 順序が安定するようキーをソートして処理
+  // 入力が同じならSVGのパス順も同じになるよう、開始点をソートする。
   const startKeys = [...edges.keys()].sort((a, b) => a - b);
   const startSet = new Set(startKeys);
   for (const startKey of startKeys) {
@@ -85,7 +85,7 @@ function isClockwise(pts) {
   return sum > 0;
 }
 
-/** Douglas-Peucker による多角形単純化。tolerance はピクセル単位。 */
+// Douglas-Peuckerで形状誤差をtolerance px以内に抑えながら頂点数を減らす。
 export function simplifyPath(points, tolerance) {
   if (tolerance <= 0 || points.length < 3) return points;
   const closed =
@@ -139,7 +139,7 @@ function sqDistToSegment(p, a, b) {
   return px * px + py * py;
 }
 
-/** 多角形面積（絶対値）— speckle 除去判定用 */
+// 絶対面積を返し、小さな孤立領域をspeckleとして除外する判定に使う。
 export function polygonArea(pts) {
   let s = 0;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -162,11 +162,11 @@ export function polygonToPath(pts, precision = 2) {
   return d;
 }
 
-/** 連続 3 点の Catmull-Rom 風スプラインで Cubic Bezier に変換。 */
+// 閉路の連続性を保ったまま、Catmull-Rom風制御点でCubic Bezierへ変換する。
 export function polygonToSmoothPath(pts, smoothing = 0.5, precision = 2) {
   if (smoothing <= 0 || pts.length < 5) return polygonToPath(pts, precision);
   const r = (n) => Number(n.toFixed(precision));
-  // 末尾の重複点を取り除いて閉路として扱う
+  // 閉路末尾の重複点は制御点計算を歪めるため、一時的に除いて循環参照する。
   const last = pts[pts.length - 1];
   const first = pts[0];
   const closed = last[0] === first[0] && last[1] === first[1];

@@ -1,14 +1,14 @@
 /* engine/optimizeSvg.js — 自前のミニマル SVG 最適化。
  * 浮動小数点丸め、空白圧縮、冗長な閉じタグ整理を行う。 */
 
-/** Count element nodes inside a serialized SVG string. */
+// プレビュー用の概算ノード数。XML解析を避け、シリアライズ済み文字列から数える。
 export function countNodes(svgString) {
   if (!svgString) return 0;
   const matches = svgString.match(/<[a-zA-Z][^!>]*?>/g);
   return matches ? matches.length : 0;
 }
 
-/** Round numeric values in path/attribute strings, compress whitespace. */
+// 見た目を保つ範囲で小数と空白を圧縮する。XML構造の変更やパス結合は行わない。
 export function optimize(svgString, { precision = 2 } = {}) {
   if (!svgString) return svgString;
   let out = svgString;
@@ -31,7 +31,7 @@ export function optimize(svgString, { precision = 2 } = {}) {
   return out.trim();
 }
 
-/** Compute a small metadata object for the result preview. */
+// 表示用メタデータは最終的な最適化済み文字列から計算する。
 export function describe(svgString) {
   return {
     bytes: new Blob([svgString]).size,

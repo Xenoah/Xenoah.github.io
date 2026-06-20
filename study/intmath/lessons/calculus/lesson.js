@@ -1,3 +1,4 @@
+/* 微分・積分のパラメーター可視化。数式条件はSCHEMA、描画はupdateへ集約する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

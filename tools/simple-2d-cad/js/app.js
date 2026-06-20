@@ -1,6 +1,5 @@
-/**
- * app.js - Application initialization, event wiring, keyboard shortcuts
- */
+/* 2D CADの起動と入力イベントを集約する。
+ * 幾何計算はcore.js、ツール状態遷移はtools.js、描画はrender.jsへ委譲する。 */
 
 import { state, genId, screenToWorld, computeSnapPoint, undo, redo, pushHistory, zoomExtents, makeEntityBase } from './core.js';
 import { render } from './render.js';
@@ -16,9 +15,7 @@ import {
 } from './ui.js';
 import { exportDXF, saveJSON, loadJSON, importDXF } from './dxf.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Initialization
-// ─────────────────────────────────────────────────────────────────────────────
+// DOM構築後に各UIを接続し、座標原点をキャンバス中央へ置く。
 
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
@@ -31,40 +28,35 @@ document.addEventListener('DOMContentLoaded', () => {
   initColorPicker();
   initAI();
 
-  // Initial render
   renderLayerPanel();
   render();
   updateStatusBar();
 
-  // Set viewport center
+  // 図面のワールド原点が初期表示の中央に来るよう、画面側の平行移動量を設定する。
   const container = document.getElementById('canvas-container');
   state.view.x = container.clientWidth / 2;
   state.view.y = container.clientHeight / 2;
   render();
 
-  // Activate default tool
   activateTool('SELECT');
 
   log('XNH 2DCAD ready. Type a command or select a tool.');
   log('Draw: L PL REC C A T  |  Edit: M CP O TR EX F S AR H  |  Dim: DLI DAL DRA DDI');
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Canvas Events
-// ─────────────────────────────────────────────────────────────────────────────
+// すべてのポインター入力をワールド座標へ変換してから、現在ツールへ渡す。
 
 function initCanvas() {
   const container = document.getElementById('canvas-container');
 
-  // ── Mouse Down ──────────────────────────────────────────────────────────────
   container.addEventListener('mousedown', (e) => {
-    // Middle mouse button or Space+drag = pan
+    // 中ボタンは作図ツールへ渡さず、常にビュー移動を優先する。
     if (e.button === 1) {
       startPan(e);
       return;
     }
     if (e.button === 2) {
-      // Right-click: cancel current operation
+      // 右クリックはブラウザメニューではなく、進行中の多段操作のキャンセルに使う。
       cancelCurrent();
       return;
     }
@@ -80,13 +72,12 @@ function initCanvas() {
     renderPropertiesPanel();
   });
 
-  // ── Mouse Move ──────────────────────────────────────────────────────────────
   container.addEventListener('mousemove', (e) => {
     const rect = container.getBoundingClientRect();
     state.mouseScreen = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     state.mouseWorld = screenToWorld(state.mouseScreen.x, state.mouseScreen.y);
 
-    // Pan
+    // パン中はスナップやツールプレビューを更新せず、表示移動だけを行う。
     if (state.isPanning && state.panStart) {
       state.view.x += e.clientX - state.panStart.x;
       state.view.y += e.clientY - state.panStart.y;
@@ -106,7 +97,7 @@ function initCanvas() {
     updateStatusBar();
   });
 
-  // ── Mouse Up ────────────────────────────────────────────────────────────────
+  // キャンバス外でボタンを離しても操作を終了できるよう、window側で受ける。
   window.addEventListener('mouseup', (e) => {
     if (state.isPanning) {
       stopPan();
@@ -124,7 +115,7 @@ function initCanvas() {
     renderPropertiesPanel();
   });
 
-  // ── Wheel Zoom (cursor-centered) ────────────────────────────────────────────
+  // カーソル直下のワールド座標を固定したまま倍率だけを変える。
   container.addEventListener('wheel', (e) => {
     e.preventDefault();
     const rect = container.getBoundingClientRect();
@@ -132,7 +123,6 @@ function initCanvas() {
     const my = e.clientY - rect.top;
     const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
     const newZoom = Math.max(0.005, Math.min(2000, state.view.zoom * factor));
-    // Zoom centered on cursor
     state.view.x = mx - (mx - state.view.x) * (newZoom / state.view.zoom);
     state.view.y = my - (my - state.view.y) * (newZoom / state.view.zoom);
     state.view.zoom = newZoom;
@@ -142,7 +132,7 @@ function initCanvas() {
     updateStatusBar();
   }, { passive: false });
 
-  // ── Double-click to finish polyline ─────────────────────────────────────────
+  // ポリラインは点数が可変なので、ダブルクリックを明示的な確定操作にする。
   container.addEventListener('dblclick', (e) => {
     if (state.tool === 'POLYLINE' && state.isDrawing) {
       polylineTool._finish(false);
@@ -150,7 +140,6 @@ function initCanvas() {
     }
   });
 
-  // ── Prevent context menu ────────────────────────────────────────────────────
   container.addEventListener('contextmenu', e => e.preventDefault());
 }
 
@@ -160,9 +149,7 @@ function getWorldPos(e) {
   return screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Pan helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// パン操作中だけカーソルと入力状態を切り替える。
 
 function startPan(e) {
   state.isPanning = true;
@@ -179,20 +166,18 @@ function stopPan() {
 
 let _spaceDown = false;
 
-// Space bar for pan
+// Space押下中は左ドラッグもパンとして扱う。
 document.addEventListener('keydown', (e) => {
   if (e.key === ' ' && !e.target.matches('input, textarea') && !_spaceDown) {
     _spaceDown = true;
-    // Will be handled in mousemove with isPanning flag
+    // 実際の移動量はmousemove側で処理する。
   }
 });
 document.addEventListener('keyup', (e) => {
   if (e.key === ' ') _spaceDown = false;
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Cancel current operation
-// ─────────────────────────────────────────────────────────────────────────────
+// 操作途中の一時図形・入力状態を破棄し、確定済み図面には触れない。
 
 function cancelCurrent() {
   const tool = TOOLS[state.tool];
@@ -205,9 +190,7 @@ function cancelCurrent() {
   renderPropertiesPanel();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Toolbar
-// ─────────────────────────────────────────────────────────────────────────────
+// ツールバーのタブとツール選択を現在状態へ同期する。
 
 function initToolbar() {
   document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
@@ -228,10 +211,10 @@ function initToolbarTabs() {
   document.querySelectorAll('.toolbar-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      // Update tab buttons
+      // 選択中タブの見た目を更新する。
       document.querySelectorAll('.toolbar-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Show/hide panels (use flex for visible, hidden for others)
+      // 対応パネルだけをflex表示し、他はレイアウトから外す。
       ['draw', 'edit', 'view', 'modes', 'dim'].forEach(t => {
         const panel = document.getElementById(`tab-panel-${t}`);
         if (t === tab) {
@@ -246,9 +229,7 @@ function initToolbarTabs() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Mode Toggles (Ortho, Snap, Grid)
-// ─────────────────────────────────────────────────────────────────────────────
+// ORTHO・図形スナップ・グリッド表示の切替。
 
 function initModeToggles() {
   const orthoBtn = document.getElementById('btn-ortho');
@@ -261,7 +242,7 @@ function initModeToggles() {
   gridBtn.addEventListener('click', () => toggleGrid());
   zoomExtBtn.addEventListener('click', () => doZoomExtents());
 
-  // Status bar toggles
+  // ステータスバーからも同じ状態を切り替えられるよう接続する。
   document.getElementById('status-ortho').addEventListener('click', () => toggleOrtho());
   document.getElementById('status-snap').addEventListener('click', () => toggleSnap());
 }
@@ -294,9 +275,7 @@ function doZoomExtents() {
   updateStatusBar();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Header Buttons (New, Save, Load, Undo, Redo, Export DXF)
-// ─────────────────────────────────────────────────────────────────────────────
+// 新規・保存・読込・履歴・DXF出力など図面全体に関わる操作。
 
 function initHeaderButtons() {
   document.getElementById('btn-undo').addEventListener('click', () => {
@@ -352,7 +331,7 @@ function initHeaderButtons() {
         const bytes = new Uint8Array(ev.target.result);
         const magic = String.fromCharCode(...bytes.slice(0, 6));
         if (magic.startsWith('AC10')) {
-          // Binary DWG - check if it might actually be text-based (DXF saved as .dwg)
+          // 拡張子がDWGでも、実体がテキストDXFなら読み込める可能性がある。
           const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes.slice(0, 200));
           if (text.includes('SECTION') || text.includes('ENTITIES')) {
             try {
@@ -367,7 +346,7 @@ function initHeaderButtons() {
             log('Or use an online converter: cloudconvert.com, convertio.co');
           }
         } else {
-          // Maybe it's a DXF with wrong extension
+          // 拡張子と内容が一致しない場合も、DXFの特徴があれば解析を試す。
           const text = new TextDecoder().decode(bytes);
           try {
             _applyDXFImport(importDXF(text), file.name);
@@ -378,7 +357,7 @@ function initHeaderButtons() {
       };
       reader.readAsArrayBuffer(file);
     } else {
-      // .xnh or .json
+      // 独自保存形式.xnhとJSONは同じ構造として扱う。
       const reader = new FileReader();
       reader.onload = (ev) => {
         try {
@@ -420,7 +399,7 @@ function initHeaderButtons() {
 
 function _applyDXFImport(result, filename) {
   pushHistory();
-  // Merge/add layers
+  // 読込図面のレイヤーを名称で照合し、既存IDと衝突しない形で統合する。
   for (const [name, ldata] of result.layers) {
     if (!state.layers.find(l => l.name === name)) {
       state.layers.push({
@@ -429,7 +408,7 @@ function _applyDXFImport(result, filename) {
       });
     }
   }
-  // Ensure layer '0' exists
+  // 既定レイヤー0は削除・読込後にも必ず存在させる。
   if (!state.layers.find(l => l.name === '0')) {
     state.layers.push({ id: genId(), name: '0', color: '#ffffff', visible: true, locked: false, lineType: 'solid' });
   }
@@ -463,15 +442,13 @@ function _applyDXFImport(result, filename) {
   if (state.entities.length > 0) doZoomExtents();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Global Keyboard Shortcuts
-// ─────────────────────────────────────────────────────────────────────────────
+// グローバルショートカット。入力欄の通常編集を妨げない順序で判定する。
 
 document.addEventListener('keydown', (e) => {
   const target = e.target;
   const isInput = target.matches('input, textarea, select');
 
-  // Always handle F-keys and Ctrl/Cmd shortcuts
+  // FキーとCtrl/Cmd操作はツール入力より先に処理する。
   if (e.key === 'F8') {
     toggleOrtho(); e.preventDefault(); return;
   }
@@ -493,7 +470,7 @@ document.addEventListener('keydown', (e) => {
     state.selectedIds = new Set(); render(); renderPropertiesPanel(); updateStatusBar(); e.preventDefault(); return;
   }
 
-  // Don't intercept text inputs (unless Escape)
+  // Escape以外はテキスト入力中の標準キー操作を優先する。
   if (isInput) {
     if (e.key === 'Escape') {
       target.blur();
@@ -501,14 +478,14 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // Route to active tool
+  // 未処理キーだけを現在ツールへ渡す。
   const tool = TOOLS[state.tool];
   if (tool && tool.onKeyDown) {
     tool.onKeyDown(e);
     updateStatusBar();
   }
 
-  // Delete/Backspace = delete selected
+  // Delete/Backspaceは選択図形の削除に割り当てる。
   if ((e.key === 'Delete' || e.key === 'Backspace') && !isInput) {
     deleteSelected();
     renderPropertiesPanel();
@@ -516,7 +493,7 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
 
-  // Escape = cancel + deselect + return to SELECT
+  // Escapeは操作キャンセル・選択解除・SELECT復帰をまとめて行う。
   if (e.key === 'Escape') {
     state.selectedIds = new Set();
     activateTool('SELECT');
@@ -526,9 +503,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Command Line
-// ─────────────────────────────────────────────────────────────────────────────
+// コマンドラインはツール名・座標・数値パラメーターを同じ入力欄で受ける。
 
 function initCommandLine() {
   const input = document.getElementById('cmd-input');
@@ -553,9 +528,7 @@ function initCommandLine() {
   initCmdAutocomplete(input);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Command Autocomplete
-// ─────────────────────────────────────────────────────────────────────────────
+// コマンド候補は表示名と短縮名の両方から前方一致させる。
 
 const CMD_DEFS = [
   { name:'SELECT',   alias:'ESC',  desc:'Select / deselect entities',      icon:'<path d="M3 3l7 17 2.5-7.5 7.5-2.5L3 3z"/><path d="M13 13l5 5"/>' },
@@ -647,14 +620,14 @@ function initCmdAutocomplete(input) {
       suggestions.classList.add('hidden');
       e.preventDefault();
     }
-    // Enter and Escape handled by existing keydown listener above
+    // EnterとEscapeは既存のコマンド確定・取消処理へ任せる。
     if (e.key === 'Enter' || e.key === 'Escape') {
       suggestions.classList.add('hidden');
       activeIdx = -1;
     }
   });
 
-  // Hide on blur
+  // フォーカスが外れた後のクリック選択を許すため、少し遅らせて閉じる。
   input.addEventListener('blur', () => {
     setTimeout(() => suggestions.classList.add('hidden'), 150);
   });
@@ -716,13 +689,13 @@ const CMD_ALIASES = {
 function processCommand(raw) {
   log(`> ${raw}`);
 
-  // Check if it's a coordinate (x,y or @dx,dy)
+  // x,yは絶対座標、@dx,dyは直前点からの相対座標として解釈する。
   if (/^@?-?\d+\.?\d*,\s*-?\d+\.?\d*$/.test(raw)) {
     handleCoordInput(raw);
     return;
   }
 
-  // Numeric input for tool distance parameters
+  // 数値単独入力は、現在ツールが待っている距離・半径へ渡す。
   if (/^[\d.]+$/.test(raw)) {
     const val = parseFloat(raw);
     if (state.tool === 'OFFSET' && TOOLS.OFFSET.setDistance) {
@@ -734,7 +707,7 @@ function processCommand(raw) {
       return;
     }
   }
-  // Array configuration: "rows,cols" or "rows,cols,rowSpacing,colSpacing"
+  // 配列複製は「行,列[,行間隔,列間隔]」の順で受ける。
   if (state.tool === 'ARRAY' && /^\d+,\d+/.test(raw)) {
     const parts = raw.split(',').map(Number);
     if (parts.length >= 2) {
@@ -744,13 +717,13 @@ function processCommand(raw) {
       return;
     }
   }
-  // Hatch pattern
+  // ハッチングはパターン名をコマンド入力から変更できる。
   if (state.tool === 'HATCH' && ['solid', 'lines', 'cross'].includes(raw.toLowerCase())) {
     TOOLS.HATCH.setPattern(raw.toLowerCase());
     return;
   }
 
-  // Split into tokens
+  // 残りはコマンド名と引数へ分割する。
   const tokens = raw.split(/\s+/);
   const cmd = CMD_ALIASES[tokens[0]] || tokens[0];
 
@@ -871,7 +844,7 @@ function handleCoordInput(raw) {
     world = { x: px, y: py };
   }
 
-  // Simulate a click at this world position
+  // 座標入力をポインター操作と同じツール経路へ流すため、仮想クリックとして渡す。
   const tool = TOOLS[state.tool];
   if (tool && tool.onMouseDown) {
     const fakeSnap = { world };
@@ -881,9 +854,7 @@ function handleCoordInput(raw) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Text Input Overlay
-// ─────────────────────────────────────────────────────────────────────────────
+// 文字ツールの入力欄を挿入位置付近へ重ねる。
 
 function initTextInputOverlay() {
   const okBtn = document.getElementById('text-ok');
@@ -911,9 +882,7 @@ function initTextInputOverlay() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AI Integration (Gemini)
-// ─────────────────────────────────────────────────────────────────────────────
+// Gemini応答を既存コマンド列へ変換する補助機能。図面更新は通常ツール経路で行う。
 
 function initAI() {
   const form = document.getElementById('ai-form');
@@ -926,7 +895,7 @@ function initAI() {
     const prompt = input.value.trim();
     if (!prompt) return;
 
-    // Check for API key
+    // APIキーはブラウザ側に保持されるため、共有端末での利用に注意する。
     const apiKey = typeof process !== 'undefined' && process.env?.API_KEY;
     if (!apiKey) {
       logError('AI: No API key found. Set process.env.API_KEY');

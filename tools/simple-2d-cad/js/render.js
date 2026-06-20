@@ -1,7 +1,5 @@
-/**
- * render.js - SVG rendering engine
- * Renders entities, preview, snap indicators, selection box, grid
- */
+/* stateをSVGへ投影する描画層。図面実体、操作プレビュー、選択・スナップ表示を重ねる。
+ * 線幅や文字サイズはズームで太さが変わらないよう、原則として倍率の逆数を使う。 */
 
 import {
   state, worldToScreen, screenToWorld,
@@ -9,9 +7,7 @@ import {
   arcPath,
 } from './core.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SVG helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// SVG要素生成と、レイヤー継承後の線スタイル適用。
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -22,7 +18,7 @@ function svgEl(tag, attrs = {}, parent = null) {
   return el;
 }
 
-/** Stroke dash array for a lineType */
+// 破線ピッチもズームの逆数で補正し、画面上の見え方を一定にする。
 function dashArray(lineType, scale = 1) {
   switch (lineType) {
     case 'dashed':  return `${12 * scale},${6 * scale}`;
@@ -47,16 +43,14 @@ function applyStroke(el, ent, overrideColor = null, extraWidth = 0) {
   return el;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Dimension rendering helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// 寸法線は図形データを変更せず、dimTypeごとの表示要素へ分解して描画する。
 
 function _dimLine(g, x1, y1, x2, y2, color, lw) {
   svgEl('line', { x1, y1, x2, y2, stroke: color, 'stroke-width': lw, fill: 'none' }, g);
 }
 
 function _dimArrow(g, tip, ux, uy, size, color) {
-  // ux,uy = direction FROM tip (arrow body goes this way, tip points the other)
+  // ux/uyは矢印先端から胴体側への単位方向として扱う。
   const nx = -uy, ny = ux;
   const bx = tip.x + ux * size, by = tip.y + uy * size;
   svgEl('polygon', {
@@ -82,8 +76,8 @@ function _dimText(g, x, y, text, size, color, rotateDeg = 0) {
 function _renderDim(g, ent, color) {
   const z = state.view.zoom;
   const lw = 0.7 / z;
-  const as = 8 / z;   // arrow size (world units at this zoom)
-  const ts = 11 / z;  // text size
+  const as = 8 / z;
+  const ts = 11 / z;
   const extGap = 1 / z;
   const extOver = 4 / z;
 
@@ -93,15 +87,11 @@ function _renderDim(g, ent, color) {
     const right = { x: Math.max(p1.x, p2.x), y: dimPt.y };
     const signY = dimPt.y < (p1.y + p2.y) / 2 ? -1 : 1;
 
-    // Extension lines
     _dimLine(g, p1.x, p1.y - signY * extGap, p1.x, dimPt.y + signY * extOver, color, lw);
     _dimLine(g, p2.x, p2.y - signY * extGap, p2.x, dimPt.y + signY * extOver, color, lw);
-    // Dim line
     _dimLine(g, left.x, dimPt.y, right.x, dimPt.y, color, lw);
-    // Arrows
     _dimArrow(g, { x: left.x, y: dimPt.y }, 1, 0, as, color);
     _dimArrow(g, { x: right.x, y: dimPt.y }, -1, 0, as, color);
-    // Text
     const val = Math.abs(p2.x - p1.x).toFixed(3);
     _dimText(g, (left.x + right.x) / 2, dimPt.y - signY * (ts * 0.7), ent.textOverride || val, ts, color);
 
@@ -146,7 +136,7 @@ function _renderDim(g, ent, color) {
     const textX = mid.x + sgn * ts * 0.7 * nx;
     const textY = mid.y + sgn * ts * 0.7 * ny;
     const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI;
-    // Flip text if it would be upside down
+    // 寸法文字が上下逆にならないよう、角度が左向きなら180度反転する。
     const adjAngle = (angleDeg > 90 || angleDeg < -90) ? angleDeg + 180 : angleDeg;
     _dimText(g, textX, textY, ent.textOverride || len.toFixed(3), ts, color, adjAngle);
 
@@ -174,9 +164,7 @@ function _renderDim(g, ent, color) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Entity SVG element creation
-// ─────────────────────────────────────────────────────────────────────────────
+// 図形種別ごとにSVG要素へ変換する。
 
 function createEntityElement(ent, isSelected = false, isPreview = false) {
   let el = null;
@@ -205,7 +193,7 @@ function createEntityElement(ent, isSelected = false, isPreview = false) {
       el = svgEl('rect', {
         x: ent.x, y: ent.y,
         width: Math.abs(ent.width), height: Math.abs(ent.height),
-        // Handle negative width/height (drawn backwards)
+        // 逆方向に作図した矩形も、SVGへ正の幅・高さとして渡す。
         ...(ent.width < 0 ? { x: ent.x + ent.width } : {}),
         ...(ent.height < 0 ? { y: ent.y + ent.height } : {}),
         fill: 'none',
@@ -268,7 +256,7 @@ function createEntityElement(ent, isSelected = false, isPreview = false) {
     el.setAttribute('fill', 'none');
   } else {
     applyStroke(el, ent, isSelected ? selColor : null, selExtra);
-    // Selection highlight: add a wider transparent hit area
+    // 選択中は元線の上へ太い透明線を重ね、細線でも操作しやすくする。
     if (isSelected) {
       el.setAttribute('filter', 'none');
     }
@@ -277,9 +265,7 @@ function createEntityElement(ent, isSelected = false, isPreview = false) {
   return el;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Selection handles (small squares at key points)
-// ─────────────────────────────────────────────────────────────────────────────
+// 選択図形の主要点へ、画面上一定サイズのハンドルを描く。
 
 function getEntityHandlePoints(ent) {
   switch (ent.type) {
@@ -306,17 +292,15 @@ function getEntityHandlePoints(ent) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Hatch fill helper
-// ─────────────────────────────────────────────────────────────────────────────
+// ハッチングごとにSVG patternを生成し、fillのURL参照を返す。
 
 function _hatchFill(ent, color) {
   if (ent.pattern === 'solid') return color;
-  // For line/cross patterns, create an SVG pattern and return url reference
+  // 線・クロスパターンは図形ごとに一意なpattern IDを使う。
   const patId = `hatch-pat-${ent.id}`;
   const defs = document.querySelector('#cad-svg defs');
   if (!defs) return color;
-  // Remove old pattern with same id
+  // 再描画時に同じIDが残らないよう、既存定義を先に除去する。
   const old = document.getElementById(patId);
   if (old) old.remove();
 
@@ -335,9 +319,7 @@ function _hatchFill(ent, color) {
   return `url(#${patId})`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main render function
-// ─────────────────────────────────────────────────────────────────────────────
+// 画面更新の入口。グリッド、図形、プレビュー、補助表示を順番に更新する。
 
 const entitiesLayer = () => document.getElementById('entities-layer');
 const previewLayer = () => document.getElementById('preview-layer');
@@ -357,13 +339,13 @@ export function render() {
   renderSelectionBox();
 }
 
-/** Update viewport SVG transform */
+// ワールド座標グループへパンとズームの変換を適用する。
 function renderViewport() {
   const vp = viewport();
   if (vp) vp.setAttribute('transform', `translate(${state.view.x},${state.view.y}) scale(${state.view.zoom})`);
 }
 
-/** Update grid pattern transform to follow viewport */
+// グリッド原点と間隔をビュー変換へ追従させる。
 function renderGrid() {
   const gr = gridRect();
   if (!state.gridEnabled) {
@@ -375,7 +357,7 @@ function renderGrid() {
   const gs = Math.max(1, state.gridSize * state.view.zoom);
   const lg = gs * 5;
 
-  // Small grid
+  // 細グリッド。
   const sp = gridPatternSmall();
   if (sp) {
     sp.setAttribute('width', gs);
@@ -386,7 +368,7 @@ function renderGrid() {
     if (path) path.setAttribute('d', `M ${gs} 0 L 0 0 0 ${gs}`);
   }
 
-  // Large grid (5x)
+  // 5マスごとの主グリッド。
   const lp = gridPatternLarge();
   if (lp) {
     lp.setAttribute('width', lg);
@@ -395,13 +377,13 @@ function renderGrid() {
     lp.setAttribute('y', state.view.y % lg);
     const path = lp.querySelector('path');
     if (path) path.setAttribute('d', `M ${lg} 0 L 0 0 0 ${lg}`);
-    // Update the inner small pattern reference
+    // 主グリッド内で参照する細グリッド定義も更新する。
     const inner = lp.querySelector('rect');
     if (inner) { inner.setAttribute('width', lg); inner.setAttribute('height', lg); }
   }
 }
 
-/** Render all entities */
+// 表示レイヤーの図形だけを描き、選択ハンドルを最後に重ねる。
 function renderEntities() {
   const layer = entitiesLayer();
   if (!layer) return;
@@ -418,7 +400,7 @@ function renderEntities() {
     el.dataset.id = ent.id;
     layer.appendChild(el);
 
-    // Selection handles
+    // 図形本体より前面へ選択ハンドルを描く。
     if (isSelected) {
       const handles = getEntityHandlePoints(ent);
       const hs = 4 / state.view.zoom;
@@ -435,7 +417,7 @@ function renderEntities() {
   }
 }
 
-/** Render current drawing preview */
+// 多段作図中の未確定図形とガイド線をプレビューレイヤーへ描く。
 export function renderPreview() {
   const layer = previewLayer();
   if (!layer) return;
@@ -446,12 +428,11 @@ export function renderPreview() {
     if (el) layer.appendChild(el);
   }
 
-  // For polyline: show already-placed points connected
+  // ポリラインは確定済み頂点列と現在カーソルまでを一続きで見せる。
   if ((state.tool === 'POLYLINE' || state.tool === 'LINE') && state.drawPoints.length > 0) {
     const pts = state.drawPoints;
     const curr = state.snapPoint ? state.snapPoint.world : state.mouseWorld;
 
-    // Draw placed segments
     if (pts.length > 1) {
       const polyPts = pts.map(p => `${p.x},${p.y}`).join(' ');
       svgEl('polyline', {
@@ -463,7 +444,7 @@ export function renderPreview() {
       }, layer);
     }
 
-    // Dot at each placed vertex
+    // 確定済み頂点を小点で示す。
     pts.forEach(p => {
       svgEl('circle', {
         cx: p.x, cy: p.y,
@@ -474,7 +455,7 @@ export function renderPreview() {
     });
   }
 
-  // Arc tool: show placed points
+  // 3点円弧は現在までに指定した点をガイド表示する。
   if (state.tool === 'ARC' && state.drawPoints.length > 0) {
     state.drawPoints.forEach(p => {
       svgEl('circle', {
@@ -484,7 +465,7 @@ export function renderPreview() {
       }, layer);
     });
     if (state.drawPoints.length === 2) {
-      // Show line from p1 to cursor as guide
+      // 2点目確定前は始点からカーソルまでを補助線で示す。
       const p1 = state.drawPoints[0];
       const curr = state.snapPoint ? state.snapPoint.world : state.mouseWorld;
       svgEl('line', {
@@ -497,7 +478,7 @@ export function renderPreview() {
   }
 }
 
-/** Render snap indicator */
+// スナップ種別ごとに形状を変え、端点・中点・中心・グリッドを識別する。
 function renderSnapIndicator() {
   const layer = snapLayer();
   if (!layer) return;
@@ -511,7 +492,6 @@ function renderSnapIndicator() {
 
   switch (snap.type) {
     case 'endpoint':
-      // Yellow square
       svgEl('rect', {
         x: x - s, y: y - s, width: s * 2, height: s * 2,
         fill: 'none', stroke: '#fbbf24',
@@ -521,7 +501,6 @@ function renderSnapIndicator() {
       break;
 
     case 'midpoint':
-      // Yellow triangle
       svgEl('polygon', {
         points: `${x},${y - s * 1.2} ${x - s},${y + s * 0.8} ${x + s},${y + s * 0.8}`,
         fill: 'none', stroke: '#fbbf24',
@@ -531,7 +510,6 @@ function renderSnapIndicator() {
       break;
 
     case 'center':
-      // Yellow circle with crosshair
       svgEl('circle', {
         cx: x, cy: y, r: s,
         fill: 'none', stroke: '#fbbf24',
@@ -543,7 +521,6 @@ function renderSnapIndicator() {
       break;
 
     case 'quadrant':
-      // Yellow diamond
       svgEl('polygon', {
         points: `${x},${y - s * 1.2} ${x + s},${y} ${x},${y + s * 1.2} ${x - s},${y}`,
         fill: 'none', stroke: '#fbbf24',
@@ -553,14 +530,14 @@ function renderSnapIndicator() {
       break;
 
     case 'grid':
-      // Small green crosshair (only when snapping to grid, not when other snap is active)
+      // グリッドだけは図形スナップと区別できる緑の十字を使う。
       svgEl('line', { x1: x - s, y1: y, x2: x + s, y2: y, stroke: '#4ade80', 'stroke-width': 0.8 / state.view.zoom }, layer);
       svgEl('line', { x1: x, y1: y - s, x2: x, y2: y + s, stroke: '#4ade80', 'stroke-width': 0.8 / state.view.zoom }, layer);
       break;
   }
 }
 
-/** Render selection box */
+// 完全包含と交差選択で枠色・塗りを変える。
 function renderSelectionBox() {
   const layer = selBoxLayer();
   if (!layer) return;

@@ -872,11 +872,8 @@
 </div>
 
 <script>
-/** =========================================================================
- * SYNTH WAVE MATCH - LOGIC
- * Fixed Edition: initial parameter application, tremolo gain routing, safer logs, responsive layout.
- *
- * ========================================================================= */
+/* 正解音とユーザー設定音をWeb Audioノードへ反映し、スペクトル差からスコアを計算する。
+ * Cookie保存は同意後だけ有効化し、拒否時は再表示防止フラグ以外を保存しない。 */
 
 // クイックスタートボタン用
 function setAndStart(level) {
@@ -1259,9 +1256,8 @@ class ModularSynth {
         this.masterGain = this.ctx.createGain();
         this.masterGain.gain.value = 0;
 
-        // Final safety limiter: keeps stacked FX + UI SFX from clipping the browser output.
-        // The synth itself still has dynamics controls, but those are creative FX.
-        // This limiter is only for output protection/headroom.
+        // 多段FXとUI効果音が同時に鳴っても出力がクリップしないよう、最終段だけ保護用Limiterを通す。
+        // パラメーター上のCompressorは音作り用であり、この保護段とは役割を分ける。
         this.safetyLimiter = this.ctx.createDynamicsCompressor();
         this.safetyLimiter.threshold.value = -6;
         this.safetyLimiter.knee.value = 10;

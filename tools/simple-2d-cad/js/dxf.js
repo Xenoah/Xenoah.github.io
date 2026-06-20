@@ -1,23 +1,17 @@
-/**
- * dxf.js - DXF R12 export
- *
- * Supports: LINE, CIRCLE, ARC, LWPOLYLINE (polyline/rect), TEXT
- * Coordinate system: Y is negated (converts from screen Y-down to DXF Y-up)
- */
+/* DXF R12入出力とJSON保存を担当する。
+ * 内部のY下向き座標をDXFのY上向きへ反転し、未対応図形は線分等へ変換する。 */
 
 import { state } from './core.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DXF Export
-// ─────────────────────────────────────────────────────────────────────────────
+// R12互換を優先し、レイヤー・線種・基本図形だけで構成する。
 
 export function exportDXF() {
   const lines = [];
 
-  // Helper to emit a group code + value
+  // DXFはグループコードと値を1行ずつ交互に並べる。
   const g = (code, value) => { lines.push(String(code)); lines.push(String(value)); };
 
-  // HEADER SECTION
+  // AC1009はAutoCAD R12相当。新しいエンティティ仕様へ変更する場合は版も揃える。
   g(0, 'SECTION');
   g(2, 'HEADER');
   g(9, '$ACADVER');  g(1, 'AC1009'); // AutoCAD R12
@@ -27,7 +21,7 @@ export function exportDXF() {
   g(9, '$UNITMODE'); g(70, 0);
   g(0, 'ENDSEC');
 
-  // TABLES SECTION (layers)
+  // 内部レイヤーをDXFのLAYER/LTYPEテーブルへ変換する。
   g(0, 'SECTION');
   g(2, 'TABLES');
 
@@ -38,14 +32,14 @@ export function exportDXF() {
   for (const layer of state.layers) {
     g(0, 'LAYER');
     g(2, layer.name);
-    g(70, layer.visible ? 0 : 1); // 0=on, 1=frozen/off
-    g(62, colorToACI(layer.color)); // ACI color number
+    g(70, layer.visible ? 0 : 1);
+    g(62, colorToACI(layer.color));
     g(6, lineTypeName(layer.lineType));
   }
 
   g(0, 'ENDTAB');
 
-  // LTYPE table
+  // 線種名は下のlineTypeNameと対応させる。
   g(0, 'TABLE');
   g(2, 'LTYPE');
   g(70, 5);
@@ -58,7 +52,7 @@ export function exportDXF() {
 
   g(0, 'ENDSEC');
 
-  // ENTITIES SECTION
+  // 図形ごとに内部形式からDXFグループコードへ展開する。
   g(0, 'SECTION');
   g(2, 'ENTITIES');
 
@@ -92,7 +86,7 @@ export function exportDXF() {
         break;
 
       case 'arc': {
-        // DXF arc: angles in degrees, Y-up, CCW from X-axis
+        // 内部のY下向き時計回り角度を、DXFのY上向き反時計回り度数へ変換する。
         const startDeg = (-ent.startAngle * 180 / Math.PI + 360) % 360;
         const endDeg = (-ent.endAngle * 180 / Math.PI + 360) % 360;
         g(0, 'ARC');
@@ -127,7 +121,7 @@ export function exportDXF() {
         break;
 
       case 'hatch':
-        // Export as closed LWPOLYLINE (boundary)
+        // ハッチングは塗りを直接表現せず、閉じた境界線として出力する。
         g(0, 'LWPOLYLINE');
         g(8, layerName);
         g(90, ent.boundary.length);
@@ -139,7 +133,7 @@ export function exportDXF() {
         break;
 
       case 'dim': {
-        // Export as TEXT + lines (universal compatibility)
+        // 寸法専用エンティティを避け、文字と線へ分解して互換性を優先する。
         if (ent.dimType === 'linear_h' || ent.dimType === 'linear_v' || ent.dimType === 'aligned') {
           let val, mx, my;
           if (ent.dimType === 'linear_h') {
@@ -234,12 +228,9 @@ function lineTypeName(lt) {
   }
 }
 
-/**
- * Convert hex color to AutoCAD Color Index (ACI)
- * Returns closest standard ACI color. Falls back to 7 (white).
- */
+// RGB色を近いAutoCAD Color Indexへ丸め、該当しない場合は白相当7を使う。
 function colorToACI(hex) {
-  // Common mappings
+  // よく使う基本色は固定のACIへ直接割り当てる。
   const map = {
     '#ff0000': 1, '#ff4040': 1, '#f87171': 1,
     '#ffff00': 2, '#fbbf24': 2, '#f0b429': 2,
@@ -255,7 +246,7 @@ function colorToACI(hex) {
   const lc = hex.toLowerCase();
   if (map[lc] !== undefined) return map[lc];
 
-  // Try to find closest by RGB distance
+  // その他はRGB空間の距離が最小の標準色を選ぶ。
   const r1 = parseInt(hex.slice(1, 3), 16);
   const g1 = parseInt(hex.slice(3, 5), 16);
   const b1 = parseInt(hex.slice(5, 7), 16);
@@ -275,9 +266,7 @@ function colorToACI(hex) {
   return best;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// JSON Save / Load
-// ─────────────────────────────────────────────────────────────────────────────
+// JSON保存は内部図形を失わず再編集するための独自形式。
 
 export function saveJSON() {
   return JSON.stringify({
@@ -299,15 +288,9 @@ export function loadJSON(jsonStr) {
   state.selectedIds = new Set();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DXF Import
-// ─────────────────────────────────────────────────────────────────────────────
+// DXF読込は対応エンティティとレイヤーだけを内部形式へ変換する。
 
-/**
- * Parse DXF text and return { entities, layers }.
- * entities: array of raw import objects with _type, _layer, and type-specific fields
- * layers: Map<name, { name, color, visible, locked }>
- */
+// DXFテキストをグループコード列として解析し、図形候補とレイヤー表を返す。
 export function importDXF(text) {
   const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   const pairs = [];
@@ -320,7 +303,7 @@ export function importDXF(text) {
   const importedLayers = new Map();
   const importedEntities = [];
 
-  // ── Pass 1: extract layers from TABLES/LAYER section ──
+  // 先にレイヤーテーブルを読み、後続図形の所属先を用意する。
   let sec = '', tbl = '', curLayer = null;
   for (let i = 0; i < pairs.length; i++) {
     const [c, v] = pairs[i];
@@ -344,7 +327,7 @@ export function importDXF(text) {
     if (c === 70) curLayer.locked = !!(parseInt(v, 10) & 4);
   }
 
-  // ── Pass 2: extract entities ──
+  // 2回目の走査で対応図形を抽出する。
   let inEnts = false, i = 0;
   while (i < pairs.length) {
     const [c, v] = pairs[i];
@@ -418,8 +401,7 @@ function _dxfArc(pairs, i, out) {
     else if (c === 50) d.sa = parseFloat(v);
     else if (c === 51) d.ea = parseFloat(v);
   }
-  // DXF: Y-up, degrees, CCW. Our internal: Y-down, radians.
-  // To convert: flip sign for Y-down, then degrees→radians
+  // DXFのY上向き・度数・反時計回りを、内部のY下向き・ラジアンへ変換する。
   const startAngle = (-(d.sa) * Math.PI / 180 + 2 * Math.PI) % (2 * Math.PI);
   const endAngle   = (-(d.ea) * Math.PI / 180 + 2 * Math.PI) % (2 * Math.PI);
   out.push({ _type: 'arc', _layer: d.layer, cx: d.cx, cy: d.cy, r: d.r, startAngle, endAngle });
@@ -448,7 +430,7 @@ function _dxfPolyline(pairs, i, out) {
     if (c === 8) d.layer = v;
     else if (c === 70) d.closed = !!(parseInt(v, 10) & 1);
   }
-  // Read VERTEX / SEQEND
+  // 旧式POLYLINEはVERTEXからSEQENDまでを一つの頂点列として読む。
   while (i < pairs.length) {
     const [c, v] = pairs[i];
     if (c === 0 && v === 'VERTEX') {

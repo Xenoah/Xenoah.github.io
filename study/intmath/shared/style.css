@@ -1,15 +1,12 @@
 :root {
-    /* Core Palette - Dark (Default) */
+    /* 全レッスンで共有するダークテーマの意味別カラートークン */
     --bg-color: #050510;
     --text-color: #e0e0e0;
     --text-muted: #a0a0b0;
 
     --accent-primary: #00f0ff;
-    /* Cyan */
     --accent-secondary: #7000ff;
-    /* Purple */
     --accent-tertiary: #ff0055;
-    /* Pink/Red */
 
     --glass-bg: rgba(20, 20, 35, 0.6);
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -21,7 +18,7 @@
     --grid-line: rgba(255, 255, 255, 0.1);
     --grid-axis: rgba(255, 255, 255, 0.4);
 
-    /* Spacing & Sizing */
+    /* レッスン間で余白と角丸の基準を揃える */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
@@ -39,11 +36,9 @@
     --text-muted: #666677;
 
     --accent-primary: #0088cc;
-    /* Darker Cyan for readability */
+    /* ライト背景でも識別できる濃度へアクセントを上書きする */
     --accent-secondary: #6200ea;
-    /* Deep Purple */
     --accent-tertiary: #d50000;
-    /* Red */
 
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(0, 0, 0, 0.08);
@@ -74,7 +69,7 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Background Gradient - subtle change for light mode could be nice but let's keep it simple or use opacity */
+/* 背景装飾は操作を妨げない疑似要素に置き、テーマ色だけを参照する */
 body::before {
     content: '';
     position: absolute;

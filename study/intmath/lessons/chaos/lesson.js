@@ -1,48 +1,43 @@
+/* ローレンツ系と二重振り子を同じ描画ループで比較するカオス可視化。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';
 import { Globals } from '../../shared/globals.js';
 
-// 1. Schema
 const SCHEMA = {
     system: { label: 'System', label_ja: 'システム', type: 'select', options: ['Lorenz Attractor', 'Double Pendulum'], default: 'Lorenz Attractor', folder: 'Model' },
     speed: { label: 'Simulation Speed', label_ja: '速度', type: 'slider', min: 1, max: 10, step: 1, default: 2, folder: 'Model' },
     trailLength: { label: 'Trail Length', label_ja: '軌跡の長さ', type: 'slider', min: 100, max: 2000, step: 100, default: 800, folder: 'View' },
 
-    // Lorenz Params
+    // ローレンツ系を選んだ場合だけ意味を持つ係数。
     sigma: { label: 'Sigma (σ)', type: 'slider', min: 0, max: 20, step: 0.1, default: 10, folder: 'Lorenz' },
     rho: { label: 'Rho (ρ)', type: 'slider', min: 0, max: 50, step: 1, default: 28, folder: 'Lorenz' },
     beta: { label: 'Beta (β)', type: 'slider', min: 0, max: 5, step: 0.1, default: 2.66, folder: 'Lorenz' }
 };
 
-// 2. Setup
 const canvas = document.getElementById('main-canvas');
 const ctx = Render.setupCanvas(canvas);
 const paramsManager = new ParameterManager(SCHEMA, 'controls-container');
-let points = []; // State history
-let state = null; // Current state
+let points = [];
+let state = null;
 
-// Reset Logic
+// モデル切替時は状態の構造が異なるため、軌跡と初期条件を同時に作り直す。
 const initSystem = () => {
     const p = paramsManager.getParams();
     points = [];
     if (p.system === 'Lorenz Attractor') {
         state = { x: 0.1, y: 0, z: 0 };
     } else {
-        // Double Pendulum: theta1, theta2, p1, p2
+        // 二重振り子は角度と角速度を状態として保持する。
         state = { t1: Math.PI / 2, t2: Math.PI / 2, p1: 0, p2: 0 };
     }
-    // Add small perturbation for the "Butterfly Effect" shadow?
-    // Single system for now
 };
 
 const runtime = new LessonRuntime((t, dt) => update(t, dt));
 runtime.bindControls('btn-play', 'btn-reset');
 document.getElementById('btn-reset').addEventListener('click', initSystem);
 paramsManager.onChange(() => {
-    // If system changed, re-init
-    // But we need to detect if system changed specifically or just params
-    // For now simple check:
+    // モデルと現在stateの形が一致しない場合だけ初期化する。
     const p = paramsManager.getParams();
     if ((p.system === 'Lorenz Attractor' && state.t1 !== undefined) ||
         (p.system === 'Double Pendulum' && state.x !== undefined)) {
@@ -79,7 +74,7 @@ Globals.subscribe(state => {
     document.getElementById('btn-share').textContent = Globals.getText('Share', 'Share', '共有');
 });
 
-// 3. Integrator (Euler is enough for visuals, or pseudo-RK)
+// ローレンツ方程式を固定刻みのオイラー法で1ステップ進める。
 function lorenz(s, dt, sigma, rho, beta) {
     const dx = sigma * (s.y - s.x);
     const dy = s.x * (rho - s.z) - s.y;
@@ -92,19 +87,10 @@ function lorenz(s, dt, sigma, rho, beta) {
 }
 
 function doublePendulum(s, dt) {
-    // Hamiltonian dynamics or Lagrangian equations
-    // Simple g=1, L=1, m=1
+    // 質量・長さ・重力を1へ正規化した二重振り子の運動方程式を使う。
     const g = 1;
 
-    // Equations of motion are complex, let's use simplified approximation or standard formula
-    // theta1'' = ...
-    // Visuals: just random-ish chaotic movement is hard to fake, need real eq
-
-    // Using standard physics from a reliable source is better
-    // Let's implement full RK4 for this if possible, or simpler euler on angular velocity
-
-    // State: t1, t2, w1, w2 (angles and velocities)
-    // Re-map state structure: state.t1, state.t2, state.w1, state.w2
+    // stateは2本の角度t1/t2と角速度w1/w2で統一する。
     if (s.w1 === undefined) { s.w1 = 0; s.w2 = 0; }
 
     const m1 = 1, m2 = 1, l1 = 1, l2 = 1;
@@ -131,7 +117,6 @@ function doublePendulum(s, dt) {
     };
 }
 
-// 4. Update
 function update(time, dt) {
     const p = paramsManager.getParams();
     Render.clear(ctx);
@@ -141,7 +126,7 @@ function update(time, dt) {
     const cx = w / 2;
     const cy = h / 2;
 
-    // Physics Steps (Multiple per frame for smoothness)
+    // 表示フレームごとに複数回進め、速度変更を積分回数として反映する。
     const steps = p.speed;
     const simDt = 0.01;
 
@@ -155,9 +140,8 @@ function update(time, dt) {
         if (points.length > p.trailLength) points.shift();
     }
 
-    // Draw
     if (p.system === 'Lorenz Attractor') {
-        // Project 3D to 2D
+        // 3次元軌跡を固定視点から2次元へ投影する。
         // Rotate viewing angle slowly
         const angle = time * 0.2;
         const scale = 10;

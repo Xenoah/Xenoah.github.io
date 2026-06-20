@@ -396,11 +396,12 @@
 
 </div>
 
-<!-- Tesseract.js -->
+<!-- OCRだけはTesseract.jsのCDN取得に依存し、通常の計算・グラフ・統計機能は単体で動作する -->
 <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 
 <script>
-    // --- Translation Data ---
+    // 電卓・グラフ・CSV統計・OCRをタブで共有し、式と履歴は共通状態から更新する。
+    // 表示言語の文言はこの辞書へ集約する。
     const i18n = {
         ja: {
             appTitle: "科学計算機",

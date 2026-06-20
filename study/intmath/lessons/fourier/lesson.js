@@ -1,3 +1,4 @@
+/* フーリエ級数の係数と合成波形をリアルタイムに可視化する。 */
 import { ParameterManager } from '../../shared/params.js';
 import { LessonRuntime } from '../../shared/runtime.js';
 import { Render } from '../../shared/render.js';

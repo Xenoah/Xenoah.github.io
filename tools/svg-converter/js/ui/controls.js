@@ -1,4 +1,5 @@
-/* ui/controls.js — モード選択 / 前処理スライダ / トレースパラメータ / プリセットを描画。 */
+/* モード・前処理・トレース設定を定義配列から生成する。
+ * 新しい項目はHTMLを増やさず、フィールド定義とstoreの既定値を同時に追加する。 */
 
 import { store } from '../store.js';
 import { t } from '../i18n/index.js';
@@ -156,6 +157,7 @@ function clearPaletteOverride(orig) {
 }
 
 function applyOverrideToSvg() {
+  // パレット変更は元のトレース結果へ適用し、設定変更による再計算を避ける。
   const { svg, paletteOverride } = store.state;
   if (!svg) return;
   let out = svg;

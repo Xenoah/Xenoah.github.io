@@ -1,14 +1,5 @@
-/**
- * tools.js - All drawing and edit tool implementations
- *
- * Each tool exposes:
- *   activate()         - called when tool is selected
- *   deactivate()       - called when switching away
- *   onMouseDown(e, world, snap)
- *   onMouseMove(e, world, snap)
- *   onMouseUp(e, world, snap)
- *   onKeyDown(e)
- */
+/* 作図・編集ツールの状態機械をまとめる。
+ * 各ツールはactivate/deactivateとポインター・キー入力の共通インターフェースを持つ。 */
 
 import {
   state, genId, makeEntityBase, constrainPoint,
@@ -21,9 +12,7 @@ import {
 import { render } from './render.js';
 import { log } from './ui.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Utility
-// ─────────────────────────────────────────────────────────────────────────────
+// スナップ点がある場合は、常に生のポインター座標より優先する。
 
 function resolvePoint(world, snap) {
   if (snap) return snap.world;
@@ -39,9 +28,7 @@ function cancelDrawing() {
   state.moveBase = null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SELECT tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 選択ツール。右方向ドラッグは完全包含、左方向ドラッグは交差選択として扱う。
 
 export const selectTool = {
   activate() {
@@ -63,20 +50,20 @@ export const selectTool = {
       return l && l.visible && !l.locked;
     });
 
-    // Hit test (reverse order = top-most first)
+    // 後に描画された図形ほど前面にあるため、配列を逆順に当たり判定する。
     const hit = visibleEnts.slice().reverse().find(ent => hitTest(ent, pt, tol));
 
     if (hit) {
       if (e.shiftKey) {
-        // Toggle selection
+        // Shift時だけ既存選択へ追加・解除する。
         if (state.selectedIds.has(hit.id)) state.selectedIds.delete(hit.id);
         else state.selectedIds.add(hit.id);
       } else if (!state.selectedIds.has(hit.id)) {
         state.selectedIds = new Set([hit.id]);
       }
-      // Don't start box selection when hitting an entity
+      // 図形上ではボックス選択を開始せず、クリック選択だけにする。
     } else {
-      // Start box selection
+      // 空白からのドラッグはボックス選択を開始する。
       if (!e.shiftKey) state.selectedIds = new Set();
       state.selectionBox = { start: pt, end: pt, crossing: false };
       state.isDrawing = true;
@@ -89,7 +76,7 @@ export const selectTool = {
     if (!state.isDrawing || !state.selectionBox) return;
     const pt = resolvePoint(world, snap);
     state.selectionBox.end = pt;
-    // Crossing = dragged right to left
+    // CAD慣例に合わせ、右から左へのドラッグを交差選択にする。
     state.selectionBox.crossing = pt.x < state.selectionBox.start.x;
     render();
   },
@@ -105,7 +92,7 @@ export const selectTool = {
     const x2 = Math.max(box.start.x, box.end.x);
     const y2 = Math.max(box.start.y, box.end.y);
 
-    // Only process if box has some area
+    // 微小ドラッグは空白クリックとして扱い、誤選択を防ぐ。
     if (Math.abs(x2 - x1) < 2 / state.view.zoom && Math.abs(y2 - y1) < 2 / state.view.zoom) {
       render();
       return;
@@ -120,10 +107,10 @@ export const selectTool = {
       const b = _entBounds(ent);
       let selected;
       if (box.crossing) {
-        // Crossing: any overlap
+        // 交差選択は境界と一部でも重なる図形を含める。
         selected = !(b.maxX < x1 || b.minX > x2 || b.maxY < y1 || b.minY > y2);
       } else {
-        // Window: fully enclosed
+        // 完全包含選択は全体が枠内に入る図形だけを含める。
         selected = b.minX >= x1 && b.maxX <= x2 && b.minY >= y1 && b.maxY <= y2;
       }
       if (selected) {
@@ -152,7 +139,7 @@ export const selectTool = {
 };
 
 function _entBounds(ent) {
-  // Quick bounds for selection test
+  // 選択判定用の簡易バウンディングボックス。
   switch (ent.type) {
     case 'line': return { minX: Math.min(ent.start.x,ent.end.x), minY: Math.min(ent.start.y,ent.end.y), maxX: Math.max(ent.start.x,ent.end.x), maxY: Math.max(ent.start.y,ent.end.y) };
     case 'polyline': { const xs=ent.points.map(p=>p.x),ys=ent.points.map(p=>p.y); return {minX:Math.min(...xs),minY:Math.min(...ys),maxX:Math.max(...xs),maxY:Math.max(...ys)}; }
@@ -164,9 +151,7 @@ function _entBounds(ent) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LINE tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 連続線分ツール。2点目を次の始点として保持し、取消まで連続作図する。
 
 export const lineTool = {
   activate() {
@@ -182,13 +167,13 @@ export const lineTool = {
     const constPt = constrainPoint(state.drawPoints[state.drawPoints.length - 1] || null, pt);
 
     if (!state.isDrawing) {
-      // First click: start point
+      // 最初のクリックを始点として保持する。
       state.isDrawing = true;
       state.drawPoints = [constPt];
       state.previewEntity = { ...makeEntityBase('line'), start: constPt, end: constPt };
       log(`Line: start (${constPt.x.toFixed(2)}, ${constPt.y.toFixed(2)})`);
     } else {
-      // Second click: finish this segment, start new from end
+      // 2点目で線分を確定し、その終点から次の線分を開始する。
       const start = state.drawPoints[state.drawPoints.length - 1];
       const end = constPt;
       const line = { ...makeEntityBase('line'), start: { ...start }, end: { ...end } };
@@ -224,9 +209,7 @@ export const lineTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// POLYLINE tool
-// ─────────────────────────────────────────────────────────────────────────────
+// ポリラインツール。複数頂点を一つの図形として保存する。
 
 export const polylineTool = {
   activate() {
@@ -251,7 +234,7 @@ export const polylineTool = {
       log(`Polyline: add point (${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`);
     }
 
-    // Update preview
+    // 確定済み頂点と現在位置から未確定プレビューを更新する。
     if (state.drawPoints.length >= 2) {
       state.previewEntity = {
         ...makeEntityBase('polyline'),
@@ -311,9 +294,7 @@ export const polylineTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RECT tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 対角2点から矩形を作る。逆方向入力は負の幅・高さとして保持できる。
 
 export const rectTool = {
   activate() {
@@ -364,9 +345,7 @@ export const rectTool = {
   onKeyDown(e) { if (e.key === 'Escape') { cancelDrawing(); render(); e.preventDefault(); } },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CIRCLE tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 中心と円周上の1点から半径を決める。
 
 export const circleTool = {
   activate() {
@@ -410,9 +389,7 @@ export const circleTool = {
   onKeyDown(e) { if (e.key === 'Escape') { cancelDrawing(); render(); e.preventDefault(); } },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ARC tool (3-point: start, point-on-arc, end)
-// ─────────────────────────────────────────────────────────────────────────────
+// 始点・円弧上点・終点の3点から円弧を決める。
 
 export const arcTool = {
   activate() {
@@ -461,7 +438,7 @@ export const arcTool = {
     const pt = resolvePoint(world, snap);
 
     if (state.drawPhase === 1 && state.drawPoints.length === 1) {
-      // Show line preview from start to cursor
+      // 2点目までは円を確定できないため、始点からの補助線だけを表示する。
       state.previewEntity = {
         ...makeEntityBase('line'),
         start: state.drawPoints[0],
@@ -487,9 +464,7 @@ export const arcTool = {
   onKeyDown(e) { if (e.key === 'Escape') { cancelDrawing(); render(); e.preventDefault(); } },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TEXT tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 挿入点を決めた後、HTMLの入力オーバーレイでIME対応文字列を受ける。
 
 export const textTool = {
   activate() {
@@ -548,9 +523,7 @@ export function commitText(textContent) {
   render();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MOVE tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 選択図形を基準点から移動先まで平行移動する。
 
 export const moveTool = {
   _origEntities: null,
@@ -577,7 +550,7 @@ export const moveTool = {
     if (!state.isDrawing) {
       state.isDrawing = true;
       state.moveBase = pt;
-      // Save original positions
+      // プレビュー中に何度も移動できるよう、開始時の図形を退避する。
       this._origEntities = {};
       for (const id of state.selectedIds) {
         const ent = state.entities.find(x => x.id === id);
@@ -585,7 +558,7 @@ export const moveTool = {
       }
       log(`Move: base point (${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`);
     } else {
-      // Apply move
+      // 確定時だけ履歴へ積み、退避データを破棄する。
       const base = state.moveBase;
       const dx = pt.x - base.x;
       const dy = pt.y - base.y;
@@ -610,7 +583,7 @@ export const moveTool = {
     const dx = constPt.x - state.moveBase.x;
     const dy = constPt.y - state.moveBase.y;
 
-    // Apply temporary translation to selected entities
+    // マウス移動中は退避元から毎回計算し、誤差の累積を防ぐ。
     for (const id of state.selectedIds) {
       const idx = state.entities.findIndex(x => x.id === id);
       if (idx >= 0 && this._origEntities[id]) {
@@ -623,7 +596,7 @@ export const moveTool = {
   onMouseUp() {},
   onKeyDown(e) {
     if (e.key === 'Escape') {
-      // Restore originals
+      // キャンセル時は退避した図形へ戻す。
       if (this._origEntities) {
         for (const id of state.selectedIds) {
           const idx = state.entities.findIndex(x => x.id === id);
@@ -640,9 +613,7 @@ export const moveTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// COPY tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 選択図形を複製し、元図形を残したまま移動プレビューする。
 
 export const copyTool = {
   _origEntities: null,
@@ -689,7 +660,7 @@ export const copyTool = {
         state.entities.push(copy);
         newIds.add(copy.id);
       }
-      // Restore originals to original position
+      // プレビュー用に一時変更した元図形を確定前に戻す。
       for (const id of state.selectedIds) {
         const idx = state.entities.findIndex(x => x.id === id);
         if (idx >= 0 && this._origEntities[id]) {
@@ -698,7 +669,7 @@ export const copyTool = {
       }
       state.selectedIds = newIds;
       log(`Copied ${newIds.size} entities`);
-      // Allow another copy (keep tool active with same base behavior)
+      // 一度確定後も同じ基準点から連続複製できる状態を維持する。
       state.isDrawing = false;
       state.moveBase = null;
     }
@@ -712,10 +683,9 @@ export const copyTool = {
     const dx = constPt.x - state.moveBase.x;
     const dy = constPt.y - state.moveBase.y;
 
-    // Temporarily show preview copies (don't actually move originals)
-    // We'll show them in the preview layer
+    // 専用プレビュー形式がないため、一時的に図形配列上の複製を移動する。
     state.previewEntity = null;
-    // Hack: directly update entities for preview, will be restored on cancel
+    // キャンセル時は退避元へ戻すため、確定前の変更は履歴へ積まない。
     for (const id of state.selectedIds) {
       const idx = state.entities.findIndex(x => x.id === id);
       if (idx >= 0 && this._origEntities[id]) {
@@ -750,9 +720,7 @@ export const copyTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Operations (Delete, Select All, etc.)
-// ─────────────────────────────────────────────────────────────────────────────
+// 削除・全選択など単発で完了する操作。
 
 export function deleteSelected() {
   if (state.selectedIds.size === 0) return;
@@ -776,13 +744,9 @@ export function selectAll() {
   render();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Tool registry
-// ─────────────────────────────────────────────────────────────────────────────
+// app.jsがツール名から共通インターフェースを引けるよう登録する。
 
-// ─────────────────────────────────────────────────────────────────────────────
-// OFFSET tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 図形選択後、クリックした側へ指定距離の平行図形を作る。
 
 export const offsetTool = {
   _distance: 20,
@@ -806,7 +770,7 @@ export const offsetTool = {
     const tol = 8 / state.view.zoom;
 
     if (state.drawPhase === 0) {
-      // Click entity to offset
+      // 1回目のクリックで対象図形を決める。
       const ent = _pickEntity(pt, tol);
       if (!ent) { log('Offset: click an entity (line, circle, or arc)'); return; }
       if (!['line', 'circle', 'arc'].includes(ent.type)) {
@@ -816,7 +780,7 @@ export const offsetTool = {
       state.drawPhase = 1;
       log('Offset: click on the side to offset toward');
     } else if (state.drawPhase === 1 && this._entity) {
-      // Click side
+      // 2回目のクリック位置からオフセット方向を決める。
       const ent = this._entity;
       const d = this._distance;
       let newEnt = null;
@@ -841,7 +805,7 @@ export const offsetTool = {
         state.entities.push(newEnt);
         log(`Offset: created at distance ${d}`);
         render();
-        // Allow another offset from same entity
+        // 同一図形から続けて別側へ作成できるよう対象選択を維持する。
         state.drawPhase = 1;
       }
     }
@@ -877,9 +841,7 @@ export const offsetTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TRIM tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 他の表示図形との交点で区間を分け、クリックした区間だけを除去する。
 
 export const trimTool = {
   activate() {
@@ -894,12 +856,12 @@ export const trimTool = {
     const pt = resolvePoint(world, snap);
     const tol = 8 / state.view.zoom;
 
-    // Find the entity being trimmed
+    // クリック位置に最も近い対象図形を選ぶ。
     const visEnts = _visibleUnlockedEnts();
     const target = visEnts.slice().reverse().find(ent => hitTest(ent, pt, tol));
     if (!target) { log('Trim: click on an entity to trim'); return; }
 
-    // Collect all other visible entities as cutting edges
+    // 非表示レイヤーを除いた他図形を切断境界として使う。
     const cutters = visEnts.filter(e => e.id !== target.id);
 
     if (target.type === 'line') {
@@ -920,7 +882,7 @@ export const trimTool = {
 };
 
 function _trimLine(ent, clickPt, cutters) {
-  // Find all intersection t-parameters on this line
+  // 線分上の交点を媒介変数tへ変換して順序付ける。
   const params = [0, 1];
 
   for (const cutter of cutters) {
@@ -934,14 +896,14 @@ function _trimLine(ent, clickPt, cutters) {
 
   if (params.length <= 2) { log('Trim: no intersections found'); return; }
 
-  // Find which interval the click falls in
+  // クリック位置を含む交点間区間を削除対象にする。
   const { t: clickT } = projectPointOnLine(clickPt, ent.start, ent.end);
   let segIdx = 0;
   for (let i = 0; i < params.length - 1; i++) {
     if (clickT >= params[i] - 1e-9 && clickT <= params[i + 1] + 1e-9) { segIdx = i; break; }
   }
 
-  // Remove clicked segment, replace with remaining segments
+  // 元図形を除き、残った区間を別線分として再登録する。
   pushHistory();
   const idx = state.entities.findIndex(e => e.id === ent.id);
   if (idx < 0) return;
@@ -960,7 +922,7 @@ function _trimLine(ent, clickPt, cutters) {
 }
 
 function _trimCircle(ent, clickPt, cutters) {
-  // Convert circle to arc by finding intersection angles
+  // 円は交点角度で分割し、削除区間以外を円弧として残す。
   const intAngles = [];
   for (const cutter of cutters) {
     const segs = entitySegments(cutter);
@@ -976,7 +938,7 @@ function _trimCircle(ent, clickPt, cutters) {
   if (intAngles.length < 2) { log('Trim: circle needs at least 2 cutting edges'); return; }
   intAngles.sort((a, b) => a - b);
 
-  // Find which arc segment the click is on
+  // クリック角度を含む円弧区間を選ぶ。
   const clickAngle = normalizeAngle(Math.atan2(clickPt.y - ent.cy, clickPt.x - ent.cx));
   let segIdx = 0;
   for (let i = 0; i < intAngles.length; i++) {
@@ -1050,9 +1012,7 @@ function _trimArc(ent, clickPt, cutters) {
   log('Trim: arc trimmed');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXTEND tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 線分のクリック側端点を、最も近い境界交点まで延長する。
 
 export const extendTool = {
   activate() {
@@ -1068,7 +1028,7 @@ export const extendTool = {
     const tol = 20 / state.view.zoom;
 
     const visEnts = _visibleUnlockedEnts();
-    // Find a line entity near the click, preferring endpoint proximity
+    // 端点に近い線分を優先し、どちら側を延長するか同時に決める。
     let target = null;
     let bestDist = tol;
     let useEnd = true;
@@ -1083,7 +1043,7 @@ export const extendTool = {
 
     if (!target) { log('Extend: click near an endpoint of a line'); return; }
 
-    // Find nearest intersection point in the extend direction
+    // 現在端点より外側にある交点だけから最短距離を選ぶ。
     const fixedPt = useEnd ? target.start : target.end;
     const movingPt = useEnd ? target.end : target.start;
     const cutters = visEnts.filter(e => e.id !== target.id);
@@ -1096,7 +1056,7 @@ export const extendTool = {
       for (const seg of segs) {
         const r = lineLineIntersect(fixedPt, movingPt, seg.a, seg.b);
         if (!r) continue;
-        // t1 must be > 1 (beyond current endpoint) and t2 in [0,1]
+        // 対象線では端点外、境界線では線分内にある交点だけを採用する。
         if (r.t1 > 1 + 1e-9 && r.t2 >= -1e-9 && r.t2 <= 1 + 1e-9) {
           if (r.t1 < bestT) { bestT = r.t1; bestIntersect = { x: r.x, y: r.y }; }
         }
@@ -1133,9 +1093,7 @@ export const extendTool = {
   onKeyDown(e) { if (e.key === 'Escape') { cancelDrawing(); render(); e.preventDefault(); } },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FILLET tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 2線分を接線位置まで切り詰め、指定半径の接続円弧を作る。
 
 export const filletTool = {
   _radius: 10,
@@ -1184,13 +1142,13 @@ function _applyFillet(e1, e2, r) {
   if (!inter) { log('Fillet: lines are parallel'); return; }
 
   if (r === 0) {
-    // Sharp corner: extend/trim both lines to intersection
+    // 半径0は面取りせず、両線を交点まで延長・短縮して角を作る。
     pushHistory();
     const i1 = state.entities.findIndex(x => x.id === e1.id);
     const i2 = state.entities.findIndex(x => x.id === e2.id);
     if (i1 < 0 || i2 < 0) return;
     const P = { x: inter.x, y: inter.y };
-    // Snap nearest endpoint of each line to intersection
+    // 各線分の交点に近い端点だけを置き換える。
     const u1 = JSON.parse(JSON.stringify(e1));
     const u2 = JSON.parse(JSON.stringify(e2));
     if (dist(P, e1.end) < dist(P, e1.start)) u1.end = P; else u1.start = P;
@@ -1201,15 +1159,13 @@ function _applyFillet(e1, e2, r) {
     return;
   }
 
-  // Find tangent points for arc
+  // 2線の角度二等分線から円弧中心と接点を求める。
   const ang1 = Math.atan2(e1.end.y - e1.start.y, e1.end.x - e1.start.x);
   const ang2 = Math.atan2(e2.end.y - e2.start.y, e2.end.x - e2.start.x);
 
-  // Bisector angle
   const P = { x: inter.x, y: inter.y };
   let bisA = (ang1 + ang2) / 2;
 
-  // Half-angle
   let dA = ang2 - ang1;
   while (dA < -Math.PI) dA += 2 * Math.PI;
   while (dA > Math.PI) dA -= 2 * Math.PI;
@@ -1219,32 +1175,31 @@ function _applyFillet(e1, e2, r) {
   const arcDist = r / Math.sin(halfA); // distance from P to arc center
   const tanDist = r / Math.tan(halfA); // distance from P to tangent points
 
-  // Try both bisector directions, pick the one that keeps segments inside
+  // 二等分線の両方向を試し、元線分内に接点が収まる候補を優先する。
   let bestCenter = null;
   let bestT1 = 0, bestT2 = 0;
   for (const sign of [1, -1]) {
     const cx = P.x + Math.cos(bisA + sign * Math.PI / 2) * arcDist;
     const cy = P.y + Math.sin(bisA + sign * Math.PI / 2) * arcDist;
 
-    // Tangent points
     const { t: t1 } = projectPointOnLine({ x: cx, y: cy }, e1.start, e1.end);
     const { t: t2 } = projectPointOnLine({ x: cx, y: cy }, e2.start, e2.end);
     const tp1 = { x: e1.start.x + t1 * (e1.end.x - e1.start.x), y: e1.start.y + t1 * (e1.end.y - e1.start.y) };
     const tp2 = { x: e2.start.x + t2 * (e2.end.x - e2.start.x), y: e2.start.y + t2 * (e2.end.y - e2.start.y) };
 
-    // Check radius accuracy
+    // 数値誤差で指定半径から外れる候補は除外する。
     const r1 = dist({ x: cx, y: cy }, tp1);
     const r2 = dist({ x: cx, y: cy }, tp2);
     if (Math.abs(r1 - r) > r * 0.1 || Math.abs(r2 - r) > r * 0.1) continue;
 
-    // Both tangent points should be in [0,1] range (or just clamp)
+    // 両接点が元線分上にある候補を有効とする。
     bestCenter = { x: cx, y: cy };
     bestT1 = t1; bestT2 = t2;
     break;
   }
 
   if (!bestCenter) {
-    // Fallback: use simple approach
+    // 有効候補がない場合は、交点近傍の簡易候補へフォールバックする。
     const cx = P.x + Math.cos(bisA) * arcDist;
     const cy = P.y + Math.sin(bisA) * arcDist;
     bestCenter = { x: cx, y: cy };
@@ -1260,7 +1215,7 @@ function _applyFillet(e1, e2, r) {
   const u1 = JSON.parse(JSON.stringify(e1));
   const u2 = JSON.parse(JSON.stringify(e2));
 
-  // Trim to tangent points
+  // 元線分の交点側端点を接点へ置き換える。
   if (bestT1 < 0.5) u1.start = { x: e1.start.x + bestT1 * (e1.end.x - e1.start.x), y: e1.start.y + bestT1 * (e1.end.y - e1.start.y) };
   else u1.end = { x: e1.start.x + bestT1 * (e1.end.x - e1.start.x), y: e1.start.y + bestT1 * (e1.end.y - e1.start.y) };
 
@@ -1270,7 +1225,7 @@ function _applyFillet(e1, e2, r) {
   state.entities[i1] = u1;
   state.entities[i2] = u2;
 
-  // Arc from tangent1 to tangent2 around bestCenter
+  // 採用中心を基準に2接点間の円弧を追加する。
   const tp1 = (bestT1 < 0.5) ? u1.start : u1.end;
   const tp2 = (bestT2 < 0.5) ? u2.start : u2.end;
   const startA = Math.atan2(tp1.y - bestCenter.y, tp1.x - bestCenter.x);
@@ -1284,9 +1239,7 @@ function _applyFillet(e1, e2, r) {
   log(`Fillet: r=${r} applied`);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STRETCH tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 交差選択枠内の端点だけを移動し、図形全体の平行移動とは区別する。
 
 export const stretchTool = {
   _stretchBox: null,
@@ -1306,15 +1259,15 @@ export const stretchTool = {
     const pt = resolvePoint(world, snap);
 
     if (state.drawPhase === 0) {
-      // Start crossing window
+      // 最初に変形対象端点を選ぶ交差枠を作る。
       state.isDrawing = true;
       state.selectionBox = { start: pt, end: pt, crossing: true };
     } else if (state.drawPhase === 1) {
-      // Base point
+      // 次に変形量の基準点を指定する。
       state.moveBase = pt;
       state.drawPhase = 2;
       log(`Stretch: base (${pt.x.toFixed(2)},${pt.y.toFixed(2)}). Click destination`);
-      // Save originals
+      // プレビュー復元用に元図形を退避する。
       this._origEnts = {};
       for (const id of Object.keys(this._stretchedEnts || {})) {
         const ent = state.entities.find(x => x.id === id);
@@ -1346,7 +1299,7 @@ export const stretchTool = {
       const constPt = constrainPoint(state.moveBase, pt);
       const dx = constPt.x - state.moveBase.x;
       const dy = constPt.y - state.moveBase.y;
-      // Preview
+      // 枠内端点だけへ一時変位を適用する。
       for (const [id, se] of Object.entries(this._stretchedEnts || {})) {
         const orig = this._origEnts[id];
         if (!orig) continue;
@@ -1368,7 +1321,7 @@ export const stretchTool = {
       const x2 = Math.max(box.start.x, box.end.x), y2 = Math.max(box.start.y, box.end.y);
       if (Math.abs(x2 - x1) < 2 / state.view.zoom) { render(); return; }
 
-      // Find endpoints inside box
+      // 各図形種別から選択枠内の可動端点を抽出する。
       this._stretchedEnts = {};
       for (const ent of _visibleUnlockedEnts()) {
         const se = _getStretchEndpoints(ent, x1, y1, x2, y2);
@@ -1398,7 +1351,7 @@ export const stretchTool = {
   },
 };
 
-/** Get stretch endpoint flags for an entity within box */
+// 図形ごとに、選択枠内へ入った端点をフラグ化する。
 function _getStretchEndpoints(ent, x1, y1, x2, y2) {
   const inBox = p => p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2;
   const se = {};
@@ -1415,7 +1368,7 @@ function _getStretchEndpoints(ent, x1, y1, x2, y2) {
   return se;
 }
 
-/** Apply stretch to entity */
+// 指定フラグの端点だけへ変位を適用した図形を返す。
 function _stretchEntity(orig, se, dx, dy) {
   const e = JSON.parse(JSON.stringify(orig));
   if (e.type === 'line') {
@@ -1439,9 +1392,7 @@ function _applyStretch(stretchedEnts, dx, dy) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ARRAY tool (Rectangular)
-// ─────────────────────────────────────────────────────────────────────────────
+// 選択図形を行列状に複製し、元図形を先頭要素として残す。
 
 export const arrayTool = {
   _rows: 3,
@@ -1481,7 +1432,7 @@ export const arrayTool = {
         for (const src of srcEnts) {
           const copy = JSON.parse(JSON.stringify(src));
           copy.id = genId();
-          // Translate
+          // 行・列番号と間隔から各複製の変位を計算する。
           if (copy.type === 'line') { copy.start.x += dx; copy.start.y += dy; copy.end.x += dx; copy.end.y += dy; }
           else if (copy.type === 'polyline') copy.points = copy.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
           else if (copy.type === 'rect') { copy.x += dx; copy.y += dy; }
@@ -1508,9 +1459,7 @@ export const arrayTool = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HATCH tool
-// ─────────────────────────────────────────────────────────────────────────────
+// 閉じた図形へ表示用ハッチ情報を付加する。
 
 export const hatchTool = {
   _pattern: 'solid',
@@ -1531,7 +1480,7 @@ export const hatchTool = {
     const pt = resolvePoint(world, snap);
     const tol = 8 / state.view.zoom;
 
-    // Try to pick a closed entity
+    // まずクリック位置の閉じた図形を探す。
     const visEnts = _visibleUnlockedEnts();
     const target = visEnts.slice().reverse().find(ent =>
       (ent.type === 'rect' || ent.type === 'circle' ||
@@ -1541,7 +1490,7 @@ export const hatchTool = {
     if (target) {
       _applyHatch(target, this._pattern, this._angle, this._spacing);
     } else {
-      // Try pick-point: use currently selected entities
+      // 見つからない場合は、既に選択された閉図形を対象にする。
       if (state.selectedIds.size > 0) {
         for (const id of state.selectedIds) {
           const ent = state.entities.find(e => e.id === id);
@@ -1557,7 +1506,7 @@ export const hatchTool = {
   },
 
   apply() {
-    // Apply to all selected closed entities
+    // 選択集合のうち閉じた図形だけへ適用する。
     for (const id of state.selectedIds) {
       const ent = state.entities.find(e => e.id === id);
       if (ent && (ent.type === 'rect' || ent.type === 'circle' || (ent.type === 'polyline' && ent.closed))) {
@@ -1587,7 +1536,7 @@ function _applyHatch(ent, pattern, angle, spacing) {
   } else if (ent.type === 'polyline' && ent.closed) {
     boundary = [...ent.points];
   } else if (ent.type === 'circle') {
-    // Approximate circle with polygon
+    // ハッチ境界計算用に円を多角形へ近似する。
     const N = 64;
     for (let i = 0; i < N; i++) {
       const a = (i / N) * Math.PI * 2;
@@ -1608,9 +1557,7 @@ function _applyHatch(ent, pattern, angle, spacing) {
   log(`Hatch: ${pattern} fill applied`);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// 複数ツールで共有する図形検索・入力補助。
 
 function _visibleUnlockedEnts() {
   return state.entities.filter(ent => {
@@ -1626,9 +1573,7 @@ function _pickEntity(pt, tol, types = null) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DIMENSION tools
-// ─────────────────────────────────────────────────────────────────────────────
+// 寸法ツール群。参照点と寸法線位置を図形データとして保持する。
 
 export const dimLinearTool = {
   _phase: 0, _p1: null, _p2: null,
@@ -1883,12 +1828,12 @@ export function activateTool(toolName) {
   state.tool = toolName;
   tool.activate();
 
-  // Update toolbar buttons
+  // 選択中ツールのボタン状態を同期する。
   document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tool === toolName);
   });
 
-  // Update canvas cursor
+  // ツール種別に応じたカーソルクラスへ切り替える。
   const container = document.getElementById('canvas-container');
   const cursorMap = {
     SELECT: 'select-mode',
