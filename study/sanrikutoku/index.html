@@ -3,21 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-  <title>第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah</title>
-  <meta name="description" content="第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese third-class land radio operator law and engineering with quizzes and review tools.">
+  <title>第二級・第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah</title>
+  <meta name="description" content="第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese second- and third-class land radio operator law and engineering with quizzes and review tools.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="author" content="Xenoah">
   <link rel="canonical" href="https://xenoah.github.io/study/sanrikutoku/">
   <link rel="stylesheet" href="../../assets/page-overview.css">
   <meta property="og:site_name" content="Xenoah">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah">
-  <meta property="og:description" content="第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese third-class land radio operator law and engineering with quizzes and review tools.">
+  <meta property="og:title" content="第二級・第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah">
+  <meta property="og:description" content="第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese second- and third-class land radio operator law and engineering with quizzes and review tools.">
   <meta property="og:url" content="https://xenoah.github.io/study/sanrikutoku/">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah">
-  <meta name="twitter:description" content="第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese third-class land radio operator law and engineering with quizzes and review tools.">
+  <meta name="twitter:title" content="第二級・第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah">
+  <meta name="twitter:description" content="第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese second- and third-class land radio operator law and engineering with quizzes and review tools.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="style.css">
 </head>
 
@@ -25,15 +25,23 @@
     <main class="app-shell">
         <header class="topbar">
             <div>
-                <p class="eyebrow">第三級陸上特殊無線技士</p>
-                <h1>三陸特 過去問単語帳</h1>
+                <p class="eyebrow" id="qualification-eyebrow">陸上特殊無線技士</p>
+                <h1 id="app-title">陸特 過去問単語帳</h1>
             </div>
             <button class="ghost-button" id="reset-button" type="button">進捗リセット</button>
         </header>
         <aside class="page-overview" aria-label="ページ概要">
-            <p lang="ja">第三級陸上特殊無線技士の法規・無線工学を、過去問形式の単語帳、採点、復習、ブックマーク、模試タイマーで学習できるブラウザ教材です。</p>
-            <p lang="en">A browser study tool for Japan's third-class land radio operator exam, with law and engineering questions, scoring, review, bookmarks and a timed mock exam.</p>
+            <p lang="ja" id="overview-ja">第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式の単語帳、採点、復習、ブックマーク、模試タイマーで学習できるブラウザ教材です。</p>
+            <p lang="en" id="overview-en">A browser study tool for Japan's second- and third-class land radio operator exams, with law and engineering questions, scoring, review, bookmarks and a timed mock exam.</p>
         </aside>
+
+        <section class="study-picker" aria-label="学習対象">
+            <div>
+                <span class="picker-label">資格</span>
+                <div class="segmented qualification-segments" id="qualification-tabs" role="tablist" aria-label="資格切替"></div>
+            </div>
+            <p class="picker-summary" id="qualification-summary">問題データを読み込み中です。</p>
+        </section>
 
         <section class="stats-grid" aria-label="学習状況">
             <div class="stat-box">
@@ -41,12 +49,12 @@
                 <strong id="stat-answered">0</strong>
             </div>
             <div class="stat-box">
-                <span class="stat-label">法規</span>
-                <strong id="stat-law">0/60</strong>
+                <span class="stat-label" id="stat-law-label">法規</span>
+                <strong id="stat-law">0</strong>
             </div>
             <div class="stat-box">
-                <span class="stat-label">無線工学</span>
-                <strong id="stat-engineering">0/60</strong>
+                <span class="stat-label" id="stat-engineering-label">無線工学</span>
+                <strong id="stat-engineering">0</strong>
             </div>
             <div class="stat-box">
                 <span class="stat-label">判定</span>
@@ -125,7 +133,7 @@
 
         <section class="data-note">
             <h2>公式出典</h2>
-            <p id="source-note">問題データは <code>questions.json</code> で管理しています。日本無線協会のCBT例題を参照し、各カードに掲載年月・PDF URL・公式問題番号を記録しています。</p>
+            <p id="source-note">問題データを読み込み中です。</p>
         </section>
 
         <section class="result-dialog" id="result-dialog" aria-labelledby="result-title" aria-modal="true" role="dialog" hidden>
@@ -137,16 +145,16 @@
 
                 <div class="result-score-grid">
                     <div>
-                        <span>法規</span>
-                        <strong id="result-law">0/60</strong>
+                        <span id="result-law-label">法規</span>
+                        <strong id="result-law">0</strong>
                     </div>
                     <div>
-                        <span>無線工学</span>
-                        <strong id="result-engineering">0/60</strong>
+                        <span id="result-engineering-label">無線工学</span>
+                        <strong id="result-engineering">0</strong>
                     </div>
                     <div>
                         <span>総合</span>
-                        <strong id="result-total">0/120</strong>
+                        <strong id="result-total">0</strong>
                     </div>
                     <div>
                         <span>所要時間</span>

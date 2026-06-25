@@ -1,9 +1,33 @@
-// questions.json を出題順・採点状態へ展開し、学習履歴をブラウザ内に保存する。
-const STORAGE_KEY = "xenoah-sanrikutoku-state-v1";
+const CATALOG_FILES = [
+    {
+        id: "3rikutoku",
+        url: "questions.json",
+        shortName: "三陸特",
+        qualification: "第三級陸上特殊無線技士"
+    },
+    {
+        id: "2rikutoku",
+        url: "questions-2rikutoku.json",
+        shortName: "二陸特",
+        qualification: "第二級陸上特殊無線技士"
+    }
+];
+
+const ACTIVE_QUALIFICATION_KEY = "xenoah-rikutoku-active-qualification-v1";
+const STATE_KEY_PREFIX = "xenoah-rikutoku-study-state-v2";
+const LEGACY_STORAGE_KEY = "xenoah-sanrikutoku-state-v1";
 
 const dom = {
+    appTitle: document.getElementById("app-title"),
+    eyebrow: document.getElementById("qualification-eyebrow"),
+    overviewJa: document.getElementById("overview-ja"),
+    overviewEn: document.getElementById("overview-en"),
+    qualificationTabs: document.getElementById("qualification-tabs"),
+    qualificationSummary: document.getElementById("qualification-summary"),
     answered: document.getElementById("stat-answered"),
+    lawLabel: document.getElementById("stat-law-label"),
     law: document.getElementById("stat-law"),
+    engineeringLabel: document.getElementById("stat-engineering-label"),
     engineering: document.getElementById("stat-engineering"),
     result: document.getElementById("stat-result"),
     source: document.getElementById("source-label"),
@@ -26,7 +50,9 @@ const dom = {
     resultDialog: document.getElementById("result-dialog"),
     resultTitle: document.getElementById("result-title"),
     resultLead: document.getElementById("result-lead"),
+    resultLawLabel: document.getElementById("result-law-label"),
     resultLaw: document.getElementById("result-law"),
+    resultEngineeringLabel: document.getElementById("result-engineering-label"),
     resultEngineering: document.getElementById("result-engineering"),
     resultTotal: document.getElementById("result-total"),
     resultTime: document.getElementById("result-time"),
@@ -44,53 +70,200 @@ const dom = {
     resultClose: document.getElementById("result-close-button")
 };
 
+let catalogs = [];
+let activeCatalog = null;
 let questions = [];
 let examPattern = null;
 let officialSources = [];
 let order = [];
-let state = {
-    current: 0,
-    filter: "all",
-    shuffle: false,
-    selected: {},
-    correct: {},
-    missed: {},
-    mastered: {},
-    bookmarked: {},
-    revealed: {},
-    resultAnnounced: false,
-    resultRecorded: false,
-    resultHistory: [],
-    examMode: false,
-    autoNext: false,
-    startedAt: null,
-    finishedAt: null
-};
-
+let state = createDefaultState();
 let timerInterval = null;
 
-function loadState() {
+function createDefaultState() {
+    return {
+        current: 0,
+        filter: "all",
+        shuffle: false,
+        selected: {},
+        correct: {},
+        missed: {},
+        mastered: {},
+        bookmarked: {},
+        revealed: {},
+        resultAnnounced: false,
+        resultRecorded: false,
+        resultHistory: [],
+        examMode: false,
+        autoNext: false,
+        startedAt: null,
+        finishedAt: null
+    };
+}
+
+function defaultSubjects() {
+    return [
+        { name: "法規", count: 12, pointsPerQuestion: 5, maxScore: 60, passingScore: 40 },
+        { name: "無線工学", count: 12, pointsPerQuestion: 5, maxScore: 60, passingScore: 40 }
+    ];
+}
+
+function isPlainObject(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function stateKey(qualificationId) {
+    return `${STATE_KEY_PREFIX}-${qualificationId}`;
+}
+
+function sanitizeState(saved) {
+    const next = { ...createDefaultState(), ...(isPlainObject(saved) ? saved : {}) };
+    next.selected = isPlainObject(next.selected) ? next.selected : {};
+    next.correct = isPlainObject(next.correct) ? next.correct : {};
+    next.missed = isPlainObject(next.missed) ? next.missed : {};
+    next.mastered = isPlainObject(next.mastered) ? next.mastered : {};
+    next.bookmarked = isPlainObject(next.bookmarked) ? next.bookmarked : {};
+    next.revealed = isPlainObject(next.revealed) ? next.revealed : {};
+    next.resultHistory = Array.isArray(next.resultHistory) ? next.resultHistory : [];
+    next.filter = ["all", "unanswered", "missed", "bookmarked", "mastered"].includes(next.filter) ? next.filter : "all";
+    next.current = Number.isFinite(next.current) ? next.current : 0;
+    next.shuffle = Boolean(next.shuffle);
+    next.resultAnnounced = Boolean(next.resultAnnounced);
+    next.resultRecorded = Boolean(next.resultRecorded);
+    next.examMode = Boolean(next.examMode);
+    next.autoNext = Boolean(next.autoNext);
+    return next;
+}
+
+function loadState(qualificationId) {
+    let saved = null;
     try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (saved && typeof saved === "object") {
-            state = { ...state, ...saved };
+        saved = JSON.parse(localStorage.getItem(stateKey(qualificationId)));
+        if (!saved && qualificationId === "3rikutoku") {
+            saved = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY));
         }
     } catch {
-        localStorage.removeItem(STORAGE_KEY);
+        saved = null;
     }
-
-    // 保存形式を拡張しても旧データを読めるよう、追加プロパティをここで補完する。
-    state.selected = state.selected || {};
-    state.correct = state.correct || {};
-    state.missed = state.missed || {};
-    state.mastered = state.mastered || {};
-    state.bookmarked = state.bookmarked || {};
-    state.revealed = state.revealed || {};
-    state.resultHistory = Array.isArray(state.resultHistory) ? state.resultHistory : [];
+    state = sanitizeState(saved);
 }
 
 function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (!activeCatalog) return;
+    localStorage.setItem(stateKey(activeCatalog.id), JSON.stringify(state));
+    localStorage.setItem(ACTIVE_QUALIFICATION_KEY, activeCatalog.id);
+}
+
+function normalizeCatalog(file, data) {
+    const exam = data.examPattern || {};
+    const subjects = Array.isArray(exam.subjects) && exam.subjects.length ? exam.subjects : defaultSubjects();
+    const id = data.qualificationId || file.id;
+    const shortName = data.shortTitle || file.shortName || id;
+    return {
+        id,
+        url: file.url,
+        dataFile: data.dataFile || file.url,
+        shortName,
+        title: data.title || `${shortName} 公式例題ベース単語帳データ`,
+        appTitle: `${shortName} 過去問単語帳`,
+        qualification: exam.qualification || file.qualification || shortName,
+        description: data.description || "",
+        examPattern: { ...exam, subjects },
+        officialSources: Array.isArray(data.officialSources) ? data.officialSources : [],
+        questions: Array.isArray(data.questions)
+            ? data.questions.map((question) => ({ ...question, qualificationId: id }))
+            : []
+    };
+}
+
+async function loadCatalogs() {
+    const loaded = await Promise.all(
+        CATALOG_FILES.map(async (file) => {
+            const response = await fetch(file.url, { cache: "no-store" });
+            if (!response.ok) throw new Error(`${file.url}: HTTP ${response.status}`);
+            const data = await response.json();
+            return normalizeCatalog(file, data);
+        })
+    );
+    catalogs = loaded;
+}
+
+function preferredQualificationId() {
+    const hashId = decodeURIComponent(location.hash.replace(/^#/, ""));
+    if (catalogs.some((catalog) => catalog.id === hashId)) return hashId;
+
+    const savedId = localStorage.getItem(ACTIVE_QUALIFICATION_KEY);
+    if (catalogs.some((catalog) => catalog.id === savedId)) return savedId;
+
+    return catalogs.some((catalog) => catalog.id === "3rikutoku") ? "3rikutoku" : catalogs[0]?.id;
+}
+
+function setActiveCatalog(qualificationId, options = {}) {
+    const nextCatalog = catalogs.find((catalog) => catalog.id === qualificationId) || catalogs[0];
+    if (!nextCatalog) return;
+
+    if (activeCatalog && activeCatalog.id !== nextCatalog.id) {
+        saveState();
+    }
+
+    activeCatalog = nextCatalog;
+    questions = activeCatalog.questions;
+    examPattern = activeCatalog.examPattern;
+    officialSources = activeCatalog.officialSources;
+    loadState(activeCatalog.id);
+    rebuildOrder();
+    renderCatalogChrome();
+    renderSourceNote();
+    syncTimer();
+    renderQuestion();
+
+    if (options.pushHash) {
+        history.replaceState(null, "", `${location.pathname}${location.search}#${activeCatalog.id}`);
+    }
+}
+
+function getSubjects() {
+    return Array.isArray(examPattern?.subjects) && examPattern.subjects.length ? examPattern.subjects : defaultSubjects();
+}
+
+function subjectSpec(subjectName) {
+    return getSubjects().find((subject) => subject.name === subjectName) || {
+        name: subjectName,
+        count: 0,
+        pointsPerQuestion: 5,
+        maxScore: 0,
+        passingScore: 0
+    };
+}
+
+function subjectMaxScore(subject) {
+    const count = Number(subject.count) || questions.filter((question) => question.subject === subject.name).length;
+    const points = Number(subject.pointsPerQuestion) || 5;
+    return Number(subject.maxScore) || count * points;
+}
+
+function subjectPassingScore(subject) {
+    const max = subjectMaxScore(subject);
+    return Number(subject.passingScore) || Math.ceil(max * 0.67);
+}
+
+function totalMaxScore() {
+    return getSubjects().reduce((sum, subject) => sum + subjectMaxScore(subject), 0);
+}
+
+function totalQuestionCount() {
+    return questions.length || Number(examPattern?.questionCount) || getSubjects().reduce((sum, subject) => sum + (Number(subject.count) || 0), 0);
+}
+
+function currentQuestionIds() {
+    return new Set(questions.map((question) => question.id));
+}
+
+function answeredIds() {
+    const validIds = currentQuestionIds();
+    return new Set(
+        [...Object.keys(state.correct), ...Object.keys(state.missed)]
+            .filter((id) => validIds.has(id))
+    );
 }
 
 function shuffleArray(items) {
@@ -119,6 +292,7 @@ function rebuildOrder() {
     if (state.current >= order.length) {
         state.current = Math.max(order.length - 1, 0);
     }
+    if (state.current < 0) state.current = 0;
     saveState();
 }
 
@@ -126,52 +300,74 @@ function currentQuestion() {
     return order[state.current] || null;
 }
 
-function answeredIds() {
-    return new Set([...Object.keys(state.correct), ...Object.keys(state.missed)]);
-}
-
-function totalQuestionCount() {
-    return examPattern?.questionCount || questions.length || 24;
-}
-
 function computeExamResult() {
-    // 本試験相当の配点・科目別基準を表示と結果判定の共通ルールにする。
     const answered = answeredIds();
-    const scored = { "法規": 0, "無線工学": 0 };
+    const scores = Object.fromEntries(getSubjects().map((subject) => [subject.name, 0]));
 
     questions.forEach((question) => {
         if (state.correct[question.id]) {
-            scored[question.subject] = (scored[question.subject] || 0) + 5;
+            const subject = subjectSpec(question.subject);
+            scores[question.subject] = (scores[question.subject] || 0) + (Number(subject.pointsPerQuestion) || 5);
         }
     });
 
-    const lawPassed = scored["法規"] >= 40;
-    const engineeringPassed = scored["無線工学"] >= 40;
+    const subjectResults = getSubjects().map((subject) => {
+        const maxScore = subjectMaxScore(subject);
+        const passingScore = subjectPassingScore(subject);
+        const score = scores[subject.name] || 0;
+        return {
+            name: subject.name,
+            score,
+            maxScore,
+            passingScore,
+            passed: score >= passingScore
+        };
+    });
+
+    const total = subjectResults.reduce((sum, subject) => sum + subject.score, 0);
+    const totalMax = subjectResults.reduce((sum, subject) => sum + subject.maxScore, 0);
     const allAnswered = answered.size >= totalQuestionCount();
-    const total = (scored["法規"] || 0) + (scored["無線工学"] || 0);
 
     return {
         answered,
-        lawScore: scored["法規"] || 0,
-        engineeringScore: scored["無線工学"] || 0,
+        subjectResults,
         total,
-        lawPassed,
-        engineeringPassed,
+        totalMax,
         allAnswered,
-        passed: allAnswered && lawPassed && engineeringPassed
+        passed: allAnswered && subjectResults.every((subject) => subject.passed)
     };
+}
+
+function subjectResultAt(result, index) {
+    return result.subjectResults[index] || {
+        name: "-",
+        score: 0,
+        maxScore: 0,
+        passingScore: 0,
+        passed: false
+    };
+}
+
+function formatScore(score, maxScore) {
+    return `${score}/${maxScore}`;
 }
 
 function updateStats() {
     const result = computeExamResult();
+    const first = subjectResultAt(result, 0);
+    const second = subjectResultAt(result, 1);
     const hideScores = state.examMode && !result.allAnswered;
 
     dom.answered.textContent = `${result.answered.size}/${totalQuestionCount()}`;
-    dom.law.textContent = hideScores ? "--/60" : `${result.lawScore}/60`;
-    dom.engineering.textContent = hideScores ? "--/60" : `${result.engineeringScore}/60`;
+    dom.lawLabel.textContent = first.name;
+    dom.engineeringLabel.textContent = second.name;
+    dom.law.textContent = hideScores ? `--/${first.maxScore}` : formatScore(first.score, first.maxScore);
+    dom.engineering.textContent = hideScores ? `--/${second.maxScore}` : formatScore(second.score, second.maxScore);
     dom.result.textContent = result.allAnswered ? (result.passed ? "合格圏" : "復習") : "-";
+
     if (dom.progressFill) {
-        dom.progressFill.style.width = `${Math.min(100, (result.answered.size / totalQuestionCount()) * 100)}%`;
+        const denominator = Math.max(totalQuestionCount(), 1);
+        dom.progressFill.style.width = `${Math.min(100, (result.answered.size / denominator) * 100)}%`;
     }
 }
 
@@ -182,6 +378,45 @@ function updateFilterButtons() {
     dom.shuffle.checked = state.shuffle;
     dom.examMode.checked = state.examMode;
     dom.autoNext.checked = state.autoNext;
+}
+
+function renderQualificationTabs() {
+    if (!dom.qualificationTabs) return;
+    dom.qualificationTabs.innerHTML = "";
+    catalogs.forEach((catalog) => {
+        const button = document.createElement("button");
+        button.className = "segment";
+        button.type = "button";
+        button.role = "tab";
+        button.textContent = catalog.shortName;
+        button.classList.toggle("is-active", catalog.id === activeCatalog?.id);
+        button.setAttribute("aria-selected", String(catalog.id === activeCatalog?.id));
+        button.addEventListener("click", () => setActiveCatalog(catalog.id, { pushHash: true }));
+        dom.qualificationTabs.appendChild(button);
+    });
+}
+
+function renderCatalogChrome() {
+    if (!activeCatalog) return;
+    const subjectSummary = getSubjects()
+        .map((subject) => `${subject.name}${subject.count || questions.filter((question) => question.subject === subject.name).length}問`)
+        .join("・");
+    const title = `${activeCatalog.qualification}・過去問単語帳 | Radio Operator Exam Study | Xenoah`;
+    const description = `${activeCatalog.qualification}の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。`;
+
+    document.title = title;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", `${description} / Study Japanese land radio operator law and engineering with quizzes and review tools.`);
+    document.querySelector('meta[property="og:title"]')?.setAttribute("content", title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
+
+    dom.eyebrow.textContent = activeCatalog.qualification;
+    dom.appTitle.textContent = activeCatalog.appTitle;
+    dom.overviewJa.textContent = `${activeCatalog.qualification}の法規・無線工学を、過去問形式の単語帳、採点、復習、ブックマーク、模試タイマーで学習できるブラウザ教材です。`;
+    dom.overviewEn.textContent = `A browser study tool for ${activeCatalog.shortName}, with law and engineering questions, scoring, review, bookmarks and a timed mock exam.`;
+    dom.qualificationSummary.textContent = `${questions.length}問 / ${subjectSummary} / 模試${examPattern?.timeLimitMinutes || 60}分`;
+    renderQualificationTabs();
 }
 
 function renderPalette() {
@@ -208,7 +443,6 @@ function renderPalette() {
 function setChoiceClasses(question) {
     const selected = state.selected[question.id];
     const revealed = state.revealed[question.id];
-    // 試験モードでは全問終了まで正誤を見せず、途中の採点結果を推測できないようにする。
     const hideAnswer = state.examMode && !computeExamResult().allAnswered;
 
     Array.from(dom.choices.children).forEach((button) => {
@@ -226,6 +460,7 @@ function renderEmptyState() {
     dom.question.textContent = "この条件に合うカードはまだありません。全問に戻すか、問題を解いてからもう一度開いてください。";
     dom.choices.innerHTML = "";
     dom.answerPanel.hidden = true;
+    dom.bookmark.textContent = "☆";
     dom.bookmark.classList.remove("is-active");
     dom.master.classList.remove("is-active");
     dom.master.textContent = "習得済みにする";
@@ -300,22 +535,39 @@ function elapsedSeconds() {
 function updateTimer() {
     if (!dom.timer) return;
     const limit = (examPattern?.timeLimitMinutes || 60) * 60;
-    const remaining = Math.max(0, limit - elapsedSeconds());
+    const remaining = state.startedAt ? Math.max(0, limit - elapsedSeconds()) : limit;
     dom.timer.textContent = formatTime(remaining);
-    dom.timerBox?.classList.toggle("is-low", remaining > 0 && remaining <= 300);
-    if (remaining === 0 && !state.resultAnnounced && !computeExamResult().allAnswered) {
+    dom.timerBox?.classList.toggle("is-low", state.startedAt && remaining > 0 && remaining <= 300);
+
+    if (state.startedAt && remaining === 0 && !state.resultAnnounced && !computeExamResult().allAnswered) {
         finishExam(true);
     }
+}
+
+function syncTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    if (state.startedAt && !state.finishedAt) {
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+    updateTimer();
 }
 
 function startTimer() {
     if (!state.startedAt) {
         state.startedAt = Date.now();
+        state.finishedAt = null;
         saveState();
     }
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(updateTimer, 1000);
-    updateTimer();
+    syncTimer();
+}
+
+function passingSummary(result) {
+    return result.subjectResults
+        .map((subject) => `${subject.name}${subject.passingScore}点/${subject.maxScore}点`)
+        .join("・");
 }
 
 function renderResultDialog(result, options = {}) {
@@ -323,16 +575,20 @@ function renderResultDialog(result, options = {}) {
 
     const missedQuestions = questions.filter((question) => state.missed[question.id]);
     const incomplete = !result.allAnswered;
+    const first = subjectResultAt(result, 0);
+    const second = subjectResultAt(result, 1);
 
     dom.resultTitle.textContent = incomplete ? "途中結果です" : result.passed ? "合格圏です" : "復習しましょう";
     dom.resultLead.textContent = incomplete
-        ? `未回答が${totalQuestionCount() - result.answered.size}問あります。今の回答だけで採点しています。`
+        ? `未回答が${Math.max(0, totalQuestionCount() - result.answered.size)}問あります。今の回答だけで採点しています。`
         : result.passed
-        ? "1周完了。法規・無線工学ともに公式基準の40点以上に届いています。"
-        : "1周完了。各科目40点以上が目安なので、間違えた問題をもう一度固めましょう。";
-    dom.resultLaw.textContent = `${result.lawScore}/60`;
-    dom.resultEngineering.textContent = `${result.engineeringScore}/60`;
-    dom.resultTotal.textContent = `${result.total}/120`;
+        ? `1周完了。${passingSummary(result)}の基準に届いています。`
+        : `1周完了。目安は${passingSummary(result)}です。間違えた問題をもう一度固めましょう。`;
+    dom.resultLawLabel.textContent = first.name;
+    dom.resultEngineeringLabel.textContent = second.name;
+    dom.resultLaw.textContent = formatScore(first.score, first.maxScore);
+    dom.resultEngineering.textContent = formatScore(second.score, second.maxScore);
+    dom.resultTotal.textContent = formatScore(result.total, result.totalMax);
     dom.resultTime.textContent = formatTime(elapsedSeconds());
 
     dom.resultMissedList.innerHTML = "";
@@ -372,8 +628,9 @@ function renderHistory() {
         const date = new Date(entry.at);
         const label = document.createElement("span");
         const score = document.createElement("strong");
+        const max = entry.totalMax || totalMaxScore();
         label.textContent = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-        score.textContent = `${entry.passed ? "合格圏" : "復習"} ${entry.total}/120`;
+        score.textContent = `${entry.passed ? "合格圏" : "復習"} ${entry.total}/${max}`;
         item.append(label, score);
         dom.resultHistoryList.appendChild(item);
     });
@@ -386,15 +643,17 @@ function recordResult(result) {
     state.resultHistory = [
         {
             at: state.finishedAt,
+            qualificationId: activeCatalog?.id,
             passed: result.passed,
-            lawScore: result.lawScore,
-            engineeringScore: result.engineeringScore,
+            subjectScores: Object.fromEntries(result.subjectResults.map((subject) => [subject.name, subject.score])),
             total: result.total,
+            totalMax: result.totalMax,
             elapsedSeconds: elapsedSeconds()
         },
         ...state.resultHistory
     ].slice(0, 10);
     saveState();
+    syncTimer();
 }
 
 function runResultEffect() {
@@ -427,13 +686,30 @@ function announceResultIfComplete() {
     renderResultDialog(result);
 }
 
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 function renderSourceNote() {
-    if (!examPattern || !dom.sourceNote) return;
+    if (!examPattern || !dom.sourceNote || !activeCatalog) return;
     const catalog = officialSources.find((source) => source.id === "jri-cbt-examples");
     const sourceText = catalog
-        ? `<a href="${catalog.url}" target="_blank" rel="noopener">日本無線協会 CBT方式の国家試験の例題</a>`
+        ? `<a href="${escapeHtml(catalog.url)}" target="_blank" rel="noopener">${escapeHtml(catalog.name)}</a>`
         : "日本無線協会 CBT方式の国家試験の例題";
-    dom.sourceNote.innerHTML = `問題データは <code>questions.json</code> で管理しています。出題形式は公式資料に合わせて、法規12問・無線工学12問の計24問、試験時間${examPattern.timeLimitMinutes}分、各科目60点中40点以上を合格圏として表示します。参照元: ${sourceText}。`;
+    const subjectText = getSubjects()
+        .map((subject) => `${subject.name}${subject.count || questions.filter((question) => question.subject === subject.name).length}問`)
+        .join("・");
+    const scoreText = getSubjects()
+        .map((subject) => `${subject.name}${subjectMaxScore(subject)}点中${subjectPassingScore(subject)}点以上`)
+        .join("・");
+    const setText = [...new Set(questions.map((question) => question.examSet).filter(Boolean))].join("、") || "公式例題";
+
+    dom.sourceNote.innerHTML = `現在の問題データは <code>${escapeHtml(activeCatalog.dataFile)}</code> で管理しています。${activeCatalog.qualification}の${setText}をカード化し、出題形式は公式資料に合わせて${subjectText}の計${totalQuestionCount()}問、試験時間${examPattern.timeLimitMinutes || 60}分、${scoreText}を合格圏として表示します。参照元: ${sourceText}。`;
 }
 
 function selectChoice(question, choiceId) {
@@ -507,6 +783,7 @@ function finishExam(fromTimer = false) {
         recordResult(result);
     }
     saveState();
+    syncTimer();
     renderResultDialog(result, { skipEffect: fromTimer || !result.allAnswered });
 }
 
@@ -519,25 +796,16 @@ function resetProgress() {
         autoNext: state.autoNext
     };
     state = {
-        current: 0,
+        ...createDefaultState(),
         filter: keepSettings.filter,
         shuffle: keepSettings.shuffle,
-        selected: {},
-        correct: {},
-        missed: {},
-        mastered: {},
-        bookmarked: {},
-        revealed: {},
-        resultAnnounced: false,
-        resultRecorded: false,
         resultHistory: keepSettings.resultHistory,
         examMode: keepSettings.examMode,
         autoNext: keepSettings.autoNext,
-        startedAt: Date.now(),
-        finishedAt: null
+        startedAt: keepSettings.examMode ? Date.now() : null
     };
     rebuildOrder();
-    startTimer();
+    syncTimer();
     renderQuestion();
 }
 
@@ -560,6 +828,7 @@ function bindEvents() {
     });
     dom.examMode.addEventListener("change", () => {
         state.examMode = dom.examMode.checked;
+        if (state.examMode) startTimer();
         saveState();
         renderQuestion();
     });
@@ -577,7 +846,15 @@ function bindEvents() {
     dom.filters.forEach((button) => {
         button.addEventListener("click", () => setFilter(button.dataset.filter));
     });
+    window.addEventListener("hashchange", () => {
+        const id = decodeURIComponent(location.hash.replace(/^#/, ""));
+        if (catalogs.some((catalog) => catalog.id === id) && activeCatalog?.id !== id) {
+            setActiveCatalog(id);
+        }
+    });
     document.addEventListener("keydown", (event) => {
+        const tagName = event.target?.tagName;
+        if (tagName === "INPUT" || tagName === "TEXTAREA") return;
         if (event.key === "ArrowLeft") move(-1);
         if (event.key === "ArrowRight") move(1);
         if (event.key === "Escape") closeResultDialog();
@@ -591,22 +868,12 @@ function bindEvents() {
 
 async function init() {
     bindEvents();
-    loadState();
 
     try {
-        // 問題修正を即時反映するため、ブラウザキャッシュを使わず取得する。
-        const response = await fetch("questions.json", { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        questions = data.questions || [];
-        examPattern = data.examPattern || null;
-        officialSources = data.officialSources || [];
-        rebuildOrder();
-        renderSourceNote();
-        startTimer();
-        renderQuestion();
+        await loadCatalogs();
+        setActiveCatalog(preferredQualificationId());
     } catch (error) {
-        dom.question.textContent = "questions.json を読み込めませんでした。GitHub Pages などのWebサーバー上で開いてください。";
+        dom.question.textContent = "問題データを読み込めませんでした。GitHub Pages などのWebサーバー上で開いてください。";
         dom.source.textContent = String(error.message || error);
     }
 }

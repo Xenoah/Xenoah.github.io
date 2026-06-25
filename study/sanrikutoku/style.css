@@ -68,6 +68,37 @@ input:focus-visible {
     padding: 18px 0 20px;
 }
 
+.study-picker {
+    display: grid;
+    grid-template-columns: minmax(220px, 360px) 1fr;
+    align-items: end;
+    gap: 14px;
+    margin: 0 0 16px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.picker-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.qualification-segments {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.picker-summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
 .eyebrow {
     margin: 0 0 4px;
     color: var(--primary);
@@ -656,6 +687,10 @@ code {
     .controls {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .study-picker {
+        grid-template-columns: 1fr;
     }
 
     .exam-tools {

@@ -1,0 +1,490 @@
+{
+  "title": "二陸特 公式例題ベース単語帳データ",
+  "description": "公益財団法人 日本無線協会が公開している第二級陸上特殊無線技士 CBT方式の国家試験例題を参照した学習データ。公式PDFは解答付き、当ページの解説は学習用に作成。",
+  "qualificationId": "2rikutoku",
+  "shortTitle": "二陸特",
+  "dataFile": "questions-2rikutoku.json",
+  "examPattern": {
+    "qualification": "第二級陸上特殊無線技士",
+    "method": "CBT方式",
+    "questionCount": 24,
+    "subjects": [
+      { "name": "法規", "count": 12, "pointsPerQuestion": 5, "maxScore": 60, "passingScore": 40 },
+      { "name": "無線工学", "count": 12, "pointsPerQuestion": 5, "maxScore": 60, "passingScore": 40 }
+    ],
+    "timeLimitMinutes": 60,
+    "officialSource": "https://www.nichimu.or.jp/kshiken/shiryou/index.html"
+  },
+  "officialSources": [
+    {
+      "id": "jri-cbt-examples",
+      "name": "公益財団法人 日本無線協会 CBT方式の国家試験の例題",
+      "url": "https://www.nichimu.or.jp/kshiken/siken/vcmsFolder_856/vcms_856.html",
+      "note": "第二級陸上特殊無線技士は法規 No.1-No.3、無線工学 No.1-No.3 が掲載。"
+    },
+    {
+      "id": "2r-law-no1",
+      "name": "第二級陸上特殊無線技士 試験問題例題 法規 No.1",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf"
+    },
+    {
+      "id": "2r-eng-no1",
+      "name": "第二級陸上特殊無線技士 試験問題例題 無線工学 No.1",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf"
+    },
+    {
+      "id": "2r-law-no2",
+      "name": "第二級陸上特殊無線技士 試験問題例題 法規 No.2",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_02.pdf"
+    },
+    {
+      "id": "2r-law-no3",
+      "name": "第二級陸上特殊無線技士 試験問題例題 法規 No.3",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_03.pdf"
+    },
+    {
+      "id": "2r-eng-no2",
+      "name": "第二級陸上特殊無線技士 試験問題例題 無線工学 No.2",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_02.pdf"
+    },
+    {
+      "id": "2r-eng-no3",
+      "name": "第二級陸上特殊無線技士 試験問題例題 無線工学 No.3",
+      "url": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_03.pdf"
+    }
+  ],
+  "questions": [
+    {
+      "id": "2rikutoku-law-no1-q01",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 1,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "基地局を開設しようとする者は、どうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "総務大臣の免許を受ける。" },
+        { "id": "2", "text": "基地局の運用開始の予定期日を総務大臣に届け出る。" },
+        { "id": "3", "text": "基地局を開設した旨、遅滞なく総務大臣に届け出る。" },
+        { "id": "4", "text": "主任無線従事者を選任する。" }
+      ],
+      "answer": "1",
+      "explanation": "基地局を開設するには、原則として総務大臣の免許を受ける必要があります。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q02",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 2,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の無線設備の変更の工事の許可を受けた免許人は、総務省令で定める場合を除き、どのような手続をとった後でなければ、許可に係る無線設備を運用してはならないか。",
+      "choices": [
+        { "id": "1", "text": "総務大臣の検査を受け、当該工事の結果が許可の内容に適合していると認められた後" },
+        { "id": "2", "text": "工事が完了した後、その運用について総務大臣の許可を受けた後" },
+        { "id": "3", "text": "総務大臣に運用開始の予定期日を届け出た後" },
+        { "id": "4", "text": "当該工事の結果が許可の内容に適合している旨を総務大臣に届け出た後" }
+      ],
+      "answer": "1",
+      "explanation": "許可を受けた変更工事後の設備は、原則として検査を受け、許可内容に適合していると認められてから運用できます。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q03",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 3,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "送信設備に使用する電波の質として、空欄に入る字句はどれか。",
+      "choices": [
+        { "id": "1", "text": "周波数の偏差及び幅、高調波の強度等" },
+        { "id": "2", "text": "周波数の偏差、空中線電力の偏差等" },
+        { "id": "3", "text": "周波数の偏差及び安定度等" },
+        { "id": "4", "text": "周波数の偏差及び幅、空中線電力の偏差等" }
+      ],
+      "answer": "1",
+      "explanation": "電波の質は、周波数の偏差及び幅、高調波の強度等について総務省令の基準に適合する必要があります。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q04",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 4,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "「無線従事者」の定義として、空欄に入る字句はどれか。",
+      "choices": [
+        { "id": "1", "text": "無線設備の操作又はその監督を行う者" },
+        { "id": "2", "text": "無線局に配置された者" },
+        { "id": "3", "text": "無線局を運用する者" },
+        { "id": "4", "text": "無線局を管理する者" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者は、無線設備の操作又はその監督を行う者で、総務大臣の免許を受けたものをいいます。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q05",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 5,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "第二級陸上特殊無線技士が、陸上の無線局で人工衛星局の中継により無線通信を行うものの多重無線設備の外部の転換装置で、電波の質に影響を及ぼさないものの技術操作を行うことができるのは、空中線電力何ワット以下のものか。",
+      "choices": [
+        { "id": "1", "text": "50ワット" },
+        { "id": "2", "text": "100ワット" },
+        { "id": "3", "text": "25ワット" },
+        { "id": "4", "text": "5ワット" }
+      ],
+      "answer": "1",
+      "explanation": "二陸特の操作範囲では、この条件の人工衛星局中継による多重無線設備について、空中線電力50W以下が問われています。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q06",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 6,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線従事者は、その業務に従事しているときは、無線従事者の免許証をどのようにしていなければならないか。",
+      "choices": [
+        { "id": "1", "text": "携帯する。" },
+        { "id": "2", "text": "主たる送信装置のある場所の見やすい箇所に掲示する。" },
+        { "id": "3", "text": "通信室内に保管する。" },
+        { "id": "4", "text": "無線局に備え付ける。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者は、業務に従事しているとき免許証を携帯する必要があります。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q07",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 7,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局を運用する場合において、遭難通信を行う場合を除き、無線設備の設置場所は、どの業務書類に記載又は記録されているところによらなければならないか。",
+      "choices": [
+        { "id": "1", "text": "免許記録" },
+        { "id": "2", "text": "無線局の免許の申請書の写し" },
+        { "id": "3", "text": "無線局事項書の写し" },
+        { "id": "4", "text": "無線従事者の免許証" }
+      ],
+      "answer": "1",
+      "explanation": "無線設備の設置場所は、遭難通信の場合を除き、免許記録に記録された内容による必要があります。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q08",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 8,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "総務大臣が無線局に対して臨時に電波の発射の停止を命ずることができるのはどの場合か。",
+      "choices": [
+        { "id": "1", "text": "無線局の発射する電波の質が総務省令で定めるものに適合していないと認めるとき。" },
+        { "id": "2", "text": "運用の停止を命じた無線局を運用していると認めるとき。" },
+        { "id": "3", "text": "無線局が免許記録に記録されている空中線電力の範囲を超えて運用していると認めるとき。" },
+        { "id": "4", "text": "無線局の発射する電波が他の無線局の通信に混信を与えていると認めるとき。" }
+      ],
+      "answer": "1",
+      "explanation": "発射する電波の質が基準に適合していないと認めるとき、総務大臣は臨時に電波の発射停止を命ずることができます。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q09",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 9,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人が電波法又は電波法に基づく命令に違反したときに総務大臣が行うことができる処分はどれか。",
+      "choices": [
+        { "id": "1", "text": "無線局の運用の停止" },
+        { "id": "2", "text": "再免許の拒否" },
+        { "id": "3", "text": "通信の相手方又は通信事項の制限" },
+        { "id": "4", "text": "電波の型式の制限" }
+      ],
+      "answer": "1",
+      "explanation": "法令違反に対する処分として、無線局の運用停止などが定められています。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q10",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 10,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "総務大臣から無線従事者がその免許を取り消されることがあるのはどの場合か。",
+      "choices": [
+        { "id": "1", "text": "電波法又は電波法に基づく命令に違反したとき。" },
+        { "id": "2", "text": "引き続き5年以上無線設備の操作を行わなかったとき。" },
+        { "id": "3", "text": "日本の国籍を有しない者となったとき。" },
+        { "id": "4", "text": "無線従事者の免許証を失ったとき。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者が電波法又は電波法に基づく命令に違反したときは、免許取消しの対象となることがあります。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q11",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 11,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人は、免許記録に記録した免許人の住所に変更を生じたときは、どうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "総務省令で定めるところにより、遅滞なく、その旨を総務大臣に届け出る。" },
+        { "id": "2", "text": "総務大臣に無線設備の設置場所の変更の申請をする。" },
+        { "id": "3", "text": "総務大臣に免許記録の訂正を申請する。" },
+        { "id": "4", "text": "免許記録の写し又は免許事項証明書を訂正し、その旨を総務大臣に報告する。" }
+      ],
+      "answer": "1",
+      "explanation": "免許人の住所に変更が生じたときは、総務省令に従って遅滞なく届け出ます。"
+    },
+    {
+      "id": "2rikutoku-law-no1-q12",
+      "source": "日本無線協会 公式CBT例題 二陸特 法規 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_E/2rikutoku_E_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 12,
+      "examSet": "公式例題 No.1",
+      "subject": "法規",
+      "question": "無線局の免許人は、主任無線従事者を選任し、又は解任したときは、どうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "遅滞なく、その旨を総務大臣に届け出る。" },
+        { "id": "2", "text": "1箇月以内にその旨を総務大臣に届け出る。" },
+        { "id": "3", "text": "2週間以内にその旨を総務大臣に報告する。" },
+        { "id": "4", "text": "速やかに総務大臣の承認を受ける。" }
+      ],
+      "answer": "1",
+      "explanation": "主任無線従事者を選任又は解任したときは、遅滞なく総務大臣に届け出る必要があります。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q13",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 13,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "図に示す電気回路において、抵抗Rの値の大きさを2倍にすると、この抵抗で消費される電力は何倍になるか。図は公式PDFを参照。",
+      "choices": [
+        { "id": "1", "text": "1/2倍" },
+        { "id": "2", "text": "1/4倍" },
+        { "id": "3", "text": "2倍" },
+        { "id": "4", "text": "4倍" }
+      ],
+      "answer": "1",
+      "explanation": "直流電源の電圧が一定なら消費電力は P=V^2/R です。抵抗が2倍になると、消費電力は1/2倍になります。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q14",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 14,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "半導体を用いた電子部品の温度が上昇すると、一般にその部品の動作にどのような変化が起きるか。",
+      "choices": [
+        { "id": "1", "text": "半導体の抵抗が増加し、電流が減少する。" },
+        { "id": "2", "text": "半導体の抵抗が増加し、電流が増加する。" },
+        { "id": "3", "text": "半導体の抵抗が減少し、電流が減少する。" },
+        { "id": "4", "text": "半導体の抵抗が減少し、電流が増加する。" }
+      ],
+      "answer": "4",
+      "explanation": "半導体は温度上昇でキャリアが増え、一般に抵抗が減少して電流が増加します。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q15",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 15,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "八木・宇田アンテナについて、全アンテナ素子を水平にしたときの水平面内の指向特性Aと、導波器の素子数を増やしたときのビーム幅Bの正しい組合せはどれか。図は公式PDFを参照。",
+      "choices": [
+        { "id": "1", "text": "A: 全方向性 / B: 広く" },
+        { "id": "2", "text": "A: 全方向性 / B: 狭く" },
+        { "id": "3", "text": "A: 単一指向性 / B: 狭く" },
+        { "id": "4", "text": "A: 単一指向性 / B: 広く" }
+      ],
+      "answer": "3",
+      "explanation": "八木・宇田アンテナは単一指向性を持ち、導波器を増やすと利得が大きくなり、ビーム幅は狭くなります。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q16",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 16,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "マイクロ波（SHF）帯の電波の伝わり方として、正しいのはどれか。",
+      "choices": [
+        { "id": "1", "text": "地表波が遠距離まで減衰しない。" },
+        { "id": "2", "text": "電離層で反射し遠距離まで伝わる。" },
+        { "id": "3", "text": "雨、雪、霧など気象に影響されない。" },
+        { "id": "4", "text": "電波の直進性が強い。" }
+      ],
+      "answer": "4",
+      "explanation": "SHF帯は波長が短く、直進性が強い性質があります。降雨などの影響も受けやすい帯域です。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q17",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 17,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "端子電圧6V、容量（10時間率）60Ahの充電済み鉛蓄電池に、6Aで動作する装置を接続すると、通常、何時間まで連続動作できるか。",
+      "choices": [
+        { "id": "1", "text": "2時間" },
+        { "id": "2", "text": "3時間" },
+        { "id": "3", "text": "6時間" },
+        { "id": "4", "text": "10時間" }
+      ],
+      "answer": "4",
+      "explanation": "容量60Ahの蓄電池から6Aを取り出すので、60Ah ÷ 6A = 10時間が目安です。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q18",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 18,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "回路のAを測定するときは測定回路に並列に計器を接続し、Bを測定するときは測定回路に直列に計器を接続する。また、特にCの場合、極性を間違わないよう注意しなければならない。A・B・Cの正しい組合せはどれか。",
+      "choices": [
+        { "id": "1", "text": "A: 電圧 / B: 電流 / C: 直流" },
+        { "id": "2", "text": "A: 電圧 / B: 電流 / C: 交流" },
+        { "id": "3", "text": "A: 電流 / B: 電圧 / C: 交流" },
+        { "id": "4", "text": "A: 電流 / B: 電圧 / C: 直流" }
+      ],
+      "answer": "1",
+      "explanation": "電圧計は並列、電流計は直列に接続します。直流の測定では極性にも注意します。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q19",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 19,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "PSKはベースバンド信号に応じて搬送波のAを切り替える方式である。また、QPSKは1回の変調でBビットの情報を伝送できる。A・Bの正しい組合せはどれか。",
+      "choices": [
+        { "id": "1", "text": "A: 振幅 / B: 3" },
+        { "id": "2", "text": "A: 振幅 / B: 2" },
+        { "id": "3", "text": "A: 位相 / B: 3" },
+        { "id": "4", "text": "A: 位相 / B: 2" }
+      ],
+      "answer": "4",
+      "explanation": "PSKは位相を切り替える方式です。QPSKは4値の位相を使うため、1回の変調で2ビットを表せます。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q20",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 20,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "AM（A3E）通信方式と比べたときのFM（F3E）通信方式の一般的な特徴で、誤っているのはどれか。",
+      "choices": [
+        { "id": "1", "text": "振幅性の雑音に強い。" },
+        { "id": "2", "text": "占有周波数帯幅が狭い。" },
+        { "id": "3", "text": "装置の回路構成が多少複雑である。" },
+        { "id": "4", "text": "受信機出力の信号対雑音比が良い。" }
+      ],
+      "answer": "2",
+      "explanation": "FMは一般にAMより占有周波数帯幅が広くなります。狭いという記述が誤りです。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q21",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 21,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "パルス符号変調（PCM）方式を用いたデジタル無線通信装置の原理的な構成例で、空欄に入る名称はどれか。図は公式PDFを参照。",
+      "choices": [
+        { "id": "1", "text": "AFC回路" },
+        { "id": "2", "text": "識別回路" },
+        { "id": "3", "text": "符号化回路" },
+        { "id": "4", "text": "高域フィルタ（HPF）" }
+      ],
+      "answer": "3",
+      "explanation": "PCMの送信側では、標本化、量子化の後に符号化を行い、デジタル信号として送ります。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q22",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 22,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "静止衛星通信におけるVSATシステムについての記述として、正しいのはどれか。",
+      "choices": [
+        { "id": "1", "text": "VSAT地球局の送信周波数は、VSAT制御地球局で制御される。" },
+        { "id": "2", "text": "使用される衛星はインマルサット衛星である。" },
+        { "id": "3", "text": "VSAT地球局は小形軽量の装置で、車両で走行中の通信に使用される。" },
+        { "id": "4", "text": "使用される周波数帯は1.5GHz帯と1.6GHz帯である。" }
+      ],
+      "answer": "1",
+      "explanation": "VSATでは、ネットワークを統括する制御地球局がVSAT地球局の送信周波数などを制御します。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q23",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 23,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "パルスレーダーの最大探知距離を大きくするための方法で、誤っているのはどれか。",
+      "choices": [
+        { "id": "1", "text": "パルス幅を狭くし、パルス繰返し周波数を高くする。" },
+        { "id": "2", "text": "送信電力を大きくする。" },
+        { "id": "3", "text": "受信機の感度を良くする。" },
+        { "id": "4", "text": "アンテナの高さを高くする。" }
+      ],
+      "answer": "1",
+      "explanation": "最大探知距離を伸ばすには送信電力、受信感度、アンテナ条件などが効きます。パルス幅を狭くし繰返し周波数を高くすることは最大距離を伸ばす方法として不適切です。"
+    },
+    {
+      "id": "2rikutoku-eng-no1-q24",
+      "source": "日本無線協会 公式CBT例題 二陸特 無線工学 No.1",
+      "sourceUrl": "https://www.nichimu.or.jp/vc-files/kshiken/cbt/KoukaiReidai/2rikutoku_A/2rikutoku_A_01.pdf",
+      "published": "公開例題",
+      "officialQuestionNo": 24,
+      "examSet": "公式例題 No.1",
+      "subject": "無線工学",
+      "question": "無線受信機において、通常、受信に障害を与える雑音の原因にならないのはどれか。",
+      "choices": [
+        { "id": "1", "text": "発電機のブラシの火花" },
+        { "id": "2", "text": "給電線のコネクタのゆるみによるアンテナとの接触不良" },
+        { "id": "3", "text": "高周波加熱装置" },
+        { "id": "4", "text": "電源用電池の容量低下" }
+      ],
+      "answer": "4",
+      "explanation": "火花や接触不良、高周波加熱装置は雑音源になり得ます。電池容量の低下は通常、受信雑音そのものの原因ではありません。"
+    }
+  ]
+}
