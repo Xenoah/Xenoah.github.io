@@ -184,9 +184,10 @@ const pages = {
     canonical: "/study/intmath/lessons/trig_unit_circle/",
   },
   "study/sanrikutoku/index.html": {
-    title: "第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah",
-    description: "第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese third-class land radio operator law and engineering with quizzes and review tools.",
+    title: "第二級・第三級陸上特殊無線技士・過去問単語帳 | Radio Operator Exam Study | Xenoah",
+    description: "第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。 / Study Japanese second- and third-class land radio operator law and engineering with quizzes and review tools.",
     canonical: "/study/sanrikutoku/",
+    robots: "noindex,nofollow,noarchive,nosnippet,noimageindex",
   },
   "tools/audio-converter/audio-converter.htm": {
     title: "音声ファイル変換・速度・音量調整 | Audio Converter | Xenoah",
