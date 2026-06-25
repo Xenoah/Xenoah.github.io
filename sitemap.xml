@@ -250,12 +250,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://xenoah.github.io/study/sanrikutoku/</loc>
-    <lastmod>2026-05-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html</loc>
     <lastmod>2026-02-18</lastmod>
     <changefreq>monthly</changefreq>
