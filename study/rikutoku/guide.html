@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>陸特 学習ポイント | 法規・無線工学まとめ | Xenoah</title>
+    <meta name="description" content="第二級・第三級陸上特殊無線技士の法規・無線工学で間違えやすい期間、届出、用語、計算、アンテナ、変調、伝搬の要点まとめ。">
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+    <meta name="author" content="Xenoah">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell guide-shell">
+        <header class="topbar guide-topbar">
+            <div>
+                <p class="eyebrow">第二級・第三級陸上特殊無線技士</p>
+                <h1>法規・無線工学 学習ポイント</h1>
+            </div>
+            <div class="topbar-actions">
+                <a class="primary-link" href="./">クイズへ戻る</a>
+            </div>
+        </header>
+
+        <section class="guide-hero" aria-labelledby="guide-overview-title">
+            <div>
+                <p class="eyebrow">直前確認</p>
+                <h2 id="guide-overview-title">「いつ」「何を」「どの語で」答えるかを固める</h2>
+            </div>
+            <p>
+                公式例題で問われやすい法規の手続、期間、処分、無線工学の公式と用語を、見返し用に整理しています。
+                法令は改正されるため、受験前は公式資料も確認してください。
+            </p>
+        </section>
+
+        <nav class="guide-jump" aria-label="学習ポイント目次">
+            <a href="#law-deadlines">期間・届出</a>
+            <a href="#law-points">法規</a>
+            <a href="#engineering-points">無線工学</a>
+            <a href="#traps">間違いやすいポイント</a>
+        </nav>
+
+        <section class="guide-section" id="law-deadlines">
+            <div class="section-heading">
+                <p class="eyebrow">法規</p>
+                <h2>期間・届出の早見表</h2>
+                <p>「遅滞なく」は、選任・解任・住所変更など、変更が起きた後にすぐ届ける場面で出やすい合図です。</p>
+            </div>
+
+            <div class="table-wrap">
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th>合図</th>
+                            <th>覚える対象</th>
+                            <th>試験での答え方</th>
+                            <th>混同しやすい語</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>遅滞なく</strong></td>
+                            <td>無線従事者・主任無線従事者の選任又は解任</td>
+                            <td>総務大臣に届け出る</td>
+                            <td>「承認を受ける」「1箇月以内」ではない</td>
+                        </tr>
+                        <tr>
+                            <td><strong>遅滞なく</strong></td>
+                            <td>免許人の住所など、免許記録に記録した事項の変更</td>
+                            <td>総務省令に従って届け出る</td>
+                            <td>設置場所変更の事前許可と混ぜない</td>
+                        </tr>
+                        <tr>
+                            <td><strong>あらかじめ</strong></td>
+                            <td>無線設備の設置場所変更など、免許内容に関わる変更</td>
+                            <td>総務大臣の許可を受ける</td>
+                            <td>事後報告ではない</td>
+                        </tr>
+                        <tr>
+                            <td><strong>検査後</strong></td>
+                            <td>許可を受けた無線設備の変更工事後の運用</td>
+                            <td>検査で許可内容に適合すると認められてから運用</td>
+                            <td>工事完了だけで運用しない</td>
+                        </tr>
+                        <tr>
+                            <td><strong>三か月以内</strong></td>
+                            <td>法令違反時の無線局への処分</td>
+                            <td>運用停止、運用許容時間・周波数・空中線電力の制限</td>
+                            <td>電波の質の不適合は「臨時に発射停止」</td>
+                        </tr>
+                        <tr>
+                            <td><strong>三か月以内</strong></td>
+                            <td>無線従事者への処分</td>
+                            <td>免許取消し又は業務従事停止</td>
+                            <td>「5年以上操作していない」だけでは取消事由として扱わない</td>
+                        </tr>
+                        <tr>
+                            <td><strong>一か月以上</strong></td>
+                            <td>無線局の運用休止</td>
+                            <td>休止期間を届け出る</td>
+                            <td>廃止届、選任届とは別物</td>
+                        </tr>
+                        <tr>
+                            <td><strong>五年以内</strong></td>
+                            <td>無線局免許の有効期間</td>
+                            <td>免許の日から起算して五年を超えない範囲</td>
+                            <td>従事者免許の取消事由と混ぜない</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="guide-section" id="law-points">
+            <div class="section-heading">
+                <p class="eyebrow">法規</p>
+                <h2>項目別の要点</h2>
+            </div>
+
+            <div class="point-grid">
+                <article class="point-card">
+                    <span class="subject-pill">定義</span>
+                    <h3>無線局と無線従事者</h3>
+                    <ul>
+                        <li>無線局は「無線設備」と「操作を行う者」の総体。受信のみを目的とするものは含めない。</li>
+                        <li>無線従事者は、無線設備の操作又はその監督を行う者で、総務大臣の免許を受けた者。</li>
+                        <li>「従事者」だけ、「管理者」だけ、「監督者」だけの選択肢は狭すぎる。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">免許</span>
+                    <h3>開設・変更・運用</h3>
+                    <ul>
+                        <li>基地局などの無線局を開設するには、原則として総務大臣の免許が必要。</li>
+                        <li>設置場所変更など免許内容に関わる変更は、原則として事前許可。</li>
+                        <li>遭難通信を除き、設置場所は免許記録に記録された内容による。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">電波の質</span>
+                    <h3>周波数の偏差及び幅、高調波の強度等</h3>
+                    <ul>
+                        <li>送信設備の電波の質は、周波数の偏差及び幅、高調波の強度等が基準に適合すること。</li>
+                        <li>空中線電力の偏差、変調度、安定度だけの選択肢に寄せられやすい。</li>
+                        <li>基準不適合と認められると、総務大臣は臨時に電波の発射停止を命じることができる。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">運用</span>
+                    <h3>携帯・擬似空中線・処分</h3>
+                    <ul>
+                        <li>無線従事者は、業務に従事しているとき免許証を携帯する。</li>
+                        <li>試験又は調整で運用するときは、なるべく擬似空中線回路を使う。</li>
+                        <li>法令違反では、無線局の運用停止などの処分が問われる。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">操作範囲</span>
+                    <h3>二陸特・三陸特で数字を分ける</h3>
+                    <ul>
+                        <li>三陸特の例題では、1,215MHz以上の一定設備で外部転換装置の技術操作は100W以下。</li>
+                        <li>二陸特の例題では、人工衛星局中継による一定の多重無線設備で50W以下。</li>
+                        <li>どちらも「電波の質に影響を及ぼさない」外部の転換装置という条件を落とさない。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">免許状・免許記録</span>
+                    <h3>問題文の表現で答えを切り替える</h3>
+                    <ul>
+                        <li>免許状に記載した事項の変更は、免許状を提出して訂正を受ける形で問われる。</li>
+                        <li>免許記録の住所変更は、総務省令に従って遅滞なく届け出る形で問われる。</li>
+                        <li>「報告」「再交付申請」「設置場所変更申請」は、場面が違うことが多い。</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="guide-section" id="engineering-points">
+            <div class="section-heading">
+                <p class="eyebrow">無線工学</p>
+                <h2>項目別の要点</h2>
+            </div>
+
+            <div class="point-grid">
+                <article class="point-card">
+                    <span class="subject-pill">回路</span>
+                    <h3>単位・公式・電源</h3>
+                    <ul>
+                        <li>インダクタンスはヘンリ H、磁束はウェーバ Wb。</li>
+                        <li>直流で電圧一定なら P=V^2/R。抵抗が2倍なら消費電力は1/2。</li>
+                        <li>蓄電池は Ah ÷ A で時間の目安。60Ahを6Aで使うと10時間。</li>
+                        <li>ヒューズは通常動作で切れないよう、規格電流より少し大きい値を選ぶ。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">測定</span>
+                    <h3>電圧計は並列、電流計は直列</h3>
+                    <ul>
+                        <li>電流を測る計器は、測りたい負荷と直列につなぐ。</li>
+                        <li>電圧を測る計器は、測りたい部分と並列につなぐ。</li>
+                        <li>直流測定では極性を間違えない。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">半導体</span>
+                    <h3>FETと温度</h3>
+                    <ul>
+                        <li>FETのゲートは、接合形トランジスタのベースに対応する制御端子。</li>
+                        <li>半導体は温度上昇でキャリアが増え、一般に抵抗が下がり電流が増えやすい。</li>
+                        <li>温度上昇を金属抵抗の感覚で解くと逆に選びやすい。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">アンテナ</span>
+                    <h3>八木・宇田アンテナ</h3>
+                    <ul>
+                        <li>素子長は、導波器が短く、放射器が中間、反射器が長い。</li>
+                        <li>導波器を増やすと利得が大きくなり、ビーム幅は狭くなる。</li>
+                        <li>水平方向の指向特性は単一指向性で押さえる。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">伝搬</span>
+                    <h3>VHFとSHF</h3>
+                    <ul>
+                        <li>VHFは見通し内通信が中心で、通常は電離層を突き抜けやすい。</li>
+                        <li>SHFは波長が短く直進性が強い。降雨などの影響も受けやすい。</li>
+                        <li>HFの電離層反射と同じ感覚で選ばない。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">変調・多元接続</span>
+                    <h3>略語で落とさない</h3>
+                    <ul>
+                        <li>FM F3Eは、一般にAM A3Eより占有周波数帯幅が広い。</li>
+                        <li>FDMAはユーザごとに周波数チャネルを割り当てる方式。</li>
+                        <li>PSKは位相を切り替える。QPSKは1回の変調で2ビット。</li>
+                        <li>PCMは標本化、量子化、符号化の順でデジタル信号にする。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">通信装置</span>
+                    <h3>受信機・衛星・レーダー</h3>
+                    <ul>
+                        <li>受信機で元の信号を忠実に再現する能力は忠実度。</li>
+                        <li>FM送信機はプレストークボタンを押している間に電波を発射する。</li>
+                        <li>VSATは制御地球局がVSAT地球局の送信周波数などを制御する。</li>
+                        <li>レーダーの最大探知距離は送信電力、受信感度、アンテナ条件が効く。</li>
+                    </ul>
+                </article>
+
+                <article class="point-card">
+                    <span class="subject-pill">雑音</span>
+                    <h3>原因になるもの、ならないもの</h3>
+                    <ul>
+                        <li>火花、接触不良、高周波加熱装置は雑音源になり得る。</li>
+                        <li>電池容量の低下は、通常は受信雑音そのものの原因として扱わない。</li>
+                        <li>「電源が弱い」と「雑音源」は分けて考える。</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="guide-section" id="traps">
+            <div class="section-heading">
+                <p class="eyebrow">復習</p>
+                <h2>間違いやすいポイントだけ再確認</h2>
+            </div>
+
+            <div class="trap-list">
+                <article>
+                    <h3>「遅滞なく」と「事前許可」を混同しない</h3>
+                    <p>変更が発生した後に届けるものは「遅滞なく」。設置場所変更など、免許内容に関わる変更をしようとする場面は「あらかじめ許可」。</p>
+                </article>
+                <article>
+                    <h3>電波の質は「周波数の偏差及び幅、高調波の強度等」</h3>
+                    <p>空中線電力の偏差や変調度だけを含む選択肢は外す。品質不適合の処分は、まず臨時の電波発射停止。</p>
+                </article>
+                <article>
+                    <h3>三か月は処分の上限として覚える</h3>
+                    <p>無線局の運用停止、無線従事者の業務従事停止は三か月以内。届出期限の三か月と覚えると崩れやすい。</p>
+                </article>
+                <article>
+                    <h3>八木・宇田は短いほうが導波器</h3>
+                    <p>A&lt;B&lt;C なら、Aが導波器、Bが放射器、Cが反射器。導波器を増やすとビーム幅は狭くなる。</p>
+                </article>
+                <article>
+                    <h3>FMはAMより帯域が広い</h3>
+                    <p>「FMは雑音に強い」方向に引っ張られて、占有周波数帯幅を狭いと選ばない。</p>
+                </article>
+                <article>
+                    <h3>測定器の接続は図で即答する</h3>
+                    <p>電圧計は並列、電流計は直列。直流では極性も見る。図問題はここだけ先に確定すると迷いが減る。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="data-note guide-source-note">
+            <h2>参照元</h2>
+            <p>
+                このページは、当サイトの二陸特・三陸特クイズデータ、公益財団法人 日本無線協会の
+                <a href="https://www.nichimu.or.jp/kshiken/siken/vcmsFolder_856/vcms_856.html" target="_blank" rel="noopener">CBT方式の国家試験の例題</a>、
+                e-Gov法令検索の
+                <a href="https://elaws.e-gov.go.jp/document?lawid=325AC0000000131" target="_blank" rel="noopener">電波法</a>
+                を確認して作成した学習用まとめです。
+            </p>
+        </section>
+    </main>
+</body>
+
+</html>
