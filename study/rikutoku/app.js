@@ -1,11 +1,5 @@
 const CATALOG_FILES = [
     {
-        id: "1rikutoku",
-        url: "questions-1rikutoku.json",
-        shortName: "一陸特",
-        qualification: "第一級陸上特殊無線技士"
-    },
-    {
         id: "3rikutoku",
         url: "questions.json",
         shortName: "三陸特",
@@ -16,6 +10,12 @@ const CATALOG_FILES = [
         url: "questions-2rikutoku.json",
         shortName: "二陸特",
         qualification: "第二級陸上特殊無線技士"
+    },
+    {
+        id: "1rikutoku",
+        url: "questions-1rikutoku.json",
+        shortName: "一陸特",
+        qualification: "第一級陸上特殊無線技士"
     }
 ];
 
@@ -256,6 +256,7 @@ function replaceHash(hash) {
 }
 
 function pushHash(hash) {
+    if (location.hash === `#${hash}`) return;
     history.pushState(null, "", `${location.pathname}${location.search}#${hash}`);
 }
 
@@ -292,7 +293,7 @@ function startMockExam(qualificationId, options = {}) {
     setActiveCatalog(qualificationId);
     if (!activeCatalog) return;
 
-    if (options.resetCompleted && state.examFinished) {
+    if (options.resetCompleted && (state.examFinished || state.resultAnnounced)) {
         const resultHistory = state.resultHistory || [];
         state = {
             ...createDefaultState(),
@@ -380,6 +381,14 @@ function showHistory(options = {}) {
     renderHistoryView();
     if (options.pushHash) {
         pushHash("history");
+    }
+}
+
+function openMockFromMenu(qualificationId) {
+    if (!qualificationId) return;
+    pushHash(`mock-${qualificationId}`);
+    if (catalogs.some((catalog) => catalog.id === qualificationId)) {
+        startMockExam(qualificationId, { resetCompleted: true });
     }
 }
 
@@ -1069,7 +1078,7 @@ function bindEvents() {
     document.querySelectorAll("[data-menu-action='mock']").forEach((link) => {
         link.addEventListener("click", (event) => {
             event.preventDefault();
-            startMockExam(link.dataset.qualification, { pushHash: true, resetCompleted: true });
+            openMockFromMenu(link.dataset.qualification);
         });
     });
     document.querySelector("[data-menu-action='history']")?.addEventListener("click", (event) => {

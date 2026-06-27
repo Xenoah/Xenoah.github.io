@@ -187,7 +187,7 @@ h1 {
 
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -225,7 +225,7 @@ h1 {
 }
 
 .menu-card-wide {
-    grid-column: span 4;
+    grid-column: span 2;
     min-height: 96px;
 }
 
@@ -799,6 +799,12 @@ h1 {
     gap: 6px;
     margin: 0;
     padding-left: 1.2em;
+}
+
+.point-card strong,
+.guide-table strong,
+.trap-list strong {
+    color: var(--primary-dark);
 }
 
 .trap-list {
