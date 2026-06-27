@@ -19,6 +19,8 @@ const CATALOG_FILES = [
     }
 ];
 
+const PAGE_MODE = document.body?.dataset.pageMode || "menu";
+const PAGE_QUALIFICATION_ID = document.body?.dataset.qualification || "";
 const ACTIVE_QUALIFICATION_KEY = "xenoah-rikutoku-active-qualification-v1";
 const STATE_KEY_PREFIX = "xenoah-rikutoku-study-state-v2";
 const LEGACY_STORAGE_KEY = "xenoah-sanrikutoku-state-v1";
@@ -190,8 +192,11 @@ function normalizeCatalog(file, data) {
 }
 
 async function loadCatalogs() {
+    const files = PAGE_QUALIFICATION_ID
+        ? CATALOG_FILES.filter((file) => file.id === PAGE_QUALIFICATION_ID)
+        : CATALOG_FILES;
     const loaded = await Promise.all(
-        CATALOG_FILES.map(async (file) => {
+        files.map(async (file) => {
             const response = await fetch(file.url, { cache: "no-store" });
             if (!response.ok) throw new Error(`${file.url}: HTTP ${response.status}`);
             const data = await response.json();
@@ -202,6 +207,8 @@ async function loadCatalogs() {
 }
 
 function preferredQualificationId() {
+    if (catalogs.some((catalog) => catalog.id === PAGE_QUALIFICATION_ID)) return PAGE_QUALIFICATION_ID;
+
     const hashId = decodeURIComponent(location.hash.replace(/^#/, ""));
     if (catalogs.some((catalog) => catalog.id === hashId)) return hashId;
 
@@ -235,9 +242,17 @@ function renderHistoryChrome() {
 }
 
 function parseRoute() {
+    if (PAGE_MODE === "exam") {
+        return { view: "exam", qualificationId: preferredQualificationId() };
+    }
+    if (PAGE_MODE === "history") {
+        return { view: "history" };
+    }
+
     const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
     if (!hash || hash === "menu") return { view: "menu" };
     if (hash === "history") return { view: "history" };
+    if (PAGE_MODE === "menu") return { view: "menu" };
 
     const mockMatch = hash.match(/^mock-(.+)$/);
     if (mockMatch && catalogs.some((catalog) => catalog.id === mockMatch[1])) {
@@ -581,7 +596,7 @@ function renderQualificationTabs() {
         button.textContent = catalog.shortName;
         button.classList.toggle("is-active", catalog.id === activeCatalog?.id);
         button.setAttribute("aria-selected", String(catalog.id === activeCatalog?.id));
-        button.addEventListener("click", () => startMockExam(catalog.id, { pushHash: true }));
+        button.addEventListener("click", () => startMockExam(catalog.id, { pushHash: PAGE_MODE !== "exam" }));
         dom.qualificationTabs.appendChild(button);
     });
 }

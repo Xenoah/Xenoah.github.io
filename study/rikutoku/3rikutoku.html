@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>3陸特 模試 | Radio Operator Exam Study | Xenoah</title>
+    <meta name="description" content="第三級陸上特殊無線技士の法規・無線工学を、模試形式、採点、全問解説、過去成績で学習できる教材です。">
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+    <meta name="author" content="Xenoah">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../assets/page-overview.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page-mode="exam" data-qualification="3rikutoku">
+    <main class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow" id="qualification-eyebrow">第三級陸上特殊無線技士</p>
+                <h1 id="app-title">3陸特 模試</h1>
+            </div>
+            <div class="topbar-actions">
+                <a class="secondary-link" href="./">メニュー</a>
+                <button class="ghost-button" id="reset-button" type="button">進捗リセット</button>
+            </div>
+        </header>
+
+        <aside class="page-overview" aria-label="ページ概要" data-exam-section>
+            <p lang="ja" id="overview-ja">第三級陸上特殊無線技士の法規・無線工学を、模試形式、採点、全問解説、過去成績で学習できるブラウザ教材です。</p>
+            <p lang="en" id="overview-en">A browser mock exam for the third-class land radio operator exam, with law and engineering questions, scoring, full explanations and saved results.</p>
+        </aside>
+
+        <section class="study-picker" aria-label="学習対象" data-exam-section>
+            <div>
+                <span class="picker-label">資格</span>
+                <div class="segmented qualification-segments" id="qualification-tabs" role="tablist" aria-label="資格切替"></div>
+            </div>
+            <p class="picker-summary" id="qualification-summary">問題データを読み込み中です。</p>
+        </section>
+
+        <section class="stats-grid" aria-label="学習状況" data-exam-section>
+            <div class="stat-box"><span class="stat-label">回答数</span><strong id="stat-answered">0</strong></div>
+            <div class="stat-box"><span class="stat-label" id="stat-law-label">法規</span><strong id="stat-law">0</strong></div>
+            <div class="stat-box"><span class="stat-label" id="stat-engineering-label">無線工学</span><strong id="stat-engineering">0</strong></div>
+            <div class="stat-box"><span class="stat-label">判定</span><strong id="stat-result">-</strong></div>
+        </section>
+
+        <section class="exam-tools" aria-label="試験ツール" data-exam-section>
+            <div class="timer-box"><span>残り時間</span><strong id="timer-display">60:00</strong></div>
+            <div class="exam-switches">
+                <label class="toggle"><input id="exam-mode-toggle" type="checkbox"><span>模試モード</span></label>
+                <label class="toggle"><input id="auto-next-toggle" type="checkbox"><span>自動で次へ</span></label>
+            </div>
+            <button class="primary-button" id="finish-button" type="button">結果発表</button>
+        </section>
+
+        <div class="progress-track" aria-hidden="true" data-exam-section><span id="progress-fill"></span></div>
+        <nav class="question-palette" id="question-palette" aria-label="問題番号" data-exam-section></nav>
+
+        <nav class="controls" aria-label="出題モード" data-exam-section>
+            <div class="segmented" role="tablist" aria-label="問題フィルター">
+                <button class="segment is-active" data-filter="all" type="button">全問</button>
+                <button class="segment" data-filter="unanswered" type="button">未回答</button>
+                <button class="segment" data-filter="missed" type="button">苦手</button>
+                <button class="segment" data-filter="bookmarked" type="button">保存</button>
+                <button class="segment" data-filter="mastered" type="button">習得</button>
+            </div>
+            <label class="toggle"><input id="shuffle-toggle" type="checkbox"><span>ランダム</span></label>
+        </nav>
+
+        <section class="study-card" aria-live="polite" data-exam-section>
+            <div class="card-meta"><span id="source-label">読み込み中</span><span id="counter-label">0 / 0</span></div>
+            <div class="subject-row">
+                <span class="subject-pill" id="subject-label">-</span>
+                <button class="icon-button" id="bookmark-button" type="button" aria-label="ブックマーク">☆</button>
+            </div>
+            <h2 id="question-text">問題データを読み込んでいます。</h2>
+            <div class="choices" id="choices"></div>
+            <section class="answer-panel" id="answer-panel" hidden>
+                <p class="answer-line" id="answer-line"></p>
+                <p id="explanation-text"></p>
+            </section>
+            <div class="action-row">
+                <button class="secondary-button" id="prev-button" type="button">前へ</button>
+                <button class="primary-button" id="reveal-button" type="button">解答を見る</button>
+                <button class="secondary-button" id="next-button" type="button">次へ</button>
+            </div>
+            <div class="master-row"><button class="ghost-button" id="master-button" type="button">習得済みにする</button></div>
+        </section>
+
+        <section class="data-note" data-exam-section>
+            <h2>公式出典</h2>
+            <p id="source-note">問題データを読み込み中です。</p>
+        </section>
+
+        <section class="result-dialog" id="result-dialog" aria-labelledby="result-title" aria-modal="true" role="dialog" hidden>
+            <div class="result-card">
+                <div class="result-burst" id="result-burst" aria-hidden="true"></div>
+                <p class="eyebrow">結果発表</p>
+                <h2 id="result-title">1周完了</h2>
+                <p class="result-lead" id="result-lead"></p>
+                <div class="result-score-grid">
+                    <div><span id="result-law-label">法規</span><strong id="result-law">0</strong></div>
+                    <div><span id="result-engineering-label">無線工学</span><strong id="result-engineering">0</strong></div>
+                    <div><span>総合</span><strong id="result-total">0</strong></div>
+                    <div><span>所要時間</span><strong id="result-time">00:00</strong></div>
+                </div>
+                <div class="result-review"><h3>復習リスト</h3><ul id="result-missed-list"></ul></div>
+                <div class="history-panel"><h3>最近の結果</h3><ol id="result-history-list"></ol></div>
+                <div class="result-all-review"><h3>全問結果と解説</h3><div id="result-all-list"></div></div>
+                <div class="result-actions">
+                    <button class="secondary-button" id="result-review-button" type="button">苦手だけ復習</button>
+                    <button class="secondary-button" id="result-retry-button" type="button">もう一周</button>
+                    <button class="primary-button" id="result-close-button" type="button">閉じる</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js" defer></script>
+</body>
+
+</html>
