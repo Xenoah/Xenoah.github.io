@@ -1,0 +1,691 @@
+{
+  "title": "一陸特 学習用模試データ",
+  "description": "公益財団法人 日本無線協会が公開している試験科目・合格基準等を参照し、第一級陸上特殊無線技士の出題範囲を学習用にまとめた模試データ。設問と解説は当ページ用に作成。",
+  "qualificationId": "1rikutoku",
+  "shortTitle": "一陸特",
+  "dataFile": "questions-1rikutoku.json",
+  "examPattern": {
+    "qualification": "第一級陸上特殊無線技士",
+    "method": "多岐選択式",
+    "questionCount": 36,
+    "subjects": [
+      { "name": "無線工学", "count": 24, "pointsPerQuestion": 5, "maxScore": 120, "passingScore": 75 },
+      { "name": "法規", "count": 12, "pointsPerQuestion": 5, "maxScore": 60, "passingScore": 40 }
+    ],
+    "timeLimitMinutes": 180,
+    "officialSource": "https://www.nichimu.or.jp/kshiken/shiryou/index.html"
+  },
+  "officialSources": [
+    {
+      "id": "jri-exam-criteria",
+      "name": "公益財団法人 日本無線協会 試験科目・合格基準等",
+      "url": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "note": "第一級陸上特殊無線技士は無線工学24問、法規12問、試験時間3時間。合格基準は無線工学120点中75点、法規60点中40点。"
+    },
+    {
+      "id": "jri-question-count-time",
+      "name": "表1 資格別・科目別試験問題数と試験時間",
+      "url": "https://www.nichimu.or.jp/vc-files/denpa/pdf/h01.pdf"
+    },
+    {
+      "id": "jri-passing-criteria",
+      "name": "表2 国家試験の合格基準",
+      "url": "https://www.nichimu.or.jp/vc-files/denpa/pdf/h02.pdf"
+    },
+    {
+      "id": "radio-act-egov",
+      "name": "e-Gov法令検索 電波法",
+      "url": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131"
+    }
+  ],
+  "questions": [
+    {
+      "id": "1rikutoku-eng-q01",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 1,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "電力比をデシベルで表すとき、電力が100倍になる利得はどれか。",
+      "choices": [
+        { "id": "1", "text": "10 dB" },
+        { "id": "2", "text": "20 dB" },
+        { "id": "3", "text": "40 dB" },
+        { "id": "4", "text": "100 dB" }
+      ],
+      "answer": "2",
+      "explanation": "電力比のdBは 10 log10(P2/P1) です。100倍なら 10 log10(100)=20 dB です。"
+    },
+    {
+      "id": "1rikutoku-eng-q02",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 2,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "自由空間伝搬損失について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "距離が2倍になると、損失は約6 dB増える。" },
+        { "id": "2", "text": "周波数が高くなるほど、損失は小さくなる。" },
+        { "id": "3", "text": "距離に関係なく一定である。" },
+        { "id": "4", "text": "送信電力を大きくすると、自由空間伝搬損失そのものが小さくなる。" }
+      ],
+      "answer": "1",
+      "explanation": "自由空間伝搬損失は距離と周波数が大きいほど増えます。距離2倍は20 log10(2)で約6 dB増です。"
+    },
+    {
+      "id": "1rikutoku-eng-q03",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 3,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "マイクロ波帯やSHF帯の電波の伝わり方として、最も適切なものはどれか。",
+      "choices": [
+        { "id": "1", "text": "直進性が強く、見通し外でも電離層反射で安定して遠距離通信できる。" },
+        { "id": "2", "text": "直進性が強く、見通し通信が中心で、降雨による減衰を受けることがある。" },
+        { "id": "3", "text": "波長が長いため、山岳を容易に回り込む。" },
+        { "id": "4", "text": "周波数が高いほど空中線を大きくしなければ利得を得られない。" }
+      ],
+      "answer": "2",
+      "explanation": "SHF帯は波長が短く直進性が強いため見通し通信が中心です。周波数が高い帯域では降雨減衰も重要です。"
+    },
+    {
+      "id": "1rikutoku-eng-q04",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 4,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "マイクロ波中継回線でフレネルゾーンを確保する主な理由はどれか。",
+      "choices": [
+        { "id": "1", "text": "送信周波数を自動的に低くするため。" },
+        { "id": "2", "text": "障害物による回折や位相差で受信電界が低下するのを避けるため。" },
+        { "id": "3", "text": "空中線電力を法定値以下に制限するため。" },
+        { "id": "4", "text": "受信機の中間周波数を一定にするため。" }
+      ],
+      "answer": "2",
+      "explanation": "見通し線だけでなくフレネルゾーン内の障害物も受信電界低下やフェージングの原因になります。"
+    },
+    {
+      "id": "1rikutoku-eng-q05",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 5,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "パラボラアンテナについて、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "開口径を大きくすると、一般に利得は大きくなりビーム幅は狭くなる。" },
+        { "id": "2", "text": "開口径を大きくすると、利得は小さくなりビーム幅は広くなる。" },
+        { "id": "3", "text": "反射器を用いるため、指向性は全方向性になる。" },
+        { "id": "4", "text": "周波数が高いほど、同じ開口径での利得は小さくなる。" }
+      ],
+      "answer": "1",
+      "explanation": "パラボラアンテナは開口径が大きいほど高利得・鋭い指向性になります。同じ径なら周波数が高いほど利得は大きくなります。"
+    },
+    {
+      "id": "1rikutoku-eng-q06",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 6,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "給電線とアンテナの整合状態を表すVSWRについて、最も良い整合状態を示す値はどれか。",
+      "choices": [
+        { "id": "1", "text": "1" },
+        { "id": "2", "text": "2" },
+        { "id": "3", "text": "10" },
+        { "id": "4", "text": "無限大" }
+      ],
+      "answer": "1",
+      "explanation": "反射がない理想的な整合ではVSWRは1です。値が大きいほど反射が大きくなります。"
+    },
+    {
+      "id": "1rikutoku-eng-q07",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 7,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "スーパヘテロダイン受信機で中間周波数を用いる主な目的はどれか。",
+      "choices": [
+        { "id": "1", "text": "受信した高周波信号を一定の周波数に変換し、選択・増幅しやすくするため。" },
+        { "id": "2", "text": "送信出力を大きくするため。" },
+        { "id": "3", "text": "アンテナの偏波を変えるため。" },
+        { "id": "4", "text": "電波の伝搬損失をなくすため。" }
+      ],
+      "answer": "1",
+      "explanation": "局部発振器と混合して一定の中間周波数に変換すると、選択度や利得を安定して得やすくなります。"
+    },
+    {
+      "id": "1rikutoku-eng-q08",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 8,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "受信機の雑音指数について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "小さいほど、受信機内部で加わる雑音が少なく感度上有利である。" },
+        { "id": "2", "text": "大きいほど、必ず受信感度が良くなる。" },
+        { "id": "3", "text": "アンテナ利得と同じ意味である。" },
+        { "id": "4", "text": "変調方式だけで決まり、受信機回路には依存しない。" }
+      ],
+      "answer": "1",
+      "explanation": "雑音指数は受信機がどれだけ信号対雑音比を劣化させるかを示す値で、小さいほど良好です。"
+    },
+    {
+      "id": "1rikutoku-eng-q09",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 9,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "熱雑音電力について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "帯域幅が広いほど、熱雑音電力は大きくなる。" },
+        { "id": "2", "text": "絶対温度に無関係である。" },
+        { "id": "3", "text": "帯域幅を広げるほど必ず小さくなる。" },
+        { "id": "4", "text": "抵抗を含む回路では発生しない。" }
+      ],
+      "answer": "1",
+      "explanation": "熱雑音電力は概ね kTB で表され、温度Tと帯域幅Bが大きいほど増加します。"
+    },
+    {
+      "id": "1rikutoku-eng-q10",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 10,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "PCM方式でアナログ信号をデジタル信号にする基本的な順序として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "標本化、量子化、符号化" },
+        { "id": "2", "text": "量子化、標本化、復調" },
+        { "id": "3", "text": "変調、増幅、復号化" },
+        { "id": "4", "text": "周波数変換、検波、標本化" }
+      ],
+      "answer": "1",
+      "explanation": "PCMではアナログ信号を標本化し、振幅を量子化し、二進符号などに符号化します。"
+    },
+    {
+      "id": "1rikutoku-eng-q11",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 11,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "QPSKで1回のシンボルにより表すことができる情報量はどれか。",
+      "choices": [
+        { "id": "1", "text": "1ビット" },
+        { "id": "2", "text": "2ビット" },
+        { "id": "3", "text": "4ビット" },
+        { "id": "4", "text": "8ビット" }
+      ],
+      "answer": "2",
+      "explanation": "QPSKは4つの位相状態を使うため、1シンボルで log2(4)=2ビットを表せます。"
+    },
+    {
+      "id": "1rikutoku-eng-q12",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 12,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "OFDM方式の特徴として、最も適切なものはどれか。",
+      "choices": [
+        { "id": "1", "text": "多数の直交するサブキャリアに分けて伝送する。" },
+        { "id": "2", "text": "搬送波を1本だけ使い、必ずアナログ音声だけを送る。" },
+        { "id": "3", "text": "周波数選択性フェージングの影響を必ずゼロにする。" },
+        { "id": "4", "text": "時間同期を全く必要としない。" }
+      ],
+      "answer": "1",
+      "explanation": "OFDMは互いに直交する多数のサブキャリアを使う方式で、マルチパス環境での高速伝送に使われます。"
+    },
+    {
+      "id": "1rikutoku-eng-q13",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 13,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "多元接続方式のうち、利用者ごとに異なる時間スロットを割り当てる方式はどれか。",
+      "choices": [
+        { "id": "1", "text": "FDMA" },
+        { "id": "2", "text": "TDMA" },
+        { "id": "3", "text": "PSK" },
+        { "id": "4", "text": "PCM" }
+      ],
+      "answer": "2",
+      "explanation": "TDMAはTime Division Multiple Accessで、時間を分割して利用者に割り当てる方式です。"
+    },
+    {
+      "id": "1rikutoku-eng-q14",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 14,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "マイクロ波中継回線でフェージング対策として用いられるダイバーシチの目的はどれか。",
+      "choices": [
+        { "id": "1", "text": "複数の伝送路やアンテナなどを利用し、受信品質低下を軽減する。" },
+        { "id": "2", "text": "搬送波の周波数を法律上不要にする。" },
+        { "id": "3", "text": "受信機の雑音指数を必ず0 dBにする。" },
+        { "id": "4", "text": "送信設備の高調波を増やす。" }
+      ],
+      "answer": "1",
+      "explanation": "空間、周波数、偏波などのダイバーシチは、フェージングによる同時劣化を避けて品質を安定させるために使われます。"
+    },
+    {
+      "id": "1rikutoku-eng-q15",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 15,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "静止衛星通信について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "衛星は赤道上空の静止軌道付近にあり、地上からほぼ同じ方向に見える。" },
+        { "id": "2", "text": "衛星は地上から常に北極の真上に見える。" },
+        { "id": "3", "text": "伝搬距離が短いため、遅延は地上回線より必ず小さい。" },
+        { "id": "4", "text": "アップリンクとダウンリンクは必ず同じ周波数を使う。" }
+      ],
+      "answer": "1",
+      "explanation": "静止衛星は赤道上空約3万6千kmの静止軌道にあり、地上からはほぼ一定方向に見えます。長距離のため遅延も考慮します。"
+    },
+    {
+      "id": "1rikutoku-eng-q16",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 16,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "パルスレーダーで、電波を発射してから反射波を受信するまでの時間をt、電波の速度をcとすると、目標までの距離はどれか。",
+      "choices": [
+        { "id": "1", "text": "ct" },
+        { "id": "2", "text": "ct/2" },
+        { "id": "3", "text": "2ct" },
+        { "id": "4", "text": "t/c" }
+      ],
+      "answer": "2",
+      "explanation": "電波は目標まで往復するため、距離は往復距離ctの半分で ct/2 です。"
+    },
+    {
+      "id": "1rikutoku-eng-q17",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 17,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "パルスレーダーの最大不曖昧距離について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "パルス繰返し周波数を高くすると、最大不曖昧距離は短くなる。" },
+        { "id": "2", "text": "パルス繰返し周波数を高くすると、最大不曖昧距離は必ず長くなる。" },
+        { "id": "3", "text": "パルス繰返し周波数とは無関係である。" },
+        { "id": "4", "text": "受信機の音量だけで決まる。" }
+      ],
+      "answer": "1",
+      "explanation": "次のパルスを送る前に反射波を受ける必要があるため、PRFが高いほど最大不曖昧距離は短くなります。"
+    },
+    {
+      "id": "1rikutoku-eng-q18",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 18,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "ドップラーレーダーが主に利用する現象はどれか。",
+      "choices": [
+        { "id": "1", "text": "目標との相対速度により反射波の周波数が変化する現象。" },
+        { "id": "2", "text": "温度が上がると抵抗値が必ずゼロになる現象。" },
+        { "id": "3", "text": "電波が真空中で停止する現象。" },
+        { "id": "4", "text": "導体中で直流だけが増幅される現象。" }
+      ],
+      "answer": "1",
+      "explanation": "ドップラー効果により、接近・遠ざかる目標の反射波周波数が変化します。速度測定などに用いられます。"
+    },
+    {
+      "id": "1rikutoku-eng-q19",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 19,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "AM方式と比較したFM方式の一般的な特徴として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "一般に雑音の影響を小さくできるが、占有周波数帯幅は広くなりやすい。" },
+        { "id": "2", "text": "占有周波数帯幅は常にAMより狭い。" },
+        { "id": "3", "text": "搬送波の振幅だけを変化させる方式である。" },
+        { "id": "4", "text": "復調器を全く必要としない。" }
+      ],
+      "answer": "1",
+      "explanation": "FMは振幅性雑音に強くできますが、一般にAMより広い占有周波数帯幅を必要とします。"
+    },
+    {
+      "id": "1rikutoku-eng-q20",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 20,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "容量120Ahの蓄電池から10Aの電流を連続して取り出すとき、理想的には何時間使用できるか。",
+      "choices": [
+        { "id": "1", "text": "6時間" },
+        { "id": "2", "text": "10時間" },
+        { "id": "3", "text": "12時間" },
+        { "id": "4", "text": "120時間" }
+      ],
+      "answer": "3",
+      "explanation": "容量Ahを電流Aで割ると時間の目安になります。120Ah ÷ 10A = 12時間です。"
+    },
+    {
+      "id": "1rikutoku-eng-q21",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 21,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "50Ωの抵抗に100Vの直流電圧を加えたとき、抵抗で消費される電力はどれか。",
+      "choices": [
+        { "id": "1", "text": "2W" },
+        { "id": "2", "text": "50W" },
+        { "id": "3", "text": "100W" },
+        { "id": "4", "text": "200W" }
+      ],
+      "answer": "4",
+      "explanation": "P=V^2/R なので、100^2 ÷ 50 = 200W です。"
+    },
+    {
+      "id": "1rikutoku-eng-q22",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 22,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "偏波について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "送受信アンテナの偏波が一致しないと、受信電力が低下することがある。" },
+        { "id": "2", "text": "偏波は電波の周波数だけで決まり、アンテナとは無関係である。" },
+        { "id": "3", "text": "垂直偏波と水平偏波は常に完全に同じ受信電力になる。" },
+        { "id": "4", "text": "円偏波は存在しない。" }
+      ],
+      "answer": "1",
+      "explanation": "送受信アンテナの偏波がずれると偏波損失が生じます。回線設計では偏波の一致も重要です。"
+    },
+    {
+      "id": "1rikutoku-eng-q23",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 23,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "デジタル通信のビット誤り率（BER）について、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "値が小さいほど、誤りの少ない通信を示す。" },
+        { "id": "2", "text": "値が大きいほど、必ず通信品質は良い。" },
+        { "id": "3", "text": "アナログ通信にだけ使う指標である。" },
+        { "id": "4", "text": "誤り訂正符号とは無関係である。" }
+      ],
+      "answer": "1",
+      "explanation": "BERは送ったビットのうち誤ったビットの割合で、小さいほど品質が良いことを示します。"
+    },
+    {
+      "id": "1rikutoku-eng-q24",
+      "source": "一陸特 学習用問題 無線工学",
+      "sourceUrl": "https://www.nichimu.or.jp/kshiken/shiryou/index.html",
+      "published": "学習用",
+      "officialQuestionNo": 24,
+      "examSet": "学習用模試",
+      "subject": "無線工学",
+      "question": "無線設備の接地の目的として、最も適切なものはどれか。",
+      "choices": [
+        { "id": "1", "text": "感電防止や雷・異常電圧による被害軽減、不要な雑音や障害の低減に役立てるため。" },
+        { "id": "2", "text": "送信周波数を免許なしで変更できるようにするため。" },
+        { "id": "3", "text": "空中線利得を必ず無限大にするため。" },
+        { "id": "4", "text": "受信機の中間周波数をゼロにするため。" }
+      ],
+      "answer": "1",
+      "explanation": "接地は安全、雷害対策、不要電圧や雑音の低減などに関係します。周波数変更や免許手続とは別です。"
+    },
+    {
+      "id": "1rikutoku-law-q25",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 25,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "電波法における「無線局」の定義として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "無線設備及び無線設備の操作を行う者の総体をいう。ただし、受信のみを目的とするものを含まない。" },
+        { "id": "2", "text": "無線設備だけをいう。" },
+        { "id": "3", "text": "無線従事者だけをいう。" },
+        { "id": "4", "text": "受信のみを目的とする設備を含むすべての電気設備をいう。" }
+      ],
+      "answer": "1",
+      "explanation": "無線局は無線設備とその操作を行う者の総体です。受信のみを目的とするものは含みません。"
+    },
+    {
+      "id": "1rikutoku-law-q26",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 26,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "無線局を開設しようとする者は、原則としてどうしなければならないか。",
+      "choices": [
+        { "id": "1", "text": "総務大臣の免許を受ける。" },
+        { "id": "2", "text": "開設後3か月以内に届け出ればよい。" },
+        { "id": "3", "text": "無線従事者の免許証を掲示すれば免許は不要である。" },
+        { "id": "4", "text": "空中線を設置しなければ免許は不要である。" }
+      ],
+      "answer": "1",
+      "explanation": "無線局の開設は、電波法上、原則として総務大臣の免許が必要です。"
+    },
+    {
+      "id": "1rikutoku-law-q27",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 27,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "「無線従事者」の定義として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "無線設備の操作又はその監督を行う者で、総務大臣の免許を受けたもの。" },
+        { "id": "2", "text": "無線局に勤務するすべての者。" },
+        { "id": "3", "text": "無線設備を所有する者。" },
+        { "id": "4", "text": "無線局の免許を申請した者。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者は、操作又は監督を行う者であって総務大臣の免許を受けたものです。"
+    },
+    {
+      "id": "1rikutoku-law-q28",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 28,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "無線従事者は、その業務に従事しているとき、免許証をどのようにしていなければならないか。",
+      "choices": [
+        { "id": "1", "text": "携帯する。" },
+        { "id": "2", "text": "通信室内に掲示する。" },
+        { "id": "3", "text": "免許人の住所に保管する。" },
+        { "id": "4", "text": "総務大臣に預ける。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者は、業務に従事しているとき免許証を携帯する必要があります。"
+    },
+    {
+      "id": "1rikutoku-law-q29",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 29,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "送信設備に使用する電波の質として、基準に適合しなければならないものはどれか。",
+      "choices": [
+        { "id": "1", "text": "周波数の偏差及び幅、高調波の強度等" },
+        { "id": "2", "text": "免許人の年齢" },
+        { "id": "3", "text": "通信室の床面積" },
+        { "id": "4", "text": "受信機の外形寸法だけ" }
+      ],
+      "answer": "1",
+      "explanation": "電波の質では、周波数の偏差及び幅、高調波の強度等が総務省令の基準に適合する必要があります。"
+    },
+    {
+      "id": "1rikutoku-law-q30",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 30,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "免許人が無線設備の設置場所など免許内容に関わる事項を変更しようとするとき、原則として必要な手続はどれか。",
+      "choices": [
+        { "id": "1", "text": "あらかじめ総務大臣の許可を受ける。" },
+        { "id": "2", "text": "変更後1年以内に口頭で報告する。" },
+        { "id": "3", "text": "何の手続も不要である。" },
+        { "id": "4", "text": "無線従事者の判断だけで変更できる。" }
+      ],
+      "answer": "1",
+      "explanation": "免許内容に関わる変更は、原則として事前に総務大臣の許可を受ける必要があります。"
+    },
+    {
+      "id": "1rikutoku-law-q31",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 31,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "無線設備の変更工事の許可を受けた免許人は、原則としてどの後でなければ、その設備を運用してはならないか。",
+      "choices": [
+        { "id": "1", "text": "総務大臣の検査を受け、工事の結果が許可内容に適合すると認められた後。" },
+        { "id": "2", "text": "工事が始まった直後。" },
+        { "id": "3", "text": "免許人が自分で問題ないと判断した後。" },
+        { "id": "4", "text": "無線従事者の免許証を更新した後。" }
+      ],
+      "answer": "1",
+      "explanation": "許可を受けた変更工事後の設備は、原則として検査を受け、許可内容に適合すると認められてから運用できます。"
+    },
+    {
+      "id": "1rikutoku-law-q32",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 32,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "遭難通信を行う場合を除き、無線設備の設置場所は何に記録されているところによらなければならないか。",
+      "choices": [
+        { "id": "1", "text": "免許記録" },
+        { "id": "2", "text": "受験票" },
+        { "id": "3", "text": "無線従事者の履歴書" },
+        { "id": "4", "text": "通信相手の希望" }
+      ],
+      "answer": "1",
+      "explanation": "無線設備の設置場所は、遭難通信の場合を除き、免許記録に記録された内容による必要があります。"
+    },
+    {
+      "id": "1rikutoku-law-q33",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 33,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "免許人等が主任無線従事者を選任し、又は解任したときの手続として、正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "遅滞なく、その旨を総務大臣に届け出る。" },
+        { "id": "2", "text": "3年以内に届け出る。" },
+        { "id": "3", "text": "届け出は不要である。" },
+        { "id": "4", "text": "通信相手の承認だけを受ける。" }
+      ],
+      "answer": "1",
+      "explanation": "主任無線従事者を選任又は解任したときは、遅滞なく総務大臣に届け出ます。"
+    },
+    {
+      "id": "1rikutoku-law-q34",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 34,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "免許人等が電波法等に違反したとき、総務大臣が命ずることができる無線局の運用停止期間の上限はどれか。",
+      "choices": [
+        { "id": "1", "text": "三か月以内" },
+        { "id": "2", "text": "一年以内" },
+        { "id": "3", "text": "五年以内" },
+        { "id": "4", "text": "期間の制限は一切ない" }
+      ],
+      "answer": "1",
+      "explanation": "法令違反時には、三か月以内の期間を定めて無線局の運用停止などを命じることができます。"
+    },
+    {
+      "id": "1rikutoku-law-q35",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 35,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "無線従事者が電波法等に違反したとき、総務大臣が行うことができる処分として正しいものはどれか。",
+      "choices": [
+        { "id": "1", "text": "免許取消し又は三か月以内の業務従事停止。" },
+        { "id": "2", "text": "必ず無線局の空中線を撤去する。" },
+        { "id": "3", "text": "必ず再試験だけを命じる。" },
+        { "id": "4", "text": "何の処分もできない。" }
+      ],
+      "answer": "1",
+      "explanation": "無線従事者が法令等に違反した場合、免許取消し又は三か月以内の業務従事停止の対象となることがあります。"
+    },
+    {
+      "id": "1rikutoku-law-q36",
+      "source": "一陸特 学習用問題 法規",
+      "sourceUrl": "https://elaws.e-gov.go.jp/document?lawid=325AC0000000131",
+      "published": "学習用",
+      "officialQuestionNo": 36,
+      "examSet": "学習用模試",
+      "subject": "法規",
+      "question": "無線局の発射する電波の質が基準に適合していないと認めるとき、総務大臣が命ずることができる処分はどれか。",
+      "choices": [
+        { "id": "1", "text": "臨時に電波の発射の停止を命ずる。" },
+        { "id": "2", "text": "無線従事者の受験番号を変更する。" },
+        { "id": "3", "text": "通信相手を必ず増やす。" },
+        { "id": "4", "text": "免許記録を常に削除する。" }
+      ],
+      "answer": "1",
+      "explanation": "発射する電波の質が基準に適合しない場合、総務大臣は臨時に電波の発射停止を命ずることができます。"
+    }
+  ]
+}

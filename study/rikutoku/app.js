@@ -1,5 +1,11 @@
 const CATALOG_FILES = [
     {
+        id: "1rikutoku",
+        url: "questions-1rikutoku.json",
+        shortName: "一陸特",
+        qualification: "第一級陸上特殊無線技士"
+    },
+    {
         id: "3rikutoku",
         url: "questions.json",
         shortName: "三陸特",
@@ -935,10 +941,12 @@ function escapeHtml(value) {
 
 function renderSourceNote() {
     if (!examPattern || !dom.sourceNote || !activeCatalog) return;
-    const catalog = officialSources.find((source) => source.id === "jri-cbt-examples");
+    const catalog = officialSources.find((source) => source.id === "jri-cbt-examples")
+        || officialSources.find((source) => source.id === "jri-exam-criteria")
+        || officialSources[0];
     const sourceText = catalog
         ? `<a href="${escapeHtml(catalog.url)}" target="_blank" rel="noopener">${escapeHtml(catalog.name)}</a>`
-        : "日本無線協会 CBT方式の国家試験の例題";
+        : "日本無線協会 試験資料";
     const subjectText = getSubjects()
         .map((subject) => `${subject.name}${subject.count || questions.filter((question) => question.subject === subject.name).length}問`)
         .join("・");
@@ -947,7 +955,10 @@ function renderSourceNote() {
         .join("・");
     const setText = [...new Set(questions.map((question) => question.examSet).filter(Boolean))].join("、") || "公式例題";
 
-    dom.sourceNote.innerHTML = `現在の問題データは <code>${escapeHtml(activeCatalog.dataFile)}</code> で管理しています。${activeCatalog.qualification}の${setText}をカード化し、出題形式は公式資料に合わせて${subjectText}の計${totalQuestionCount()}問、試験時間${examPattern.timeLimitMinutes || 60}分、${scoreText}を合格圏として表示します。参照元: ${sourceText}。`;
+    const dataKind = activeCatalog.id === "1rikutoku"
+        ? "公式の問題数・合格基準に合わせた学習用問題"
+        : `${setText}をカード化した問題`;
+    dom.sourceNote.innerHTML = `現在の問題データは <code>${escapeHtml(activeCatalog.dataFile)}</code> で管理しています。${activeCatalog.qualification}の${dataKind}として、${subjectText}の計${totalQuestionCount()}問、試験時間${examPattern.timeLimitMinutes || 60}分、${scoreText}を合格圏として表示します。参照元: ${sourceText}。`;
 }
 
 function selectChoice(question, choiceId) {
