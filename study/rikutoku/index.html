@@ -29,16 +29,52 @@
                 <h1 id="app-title">陸特 過去問単語帳</h1>
             </div>
             <div class="topbar-actions">
-                <a class="secondary-link" href="guide.html">学習ポイント</a>
+                <a class="secondary-link" href="#menu">メニュー</a>
                 <button class="ghost-button" id="reset-button" type="button">進捗リセット</button>
             </div>
         </header>
-        <aside class="page-overview" aria-label="ページ概要">
+
+        <section class="home-menu" id="home-menu" aria-labelledby="home-menu-title">
+            <div class="home-menu-lead">
+                <p class="eyebrow">メニュー</p>
+                <h2 id="home-menu-title">学習する項目を選択</h2>
+                <p>模試は開始するとタイマーが動き、結果発表後は解答変更できません。ポイントは直前確認用のまとめです。</p>
+            </div>
+            <div class="menu-grid">
+                <a class="menu-card" href="#mock-3rikutoku" data-menu-action="mock" data-qualification="3rikutoku">
+                    <span>三陸特</span>
+                    <strong>3陸特模試</strong>
+                    <small>法規12問・無線工学12問</small>
+                </a>
+                <a class="menu-card" href="guide.html#3rikutoku">
+                    <span>三陸特</span>
+                    <strong>3陸特ポイント</strong>
+                    <small>100W、用語、届出を確認</small>
+                </a>
+                <a class="menu-card" href="#mock-2rikutoku" data-menu-action="mock" data-qualification="2rikutoku">
+                    <span>二陸特</span>
+                    <strong>2陸特模試</strong>
+                    <small>法規12問・無線工学12問</small>
+                </a>
+                <a class="menu-card" href="guide.html#2rikutoku">
+                    <span>二陸特</span>
+                    <strong>2陸特ポイント</strong>
+                    <small>50W、衛星、レーダーを確認</small>
+                </a>
+                <a class="menu-card menu-card-wide" href="#history" data-menu-action="history">
+                    <span>記録</span>
+                    <strong>過去成績</strong>
+                    <small>保存された模試結果を確認</small>
+                </a>
+            </div>
+        </section>
+
+        <aside class="page-overview" aria-label="ページ概要" data-exam-section>
             <p lang="ja" id="overview-ja">第二級・第三級陸上特殊無線技士の法規・無線工学を、過去問形式の単語帳、採点、復習、ブックマーク、模試タイマーで学習できるブラウザ教材です。</p>
             <p lang="en" id="overview-en">A browser study tool for Japan's second- and third-class land radio operator exams, with law and engineering questions, scoring, review, bookmarks and a timed mock exam.</p>
         </aside>
 
-        <section class="study-picker" aria-label="学習対象">
+        <section class="study-picker" aria-label="学習対象" data-exam-section>
             <div>
                 <span class="picker-label">資格</span>
                 <div class="segmented qualification-segments" id="qualification-tabs" role="tablist" aria-label="資格切替"></div>
@@ -46,7 +82,7 @@
             <p class="picker-summary" id="qualification-summary">問題データを読み込み中です。</p>
         </section>
 
-        <section class="stats-grid" aria-label="学習状況">
+        <section class="stats-grid" aria-label="学習状況" data-exam-section>
             <div class="stat-box">
                 <span class="stat-label">回答数</span>
                 <strong id="stat-answered">0</strong>
@@ -65,7 +101,7 @@
             </div>
         </section>
 
-        <section class="exam-tools" aria-label="試験ツール">
+        <section class="exam-tools" aria-label="試験ツール" data-exam-section>
             <div class="timer-box">
                 <span>残り時間</span>
                 <strong id="timer-display">60:00</strong>
@@ -83,13 +119,13 @@
             <button class="primary-button" id="finish-button" type="button">結果発表</button>
         </section>
 
-        <div class="progress-track" aria-hidden="true">
+        <div class="progress-track" aria-hidden="true" data-exam-section>
             <span id="progress-fill"></span>
         </div>
 
-        <nav class="question-palette" id="question-palette" aria-label="問題番号"></nav>
+        <nav class="question-palette" id="question-palette" aria-label="問題番号" data-exam-section></nav>
 
-        <nav class="controls" aria-label="出題モード">
+        <nav class="controls" aria-label="出題モード" data-exam-section>
             <div class="segmented" role="tablist" aria-label="問題フィルター">
                 <button class="segment is-active" data-filter="all" type="button">全問</button>
                 <button class="segment" data-filter="unanswered" type="button">未回答</button>
@@ -103,7 +139,7 @@
             </label>
         </nav>
 
-        <section class="study-card" aria-live="polite">
+        <section class="study-card" aria-live="polite" data-exam-section>
             <div class="card-meta">
                 <span id="source-label">読み込み中</span>
                 <span id="counter-label">0 / 0</span>
@@ -134,9 +170,21 @@
             </div>
         </section>
 
-        <section class="data-note">
+        <section class="data-note" data-exam-section>
             <h2>公式出典</h2>
             <p id="source-note">問題データを読み込み中です。</p>
+        </section>
+
+        <section class="history-view" id="history-view" aria-labelledby="history-view-title" hidden>
+            <div class="section-heading">
+                <p class="eyebrow">過去成績</p>
+                <h2 id="history-view-title">保存された模試結果</h2>
+                <p>各資格の直近結果を表示します。結果はこのブラウザの保存領域に残ります。</p>
+            </div>
+            <div class="history-view-list" id="history-view-list"></div>
+            <div class="history-view-actions">
+                <a class="primary-link" href="#menu">メニューへ戻る</a>
+            </div>
         </section>
 
         <section class="result-dialog" id="result-dialog" aria-labelledby="result-title" aria-modal="true" role="dialog" hidden>
@@ -173,6 +221,11 @@
                 <div class="history-panel">
                     <h3>最近の結果</h3>
                     <ol id="result-history-list"></ol>
+                </div>
+
+                <div class="result-all-review">
+                    <h3>全問結果と解説</h3>
+                    <div id="result-all-list"></div>
                 </div>
 
                 <div class="result-actions">

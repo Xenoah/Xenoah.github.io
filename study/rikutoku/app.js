@@ -20,6 +20,10 @@ const LEGACY_STORAGE_KEY = "xenoah-sanrikutoku-state-v1";
 const dom = {
     appTitle: document.getElementById("app-title"),
     eyebrow: document.getElementById("qualification-eyebrow"),
+    homeMenu: document.getElementById("home-menu"),
+    examSections: Array.from(document.querySelectorAll("[data-exam-section]")),
+    historyView: document.getElementById("history-view"),
+    historyViewList: document.getElementById("history-view-list"),
     overviewJa: document.getElementById("overview-ja"),
     overviewEn: document.getElementById("overview-en"),
     qualificationTabs: document.getElementById("qualification-tabs"),
@@ -57,6 +61,7 @@ const dom = {
     resultTotal: document.getElementById("result-total"),
     resultTime: document.getElementById("result-time"),
     resultMissedList: document.getElementById("result-missed-list"),
+    resultAllList: document.getElementById("result-all-list"),
     resultHistoryList: document.getElementById("result-history-list"),
     resultReview: document.getElementById("result-review-button"),
     resultRetry: document.getElementById("result-retry-button"),
@@ -78,6 +83,7 @@ let officialSources = [];
 let order = [];
 let state = createDefaultState();
 let timerInterval = null;
+let currentView = "menu";
 
 function createDefaultState() {
     return {
@@ -95,6 +101,7 @@ function createDefaultState() {
         resultHistory: [],
         examMode: false,
         autoNext: false,
+        examFinished: false,
         startedAt: null,
         finishedAt: null
     };
@@ -131,6 +138,7 @@ function sanitizeState(saved) {
     next.resultRecorded = Boolean(next.resultRecorded);
     next.examMode = Boolean(next.examMode);
     next.autoNext = Boolean(next.autoNext);
+    next.examFinished = Boolean(next.examFinished);
     return next;
 }
 
@@ -197,6 +205,54 @@ function preferredQualificationId() {
     return catalogs.some((catalog) => catalog.id === "3rikutoku") ? "3rikutoku" : catalogs[0]?.id;
 }
 
+function setVisibleView(view) {
+    currentView = view;
+    if (dom.homeMenu) dom.homeMenu.hidden = view !== "menu";
+    if (dom.historyView) dom.historyView.hidden = view !== "history";
+    dom.examSections.forEach((section) => {
+        section.hidden = view !== "exam";
+    });
+    if (dom.reset) dom.reset.hidden = view !== "exam";
+    closeResultDialog();
+}
+
+function renderHomeChrome() {
+    document.title = "陸特 模試メニュー | Radio Operator Exam Study | Xenoah";
+    dom.eyebrow.textContent = "陸上特殊無線技士";
+    dom.appTitle.textContent = "陸特 模試メニュー";
+}
+
+function renderHistoryChrome() {
+    document.title = "陸特 過去成績 | Radio Operator Exam Study | Xenoah";
+    dom.eyebrow.textContent = "陸上特殊無線技士";
+    dom.appTitle.textContent = "過去成績";
+}
+
+function parseRoute() {
+    const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+    if (!hash || hash === "menu") return { view: "menu" };
+    if (hash === "history") return { view: "history" };
+
+    const mockMatch = hash.match(/^mock-(.+)$/);
+    if (mockMatch && catalogs.some((catalog) => catalog.id === mockMatch[1])) {
+        return { view: "exam", qualificationId: mockMatch[1] };
+    }
+
+    if (catalogs.some((catalog) => catalog.id === hash)) {
+        return { view: "exam", qualificationId: hash };
+    }
+
+    return { view: "menu" };
+}
+
+function replaceHash(hash) {
+    history.replaceState(null, "", `${location.pathname}${location.search}#${hash}`);
+}
+
+function pushHash(hash) {
+    history.pushState(null, "", `${location.pathname}${location.search}#${hash}`);
+}
+
 function setActiveCatalog(qualificationId, options = {}) {
     const nextCatalog = catalogs.find((catalog) => catalog.id === qualificationId) || catalogs[0];
     if (!nextCatalog) return;
@@ -210,6 +266,10 @@ function setActiveCatalog(qualificationId, options = {}) {
     examPattern = activeCatalog.examPattern;
     officialSources = activeCatalog.officialSources;
     loadState(activeCatalog.id);
+    if (state.resultAnnounced && !state.examFinished && answeredIds().size >= totalQuestionCount()) {
+        lockExam();
+        saveState();
+    }
     rebuildOrder();
     renderCatalogChrome();
     renderSourceNote();
@@ -217,8 +277,117 @@ function setActiveCatalog(qualificationId, options = {}) {
     renderQuestion();
 
     if (options.pushHash) {
-        history.replaceState(null, "", `${location.pathname}${location.search}#${activeCatalog.id}`);
+        replaceHash(options.hash || `mock-${activeCatalog.id}`);
     }
+}
+
+function startMockExam(qualificationId, options = {}) {
+    setVisibleView("exam");
+    setActiveCatalog(qualificationId);
+    if (!activeCatalog) return;
+
+    if (options.resetCompleted && state.examFinished) {
+        const resultHistory = state.resultHistory || [];
+        state = {
+            ...createDefaultState(),
+            resultHistory,
+            examMode: true,
+            startedAt: Date.now()
+        };
+    } else {
+        state.examMode = true;
+        if (!state.examFinished && !state.startedAt) {
+            state.startedAt = Date.now();
+        }
+    }
+
+    saveState();
+    rebuildOrder();
+    renderCatalogChrome();
+    renderSourceNote();
+    syncTimer();
+    renderQuestion();
+
+    if (options.pushHash) {
+        pushHash(`mock-${activeCatalog.id}`);
+    }
+}
+
+function showMenu(options = {}) {
+    setVisibleView("menu");
+    renderHomeChrome();
+    if (options.pushHash) {
+        pushHash("menu");
+    }
+}
+
+function readSavedState(qualificationId) {
+    try {
+        return sanitizeState(JSON.parse(localStorage.getItem(stateKey(qualificationId))));
+    } catch {
+        return createDefaultState();
+    }
+}
+
+function renderHistoryView() {
+    if (!dom.historyViewList) return;
+    dom.historyViewList.innerHTML = "";
+
+    catalogs.forEach((catalog) => {
+        const saved = activeCatalog?.id === catalog.id ? state : readSavedState(catalog.id);
+        const history = Array.isArray(saved.resultHistory) ? saved.resultHistory.slice(0, 8) : [];
+        const section = document.createElement("section");
+        section.className = "history-group";
+
+        const heading = document.createElement("h3");
+        heading.textContent = catalog.qualification;
+        section.appendChild(heading);
+
+        if (!history.length) {
+            const empty = document.createElement("p");
+            empty.className = "history-empty";
+            empty.textContent = "まだ成績はありません。";
+            section.appendChild(empty);
+        } else {
+            const list = document.createElement("ol");
+            history.forEach((entry) => {
+                const item = document.createElement("li");
+                const date = new Date(entry.at);
+                const label = document.createElement("span");
+                const score = document.createElement("strong");
+                const max = entry.totalMax || 0;
+                label.textContent = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+                score.textContent = `${entry.passed ? "合格圏" : "復習"} ${entry.total}/${max} ${formatTime(entry.elapsedSeconds || 0)}`;
+                item.append(label, score);
+                list.appendChild(item);
+            });
+            section.appendChild(list);
+        }
+
+        dom.historyViewList.appendChild(section);
+    });
+}
+
+function showHistory(options = {}) {
+    setVisibleView("history");
+    renderHistoryChrome();
+    renderHistoryView();
+    if (options.pushHash) {
+        pushHash("history");
+    }
+}
+
+function handleRoute() {
+    const route = parseRoute();
+    if (route.view === "exam") {
+        startMockExam(route.qualificationId);
+        return;
+    }
+    if (route.view === "history") {
+        showHistory();
+        return;
+    }
+    showMenu();
 }
 
 function getSubjects() {
@@ -356,14 +525,14 @@ function updateStats() {
     const result = computeExamResult();
     const first = subjectResultAt(result, 0);
     const second = subjectResultAt(result, 1);
-    const hideScores = state.examMode && !result.allAnswered;
+    const hideScores = state.examMode && !result.allAnswered && !state.examFinished;
 
     dom.answered.textContent = `${result.answered.size}/${totalQuestionCount()}`;
     dom.lawLabel.textContent = first.name;
     dom.engineeringLabel.textContent = second.name;
     dom.law.textContent = hideScores ? `--/${first.maxScore}` : formatScore(first.score, first.maxScore);
     dom.engineering.textContent = hideScores ? `--/${second.maxScore}` : formatScore(second.score, second.maxScore);
-    dom.result.textContent = result.allAnswered ? (result.passed ? "合格圏" : "復習") : "-";
+    dom.result.textContent = state.examFinished ? "終了" : result.allAnswered ? (result.passed ? "合格圏" : "復習") : "-";
 
     if (dom.progressFill) {
         const denominator = Math.max(totalQuestionCount(), 1);
@@ -372,12 +541,18 @@ function updateStats() {
 }
 
 function updateFilterButtons() {
+    const locked = state.examFinished;
     dom.filters.forEach((button) => {
         button.classList.toggle("is-active", button.dataset.filter === state.filter);
+        button.disabled = locked;
     });
     dom.shuffle.checked = state.shuffle;
     dom.examMode.checked = state.examMode;
     dom.autoNext.checked = state.autoNext;
+    dom.shuffle.disabled = locked;
+    dom.examMode.disabled = true;
+    dom.autoNext.disabled = locked;
+    dom.finish.disabled = locked;
 }
 
 function renderQualificationTabs() {
@@ -391,7 +566,7 @@ function renderQualificationTabs() {
         button.textContent = catalog.shortName;
         button.classList.toggle("is-active", catalog.id === activeCatalog?.id);
         button.setAttribute("aria-selected", String(catalog.id === activeCatalog?.id));
-        button.addEventListener("click", () => setActiveCatalog(catalog.id, { pushHash: true }));
+        button.addEventListener("click", () => startMockExam(catalog.id, { pushHash: true }));
         dom.qualificationTabs.appendChild(button);
     });
 }
@@ -401,8 +576,8 @@ function renderCatalogChrome() {
     const subjectSummary = getSubjects()
         .map((subject) => `${subject.name}${subject.count || questions.filter((question) => question.subject === subject.name).length}問`)
         .join("・");
-    const title = `${activeCatalog.qualification}・過去問単語帳 | Radio Operator Exam Study | Xenoah`;
-    const description = `${activeCatalog.qualification}の法規・無線工学を、過去問形式、採点、復習、ブックマークで学習できる教材です。`;
+    const title = `${activeCatalog.qualification}・模試 | Radio Operator Exam Study | Xenoah`;
+    const description = `${activeCatalog.qualification}の法規・無線工学を、模試形式、採点、全問解説、過去成績で学習できる教材です。`;
 
     document.title = title;
     document.querySelector('meta[name="description"]')?.setAttribute("content", `${description} / Study Japanese land radio operator law and engineering with quizzes and review tools.`);
@@ -412,9 +587,9 @@ function renderCatalogChrome() {
     document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
 
     dom.eyebrow.textContent = activeCatalog.qualification;
-    dom.appTitle.textContent = activeCatalog.appTitle;
-    dom.overviewJa.textContent = `${activeCatalog.qualification}の法規・無線工学を、過去問形式の単語帳、採点、復習、ブックマーク、模試タイマーで学習できるブラウザ教材です。`;
-    dom.overviewEn.textContent = `A browser study tool for ${activeCatalog.shortName}, with law and engineering questions, scoring, review, bookmarks and a timed mock exam.`;
+    dom.appTitle.textContent = `${activeCatalog.shortName} 模試`;
+    dom.overviewJa.textContent = `${activeCatalog.qualification}の法規・無線工学を、模試形式、採点、全問解説、過去成績で学習できるブラウザ教材です。`;
+    dom.overviewEn.textContent = `A browser mock exam for ${activeCatalog.shortName}, with law and engineering questions, scoring, full explanations and saved results.`;
     dom.qualificationSummary.textContent = `${questions.length}問 / ${subjectSummary} / 模試${examPattern?.timeLimitMinutes || 60}分`;
     renderQualificationTabs();
 }
@@ -442,8 +617,8 @@ function renderPalette() {
 
 function setChoiceClasses(question) {
     const selected = state.selected[question.id];
-    const revealed = state.revealed[question.id];
-    const hideAnswer = state.examMode && !computeExamResult().allAnswered;
+    const revealed = state.examFinished || state.revealed[question.id];
+    const hideAnswer = state.examMode && !computeExamResult().allAnswered && !state.examFinished;
 
     Array.from(dom.choices.children).forEach((button) => {
         const value = button.dataset.choice;
@@ -478,7 +653,8 @@ function renderQuestion() {
     }
 
     const selected = state.selected[question.id];
-    const revealed = state.revealed[question.id];
+    const locked = state.examFinished;
+    const revealed = locked || state.revealed[question.id];
     const answerChoice = question.choices.find((choice) => choice.id === question.answer);
 
     dom.source.innerHTML = "";
@@ -495,8 +671,10 @@ function renderQuestion() {
     dom.question.textContent = question.question;
     dom.bookmark.textContent = state.bookmarked[question.id] ? "★" : "☆";
     dom.bookmark.classList.toggle("is-active", Boolean(state.bookmarked[question.id]));
+    dom.bookmark.disabled = locked;
     dom.master.classList.toggle("is-active", Boolean(state.mastered[question.id]));
     dom.master.textContent = state.mastered[question.id] ? "習得済みを解除" : "習得済みにする";
+    dom.master.disabled = locked;
 
     dom.choices.innerHTML = "";
     question.choices.forEach((choice) => {
@@ -504,17 +682,18 @@ function renderQuestion() {
         button.className = "choice-button";
         button.type = "button";
         button.dataset.choice = choice.id;
+        button.disabled = locked;
         button.textContent = `${choice.id}. ${choice.text}`;
         button.addEventListener("click", () => selectChoice(question, choice.id));
         dom.choices.appendChild(button);
     });
 
-    const hideAnswer = state.examMode && !computeExamResult().allAnswered;
+    const hideAnswer = state.examMode && !computeExamResult().allAnswered && !locked;
     dom.answerPanel.hidden = !revealed || hideAnswer;
     dom.answerLine.textContent = answerChoice ? `正解: ${answerChoice.id}. ${answerChoice.text}` : `正解: ${question.answer}`;
     dom.explanation.textContent = question.explanation;
-    dom.reveal.disabled = hideAnswer;
-    dom.reveal.textContent = hideAnswer ? "結果発表まで非表示" : revealed ? "解説を閉じる" : selected ? "採点する" : "解答を見る";
+    dom.reveal.disabled = hideAnswer && !locked;
+    dom.reveal.textContent = locked ? "結果を見る" : hideAnswer ? "結果発表まで非表示" : revealed ? "解説を閉じる" : selected ? "採点する" : "解答を見る";
     setChoiceClasses(question);
     announceResultIfComplete();
 }
@@ -556,6 +735,7 @@ function syncTimer() {
 }
 
 function startTimer() {
+    if (state.examFinished) return;
     if (!state.startedAt) {
         state.startedAt = Date.now();
         state.finishedAt = null;
@@ -570,6 +750,58 @@ function passingSummary(result) {
         .join("・");
 }
 
+function revealAllAnswers() {
+    questions.forEach((question) => {
+        state.revealed[question.id] = true;
+    });
+}
+
+function lockExam() {
+    state.examFinished = true;
+    state.examMode = true;
+    state.autoNext = false;
+    state.filter = "all";
+    state.current = 0;
+    state.finishedAt = state.finishedAt || Date.now();
+    revealAllAnswers();
+    rebuildOrder();
+}
+
+function choiceText(question, choiceId) {
+    if (!choiceId) return "未回答";
+    const choice = question.choices.find((item) => item.id === choiceId);
+    return choice ? `${choice.id}. ${choice.text}` : choiceId;
+}
+
+function renderAllQuestionResults() {
+    if (!dom.resultAllList) return;
+    dom.resultAllList.innerHTML = "";
+
+    questions.forEach((question) => {
+        const selected = state.selected[question.id];
+        const isCorrect = selected === question.answer;
+        const item = document.createElement("article");
+        item.className = "result-question";
+        item.classList.toggle("is-correct", isCorrect);
+        item.classList.toggle("is-wrong", Boolean(selected) && !isCorrect);
+        item.classList.toggle("is-unanswered", !selected);
+
+        const title = document.createElement("h4");
+        title.textContent = `${question.subject} 問${question.officialQuestionNo || "-"}: ${question.question}`;
+
+        const status = document.createElement("p");
+        status.className = "result-question-status";
+        status.textContent = `${isCorrect ? "正解" : selected ? "不正解" : "未回答"} / あなたの答え: ${choiceText(question, selected)} / 正解: ${choiceText(question, question.answer)}`;
+
+        const explanation = document.createElement("p");
+        explanation.className = "result-question-explanation";
+        explanation.textContent = question.explanation || "解説はありません。";
+
+        item.append(title, status, explanation);
+        dom.resultAllList.appendChild(item);
+    });
+}
+
 function renderResultDialog(result, options = {}) {
     if (!dom.resultDialog) return;
 
@@ -578,12 +810,12 @@ function renderResultDialog(result, options = {}) {
     const first = subjectResultAt(result, 0);
     const second = subjectResultAt(result, 1);
 
-    dom.resultTitle.textContent = incomplete ? "途中結果です" : result.passed ? "合格圏です" : "復習しましょう";
+    dom.resultTitle.textContent = state.examFinished ? "試験終了" : incomplete ? "途中結果です" : result.passed ? "合格圏です" : "復習しましょう";
     dom.resultLead.textContent = incomplete
         ? `未回答が${Math.max(0, totalQuestionCount() - result.answered.size)}問あります。今の回答だけで採点しています。`
         : result.passed
-        ? `1周完了。${passingSummary(result)}の基準に届いています。`
-        : `1周完了。目安は${passingSummary(result)}です。間違えた問題をもう一度固めましょう。`;
+        ? `1周完了。${passingSummary(result)}の基準に届いています。全問の正誤と解説を確認できます。`
+        : `1周完了。目安は${passingSummary(result)}です。全問の正誤と解説を確認できます。`;
     dom.resultLawLabel.textContent = first.name;
     dom.resultEngineeringLabel.textContent = second.name;
     dom.resultLaw.textContent = formatScore(first.score, first.maxScore);
@@ -605,6 +837,9 @@ function renderResultDialog(result, options = {}) {
     }
 
     dom.resultReview.disabled = missedQuestions.length === 0;
+    dom.resultReview.hidden = Boolean(state.examFinished);
+    dom.resultRetry.textContent = state.examFinished ? "もう一度模試" : "もう一周";
+    renderAllQuestionResults();
     renderHistory();
     dom.resultDialog.hidden = false;
     if (result.passed && !incomplete && !options.skipEffect) {
@@ -680,9 +915,12 @@ function announceResultIfComplete() {
     const result = computeExamResult();
     if (!result.allAnswered || state.resultAnnounced) return;
 
+    lockExam();
     state.resultAnnounced = true;
     recordResult(result);
     saveState();
+    syncTimer();
+    renderQuestion();
     renderResultDialog(result);
 }
 
@@ -713,6 +951,7 @@ function renderSourceNote() {
 }
 
 function selectChoice(question, choiceId) {
+    if (state.examFinished) return;
     startTimer();
     state.selected[question.id] = choiceId;
     state.revealed[question.id] = !state.examMode;
@@ -742,6 +981,10 @@ function move(delta) {
 function revealAnswer() {
     const question = currentQuestion();
     if (!question) return;
+    if (state.examFinished) {
+        renderResultDialog(computeExamResult(), { skipEffect: true });
+        return;
+    }
     if (state.examMode && !computeExamResult().allAnswered) return;
     state.revealed[question.id] = !state.revealed[question.id];
     saveState();
@@ -751,6 +994,7 @@ function revealAnswer() {
 function toggleBookmark() {
     const question = currentQuestion();
     if (!question) return;
+    if (state.examFinished) return;
     state.bookmarked[question.id] = !state.bookmarked[question.id];
     if (!state.bookmarked[question.id]) delete state.bookmarked[question.id];
     saveState();
@@ -760,6 +1004,7 @@ function toggleBookmark() {
 function toggleMastered() {
     const question = currentQuestion();
     if (!question) return;
+    if (state.examFinished) return;
     state.mastered[question.id] = !state.mastered[question.id];
     if (!state.mastered[question.id]) delete state.mastered[question.id];
     saveState();
@@ -767,6 +1012,7 @@ function toggleMastered() {
 }
 
 function setFilter(filter) {
+    if (state.examFinished) return;
     state.filter = filter;
     state.current = 0;
     rebuildOrder();
@@ -775,24 +1021,23 @@ function setFilter(filter) {
 
 function finishExam(fromTimer = false) {
     const result = computeExamResult();
-    state.resultAnnounced = result.allAnswered || fromTimer;
-    if (fromTimer) {
-        state.finishedAt = state.finishedAt || Date.now();
-    }
+    lockExam();
+    state.resultAnnounced = true;
     if (result.allAnswered) {
         recordResult(result);
     }
     saveState();
     syncTimer();
+    renderQuestion();
     renderResultDialog(result, { skipEffect: fromTimer || !result.allAnswered });
 }
 
-function resetProgress() {
+function resetProgress(options = {}) {
     const keepSettings = {
-        filter: state.filter,
+        filter: options.filter || state.filter,
         shuffle: state.shuffle,
         resultHistory: state.resultHistory || [],
-        examMode: state.examMode,
+        examMode: options.examMode ?? state.examMode,
         autoNext: state.autoNext
     };
     state = {
@@ -810,6 +1055,16 @@ function resetProgress() {
 }
 
 function bindEvents() {
+    document.querySelectorAll("[data-menu-action='mock']").forEach((link) => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            startMockExam(link.dataset.qualification, { pushHash: true, resetCompleted: true });
+        });
+    });
+    document.querySelector("[data-menu-action='history']")?.addEventListener("click", (event) => {
+        event.preventDefault();
+        showHistory({ pushHash: true });
+    });
     dom.prev.addEventListener("click", () => move(-1));
     dom.next.addEventListener("click", () => move(1));
     dom.reveal.addEventListener("click", revealAnswer);
@@ -820,15 +1075,16 @@ function bindEvents() {
     dom.resultClose.addEventListener("click", closeResultDialog);
     dom.resultRetry.addEventListener("click", () => {
         closeResultDialog();
-        resetProgress();
+        resetProgress({ examMode: true, filter: "all" });
     });
     dom.resultReview.addEventListener("click", () => {
         closeResultDialog();
         setFilter("missed");
     });
     dom.examMode.addEventListener("change", () => {
-        state.examMode = dom.examMode.checked;
-        if (state.examMode) startTimer();
+        state.examMode = true;
+        dom.examMode.checked = true;
+        startTimer();
         saveState();
         renderQuestion();
     });
@@ -846,20 +1102,16 @@ function bindEvents() {
     dom.filters.forEach((button) => {
         button.addEventListener("click", () => setFilter(button.dataset.filter));
     });
-    window.addEventListener("hashchange", () => {
-        const id = decodeURIComponent(location.hash.replace(/^#/, ""));
-        if (catalogs.some((catalog) => catalog.id === id) && activeCatalog?.id !== id) {
-            setActiveCatalog(id);
-        }
-    });
+    window.addEventListener("hashchange", handleRoute);
+    window.addEventListener("popstate", handleRoute);
     document.addEventListener("keydown", (event) => {
         const tagName = event.target?.tagName;
         if (tagName === "INPUT" || tagName === "TEXTAREA") return;
-        if (event.key === "ArrowLeft") move(-1);
-        if (event.key === "ArrowRight") move(1);
+        if (currentView === "exam" && event.key === "ArrowLeft") move(-1);
+        if (currentView === "exam" && event.key === "ArrowRight") move(1);
         if (event.key === "Escape") closeResultDialog();
-        if (event.key.toLowerCase() === "r") finishExam(false);
-        if (event.key === " ") {
+        if (currentView === "exam" && event.key.toLowerCase() === "r" && !state.examFinished) finishExam(false);
+        if (currentView === "exam" && event.key === " ") {
             event.preventDefault();
             revealAnswer();
         }
@@ -871,7 +1123,7 @@ async function init() {
 
     try {
         await loadCatalogs();
-        setActiveCatalog(preferredQualificationId());
+        handleRoute();
     } catch (error) {
         dom.question.textContent = "問題データを読み込めませんでした。GitHub Pages などのWebサーバー上で開いてください。";
         dom.source.textContent = String(error.message || error);

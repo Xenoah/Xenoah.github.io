@@ -19,6 +19,10 @@
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
@@ -152,6 +156,77 @@ h1 {
     font-size: clamp(1.8rem, 3vw, 3rem);
     line-height: 1.18;
     letter-spacing: 0;
+}
+
+.home-menu {
+    margin: 0 0 18px;
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.home-menu-lead {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.home-menu h2 {
+    margin: 0;
+    font-size: clamp(1.55rem, 2.6vw, 2.3rem);
+    line-height: 1.25;
+    letter-spacing: 0;
+}
+
+.home-menu p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.menu-card {
+    display: grid;
+    gap: 6px;
+    min-height: 150px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.menu-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 24px rgba(15, 106, 122, 0.12);
+}
+
+.menu-card span {
+    color: var(--primary);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.menu-card strong {
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+.menu-card small {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.menu-card-wide {
+    grid-column: span 4;
+    min-height: 96px;
 }
 
 .stats-grid {
@@ -525,6 +600,60 @@ h1 {
     margin: 0;
 }
 
+.history-view {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 22px;
+}
+
+.history-view-list {
+    display: grid;
+    gap: 12px;
+}
+
+.history-group {
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.history-group h3 {
+    margin: 0 0 10px;
+    font-size: 1.08rem;
+}
+
+.history-group ol {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.history-group li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.history-empty {
+    margin: 0;
+    color: var(--muted);
+}
+
+.history-view-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
 .guide-shell {
     max-width: 1180px;
 }
@@ -560,7 +689,7 @@ h1 {
 
 .guide-jump {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
     margin-bottom: 18px;
 }
@@ -754,7 +883,8 @@ h1 {
 }
 
 .result-review h3,
-.history-panel h3 {
+.history-panel h3,
+.result-all-review h3 {
     margin: 0 0 8px;
     font-size: 1rem;
 }
@@ -794,6 +924,55 @@ h1 {
     background: var(--surface-soft);
     border: 1px solid var(--line);
     border-radius: 8px;
+}
+
+.result-all-review {
+    margin-top: 18px;
+}
+
+.result-all-review > div {
+    display: grid;
+    gap: 10px;
+}
+
+.result-question {
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--muted);
+    border-radius: 8px;
+}
+
+.result-question.is-correct {
+    border-left-color: var(--ok);
+}
+
+.result-question.is-wrong {
+    border-left-color: var(--accent);
+}
+
+.result-question.is-unanswered {
+    border-left-color: var(--warn);
+}
+
+.result-question h4 {
+    margin: 0 0 8px;
+    font-size: 0.98rem;
+    line-height: 1.45;
+}
+
+.result-question p {
+    margin: 0;
+}
+
+.result-question-status {
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.result-question-explanation {
+    margin-top: 6px !important;
+    color: var(--muted);
 }
 
 .result-burst {
@@ -892,6 +1071,14 @@ code {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .menu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .menu-card-wide {
+        grid-column: span 2;
+    }
+
     .controls {
         align-items: stretch;
         flex-direction: column;
@@ -940,9 +1127,21 @@ code {
     .trap-list {
         grid-template-columns: 1fr;
     }
+
+    .history-group li {
+        display: block;
+    }
 }
 
 @media (max-width: 430px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .menu-card-wide {
+        grid-column: auto;
+    }
+
     .segmented {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
