@@ -11,6 +11,15 @@
          position:fixed; inset:0; user-select:none; -webkit-user-select:none; }
   #scene { position:absolute; inset:0; }
   canvas { display:block; }
+  #speedfx { position:absolute; inset:0; pointer-events:none; z-index:3; opacity:0;
+    background:
+      radial-gradient(ellipse at 50% 52%, transparent 0 28%, rgba(255,230,190,.045) 29%, transparent 44%),
+      repeating-linear-gradient(90deg, transparent 0 10px, rgba(255,255,255,.035) 10px 11px, transparent 11px 22px);
+    mix-blend-mode:screen; transform:scaleX(1.04); transition:opacity .18s ease; }
+  #speedfx::before { content:""; position:absolute; inset:0;
+    background:linear-gradient(to bottom, transparent 0 46%, rgba(255,220,165,.12) 50%, transparent 54%);
+    animation:scan 1.8s linear infinite; }
+  @keyframes scan { from { transform:translateY(-18%); } to { transform:translateY(18%); } }
 
   /* ── cab window frame ── */
   #cabframe { position:absolute; inset:0; pointer-events:none; z-index:2;
@@ -26,6 +35,8 @@
   #topbar { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:stretch;
     justify-content:space-between; gap:8px; padding:calc(6px + env(safe-area-inset-top)) 10px 6px;
     background:linear-gradient(to bottom, rgba(8,9,12,.88), rgba(8,9,12,.55) 75%, transparent); }
+  #topbar::after { content:""; position:absolute; left:10px; right:10px; bottom:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,217,160,.35), transparent); }
   .nextbox { min-width:0; }
   .nextbox .eyebrow { font-size:10px; letter-spacing:.25em; color:#c9a27c; }
   .nextbox .name { font-size:20px; font-weight:700; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -45,6 +56,8 @@
     display:flex; align-items:flex-end; gap:10px;
     background:linear-gradient(to top, #101216 0%, #14171d 70%, rgba(20,23,29,0));
     border-top:1px solid rgba(255,255,255,.05); }
+  #dash::before { content:""; position:absolute; left:0; right:0; top:-34px; height:34px; pointer-events:none;
+    background:linear-gradient(to top, rgba(255,185,95,.07), transparent); }
   #gaugewrap { position:relative; flex:none; }
   #speedcv { display:block; }
   #digispeed { position:absolute; left:0; right:0; bottom:14px; text-align:center;
@@ -134,6 +147,7 @@
 </head>
 <body>
 <div id="scene"></div>
+<div id="speedfx"></div>
 <div id="cabframe"></div>
 <div id="vignette"></div>
 
@@ -682,6 +696,7 @@ function updateNext(){
 }
 function updateHUD(){
   const kmh=v*3.6;
+  $('speedfx').style.opacity=clamp((kmh-45)/65,0,.55).toFixed(3);
   $('kmh').textContent=Math.round(kmh);
   drawGauge(kmh);
   const tgt=stations[Math.min(stIdx,stations.length-1)].s;

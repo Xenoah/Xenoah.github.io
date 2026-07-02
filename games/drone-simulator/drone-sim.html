@@ -49,12 +49,21 @@
 
   /* ===== HUD ===== */
   #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:20}
+  #hud::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;
+    background:
+      repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),
+      radial-gradient(ellipse at 50% 50%,transparent 0 58%,rgba(0,0,0,.42) 100%);
+    mix-blend-mode:screen}
+  #hud::after{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid rgba(77,232,210,.18);
+    box-shadow:inset 0 0 34px rgba(77,232,210,.08), inset 0 0 120px rgba(0,0,0,.38)}
   .osd{position:absolute;color:var(--cyan);text-shadow:0 0 6px rgba(77,232,210,.5)}
   #osdTL{top:12px;left:14px;font-size:12px;line-height:1.7}
   #osdTC{top:10px;left:50%;transform:translateX(-50%);text-align:center}
   #timer{font-size:clamp(20px,4vw,30px);font-weight:700;letter-spacing:.1em}
   #objective{font-size:11px;color:var(--amber);text-shadow:0 0 6px rgba(255,180,84,.5);margin-top:2px}
   #osdTR{top:12px;right:14px;text-align:right;font-size:12px;line-height:1.7}
+  #warn{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);font-size:11px;
+    letter-spacing:.22em;color:#ff5d73;text-shadow:0 0 8px rgba(255,93,115,.7);opacity:0;transition:opacity .2s}
   #msg{position:absolute;top:34%;left:50%;transform:translateX(-50%);
     font-size:clamp(18px,5vw,34px);font-weight:700;letter-spacing:.25em;color:var(--amber);
     text-shadow:0 0 12px rgba(255,180,84,.6);opacity:0;transition:opacity .3s;text-align:center;
@@ -123,6 +132,7 @@
   <div class="osd" id="osdTL">SPD <span id="spd">0.0</span> m/s<br>ALT <span id="alt">0.0</span> m</div>
   <div class="osd" id="osdTC"><div id="timer">0:00.0</div><div id="objective"></div></div>
   <div class="osd" id="osdTR"><span id="ringInfo"></span><br><span id="bestInfo"></span></div>
+  <div id="warn">LOW ALTITUDE</div>
   <svg id="cross" viewBox="0 0 56 56">
     <circle cx="28" cy="28" r="14" fill="none" stroke="#4de8d2" stroke-width="1.4" opacity=".9"/>
     <line x1="28" y1="6"  x2="28" y2="16" stroke="#4de8d2" stroke-width="1.4"/>
@@ -192,8 +202,14 @@ const QUALS = [
 ];
 
 const sel = {mode:'race', drone:'atlas', course:'city', qual:'med'};
-const bestTimes = {};    // メモリ内保持: key = course|drone
-const bestScores = {};
+const STORE_KEY='aeroline_records_v2';
+let savedRecords={};
+try{savedRecords=JSON.parse(localStorage.getItem(STORE_KEY)||'{}')||{};}catch(e){savedRecords={};}
+const bestTimes = savedRecords.times||{};
+const bestScores = savedRecords.scores||{};
+function saveRecords(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify({times:bestTimes,scores:bestScores}));}catch(e){}
+}
 
 // ---------------- メニューUI ----------------
 function statBar(label,v){
@@ -670,6 +686,7 @@ function finishRace(){
     ' ／ 機体: '+DRONES.find(d=>d.id===sel.drone).name;
   if(!bestTimes[key]||t<bestTimes[key]){
     bestTimes[key]=t;
+    saveRecords();
     sub+='<br><span style="color:#4de8d2">★ NEW RECORD!</span>';
   }else{
     sub+='<br>BEST '+fmtTime(bestTimes[key]);
@@ -682,6 +699,7 @@ function finishTA(){
   let sub='60秒間の通過リング数';
   if(!bestScores[key]||state.score>bestScores[key]){
     bestScores[key]=state.score;
+    saveRecords();
     sub+='<br><span style="color:#4de8d2">★ NEW RECORD!</span>';
   }else{
     sub+='<br>BEST '+bestScores[key]+' RINGS';
@@ -731,6 +749,7 @@ function stepCamera(dt){
 function stepHud(dt){
   $('spd').textContent=drone.vel.length().toFixed(1);
   $('alt').textContent=drone.pos.y.toFixed(1);
+  $('warn').style.opacity=drone.pos.y<2.4&&drone.vel.length()>6?.95:0;
   if(sel.mode==='race'){
     $('timer').textContent=fmtTime(state.time);
     $('ringInfo').textContent='RING '+Math.min(state.ring+1,rings.length)+' / '+rings.length;
