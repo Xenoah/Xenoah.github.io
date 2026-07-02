@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>汐風線 運転シミュレーター</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow:hidden; background:#14161c; touch-action:none; overscroll-behavior:none; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif; color:#e8e4da;
+         position:fixed; inset:0; user-select:none; -webkit-user-select:none; }
+  #scene { position:absolute; inset:0; }
+  canvas { display:block; }
+
+  /* ── cab window frame ── */
+  #cabframe { position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:
+      linear-gradient(to right, rgba(10,11,14,.96) 0, rgba(10,11,14,0) 4.5%),
+      linear-gradient(to left,  rgba(10,11,14,.96) 0, rgba(10,11,14,0) 4.5%),
+      linear-gradient(to bottom, rgba(10,11,14,.9) 0, rgba(10,11,14,0) 3%);
+  }
+  #vignette { position:absolute; inset:0; pointer-events:none; z-index:2;
+    box-shadow: inset 0 0 140px rgba(0,0,0,.55); }
+
+  /* ── top info bar ── */
+  #topbar { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:stretch;
+    justify-content:space-between; gap:8px; padding:calc(6px + env(safe-area-inset-top)) 10px 6px;
+    background:linear-gradient(to bottom, rgba(8,9,12,.88), rgba(8,9,12,.55) 75%, transparent); }
+  .nextbox { min-width:0; }
+  .nextbox .eyebrow { font-size:10px; letter-spacing:.25em; color:#c9a27c; }
+  .nextbox .name { font-size:20px; font-weight:700; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nextbox .romaji { font-size:10px; letter-spacing:.14em; color:#9aa0ad; text-transform:uppercase; }
+  #distbox { text-align:right; font-variant-numeric:tabular-nums; }
+  #distbox .dist { font-size:22px; font-weight:700; color:#ffd9a0; }
+  #distbox .dist small { font-size:11px; color:#9aa0ad; font-weight:400; }
+  #limitsign { align-self:center; width:40px; height:40px; border-radius:50%; background:#f5f2ea; color:#111;
+    border:4px solid #d33; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; flex:none; }
+  #scorebox { align-self:center; text-align:right; flex:none; }
+  #scorebox .pts { font-size:16px; font-weight:700; color:#8fe3a8; font-variant-numeric:tabular-nums; }
+  #scorebox .lbl { font-size:9px; letter-spacing:.2em; color:#9aa0ad; }
+
+  /* ── bottom dash ── */
+  #dash { position:absolute; left:0; right:0; bottom:0; z-index:5;
+    padding:8px 10px calc(10px + env(safe-area-inset-bottom));
+    display:flex; align-items:flex-end; gap:10px;
+    background:linear-gradient(to top, #101216 0%, #14171d 70%, rgba(20,23,29,0));
+    border-top:1px solid rgba(255,255,255,.05); }
+  #gaugewrap { position:relative; flex:none; }
+  #speedcv { display:block; }
+  #digispeed { position:absolute; left:0; right:0; bottom:14px; text-align:center;
+    font-variant-numeric:tabular-nums; font-size:22px; font-weight:800; color:#ffe9c4; letter-spacing:.02em; }
+  #digispeed small { font-size:10px; color:#9aa0ad; font-weight:400; }
+
+  #centerdash { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  #notchdisp { display:flex; align-items:baseline; gap:8px; }
+  #notchname { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; min-width:64px; }
+  .n-P { color:#8fe3a8; } .n-N { color:#e8e4da; } .n-B { color:#ffb35c; } .n-EB { color:#ff5b5b; }
+  #lamps { display:flex; gap:6px; }
+  .lamp { font-size:9px; letter-spacing:.15em; padding:3px 7px; border-radius:3px;
+    background:#1c2027; color:#555c66; border:1px solid #262b33; }
+  .lamp.on-red { background:#4a1717; color:#ff8a8a; border-color:#7c2626; }
+  .lamp.on-grn { background:#173a24; color:#8fe3a8; border-color:#2a6b41; }
+  .lamp.on-amb { background:#4a3617; color:#ffce8a; border-color:#7c5b26; }
+  #stopgauge { height:34px; display:none; }
+  #stopgauge.show { display:block; }
+  #stopgauge .cap { font-size:9px; letter-spacing:.18em; color:#9aa0ad; margin-bottom:3px; }
+  #stopbar { position:relative; height:14px; background:#0c0e12; border:1px solid #2a2f38; border-radius:7px; overflow:hidden; }
+  #stopzone { position:absolute; top:0; bottom:0; background:rgba(143,227,168,.22); border-left:1px solid #8fe3a8; border-right:1px solid #8fe3a8; }
+  #stopneedle { position:absolute; top:-1px; bottom:-1px; width:3px; background:#ffd9a0; }
+
+  #hornbtn { flex:none; width:56px; height:56px; border-radius:50%; border:2px solid #3a4150;
+    background:radial-gradient(circle at 35% 30%, #2b313c, #171a20); color:#c9ccd4; font-size:10px;
+    letter-spacing:.1em; font-weight:700; }
+  #hornbtn:active { background:#3a4150; }
+
+  /* ── master controller lever ── */
+  #lever { position:absolute; right:6px; top:50%; transform:translateY(-58%); z-index:6;
+    width:86px; height:min(46vh, 340px); display:flex; }
+  #leverlabels { width:30px; display:flex; flex-direction:column; justify-content:space-between;
+    font-size:9px; text-align:right; padding:4px 5px 4px 0; color:#8a909c; font-weight:700; }
+  #leverlabels .lp { color:#8fe3a8; } #leverlabels .ln { color:#e8e4da; }
+  #leverlabels .lb { color:#ffb35c; } #leverlabels .le { color:#ff5b5b; }
+  #leverbody { position:relative; flex:1; background:linear-gradient(to right,#181b21,#20242c,#181b21);
+    border:1px solid #30353f; border-radius:12px; box-shadow:inset 0 0 14px rgba(0,0,0,.6); }
+  #leverslot { position:absolute; left:50%; top:10px; bottom:10px; width:8px; transform:translateX(-50%);
+    background:#08090c; border-radius:4px; box-shadow:inset 0 1px 4px #000; }
+  .detent { position:absolute; left:8px; right:8px; height:1px; background:#2c313b; }
+  #knob { position:absolute; left:50%; transform:translate(-50%,-50%); width:74px; height:44px;
+    background:linear-gradient(to bottom,#4a5261,#2b313c 45%,#1d2129);
+    border:1px solid #545d6e; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center; }
+  #knob::before { content:""; width:44px; height:5px; border-radius:3px; background:#12151a;
+    box-shadow:0 8px 0 #12151a, 0 -8px 0 #12151a; }
+  #knob.eb { border-color:#a33; box-shadow:0 0 14px rgba(255,60,60,.5); }
+
+  /* ── overlays ── */
+  .overlay { position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    background:rgba(8,9,12,.78); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .panel { max-width:420px; width:88%; text-align:center; padding:26px 22px;
+    background:#151920; border:1px solid #2c3340; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .panel h1 { font-size:26px; letter-spacing:.06em; margin-bottom:2px; }
+  .panel .sub { color:#c9a27c; font-size:11px; letter-spacing:.35em; margin-bottom:16px; }
+  .panel p { font-size:13px; color:#b9bec8; line-height:1.75; }
+  .bigbtn { margin-top:18px; padding:13px 40px; font-size:16px; font-weight:800; letter-spacing:.1em;
+    color:#10130f; background:linear-gradient(to bottom,#a8f0bd,#6fce8c); border:none; border-radius:10px;
+    box-shadow:0 4px 14px rgba(110,210,140,.35); }
+  .bigbtn:active { transform:translateY(1px); }
+  .hidden { display:none !important; }
+
+  #resultpop { position:absolute; left:50%; top:34%; transform:translate(-50%,-50%); z-index:15;
+    text-align:center; pointer-events:none; }
+  #resultpop .rank { font-size:44px; font-weight:900; text-shadow:0 4px 20px rgba(0,0,0,.7); }
+  #resultpop .err { font-size:15px; color:#e8e4da; margin-top:2px; font-variant-numeric:tabular-nums;
+    text-shadow:0 2px 8px rgba(0,0,0,.8); }
+  #resultpop .add { font-size:20px; font-weight:800; color:#ffd9a0; margin-top:4px; }
+  #departbtn { position:absolute; left:50%; top:56%; transform:translateX(-50%); z-index:16;
+    padding:12px 34px; font-size:15px; font-weight:800; letter-spacing:.12em; color:#10130f;
+    background:linear-gradient(to bottom,#ffe2ae,#eab364); border:none; border-radius:10px;
+    box-shadow:0 4px 16px rgba(230,170,90,.4); }
+  #toast { position:absolute; left:50%; top:16%; transform:translateX(-50%); z-index:15;
+    padding:8px 18px; background:rgba(140,20,20,.9); border-radius:8px; font-weight:800; font-size:15px;
+    letter-spacing:.08em; display:none; }
+  #toast.show { display:block; animation:blink .5s steps(2) infinite; }
+  @keyframes blink { 50% { opacity:.45; } }
+
+  .fintable { margin:14px auto 4px; font-size:13px; border-collapse:collapse; width:100%; }
+  .fintable td { padding:4px 6px; border-bottom:1px solid #262c36; text-align:left; color:#c6cbd4; }
+  .fintable td:last-child { text-align:right; font-variant-numeric:tabular-nums; color:#ffd9a0; }
+  #fintotal { font-size:34px; font-weight:900; color:#8fe3a8; margin-top:10px; font-variant-numeric:tabular-nums; }
+
+  @media (prefers-reduced-motion: reduce) { #toast.show { animation:none; } }
+  @media (max-width:380px) { .nextbox .name { font-size:17px; } #distbox .dist { font-size:19px; } }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="cabframe"></div>
+<div id="vignette"></div>
+
+<div id="topbar">
+  <div class="nextbox">
+    <div class="eyebrow">次 は NEXT</div>
+    <div class="name" id="nextname">—</div>
+    <div class="romaji" id="nextromaji"></div>
+  </div>
+  <div id="limitsign">95</div>
+  <div id="distbox"><div class="dist"><span id="distval">—</span><small> m</small></div>
+    <div class="lbl" style="font-size:9px;letter-spacing:.2em;color:#9aa0ad;">停止位置まで</div></div>
+  <div id="scorebox"><div class="pts" id="scoreval">0</div><div class="lbl">SCORE</div></div>
+</div>
+
+<div id="toast">オーバーラン ! 非常ブレーキ</div>
+<div id="resultpop" class="hidden">
+  <div class="rank" id="rankTxt"></div>
+  <div class="err" id="errTxt"></div>
+  <div class="add" id="addTxt"></div>
+</div>
+<button id="departbtn" class="hidden">ドア閉 ・ 発車</button>
+
+<div id="dash">
+  <div id="gaugewrap">
+    <canvas id="speedcv" width="150" height="150"></canvas>
+    <div id="digispeed"><span id="kmh">0</span><small> km/h</small></div>
+  </div>
+  <div id="centerdash">
+    <div id="notchdisp">
+      <div id="notchname" class="n-N">N</div>
+      <div id="lamps">
+        <div class="lamp" id="lampPow">力行</div>
+        <div class="lamp" id="lampBrk">制動</div>
+        <div class="lamp" id="lampAts">ATS</div>
+        <div class="lamp" id="lampDoor">戸閉</div>
+      </div>
+    </div>
+    <div id="stopgauge"><div class="cap">停止位置 ± 5 m</div>
+      <div id="stopbar"><div id="stopzone"></div><div id="stopneedle"></div></div>
+    </div>
+  </div>
+  <button id="hornbtn">警笛</button>
+</div>
+
+<div id="lever">
+  <div id="leverlabels"></div>
+  <div id="leverbody"><div id="leverslot"></div><div id="knob"></div></div>
+</div>
+
+<div class="overlay" id="titleov">
+  <div class="panel">
+    <h1>汐風線 運転士</h1>
+    <div class="sub">SHIOKAZE LINE · DRIVER'S CAB</div>
+    <p>夕暮れの架空路線・全6駅を運転します。<br>
+    右のレバーを上げて力行、下げてブレーキ。<br>
+    各駅の <b style="color:#ffd9a0">停止位置(0 m)</b> にぴったり止めると高得点。<br>
+    制限速度 95 km/h — 100 km/h で ATS が非常ブレーキ。<br>
+    <span style="color:#8a909c;font-size:11px">PC: ↑↓キーでノッチ / Space 警笛 / Enter 発車</span></p>
+    <button class="bigbtn" id="startbtn">出発進行 !</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="finov">
+  <div class="panel">
+    <h1>終点 到着</h1>
+    <div class="sub">RUN COMPLETE</div>
+    <table class="fintable" id="fintable"></table>
+    <div id="fintotal"></div>
+    <div style="font-size:11px;color:#9aa0ad;letter-spacing:.2em;">TOTAL SCORE</div>
+    <button class="bigbtn" id="againbtn">新しい路線で再運転</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+/* ═══════════ helpers ═══════════ */
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const $=id=>document.getElementById(id);
+
+/* ═══════════ line generation ═══════════ */
+const STEP=2;
+let PTS=[],HEAD=[],CURV=[],totalLen=0,stations=[],bufferS=0;
+const NAMES=[["汐見台","SHIOMIDAI"],["桜堤","SAKURAZUTSUMI"],["霞ヶ原","KASUMIGAHARA"],
+             ["月見野","TSUKIMINO"],["燕橋","TSUBAMEBASHI"],["湾岸公園","WANGAN-KOEN"]];
+
+function genLine(){
+  const segs=[]; stations=[]; let s=0;
+  const push=(len,curv)=>{segs.push({len,curv}); s+=len;};
+  push(240,0);
+  for(let st=0;st<NAMES.length;st++){
+    const n=1+Math.floor(rnd(1,3));
+    for(let i=0;i<n;i++){
+      const R=rnd(520,1700)*(Math.random()<.5?-1:1);
+      push(rnd(150,380),1/R);
+      push(rnd(90,260),0);
+    }
+    const stStraight=280, mid=s+stStraight/2;
+    push(stStraight,0);
+    stations.push({s:mid+55, mid, name:NAMES[st][0], romaji:NAMES[st][1]});
+  }
+  push(130,0);
+  PTS=[];HEAD=[];CURV=[];
+  let x=0,z=0,h=0,si=0,inSeg=0;
+  totalLen=segs.reduce((a,b)=>a+b.len,0);
+  for(let d=0;d<=totalLen;d+=STEP){
+    while(si<segs.length&&inSeg>=segs[si].len){inSeg-=segs[si].len;si++;}
+    const c=si<segs.length?segs[si].curv:0;
+    PTS.push([x,z]);HEAD.push(h);CURV.push(c);
+    h+=c*STEP; x+=Math.sin(h)*STEP; z-=Math.cos(h)*STEP; inSeg+=STEP;
+  }
+  bufferS=totalLen-14;
+}
+function trackPos(s){
+  s=clamp(s,0,(PTS.length-2)*STEP);
+  const i=Math.floor(s/STEP), t=(s-i*STEP)/STEP, a=PTS[i], b=PTS[i+1];
+  return {x:a[0]+(b[0]-a[0])*t, z:a[1]+(b[1]-a[1])*t};
+}
+function trackHead(s){
+  s=clamp(s,0,(PTS.length-2)*STEP);
+  const i=Math.floor(s/STEP), t=(s-i*STEP)/STEP;
+  return HEAD[i]+(HEAD[i+1]-HEAD[i])*t;
+}
+function trackCurv(s){ return CURV[clamp(Math.floor(s/STEP),0,CURV.length-1)]; }
+
+/* ═══════════ three.js world ═══════════ */
+let renderer,scene,camera,headlight,headTarget;
+const CAB_H=3.05;
+
+function ribbonGeom(o1,o2,y){
+  const n=PTS.length, pos=new Float32Array(n*6), idx=[];
+  for(let i=0;i<n;i++){
+    const h=HEAD[i],px=Math.cos(h),pz=Math.sin(h),x=PTS[i][0],z=PTS[i][1];
+    pos[i*6]=x+px*o1; pos[i*6+1]=y; pos[i*6+2]=z+pz*o1;
+    pos[i*6+3]=x+px*o2; pos[i*6+4]=y; pos[i*6+5]=z+pz*o2;
+    if(i<n-1){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+function inst(geo,mat,list){
+  const m=new THREE.InstancedMesh(geo,mat,list.length);
+  const M=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),
+        p=new THREE.Vector3(),sc=new THREE.Vector3();
+  list.forEach((o,i)=>{
+    e.set(0,o.ry||0,0); q.setFromEuler(e);
+    p.set(o.x,o.y,o.z); sc.set(o.sx||1,o.sy||1,o.sz||1);
+    M.compose(p,q,sc); m.setMatrixAt(i,M);
+    if(o.c&&m.setColorAt)m.setColorAt(i,o.c);
+  });
+  scene.add(m); return m;
+}
+function textPlate(lines,w,hM,bg,fg,border){
+  const c=document.createElement('canvas'); c.width=512; c.height=Math.max(64,Math.round(512*hM/w));
+  const g=c.getContext('2d');
+  g.fillStyle=bg; g.fillRect(0,0,c.width,c.height);
+  if(border){g.strokeStyle=border; g.lineWidth=14; g.strokeRect(7,7,c.width-14,c.height-14);}
+  g.fillStyle=fg; g.textAlign='center'; g.textBaseline='middle';
+  const n=lines.length;
+  lines.forEach((ln,i)=>{
+    g.font=`${ln.b?'800':'600'} ${ln.size||90}px -apple-system,'Hiragino Sans','Noto Sans JP',sans-serif`;
+    if(ln.fg)g.fillStyle=ln.fg;
+    g.fillText(ln.t,c.width/2,c.height*(i+0.5)/n);
+    if(ln.fg)g.fillStyle=fg;
+  });
+  const tx=new THREE.CanvasTexture(c); tx.anisotropy=4;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,hM),
+    new THREE.MeshBasicMaterial({map:tx,side:THREE.FrontSide}));
+}
+
+function buildWorld(){
+  scene=new THREE.Scene();
+  scene.fog=new THREE.Fog(0xd88f6f,180,950);
+
+  // bbox center for ground / sky
+  let mnx=1e9,mxx=-1e9,mnz=1e9,mxz=-1e9;
+  PTS.forEach(p=>{mnx=Math.min(mnx,p[0]);mxx=Math.max(mxx,p[0]);mnz=Math.min(mnz,p[1]);mxz=Math.max(mxz,p[1]);});
+  const cx=(mnx+mxx)/2, cz=(mnz+mxz)/2;
+
+  // sky dome (dusk gradient)
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(6000,20,10),
+    new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
+      vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:'varying vec3 vP;void main(){float h=normalize(vP).y;'+
+        'vec3 zen=vec3(0.16,0.20,0.38);vec3 mid=vec3(0.62,0.36,0.38);vec3 hor=vec3(1.0,0.62,0.38);'+
+        'vec3 c=h<0.12?mix(hor,mid,smoothstep(-0.05,0.12,h)):mix(mid,zen,smoothstep(0.12,0.55,h));'+
+        'gl_FragColor=vec4(c,1.);}'}));
+  sky.position.set(cx,0,cz); scene.add(sky);
+
+  // sun
+  const sc2=document.createElement('canvas'); sc2.width=sc2.height=128;
+  const sg=sc2.getContext('2d'), grd=sg.createRadialGradient(64,64,4,64,64,64);
+  grd.addColorStop(0,'rgba(255,240,210,1)'); grd.addColorStop(0.25,'rgba(255,190,120,0.9)');
+  grd.addColorStop(1,'rgba(255,150,80,0)');
+  sg.fillStyle=grd; sg.fillRect(0,0,128,128);
+  const sun=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(sc2),fog:false,depthWrite:false}));
+  sun.scale.set(900,900,1); sun.position.set(cx+2600,300,cz-2600); scene.add(sun);
+
+  // light
+  scene.add(new THREE.HemisphereLight(0xffc9a0,0x2c3148,0.95));
+  const dl=new THREE.DirectionalLight(0xffb27a,0.75); dl.position.set(2600,900,-2600); scene.add(dl);
+  headlight=new THREE.SpotLight(0xffe8c0,0.9,140,0.32,0.6,1.2);
+  headTarget=new THREE.Object3D(); scene.add(headTarget);
+  headlight.target=headTarget; scene.add(headlight);
+
+  // ground
+  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(14000,14000),
+    new THREE.MeshLambertMaterial({color:0x2f2e38}));
+  gnd.rotation.x=-Math.PI/2; gnd.position.set(cx,-0.05,cz); scene.add(gnd);
+
+  // ballast + rails
+  scene.add(new THREE.Mesh(ribbonGeom(-4.0,4.0,0.02),
+    new THREE.MeshLambertMaterial({color:0x45404a,side:THREE.DoubleSide})));
+  const railMat=new THREE.MeshBasicMaterial({color:0xd8dee8,side:THREE.DoubleSide});
+  scene.add(new THREE.Mesh(ribbonGeom(-0.76,-0.66,0.22),railMat));
+  scene.add(new THREE.Mesh(ribbonGeom(0.66,0.76,0.22),railMat));
+
+  // sleepers
+  const slp=[];
+  for(let s=0;s<totalLen;s+=3){
+    const p=trackPos(s);
+    slp.push({x:p.x,y:0.10,z:p.z,ry:-trackHead(s)});
+  }
+  inst(new THREE.BoxGeometry(2.3,0.14,0.42),
+       new THREE.MeshLambertMaterial({color:0x241f22}),slp);
+
+  // catenary posts + arms + wire
+  const posts=[],arms=[];
+  for(let s=20;s<totalLen;s+=46){
+    const p=trackPos(s),h=trackHead(s),px=Math.cos(h),pz=Math.sin(h);
+    posts.push({x:p.x+px*3.3,y:3.3,z:p.z+pz*3.3,ry:-h});
+    arms.push({x:p.x+px*1.55,y:5.35,z:p.z+pz*1.55,ry:-h});
+  }
+  inst(new THREE.CylinderGeometry(0.09,0.11,6.6,6),
+       new THREE.MeshLambertMaterial({color:0x3a3f48}),posts);
+  inst(new THREE.BoxGeometry(3.5,0.09,0.09),
+       new THREE.MeshLambertMaterial({color:0x3a3f48}),arms);
+  const wirePts=[];
+  for(let s=0;s<=totalLen;s+=8){const p=trackPos(s);wirePts.push(new THREE.Vector3(p.x,5.05,p.z));}
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(wirePts),
+    new THREE.LineBasicMaterial({color:0x1c1e24})));
+
+  // buildings (dusk silhouettes)
+  const pal=[0x232838,0x2b3045,0x1e2230,0x343a52,0x3d3348,0x4a3a3e].map(c=>new THREE.Color(c));
+  const blds=[];
+  for(let s=30;s<totalLen-60;s+=22){
+    for(const side of[-1,1]){
+      if(Math.random()<0.28)continue;
+      let nearSt=false;
+      for(const st of stations)if(Math.abs(s-st.mid)<170){nearSt=true;break;}
+      if(nearSt&&side<0)continue;
+      const p=trackPos(s),h=trackHead(s),px=Math.cos(h),pz=Math.sin(h);
+      const off=side*(nearSt?rnd(20,58):rnd(11,58));
+      const w=rnd(8,22),d=rnd(8,22),ht=rnd(5,34);
+      blds.push({x:p.x+px*off,y:ht/2,z:p.z+pz*off,ry:-h+rnd(-0.15,0.15),
+                 sx:w,sy:ht,sz:d,c:pal[Math.floor(Math.random()*pal.length)]});
+    }
+  }
+  inst(new THREE.BoxGeometry(1,1,1),
+       new THREE.MeshLambertMaterial({color:0xffffff}),blds);
+
+  // stations
+  const pfMat=new THREE.MeshLambertMaterial({color:0x7d7884});
+  const roofMat=new THREE.MeshLambertMaterial({color:0x3c414d});
+  const pillarGeo=new THREE.CylinderGeometry(0.12,0.12,3.6,6);
+  const pillarMat=new THREE.MeshLambertMaterial({color:0x565c68});
+  const edgeMat=new THREE.MeshBasicMaterial({color:0xd8c24a});
+  stations.forEach((st,i)=>{
+    const p=trackPos(st.mid),h=trackHead(st.mid),px=Math.cos(h),pz=Math.sin(h),ry=-h;
+    const at=(off,y)=>({x:p.x+px*off,y,z:p.z+pz*off});
+    let o=at(-3.95,0.475);
+    const pf=new THREE.Mesh(new THREE.BoxGeometry(130,0.95,4.3),pfMat);
+    pf.position.set(o.x,o.y,o.z); pf.rotation.y=ry; scene.add(pf);
+    o=at(-2.05,0.97);
+    const ed=new THREE.Mesh(new THREE.BoxGeometry(130,0.04,0.32),edgeMat);
+    ed.position.set(o.x,o.y,o.z); ed.rotation.y=ry; scene.add(ed);
+    o=at(-4.2,4.5);
+    const rf=new THREE.Mesh(new THREE.BoxGeometry(72,0.16,3.8),roofMat);
+    rf.position.set(o.x,o.y,o.z); rf.rotation.y=ry; scene.add(rf);
+    const dx=Math.sin(h),dz=-Math.cos(h);
+    for(let k=-2;k<=2;k++){
+      const pl=new THREE.Mesh(pillarGeo,pillarMat);
+      pl.position.set(p.x+px*-4.2+dx*k*15, 2.75, p.z+pz*-4.2+dz*k*15);
+      scene.add(pl);
+    }
+    // station name sign, faces the track
+    const sign=textPlate([{t:st.name,size:150,b:1},{t:st.romaji,size:64,fg:'#556'}],
+                          6,1.6,'#f4f2ec','#1c2028','#2f6d4f');
+    sign.position.set(p.x+px*-3.4,3.1,p.z+pz*-3.4);
+    sign.rotation.y=Math.PI/2-h; scene.add(sign);
+    // stop-position sign at st.s, faces the approaching driver
+    const sp=trackPos(st.s),sh=trackHead(st.s),spx=Math.cos(sh),spz=Math.sin(sh);
+    const stop=textPlate([{t:'停止位置',size:110,b:1}],1.0,1.0,'#c22525','#fff');
+    stop.position.set(sp.x+spx*-2.3,2.2,sp.z+spz*-2.3);
+    stop.rotation.y=-sh; scene.add(stop);
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,2.2,5),pillarMat);
+    pole.position.set(sp.x+spx*-2.3,1.1,sp.z+spz*-2.3); scene.add(pole);
+    // countdown boards 100 / 50 / 20 m, right side of track
+    [100,50,20].forEach(d=>{
+      const bs=st.s-d; if(bs<10)return;
+      const bp=trackPos(bs),bh=trackHead(bs),bx=Math.cos(bh),bz=Math.sin(bh);
+      const bd=textPlate([{t:String(d),size:170,b:1}],0.85,0.65,'#f4f2ec','#1c2028','#333');
+      bd.position.set(bp.x+bx*2.6,1.5,bp.z+bz*2.6); bd.rotation.y=-bh; scene.add(bd);
+      const bpole=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.6,5),pillarMat);
+      bpole.position.set(bp.x+bx*2.6,0.8,bp.z+bz*2.6); scene.add(bpole);
+    });
+  });
+
+  // buffer stop
+  const bp=trackPos(bufferS+8),bh=trackHead(bufferS+8);
+  const buf=new THREE.Mesh(new THREE.BoxGeometry(3.4,1.6,1.2),
+    new THREE.MeshLambertMaterial({color:0x8a2a22}));
+  buf.position.set(bp.x,0.9,bp.z); buf.rotation.y=-bh; scene.add(buf);
+
+  camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,0.3,8000);
+}
+function initRenderer(){
+  renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
+  renderer.setSize(innerWidth,innerHeight);
+  $('scene').appendChild(renderer.domElement);
+  addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+}
+
+/* ═══════════ audio (WebAudio synth) ═══════════ */
+let AC,master,vvvfO1,vvvfO2,vvvfG,rollG,rollF,noiseBuf,lastAtsBeep=0;
+function initAudio(){
+  if(AC)return;
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain(); master.gain.value=0.9; master.connect(AC.destination);
+  vvvfG=AC.createGain(); vvvfG.gain.value=0;
+  const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1900;
+  vvvfO1=AC.createOscillator(); vvvfO1.type='sawtooth';
+  vvvfO2=AC.createOscillator(); vvvfO2.type='square';
+  const g2=AC.createGain(); g2.gain.value=0.3;
+  vvvfO1.connect(vvvfG); vvvfO2.connect(g2); g2.connect(vvvfG);
+  vvvfG.connect(lp); lp.connect(master);
+  vvvfO1.start(); vvvfO2.start();
+  noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);
+  const d=noiseBuf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const src=AC.createBufferSource(); src.buffer=noiseBuf; src.loop=true;
+  rollF=AC.createBiquadFilter(); rollF.type='bandpass'; rollF.frequency.value=450; rollF.Q.value=0.7;
+  rollG=AC.createGain(); rollG.gain.value=0;
+  src.connect(rollF); rollF.connect(rollG); rollG.connect(master); src.start();
+}
+function beep(freq,dur,delay,vol,type){
+  if(!AC)return;
+  const t=AC.currentTime+(delay||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine'; o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.12,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.02);
+}
+function noiseBurst(dur,delay,vol,fq,q){
+  if(!AC)return;
+  const t=AC.currentTime+(delay||0);
+  const s=AC.createBufferSource(); s.buffer=noiseBuf;
+  const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=fq; f.Q.value=q||1;
+  const g=AC.createGain();
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t+dur+0.05);
+}
+const clack=v=>{noiseBurst(0.06,0,v,1400,2); noiseBurst(0.06,0.09,v,1400,2);};
+const hiss=()=>noiseBurst(0.6,0,0.14,3500,0.4);
+function horn(){beep(392,0.75,0,0.14,'sawtooth'); beep(494,0.75,0,0.12,'sawtooth');}
+function departMelody(){
+  [[784,0],[988,.14],[1175,.28],[988,.42],[784,.56],[880,.74],[988,1.0]]
+    .forEach(n=>beep(n[0],0.22,n[1],0.09));
+}
+const doorChime=()=>{beep(830,0.14,0,0.11); beep(622,0.18,0.17,0.11);};
+function updateAudio(){
+  if(!AC)return;
+  const t=AC.currentTime, kmh=v*3.6;
+  const effort=notch>0?notch/5:(notch<0&&kmh>8?Math.min(1,-notch/8)*0.6:0);
+  vvvfG.gain.setTargetAtTime(effort*Math.min(1,kmh/6+0.25)*0.10,t,0.08);
+  let f=95+kmh*8.5;
+  if(kmh<14&&effort>0)f+=Math.sin(t*28)*22;
+  vvvfO1.frequency.setTargetAtTime(f,t,0.05);
+  vvvfO2.frequency.setTargetAtTime(f*0.5,t,0.05);
+  rollG.gain.setTargetAtTime(Math.min(0.20,kmh*0.0026),t,0.15);
+  rollF.frequency.setTargetAtTime(380+kmh*8,t,0.2);
+  if(ebLatch&&t-lastAtsBeep>0.45){lastAtsBeep=t;beep(1250,0.12,0,0.09,'square');}
+}
+
+/* ═══════════ game state ═══════════ */
+let v=0,sPos=0,notch=0,phase='TITLE',stIdx=0,score=0,
+    ebLatch=false,overrun=false,results=[],jointPrev=0;
+
+/* ── lever UI ── */
+const NOTCH_LABELS=['P5','P4','P3','P2','P1','N','B1','B2','B3','B4','B5','B6','B7','EB'];
+const leverBody=$('leverbody'),knob=$('knob');
+(function buildLever(){
+  const lb=$('leverlabels');
+  NOTCH_LABELS.forEach((t,i)=>{
+    const s=document.createElement('div');
+    s.textContent=t;
+    s.className=i<5?'lp':i===5?'ln':i<13?'lb':'le';
+    lb.appendChild(s);
+  });
+  for(let i=0;i<14;i++){
+    const d=document.createElement('div'); d.className='detent'; leverBody.appendChild(d);
+  }
+})();
+function layoutLever(){
+  const H=leverBody.clientHeight, pad=16;
+  document.querySelectorAll('.detent').forEach((d,i)=>{
+    d.style.top=(pad+i/13*(H-2*pad))+'px';
+  });
+  positionKnob();
+}
+function positionKnob(){
+  const H=leverBody.clientHeight, pad=16, i=5-notch;
+  knob.style.top=(pad+i/13*(H-2*pad))+'px';
+}
+function setNotch(n,force){
+  if(ebLatch&&!force)n=-8;
+  n=clamp(Math.round(n),-8,5);
+  if(n===notch)return;
+  const prev=notch; notch=n;
+  if(prev<0&&n>=0)hiss();
+  beep(180,0.03,0,0.03,'square');
+  knob.classList.toggle('eb',notch===-8);
+  positionKnob(); updateNotchDisp();
+}
+function updateNotchDisp(){
+  const el=$('notchname');
+  if(notch>0){el.textContent='P'+notch; el.className='n-P';}
+  else if(notch===0){el.textContent='N'; el.className='n-N';}
+  else if(notch===-8){el.textContent='EB'; el.className='n-EB';}
+  else {el.textContent='B'+(-notch); el.className='n-B';}
+  lampSet('lampPow',notch>0?'on-grn':'');
+  lampSet('lampBrk',notch<0?'on-amb':'');
+}
+function lampSet(id,cls){$(id).className='lamp'+(cls?' '+cls:'');}
+function leverPoint(ev){
+  const r=leverBody.getBoundingClientRect(), pad=16;
+  const y=clamp((ev.clientY-r.top-pad)/(r.height-2*pad),0,1);
+  setNotch(5-Math.round(y*13));
+}
+let leverDrag=false;
+$('lever').addEventListener('pointerdown',e=>{leverDrag=true;$('lever').setPointerCapture(e.pointerId);leverPoint(e);e.preventDefault();});
+$('lever').addEventListener('pointermove',e=>{if(leverDrag)leverPoint(e);});
+addEventListener('pointerup',()=>leverDrag=false);
+addEventListener('pointercancel',()=>leverDrag=false);
+
+/* keyboard */
+addEventListener('keydown',e=>{
+  if(e.repeat&&e.key!=='ArrowUp'&&e.key!=='ArrowDown')return;
+  if(e.key==='ArrowUp'){setNotch(notch+1);e.preventDefault();}
+  else if(e.key==='ArrowDown'){setNotch(notch-1);e.preventDefault();}
+  else if(e.key===' '){horn();e.preventDefault();}
+  else if(e.key==='Enter'&&!$('departbtn').classList.contains('hidden'))depart();
+});
+$('hornbtn').addEventListener('pointerdown',e=>{horn();e.preventDefault();});
+
+/* ═══════════ toast / EB ═══════════ */
+const toast=$('toast');
+function toastMsg(t){toast.textContent=t;toast.classList.add('show');}
+function hideToast(){toast.classList.remove('show');}
+function triggerEB(msg){
+  ebLatch=true; setNotch(-8,true); notch=-8; positionKnob(); updateNotchDisp();
+  knob.classList.add('eb'); lampSet('lampAts','on-red'); toastMsg(msg);
+  if(navigator.vibrate)navigator.vibrate(120);
+}
+
+/* ═══════════ stop handling ═══════════ */
+function doStop(){
+  phase='STOP';
+  const err=sPos-stations[stIdx].s, a=Math.abs(err);
+  let rank,pts,col;
+  if(a>10){rank='停止失敗…';pts=0;col='#ff5b5b';}
+  else if(a<=0.3){rank='ピタリ賞 !!';pts=100;col='#8fe3a8';}
+  else if(a<=1.0){rank='GREAT !';pts=80;col='#8fe3a8';}
+  else if(a<=3.0){rank='GOOD';pts=55;col='#ffd9a0';}
+  else if(a<=5.0){rank='まずまず';pts=35;col='#ffd9a0';}
+  else{rank='ぎりぎり';pts=15;col='#ffb35c';}
+  score+=pts; results.push({name:stations[stIdx].name,rank,pts,err});
+  $('scoreval').textContent=score;
+  $('rankTxt').textContent=rank; $('rankTxt').style.color=col;
+  $('errTxt').textContent='停止位置誤差 '+(err>=0?'+':'')+err.toFixed(1)+' m';
+  $('addTxt').textContent='+ '+pts+' 点';
+  $('resultpop').classList.remove('hidden');
+  hideToast(); if(ebLatch){ebLatch=false;lampSet('lampAts','');knob.classList.remove('eb');}
+  doorChime(); lampSet('lampDoor','');
+  if(navigator.vibrate)navigator.vibrate(40);
+  if(stIdx>=stations.length-1){setTimeout(showFinal,2400);}
+  else setTimeout(()=>$('departbtn').classList.remove('hidden'),2200);
+}
+function depart(){
+  $('departbtn').classList.add('hidden');
+  $('resultpop').classList.add('hidden');
+  departMelody();
+  setTimeout(()=>{doorChime(); lampSet('lampDoor','on-grn');
+    stIdx++; overrun=false; phase='RUN'; updateNext();},1400);
+}
+$('departbtn').addEventListener('click',depart);
+function showFinal(){
+  $('resultpop').classList.add('hidden');
+  const tb=$('fintable'); tb.innerHTML='';
+  results.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+r.name+'</td><td>'+r.rank+'</td><td>'+r.pts+' 点</td>';
+    tb.appendChild(tr);
+  });
+  $('fintotal').textContent=score+' 点';
+  $('finov').classList.remove('hidden');
+}
+$('againbtn').addEventListener('click',()=>location.reload());
+
+/* ═══════════ HUD ═══════════ */
+const cv=$('speedcv'),cg=cv.getContext('2d');
+function drawGauge(kmh){
+  const W=150,R=66,cx0=75,cy0=78;
+  cg.clearRect(0,0,W,W);
+  cg.lineWidth=9;
+  const a0=Math.PI*0.75, sweep=Math.PI*1.5;
+  cg.strokeStyle='#262b33'; cg.beginPath(); cg.arc(cx0,cy0,R,a0,a0+sweep); cg.stroke();
+  cg.strokeStyle='#7c2626'; cg.beginPath();
+  cg.arc(cx0,cy0,R,a0+sweep*95/120,a0+sweep); cg.stroke();
+  cg.fillStyle='#8a909c'; cg.font='700 9px sans-serif'; cg.textAlign='center';
+  for(let t=0;t<=120;t+=20){
+    const a=a0+sweep*t/120;
+    cg.fillText(t,cx0+Math.cos(a)*(R-17),cy0+Math.sin(a)*(R-17)+3);
+    cg.strokeStyle='#4a505c'; cg.lineWidth=2; cg.beginPath();
+    cg.moveTo(cx0+Math.cos(a)*(R-8),cy0+Math.sin(a)*(R-8));
+    cg.lineTo(cx0+Math.cos(a)*(R-3),cy0+Math.sin(a)*(R-3)); cg.stroke();
+  }
+  const a=a0+sweep*clamp(kmh,0,120)/120;
+  cg.strokeStyle='#ffd9a0'; cg.lineWidth=3.5; cg.beginPath();
+  cg.moveTo(cx0,cy0); cg.lineTo(cx0+Math.cos(a)*(R-10),cy0+Math.sin(a)*(R-10)); cg.stroke();
+  cg.fillStyle='#ffd9a0'; cg.beginPath(); cg.arc(cx0,cy0,4,0,7); cg.fill();
+}
+function updateNext(){
+  const st=stations[Math.min(stIdx,stations.length-1)];
+  $('nextname').textContent=st.name;
+  $('nextromaji').textContent=st.romaji;
+}
+function updateHUD(){
+  const kmh=v*3.6;
+  $('kmh').textContent=Math.round(kmh);
+  drawGauge(kmh);
+  const tgt=stations[Math.min(stIdx,stations.length-1)].s;
+  const d=tgt-sPos;
+  $('distval').textContent=d>999?(d/1000).toFixed(1)+' k':d>60?Math.round(d):Math.max(-99,d).toFixed(1);
+  $('distval').style.color=d<60&&d>-10?'#8fe3a8':'#ffd9a0';
+  const sg=$('stopgauge');
+  if(d<=30&&d>=-12&&phase==='RUN'){
+    sg.classList.add('show');
+    $('stopzone').style.left='25%'; $('stopzone').style.width='50%';
+    $('stopneedle').style.left=(clamp((10-d)/20,0,1)*100)+'%';
+  } else sg.classList.remove('show');
+}
+
+/* ═══════════ camera / render ═══════════ */
+function renderScene(){
+  const cs=Math.min(sPos,totalLen-46);
+  const p=trackPos(cs), look=trackPos(cs+36);
+  const jit=(Math.random()-0.5)*Math.min(0.045,v*0.0013);
+  const bob=Math.sin(performance.now()*0.008)*Math.min(0.02,v*0.0006);
+  camera.position.set(p.x,CAB_H+jit+bob,p.z);
+  camera.lookAt(look.x,CAB_H*0.9,look.z);
+  camera.rotateZ(clamp(-trackCurv(cs)*v*v*0.055,-0.09,0.09));
+  headlight.position.set(p.x,2.4,p.z);
+  const ht=trackPos(cs+70);
+  headTarget.position.set(ht.x,0.5,ht.z);
+  renderer.render(scene,camera);
+}
+
+/* ═══════════ main loop ═══════════ */
+let last=performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(phase==='RUN'){
+    let a=0; const kmh=v*3.6;
+    if(notch>0)a+=0.83*(notch/5)*(v<11.1?1:11.1/v);
+    if(notch<0)a-=(notch===-8?1.45:0.167*(-notch));
+    if(v>0)a-=0.012+0.00025*v*v;
+    v=Math.max(0,v+a*dt);
+    sPos+=v*dt;
+    if(kmh>100&&!ebLatch)triggerEB('速度超過 ! ATS 非常ブレーキ');
+    if(ebLatch&&v<0.3&&phase==='RUN'&&sPos<=stations[Math.min(stIdx,stations.length-1)].s+10&&!overrun){
+      /* EB stop away from station: release */
+      ebLatch=false; lampSet('lampAts',''); knob.classList.remove('eb'); hideToast();
+      setNotch(-7,true); positionKnob(); updateNotchDisp();
+    }
+    const tgt=stations[Math.min(stIdx,stations.length-1)].s;
+    if(!overrun&&sPos>tgt+10){overrun=true;triggerEB('オーバーラン ! 非常ブレーキ');}
+    if(sPos>=bufferS){sPos=bufferS;
+      if(v>3){toastMsg('車止めに衝突 !!');score=Math.max(0,score-100);$('scoreval').textContent=score;}
+      v=0;}
+    if(v===0&&(Math.abs(sPos-tgt)<=10||overrun))doStop();
+    const j=Math.floor(sPos/25);
+    if(j!==jointPrev){jointPrev=j;if(v>3)clack(Math.min(0.11,v*0.0038));}
+  }
+  updateAudio(); updateHUD(); renderScene();
+}
+
+/* ═══════════ boot ═══════════ */
+genLine(); buildWorld(); initRenderer();
+layoutLever(); updateNotchDisp(); updateNext(); lampSet('lampDoor','on-grn');
+addEventListener('resize',layoutLever);
+$('startbtn').addEventListener('click',()=>{
+  initAudio(); if(AC&&AC.state==='suspended')AC.resume();
+  $('titleov').classList.add('hidden');
+  phase='RUN'; departMelody();
+});
+requestAnimationFrame(frame);
+
+</script>
+</body>
+</html>

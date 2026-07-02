@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>無限回廊 ∞GAIA GATE — 4,294,967,295時間RPG</title>
+<style>
+:root{
+  --ink:#0b1020; --panel:#141b33; --panel2:#1c2547; --line:#3a4a7e;
+  --gold:#e8b84b; --text:#dfe6ff; --dim:#8fa0cc;
+  --earth:#7ec06a; --aether:#c06ae0; --hp:#e05a5a; --mp:#5a9be0; --xp:#6ae0a0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--ink)}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",ui-monospace,monospace;
+  color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+}
+#stage{position:relative;width:min(100vw,calc(100vh*0.72));max-width:640px}
+canvas{display:block;width:100%;image-rendering:pixelated;background:#000;border:1px solid var(--line)}
+/* ---- HUD ---- */
+#hud{position:absolute;top:0;left:0;right:0;padding:6px 8px;display:flex;gap:8px;align-items:center;
+  font-size:11px;pointer-events:none;text-shadow:0 1px 2px #000}
+#hud .bars{flex:1;max-width:150px}
+.bar{height:6px;background:#0008;border:1px solid #0006;border-radius:3px;overflow:hidden;margin:2px 0}
+.bar>i{display:block;height:100%;transition:width .25s}
+.bar.hp>i{background:var(--hp)} .bar.mp>i{background:var(--mp)} .bar.xp>i{background:var(--xp)}
+#hudInfo{margin-left:auto;text-align:right;line-height:1.5;font-size:10px;color:#fff}
+#worldTag{font-weight:bold;letter-spacing:2px}
+/* ---- Touch controls ---- */
+#pad{position:absolute;left:8px;bottom:8px;width:126px;height:126px;opacity:.85}
+#pad button{position:absolute;width:42px;height:42px;background:var(--panel);border:1px solid var(--line);
+  color:var(--text);font-size:16px;border-radius:8px}
+#pad .u{left:42px;top:0}#pad .d{left:42px;bottom:0}#pad .l{left:0;top:42px}#pad .r{right:0;top:42px}
+#btnA{position:absolute;right:12px;bottom:34px;width:58px;height:58px;border-radius:50%;
+  background:var(--gold);color:#221a00;font-weight:bold;font-size:15px;border:2px solid #fff3;opacity:.9}
+#btnMenu{position:absolute;right:20px;bottom:8px;font-size:11px;background:var(--panel);
+  color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 10px}
+#pad button:active,#btnA:active{filter:brightness(1.4)}
+/* ---- Windows ---- */
+.win{position:absolute;left:4%;right:4%;background:var(--panel);border:1px solid var(--gold);
+  border-radius:8px;padding:12px;box-shadow:0 8px 30px #000c;display:none;font-size:13px;line-height:1.7;
+  max-height:82%;overflow-y:auto;z-index:20}
+.win.show{display:block}
+#msgWin{bottom:6px;min-height:72px}
+#msgWin .name{color:var(--gold);font-size:11px;letter-spacing:1px}
+#msgWin .next{position:absolute;right:10px;bottom:6px;color:var(--dim);font-size:10px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.choices{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.choices button,.menuBtn{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  padding:8px 10px;border-radius:6px;font-size:13px;text-align:left;cursor:pointer}
+.choices button:active,.menuBtn:active{background:var(--line)}
+.choices button b{color:var(--gold)}
+#centerWin{top:8%;}
+h3.wt{color:var(--gold);font-size:14px;letter-spacing:2px;border-bottom:1px solid var(--line);
+  padding-bottom:6px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed #ffffff12;font-size:12px}
+.dim{color:var(--dim)} .gold{color:var(--gold)}
+.r0{color:#cfd8ff}.r1{color:#7ee08a}.r2{color:#6ab8e0}.r3{color:#c06ae0}.r4{color:#e8b84b}
+.tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:60px;background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  padding:6px 4px;border-radius:6px;font-size:11px}
+.tabs button.on{color:var(--gold);border-color:var(--gold)}
+/* ---- Battle ---- */
+#battleWin{top:4%;bottom:4%;background:linear-gradient(180deg,#101530,#0a0d1c)}
+#foeBox{text-align:center;padding:6px 0}
+#foeCanvas{width:140px;height:140px;image-rendering:pixelated;filter:drop-shadow(0 6px 12px #000)}
+#foeName{font-size:13px;letter-spacing:1px}
+#foeHp{width:60%;margin:4px auto}
+#bLog{min-height:58px;max-height:96px;overflow-y:auto;font-size:12px;background:#0006;border-radius:6px;
+  padding:6px 8px;margin:6px 0;line-height:1.6}
+#bCmds{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#bCmds button{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:6px;font-size:13px}
+#bCmds button:disabled{opacity:.35}
+.shake{animation:shk .3s}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.flashW{animation:flw .25s}
+@keyframes flw{50%{filter:brightness(3)}}
+/* ---- Title ---- */
+#title{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#1a2450,#05060f 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;text-align:center;padding:20px}
+#title h1{font-size:34px;letter-spacing:8px;color:var(--gold);text-shadow:0 0 30px #e8b84b66;margin-bottom:4px}
+#title .sub{color:var(--dim);font-size:12px;letter-spacing:2px;margin-bottom:6px}
+#title .cnt{font-size:11px;color:#5c6ca0;margin-bottom:28px}
+#title button{margin:5px;padding:12px 34px;font-size:15px;background:transparent;border:1px solid var(--gold);
+  color:var(--gold);border-radius:6px;letter-spacing:3px;cursor:pointer}
+#title button:hover,#title button:active{background:var(--gold);color:#221a00}
+#title .small{font-size:11px;padding:8px 18px;border-color:var(--line);color:var(--dim);letter-spacing:1px}
+#toast{position:absolute;top:34px;left:50%;transform:translateX(-50%);background:#000c;border:1px solid var(--gold);
+  color:var(--gold);padding:5px 14px;border-radius:20px;font-size:12px;display:none;z-index:30;white-space:nowrap}
+textarea{width:100%;height:80px;background:#0008;color:var(--text);border:1px solid var(--line);
+  border-radius:6px;font-size:10px;padding:6px;margin:6px 0}
+</style>
+</head>
+<body>
+
+<div id="title">
+  <h1>無限回廊</h1>
+  <div class="sub">∞ GAIA GATE — 地球と異世界を渡る者 ∞</div>
+  <div class="cnt">想定プレイ時間:4,294,967,295時間(0xFFFFFFFF)/ 完全オフライン・無限生成</div>
+  <button id="btnNew">はじめから</button>
+  <button id="btnCont" style="display:none">つづきから</button>
+  <button class="small" id="btnImport">セーブコードを読み込む</button>
+</div>
+
+<div id="stage">
+  <canvas id="cv" width="352" height="480"></canvas>
+  <div id="hud">
+    <div class="bars">
+      <div id="hudName" style="font-size:10px;color:#fff"></div>
+      <div class="bar hp"><i id="barHp"></i></div>
+      <div class="bar mp"><i id="barMp"></i></div>
+      <div class="bar xp"><i id="barXp"></i></div>
+    </div>
+    <div id="hudInfo">
+      <div id="worldTag"></div>
+      <div id="posTag"></div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <div id="pad">
+    <button class="u" data-k="up">▲</button><button class="l" data-k="left">◀</button>
+    <button class="r" data-k="right">▶</button><button class="d" data-k="down">▼</button>
+  </div>
+  <button id="btnA">調べる</button>
+  <button id="btnMenu">メニュー</button>
+
+  <div class="win" id="msgWin">
+    <div class="name" id="msgName"></div>
+    <div id="msgText"></div>
+    <div class="choices" id="msgChoices"></div>
+    <div class="next" id="msgNext">▼ タップで進む</div>
+  </div>
+
+  <div class="win" id="centerWin"></div>
+
+  <div class="win" id="battleWin">
+    <div id="foeBox">
+      <canvas id="foeCanvas" width="64" height="64"></canvas>
+      <div id="foeName"></div>
+      <div class="bar hp" id="foeHp"><i id="foeHpBar"></i></div>
+    </div>
+    <div id="bLog"></div>
+    <div id="bCmds"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   無限回廊 ∞GAIA GATE
+   単一HTML・完全オフライン・シード無限生成RPG
+   世界0: 地球(鉄道網あり) / 世界1: 異世界アイテル
+===================================================================== */
+
+/* ---------- 乱数・ノイズ ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hash3(x,y,z){let h=(x*374761393+y*668265263+z*1274126177+SEED*69069)|0;
+  h=(h^h>>>13)|0;h=Math.imul(h,1274126177);h=(h^h>>>16)>>>0;return h/4294967296}
+function lerp(a,b,t){return a+(b-a)*t}
+function smooth(t){return t*t*(3-2*t)}
+function vnoise(x,y,z){const xi=Math.floor(x),yi=Math.floor(y);
+  const xf=smooth(x-xi),yf=smooth(y-yi);
+  return lerp(lerp(hash3(xi,yi,z),hash3(xi+1,yi,z),xf),
+              lerp(hash3(xi,yi+1,z),hash3(xi+1,yi+1,z),xf),yf)}
+function fbm(x,y,z){return vnoise(x,y,z)*0.55+vnoise(x*2.1,y*2.1,z+7)*0.28+vnoise(x*4.7,y*4.7,z+13)*0.17}
+function pick(arr,r){return arr[Math.floor(r*arr.length)%arr.length]}
+
+/* ---------- 定数 ---------- */
+const TILE=16, VW=22, VH=30;           // 画面タイル数
+const REG=48;                           // 地域グリッド
+const T={WATER:0,SAND:1,GRASS:2,FOREST:3,MTN:4,SNOW:5,FLOOR:6,BLDG:7,STATION:8,RAIL:9,
+         GATE:10,RUIN:11,GUILD:12,VILLAGER:13,SHOP:14,INN:15,LAVA:16,CRYSTAL:17};
+const SOLID=new Set([T.WATER,T.MTN,T.BLDG,T.LAVA]);
+const WORLDS=[
+ {name:"地球 -GAIA-",tag:"EARTH",zOff:0,
+  pal:{0:"#2b5f8f",1:"#d8c98a",2:"#5f9e52",3:"#3a7a3f",4:"#8a8578",5:"#e8ecef",6:"#b8a888",7:"#6e5a44",
+       8:"#c9b25a",9:"#555a66",10:"#e8b84b",11:"#9a9aa8",12:"#e0655a",13:"#e0b45a",14:"#5ab4e0",15:"#b45ae0",16:"#333",17:"#9ff"},
+  mobs:["野犬","武装ドローン","変異カラス","暴走AI清掃機","地下トカゲ","密猟兵","廃線の亡霊","錆びた機兵"],
+  mobPre:["はぐれ","凶暴な","電磁","都市型","深夜の","改造","禁忌の"]},
+ {name:"異世界アイテル",tag:"AETHER",zOff:1000,
+  pal:{0:"#3a2a6e",1:"#a88ad0",2:"#7a52a0",3:"#5a3a8a",4:"#4a4468",5:"#e0d8f8",6:"#8878b0",7:"#4e3a6e",
+       8:"#c9b25a",9:"#555a66",10:"#e8b84b",11:"#b8a8d8",12:"#e0655a",13:"#e0b45a",14:"#5ab4e0",15:"#b45ae0",16:"#c04030",17:"#9fecff"},
+  mobs:["スライム","マナ喰い","骸骨剣士","夢魔","結晶蟲","竜の落とし子","堕天の使徒","虚無の影"],
+  mobPre:["蒼き","呪われた","古代の","狂気の","王家の","月光の","深淵の"]}
+];
+const CLASSES={
+ hero:{n:"流離の勇者",hp:34,mp:10,atk:7,def:5,spd:5,sk:[
+   {lv:1,n:"ブレイブ斬り",mp:3,pow:1.7,t:"atk"},{lv:5,n:"癒しの風",mp:5,heal:0.45,t:"heal"},{lv:12,n:"覇王閃",mp:9,pow:3.0,t:"atk"}]},
+ mage:{n:"漂泊の魔導士",hp:24,mp:22,atk:5,def:3,spd:6,sk:[
+   {lv:1,n:"ファイア",mp:3,pow:2.0,t:"mag"},{lv:5,n:"アイスランス",mp:6,pow:2.7,t:"mag"},{lv:12,n:"メテオ",mp:12,pow:4.2,t:"mag"}]},
+ samurai:{n:"次元の侍",hp:30,mp:8,atk:9,def:4,spd:7,sk:[
+   {lv:1,n:"居合",mp:2,pow:1.8,t:"atk"},{lv:5,n:"月影",mp:5,pow:2.4,t:"atk"},{lv:12,n:"斬鉄・無限",mp:8,pow:3.4,t:"atk"}]},
+ engineer:{n:"銀河の機関士",hp:28,mp:14,atk:6,def:6,spd:5,sk:[
+   {lv:1,n:"スパナ投擲",mp:2,pow:1.6,t:"atk"},{lv:5,n:"蒸気噴射",mp:5,pow:2.3,t:"mag"},{lv:12,n:"デゴイチ召喚",mp:10,pow:3.8,t:"mag"}]}
+};
+const WPRE=["錆びた","上質な","騎士の","呪印の","星鋼の","覇王の"];
+const WBASE={weapon:["剣","刀","杖","槍","レンチ","弓"],armor:["外套","胸甲","法衣","作業服","鎧"],acc:["指輪","お守り","懐中時計","切符入れ","翼章"]};
+const WSUF=["",""," +1"," ・改"," ∞"];
+</script>
+<script>
+"use strict";
+/* ---------- ゲーム状態 ---------- */
+let SEED=1;
+let G=null;
+const chunkCache=new Map();
+function newGame(cls,seed){
+  SEED=seed>>>0;
+  const c=CLASSES[cls];
+  G={seed:SEED,cls,world:0,x:6,y:6,dir:2,steps:0,play:0,loop:1,
+     lv:1,exp:0,gold:120,karma:0,sigils:0,
+     hp:c.hp,mhp:c.hp,mp:c.mp,mmp:c.mp,atk:c.atk,def:c.def,spd:c.spd,
+     inv:[{n:"薬草",t:"heal",v:20,q:3},{n:"マナ水",t:"mana",v:12,q:2}],
+     equip:{weapon:null,armor:null,acc:null},
+     quest:null,questKills:0,flags:{},known:[[0,6,6]],
+     rep:{guild:0,empire:0,rebel:0}};
+  chunkCache.clear();
+  // 開始地点を必ず街に(近隣地域をスパイラル探索)
+  let c0=null;
+  outer:for(let d=0;d<=4;d++)for(let ry=-d;ry<=d;ry++)for(let rx=-d;rx<=d;rx++){
+    if(Math.max(Math.abs(rx),Math.abs(ry))!==d)continue;
+    c0=cityOf(rx,ry,0);if(c0)break outer;
+  }
+  if(c0){G.x=c0[0];G.y=c0[1]+2;}else{G.x=REG/2;G.y=REG/2;}
+  G.known=[[0,G.x,G.y]];
+}
+
+/* ---------- 地域フィーチャー(街・遺跡・ゲート) ---------- */
+function regRng(rx,ry,w,salt){return hash3(rx*3+salt,ry*7-salt,w*13+salt*31+WORLDS[w].zOff)}
+function cityOf(rx,ry,w){
+  const r=regRng(rx,ry,w,1);
+  const chance=w===0?0.55:0.42;
+  if(r>chance)return null;
+  const ox=Math.floor(regRng(rx,ry,w,2)*(REG-16))+8;
+  const oy=Math.floor(regRng(rx,ry,w,3)*(REG-16))+8;
+  return [rx*REG+ox,ry*REG+oy];
+}
+function ruinOf(rx,ry,w){
+  if(regRng(rx,ry,w,4)>0.5)return null;
+  const ox=Math.floor(regRng(rx,ry,w,5)*(REG-8))+4;
+  const oy=Math.floor(regRng(rx,ry,w,6)*(REG-8))+4;
+  return [rx*REG+ox,ry*REG+oy];
+}
+function gateOf(rx,ry,w){
+  if(regRng(rx,ry,w,7)>0.38)return null;
+  const ox=Math.floor(regRng(rx,ry,w,8)*(REG-8))+4;
+  const oy=Math.floor(regRng(rx,ry,w,9)*(REG-8))+4;
+  return [rx*REG+ox,ry*REG+oy];
+}
+function cityName(rx,ry,w){
+  const A=w===0?["新","東","西","北","南","港","高","大","上","中"]
+             :["ル","アル","エス","ヴェ","ミラ","オル","ザナ","ティ","フェ","グラ"];
+  const B=w===0?["宿","浜","崎","岡","橋","川","丘","台","野","戸"]
+             :["ディア","ハイム","リオン","ドール","ネシア","ガルド","スティア","モーラ","ヴェイン","シェル"];
+  const r1=regRng(rx,ry,w,10),r2=regRng(rx,ry,w,11);
+  return pick(A,r1)+pick(B,r2)+(w===0?"":"");
+}
+function distSeg(px,py,ax,ay,bx,by){
+  const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
+  if(!l2)return Math.hypot(px-ax,py-ay);
+  let t=((px-ax)*dx+(py-ay)*dy)/l2;t=Math.max(0,Math.min(1,t));
+  return Math.hypot(px-(ax+dx*t),py-(ay+dy*t));
+}
+
+/* ---------- 地形生成(チャンク32x32) ---------- */
+const CH=32;
+function baseTerrain(x,y,w){
+  const z=WORLDS[w].zOff;
+  const e=fbm(x/38,y/38,z), m=fbm(x/23,y/23,z+500);
+  if(w===0){
+    if(e<0.36)return T.WATER; if(e<0.40)return T.SAND;
+    if(e>0.86)return T.SNOW; if(e>0.74)return T.MTN;
+    if(m>0.62)return T.FOREST; return T.GRASS;
+  }else{
+    if(e<0.34)return T.WATER; if(e<0.38)return T.SAND;
+    if(e>0.88)return T.CRYSTAL; if(e>0.76)return T.MTN;
+    if(m>0.80)return T.LAVA; if(m>0.60)return T.FOREST; return T.GRASS;
+  }
+}
+function buildChunk(cx,cy,w){
+  const arr=new Uint8Array(CH*CH);
+  const x0=cx*CH,y0=cy*CH;
+  for(let j=0;j<CH;j++)for(let i=0;i<CH;i++)arr[j*CH+i]=baseTerrain(x0+i,y0+j,w);
+  // 近隣地域のフィーチャーを重ねる
+  const r0x=Math.floor(x0/REG)-1,r0y=Math.floor(y0/REG)-1;
+  for(let ry=r0y;ry<=r0y+2;ry++)for(let rx=r0x;rx<=r0x+2;rx++){
+    // 鉄道(地球のみ): 隣接する街同士を結ぶ
+    if(w===0){
+      const a=cityOf(rx,ry,w);
+      if(a){
+        for(const [nx,ny] of [[rx+1,ry],[rx,ry+1]]){
+          const b=cityOf(nx,ny,w);
+          if(!b)continue;
+          for(let j=0;j<CH;j++)for(let i=0;i<CH;i++){
+            const t=arr[j*CH+i];
+            if(t===T.MTN||t===T.SNOW)continue;
+            if(distSeg(x0+i,y0+j,a[0],a[1],b[0],b[1])<0.75)arr[j*CH+i]=T.RAIL;
+          }
+        }
+      }
+    }
+    // 遺跡・ゲート
+    const ru=ruinOf(rx,ry,w);
+    if(ru&&ru[0]>=x0&&ru[0]<x0+CH&&ru[1]>=y0&&ru[1]<y0+CH)arr[(ru[1]-y0)*CH+(ru[0]-x0)]=T.RUIN;
+    const gt=gateOf(rx,ry,w);
+    if(gt&&gt[0]>=x0&&gt[0]<x0+CH&&gt[1]>=y0&&gt[1]<y0+CH)arr[(gt[1]-y0)*CH+(gt[0]-x0)]=T.GATE;
+    // 街スタンプ(7x7)
+    const c=cityOf(rx,ry,w);
+    if(c){
+      const [ccx,ccy]=c;
+      for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+        const gx=ccx+dx,gy=ccy+dy;
+        if(gx<x0||gx>=x0+CH||gy<y0||gy>=y0+CH)continue;
+        let t=T.FLOOR;
+        const ax=Math.abs(dx),ay=Math.abs(dy);
+        if(ax===3||ay===3){ if(!(dx===0||dy===0)) t=T.BLDG; }        // 外壁(門は開ける)
+        else if(ax===2&&ay===2)t=T.BLDG;
+        else if(dx===-2&&dy===0)t=T.GUILD;
+        else if(dx===2&&dy===0)t=T.SHOP;
+        else if(dx===0&&dy===-2)t=T.INN;
+        else if(dx===1&&dy===1)t=T.VILLAGER;
+        else if(dx===-1&&dy===-1)t=T.VILLAGER;
+        else if(dx===0&&dy===0)t=(w===0?T.STATION:T.GATEPLAZA||T.FLOOR);
+        arr[(gy-y0)*CH+(gx-x0)]=t;
+      }
+    }
+  }
+  return arr;
+}
+function tileAt(x,y,w){
+  const cx=Math.floor(x/CH),cy=Math.floor(y/CH);
+  const key=w+":"+cx+","+cy;
+  let ch=chunkCache.get(key);
+  if(!ch){ch=buildChunk(cx,cy,w);chunkCache.set(key,ch);
+    if(chunkCache.size>240){const k=chunkCache.keys().next().value;chunkCache.delete(k);}}
+  return ch[(y-cy*CH)*CH+(x-cx*CH)];
+}
+function nearestCityInfo(x,y,w){
+  const rx=Math.floor(x/REG),ry=Math.floor(y/REG);
+  let best=null,bd=1e9;
+  for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){
+    const c=cityOf(rx+i,ry+j,w);
+    if(!c)continue;
+    const d=Math.hypot(c[0]-x,c[1]-y);
+    if(d<bd){bd=d;best={pos:c,rx:rx+i,ry:ry+j,name:cityName(rx+i,ry+j,w)};}
+  }
+  return best;
+}
+
+/* ---------- 描画 ---------- */
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+let animT=0;
+function draw(){
+  const w=G.world,pal=WORLDS[w].pal;
+  const px=G.x-Math.floor(VW/2),py=G.y-Math.floor(VH/2);
+  for(let j=0;j<VH;j++)for(let i=0;i<VW;i++){
+    const gx=px+i,gy=py+j,t=tileAt(gx,gy,w);
+    ctx.fillStyle=pal[t]||"#f0f";
+    ctx.fillRect(i*TILE,j*TILE,TILE,TILE);
+    // ディテール
+    const h=hash3(gx,gy,w*7+99);
+    if(t===T.GRASS&&h<0.15){ctx.fillStyle="#0002";ctx.fillRect(i*TILE+4,j*TILE+9,2,4);ctx.fillRect(i*TILE+10,j*TILE+5,2,4);}
+    if(t===T.FOREST){ctx.fillStyle=w===0?"#2a5c30":"#43286e";ctx.beginPath();
+      ctx.arc(i*TILE+8,j*TILE+7,5.5,0,7);ctx.fill();
+      ctx.fillStyle=w===0?"#5a3a22":"#2a1a44";ctx.fillRect(i*TILE+7,j*TILE+11,2,4);}
+    if(t===T.WATER){const wv=Math.sin(animT/22+gx+gy)*0.5+0.5;
+      ctx.fillStyle=`rgba(255,255,255,${0.05+wv*0.07})`;ctx.fillRect(i*TILE,j*TILE+10,TILE,2);}
+    if(t===T.MTN){ctx.fillStyle="#0003";ctx.beginPath();ctx.moveTo(i*TILE+2,j*TILE+14);
+      ctx.lineTo(i*TILE+8,j*TILE+3);ctx.lineTo(i*TILE+14,j*TILE+14);ctx.fill();}
+    if(t===T.RAIL){ctx.fillStyle="#8a7a55";ctx.fillRect(i*TILE,j*TILE+3,TILE,2);ctx.fillRect(i*TILE,j*TILE+11,TILE,2);
+      ctx.fillStyle="#333";for(let s=1;s<TILE;s+=5)ctx.fillRect(i*TILE+s,j*TILE+2,2,12);}
+    if(t===T.STATION){ctx.fillStyle="#6e5a2a";ctx.fillRect(i*TILE+2,j*TILE+2,12,12);
+      ctx.fillStyle="#fff";ctx.font="9px sans-serif";ctx.fillText("駅",i*TILE+4,j*TILE+12);}
+    if(t===T.BLDG){ctx.fillStyle="#0004";ctx.fillRect(i*TILE+2,j*TILE+8,TILE-4,6);
+      ctx.fillStyle="#ffd";ctx.fillRect(i*TILE+5,j*TILE+4,3,3);ctx.fillRect(i*TILE+10,j*TILE+4,3,3);}
+    if(t===T.GATE){const g=Math.sin(animT/8)*0.5+0.5;
+      ctx.fillStyle=`rgba(160,240,255,${0.4+g*0.5})`;ctx.beginPath();ctx.arc(i*TILE+8,j*TILE+8,6,0,7);ctx.fill();
+      ctx.strokeStyle="#fff";ctx.strokeRect(i*TILE+3,j*TILE+3,10,10);}
+    if(t===T.RUIN){ctx.fillStyle="#333";ctx.fillRect(i*TILE+3,j*TILE+5,4,9);ctx.fillRect(i*TILE+9,j*TILE+5,4,9);
+      ctx.fillStyle="#666";ctx.fillRect(i*TILE+2,j*TILE+3,12,3);}
+    if(t===T.GUILD){drawNpc(i,j,"#e0655a","冒");}
+    if(t===T.VILLAGER){drawNpc(i,j,"#e0b45a","");}
+    if(t===T.SHOP){drawNpc(i,j,"#5ab4e0","商");}
+    if(t===T.INN){drawNpc(i,j,"#b45ae0","宿");}
+    if(t===T.CRYSTAL){const g=Math.sin(animT/10+gx)*0.5+0.5;
+      ctx.fillStyle=`rgba(255,255,255,${0.3+g*0.4})`;ctx.beginPath();
+      ctx.moveTo(i*TILE+8,j*TILE+2);ctx.lineTo(i*TILE+12,j*TILE+12);ctx.lineTo(i*TILE+4,j*TILE+12);ctx.fill();}
+    if(t===T.LAVA){const g=Math.sin(animT/6+gx*3+gy)*0.5+0.5;
+      ctx.fillStyle=`rgba(255,${120+g*80},0,0.8)`;ctx.fillRect(i*TILE,j*TILE,TILE,TILE);}
+  }
+  // 列車(地球・レール上を巡回する演出)
+  if(w===0)drawTrains(px,py);
+  // プレイヤー
+  const cxp=Math.floor(VW/2)*TILE,cyp=Math.floor(VH/2)*TILE;
+  ctx.fillStyle="#1a1a2e";ctx.fillRect(cxp+4,cyp+6,8,9);
+  ctx.fillStyle="#f0c8a0";ctx.fillRect(cxp+5,cyp+2,6,5);
+  ctx.fillStyle=G.world===0?"#3a6ee0":"#a04ae0";ctx.fillRect(cxp+4,cyp+7,8,4);
+  ctx.fillStyle="#000";
+  if(G.dir===0)ctx.fillRect(cxp+6,cyp+3,1,1),ctx.fillRect(cxp+9,cyp+3,1,1);
+  else ctx.fillRect(cxp+6,cyp+4,1,1),ctx.fillRect(cxp+9,cyp+4,1,1);
+  // 昼夜
+  const day=(animT/3600)%1, dark=Math.max(0,Math.sin(day*Math.PI*2-Math.PI/2))*0.45;
+  if(dark>0.02){ctx.fillStyle=`rgba(8,10,40,${dark})`;ctx.fillRect(0,0,cv.width,cv.height);}
+}
+function drawNpc(i,j,color,mark){
+  ctx.fillStyle=color;ctx.fillRect(i*TILE+4,j*TILE+6,8,8);
+  ctx.fillStyle="#f0c8a0";ctx.fillRect(i*TILE+5,j*TILE+2,6,5);
+  if(mark){ctx.fillStyle="#fff";ctx.font="8px sans-serif";ctx.fillText(mark,i*TILE+4,j*TILE+14);}
+}
+function drawTrains(px,py){
+  // 演出用: レールタイル上に時刻ベースで列車ドットを流す
+  for(let j=0;j<VH;j++)for(let i=0;i<VW;i++){
+    const gx=px+i,gy=py+j;
+    if(tileAt(gx,gy,0)!==T.RAIL)continue;
+    const phase=((((gx+gy)*3+Math.floor(animT/4))%97)+97)%97;
+    if(phase<3){ctx.fillStyle="#2a3a5e";ctx.fillRect(i*TILE+2,j*TILE+4,12,8);
+      ctx.fillStyle="#ffd76a";ctx.fillRect(i*TILE+4,j*TILE+6,3,3);ctx.fillRect(i*TILE+9,j*TILE+6,3,3);}
+  }
+}
+</script>
+<script>
+"use strict";
+/* ---------- UI ヘルパ ---------- */
+const $=id=>document.getElementById(id);
+const msgWin=$("msgWin"),centerWin=$("centerWin");
+let msgQueue=[],msgDone=null,uiLock=false;
+function say(name,texts,done){
+  msgQueue=Array.isArray(texts)?texts.slice():[texts];
+  $("msgName").textContent=name||"";
+  msgDone=done||null;uiLock=true;
+  $("msgChoices").innerHTML="";$("msgNext").style.display="block";
+  nextMsg();
+  msgWin.classList.add("show");
+}
+function nextMsg(){
+  if(!msgQueue.length){
+    msgWin.classList.remove("show");uiLock=false;
+    const d=msgDone;msgDone=null;if(d)d();
+    return;
+  }
+  $("msgText").textContent=msgQueue.shift();
+}
+msgWin.addEventListener("click",()=>{if($("msgChoices").children.length===0)nextMsg();});
+function ask(name,text,choices){
+  uiLock=true;msgQueue=[];
+  $("msgName").textContent=name||"";
+  $("msgText").textContent=text;
+  $("msgNext").style.display="none";
+  const box=$("msgChoices");box.innerHTML="";
+  choices.forEach(c=>{
+    const b=document.createElement("button");
+    b.innerHTML=c.label;
+    b.onclick=e=>{e.stopPropagation();box.innerHTML="";msgWin.classList.remove("show");uiLock=false;c.fn&&c.fn();};
+    box.appendChild(b);
+  });
+  msgWin.classList.add("show");
+}
+let toastT=null;
+function toast(t){$("toast").textContent=t;$("toast").style.display="block";
+  clearTimeout(toastT);toastT=setTimeout(()=>$("toast").style.display="none",2200);}
+function openCenter(html){centerWin.innerHTML=html;centerWin.classList.add("show");uiLock=true;}
+function closeCenter(){centerWin.classList.remove("show");uiLock=false;}
+
+/* ---------- ステータス計算 ---------- */
+function eqBonus(stat){let b=0;for(const s of ["weapon","armor","acc"]){const e=G.equip[s];if(e&&e[stat])b+=e[stat];}return b;}
+function pAtk(){return G.atk+eqBonus("atk")}
+function pDef(){return G.def+eqBonus("def")}
+function needExp(lv){return Math.floor(18*Math.pow(lv,1.6))}
+function gainExp(n){
+  G.exp+=n;let up=false;
+  while(G.exp>=needExp(G.lv)){
+    G.exp-=needExp(G.lv);G.lv++;up=true;
+    G.mhp+=5+Math.floor(hash3(G.lv,1,SEED)*5);G.mmp+=2+Math.floor(hash3(G.lv,2,SEED)*3);
+    G.atk+=2;G.def+=1;G.spd+=(G.lv%3===0?1:0);
+    G.hp=G.mhp;G.mp=G.mmp;
+  }
+  if(up)toast("⭐ レベル "+G.lv+" に上がった!");
+}
+function makeItem(lv,r){
+  const slot=pick(["weapon","weapon","armor","acc"],hash3(lv,r*997|0,3));
+  const rare=Math.min(4,Math.floor(Math.pow(hash3(lv,r*131|0,4),2.2)*5));
+  const base=pick(WBASE[slot==="acc"?"acc":slot],hash3(lv,r*577|0,5));
+  const n=WPRE[rare]+base+WSUF[rare];
+  const p=Math.max(1,Math.floor(lv*(1+rare*0.7)+hash3(lv,r*7|0,6)*4));
+  const it={n,slot,rare,q:1};
+  if(slot==="weapon")it.atk=p; else if(slot==="armor")it.def=p;
+  else{it.atk=Math.ceil(p/2);it.def=Math.ceil(p/2);}
+  return it;
+}
+function addItem(it){
+  const same=G.inv.find(x=>x.n===it.n&&!x.slot);
+  if(same&&!it.slot)same.q+=it.q||1;else G.inv.push(it);
+}
+
+/* ---------- 入力・移動 ---------- */
+SOLID.add(T.GUILD);SOLID.add(T.VILLAGER);SOLID.add(T.SHOP);SOLID.add(T.INN);SOLID.add(T.RUIN);
+const DIRS=[[0,-1],[0,1],[-1,0],[1,0]]; // up,down,left,right
+const keyMap={ArrowUp:0,KeyW:0,ArrowDown:1,KeyS:1,ArrowLeft:2,KeyA:2,ArrowRight:3,KeyD:3};
+const held=new Set();
+document.addEventListener("keydown",e=>{
+  if(e.code in keyMap){held.add(keyMap[e.code]);e.preventDefault();}
+  if(e.code==="Space"||e.code==="Enter"){actionBtn();e.preventDefault();}
+  if(e.code==="Escape"||e.code==="KeyM")openMenu();
+});
+document.addEventListener("keyup",e=>{if(e.code in keyMap)held.delete(keyMap[e.code]);});
+for(const b of document.querySelectorAll("#pad button")){
+  const d={up:0,down:1,left:2,right:3}[b.dataset.k];
+  const on=e=>{e.preventDefault();held.add(d)},off=e=>{e.preventDefault();held.delete(d)};
+  b.addEventListener("touchstart",on);b.addEventListener("touchend",off);b.addEventListener("touchcancel",off);
+  b.addEventListener("mousedown",on);b.addEventListener("mouseup",off);b.addEventListener("mouseleave",off);
+}
+$("btnA").addEventListener("click",()=>actionBtn());
+$("btnMenu").addEventListener("click",()=>openMenu());
+
+let moveCd=0;
+function tryMove(){
+  if(uiLock||inBattle)return;
+  if(moveCd>0){moveCd--;return;}
+  let d=-1;for(const k of [0,1,2,3])if(held.has(k)){d=k;break;}
+  if(d<0)return;
+  G.dir=d;
+  const nx=G.x+DIRS[d][0],ny=G.y+DIRS[d][1];
+  const t=tileAt(nx,ny,G.world);
+  if(SOLID.has(t))return;
+  G.x=nx;G.y=ny;G.steps++;moveCd=4;
+  onStep(t);
+}
+function onStep(t){
+  if(t===T.GATE){enterGate();return;}
+  // エンカウント
+  if([T.GRASS,T.FOREST,T.SAND,T.SNOW,T.CRYSTAL].includes(t)){
+    const r=hash3(G.x,G.y,G.steps+SEED);
+    if(r<(t===T.FOREST?0.085:0.055)){startBattle(false);return;}
+    if(r>0.9975){randomEvent();return;}
+  }
+}
+function facingTile(){
+  const nx=G.x+DIRS[G.dir][0],ny=G.y+DIRS[G.dir][1];
+  return {x:nx,y:ny,t:tileAt(nx,ny,G.world)};
+}
+function actionBtn(){
+  if(uiLock||inBattle)return;
+  const here=tileAt(G.x,G.y,G.world);
+  if(here===T.STATION){stationMenu();return;}
+  const f=facingTile();
+  switch(f.t){
+    case T.GUILD:guildTalk();break;
+    case T.SHOP:shopMenu();break;
+    case T.INN:innTalk();break;
+    case T.VILLAGER:villagerTalk(f.x,f.y);break;
+    case T.RUIN:enterRuin(f.x,f.y);break;
+    case T.GATE:enterGate();break;
+    default:
+      if(here===T.RAIL)say("",["線路だ。遠くから汽笛が聞こえる…気がする。"]);
+      else say("",["何もない。世界は 2^32-1 時間ぶんの広さで続いている。"]);
+  }
+}
+
+/* ---------- ゲート(世界移動) ---------- */
+function enterGate(){
+  const from=WORLDS[G.world].name,to=WORLDS[1-G.world].name;
+  ask("次元門",`空間が渦を巻いている。${to} へ渡りますか?`,[
+    {label:"渡る",fn:()=>{
+      G.world=1-G.world;
+      if(!G.flags.firstGate){G.flags.firstGate=1;
+        say("???",["……ようこそ、渡り人。","二つの世界を繋ぐ者よ。12の刻印を集めれば、『時喰い』の間への扉が開くだろう。",
+          "刻印は各地の遺跡の主が守っている。急がなくていい。時間なら 4,294,967,295時間 ある。"]);}
+      else toast(to+" へ渡った");
+      // 着地点が固形物なら周囲を探す
+      let tries=0;
+      while(SOLID.has(tileAt(G.x,G.y,G.world))&&tries<80){G.x+=(tries%2?1:-1)*Math.ceil(tries/2);tries++;}
+    }},
+    {label:"やめておく"}
+  ]);
+}
+
+/* ---------- 駅(鉄道ファストトラベル) ---------- */
+function stationMenu(){
+  const info=nearestCityInfo(G.x,G.y,0);
+  const dests=[];
+  if(info){
+    for(let j=-2;j<=2;j++)for(let i=-2;i<=2;i++){
+      if(!i&&!j)continue;
+      const c=cityOf(info.rx+i,info.ry+j,0);
+      if(c)dests.push({name:cityName(info.rx+i,info.ry+j,0),pos:c,
+        cost:Math.floor(Math.hypot(c[0]-G.x,c[1]-G.y)*0.6)});
+    }
+  }
+  dests.sort((a,b)=>a.cost-b.cost);
+  const ch=dests.slice(0,5).map(d=>({label:`🚉 ${d.name}行き <b>${d.cost}G</b>`,fn:()=>{
+    if(G.gold<d.cost){toast("所持金が足りない");return;}
+    G.gold-=d.cost;G.x=d.pos[0];G.y=d.pos[1]+1;
+    say("車掌",["ご乗車ありがとうございました。「"+d.name+"」に到着です。"]);
+  }}));
+  ch.push({label:"乗らない"});
+  ask("駅員","どちらまで?(近隣路線)",ch);
+}
+
+/* ---------- 街の人々 ---------- */
+function innTalk(){
+  const cost=G.lv*6;
+  ask("宿屋",`一泊 ${cost}G です。お泊まりになりますか?`,[
+    {label:`泊まる(全回復 / <b>${cost}G</b>)`,fn:()=>{
+      if(G.gold<cost){toast("所持金が足りない");return;}
+      G.gold-=cost;G.hp=G.mhp;G.mp=G.mmp;autoSave();
+      say("宿屋",["おはようございます。HPとMPが全回復した!(セーブしました)"]);
+    }},
+    {label:"やめる"}
+  ]);
+}
+function shopMenu(){
+  const info=nearestCityInfo(G.x,G.y,G.world);
+  const r=info?regRng(info.rx,info.ry,G.world,20):0.5;
+  const stock=[
+    {n:"薬草",t:"heal",v:20,price:15},
+    {n:"上薬草",t:"heal",v:60,price:45},
+    {n:"マナ水",t:"mana",v:15,price:25},
+    makeItem(G.lv+1,r),makeItem(G.lv+2,r+0.37)
+  ];
+  stock[3].price=30+G.lv*14+stock[3].rare*40;
+  stock[4].price=30+G.lv*14+stock[4].rare*40;
+  let html=`<h3 class="wt">よろず屋(所持金 <span class="gold">${G.gold}G</span>)</h3>`;
+  stock.forEach((s,i)=>{
+    html+=`<button class="menuBtn" style="width:100%;margin:3px 0" onclick="buyItem(${i})">
+      <span class="r${s.rare||0}">${s.n}</span> ${s.atk?("攻+"+s.atk):""}${s.def?(" 防+"+s.def):""}${s.v?("回復"+s.v):""}
+      — <span class="gold">${s.price}G</span></button>`;
+  });
+  html+=`<button class="menuBtn" style="width:100%;margin-top:8px" onclick="closeCenter()">店を出る</button>`;
+  window._stock=stock;
+  openCenter(html);
+}
+window.buyItem=function(i){
+  const s=window._stock[i];
+  if(G.gold<s.price){toast("所持金が足りない");return;}
+  G.gold-=s.price;addItem({...s,q:1});toast(s.n+" を購入した");shopMenu();
+};
+function villagerTalk(x,y){
+  const r=hash3(x,y,G.world+SEED);
+  const info=nearestCityInfo(G.x,G.y,G.world);
+  const name=info?info.name:"この地";
+  const rumors=G.world===0?[
+    `ここ「${name}」の外は物騒でねぇ。装備は整えなよ。`,
+    "線路の上に立つと、たまに幻の列車が通り抜けていくんだ。",
+    "光る渦を見たかい?あれをくぐった者は、紫色の空の世界に行くらしい。",
+    "遺跡の主は『刻印』を守っている。12個集めた者の話は…最後まで聞いたことがない。",
+    "帝国と反乱軍がまた揉めてるよ。どっちに付くかは、あんた次第さ。",
+    "世界は歩いても歩いても終わらないんだ。誰かが 2^32-1 って呟いてた。"
+  ]:[
+    `ここは「${name}」。マナの風が心地よいでしょう?`,
+    "地球…?ああ、渡り人の故郷ね。鉄の竜が線路を走る世界だとか。",
+    "溶岩地帯には近づかないで。踏んだら死ぬわ。文字通り。",
+    "『時喰い』は世界の中心、座標(0,0)近くの原初の門の奥で眠っている…",
+    "刻印を集めるたび、あなたの魂の色が変わっていくのが視えるわ。",
+    "カルマが濁った者には、闇の商人が寄ってくるらしい。"
+  ];
+  say("町の人",[pick(rumors,r)]);
+}
+
+/* ---------- ギルド・クエスト ---------- */
+function guildTalk(){
+  if(G.quest){
+    if(G.questKills>=G.quest.need){
+      const q=G.quest;
+      say("ギルド受付",[`「${q.target}」を${q.need}体討伐、確認しました。お見事です!`,
+        `報酬の ${q.gold}G と経験値、そしてこちらの品をどうぞ。`],()=>{
+        G.gold+=q.gold;gainExp(q.exp);addItem(makeItem(G.lv+2,hash3(G.steps,q.gold,9)));
+        G.rep.guild++;G.quest=null;G.questKills=0;autoSave();
+      });
+    }else{
+      say("ギルド受付",[`依頼進行中:「${G.quest.target}」討伐 ${G.questKills}/${G.quest.need}体。ご武運を。`]);
+    }
+    return;
+  }
+  const w=WORLDS[G.world];
+  const r=hash3(G.x,G.y,G.steps+SEED*3);
+  const target=pick(w.mobs,r*7%1);
+  const need=2+Math.floor(r*4);
+  const q={target,need,gold:40+G.lv*25+need*15,exp:Math.floor(needExp(G.lv)*0.5)};
+  ask("ギルド受付",`討伐依頼です:「${target}」を ${need}体。報酬 ${q.gold}G+経験値。受けますか?`,[
+    {label:"受注する",fn:()=>{G.quest=q;G.questKills=0;toast("クエストを受注した");}},
+    {label:"やめておく"}
+  ]);
+}
+
+/* ---------- 分岐イベント ---------- */
+function randomEvent(){
+  const r=hash3(G.steps,G.x*3,G.y*7+SEED);
+  const evts=[];
+  evts.push({t:"道端で旅人が倒れている。息はあるようだ。",c:[
+    {label:"薬草を使って助ける",fn:()=>{
+      const h=G.inv.find(i=>i.t==="heal"&&i.q>0);
+      if(!h){say("",["手持ちに回復薬がなかった…旅人は静かに息を引き取った。"],()=>{G.karma-=2;});return;}
+      h.q--;if(h.q<=0)G.inv.splice(G.inv.indexOf(h),1);
+      G.karma+=3;
+      say("旅人",["…恩に着る。これは礼だ、受け取ってくれ。"],()=>{
+        addItem(makeItem(G.lv+1,r));toast("装備品を手に入れた(カルマ+3)");});
+    }},
+    {label:"持ち物を漁る",fn:()=>{G.karma-=4;G.gold+=30+Math.floor(r*60);
+      say("",["財布を抜き取った。…後味が悪い。(カルマ-4 / 所持金増加)"]);}},
+    {label:"見なかったことにする",fn:()=>{say("",["あなたは足早に立ち去った。"]);}}
+  ]});
+  evts.push({t:"分かれ道に石碑がある。『右は富、左は力、進まざる者に安寧を』",c:[
+    {label:"右の道へ(富)",fn:()=>{G.gold+=50+G.lv*10;say("",["道の先に古い金貨袋が!(所持金増加)"]);}},
+    {label:"左の道へ(力)",fn:()=>{G.atk+=1;say("",["謎の力が湧いてくる…(攻撃+1)"]);}},
+    {label:"引き返す(安寧)",fn:()=>{G.hp=G.mhp;say("",["心が安らぎ、HPが全回復した。"]);}}
+  ]});
+  evts.push({t:G.world===0?"「帝国軍だ!反乱分子を追っている。あの男を見なかったか?」兵士が詰め寄る。物陰に怯えた男が見える。"
+    :"「聖騎士団だ。禁呪使いを追っている」光の鎧の騎士が問う。茂みに少女が隠れている。",c:[
+    {label:"「あっちへ逃げた」と嘘をつく",fn:()=>{G.rep.rebel++;G.karma+=1;
+      say(G.world===0?"逃亡者":"少女",["…助かった。この恩はいつか必ず。"],()=>toast("反体制側の信頼+1"));}},
+    {label:"隠れ場所を指差す",fn:()=>{G.rep.empire++;G.karma-=2;G.gold+=80;
+      say("兵士",["協力に感謝する。これは報奨金だ。"],()=>toast("体制側の信頼+1 / 80G"));}},
+    {label:"黙って首を振る",fn:()=>{say("",["兵士たちは去っていった。"]);}}
+  ]});
+  if(G.karma<=-6)evts.push({t:"闇に沈む商人が現れた。「カルマの濁ったお客様には、特別な品をご用意しております…」",c:[
+    {label:"禁断の武具を買う(200G)",fn:()=>{
+      if(G.gold<200){toast("所持金が足りない");return;}
+      G.gold-=200;const it=makeItem(G.lv+5,r);it.n="禁忌の"+it.n;it.rare=4;addItem(it);
+      say("闇商人",["良い買い物です。…その代償が何かは、いずれ分かりますよ。"]);}},
+    {label:"立ち去る"}
+  ]});
+  if(G.karma>=6)evts.push({t:"淡い光を纏う精霊が舞い降りた。「善き魂の渡り人よ、祝福を」",c:[
+    {label:"祝福を受ける",fn:()=>{G.mhp+=4;G.mmp+=2;G.hp=G.mhp;G.mp=G.mmp;
+      say("精霊",["最大HP+4 最大MP+2。あなたの旅路に光あれ。"]);}}
+  ]});
+  const e=pick(evts,r*13%1);
+  ask("イベント",e.t,e.c);
+}
+</script>
+<script>
+"use strict";
+/* ---------- 戦闘 ---------- */
+let inBattle=false,foe=null,bLock=false;
+function foeLevel(){return Math.max(1,Math.floor(Math.hypot(G.x,G.y)/70)+ (G.world===1?2:0) + (G.loop-1)*12);}
+function makeFoe(boss,name){
+  const w=WORLDS[G.world];
+  const lv=foeLevel()+(boss?4:0);
+  const r=hash3(G.x,G.y,G.steps+SEED*11);
+  const n=name||(pick(w.mobPre,r)+pick(w.mobs,r*3%1));
+  const mul=boss?3.2:1;
+  return {n:(boss?"【主】":"")+n,lv,boss,
+    hp:Math.floor((16+lv*7)*mul),mhp:Math.floor((16+lv*7)*mul),
+    atk:Math.floor(4+lv*2.1*(boss?1.3:1)),def:Math.floor(2+lv*1.1),
+    exp:Math.floor((8+lv*6)*mul),gold:Math.floor((6+lv*4)*mul),seed:r};
+}
+function startBattle(boss,name,onWin){
+  inBattle=true;bLock=false;
+  foe=makeFoe(boss,name);
+  foe.onWin=onWin||null;
+  $("foeName").textContent=`${foe.n} Lv.${foe.lv}`;
+  $("bLog").innerHTML="";
+  blog(`${foe.n} が現れた!`);
+  drawFoe();
+  renderCmds();
+  updFoeBar();
+  $("battleWin").classList.add("show");
+}
+function blog(t){const d=document.createElement("div");d.textContent=t;
+  $("bLog").appendChild(d);$("bLog").scrollTop=9999;}
+function updFoeBar(){$("foeHpBar").style.width=Math.max(0,foe.hp/foe.mhp*100)+"%";}
+function drawFoe(){
+  const c=$("foeCanvas"),x=c.getContext("2d");
+  x.clearRect(0,0,64,64);
+  const r=mulberry32(Math.floor(foe.seed*1e9)^foe.lv);
+  const hue=Math.floor(r()*360);
+  const pts=5+Math.floor(r()*6);
+  // シードから怪物の形をプロシージャル生成(左右対称)
+  x.fillStyle=`hsl(${hue},55%,${foe.boss?38:50}%)`;
+  x.beginPath();
+  const arr=[];
+  for(let i=0;i<=pts;i++){
+    const a=Math.PI*(i/pts)-Math.PI/2;
+    const rad=12+r()*16;
+    arr.push([Math.sin(a)*rad,Math.cos(a)*rad*0.9]);
+  }
+  x.moveTo(32+arr[0][0],34+arr[0][1]);
+  for(const p of arr)x.lineTo(32+p[0],34+p[1]);
+  for(let i=arr.length-1;i>=0;i--)x.lineTo(32-arr[i][0],34+arr[i][1]);
+  x.closePath();x.fill();
+  // 目
+  const ey=26+r()*10,ex=5+r()*8;
+  x.fillStyle="#fff";x.fillRect(32-ex-3,ey,6,6);x.fillRect(32+ex-3,ey,6,6);
+  x.fillStyle="#000";x.fillRect(32-ex-1,ey+2,3,3);x.fillRect(32+ex-1,ey+2,3,3);
+  if(foe.boss){x.strokeStyle="#e8b84b";x.lineWidth=2;x.strokeRect(1,1,62,62);}
+  // 角・棘
+  x.fillStyle=`hsl(${(hue+40)%360},60%,70%)`;
+  const spikes=Math.floor(r()*4);
+  for(let i=0;i<spikes;i++){const sx=10+r()*44;
+    x.beginPath();x.moveTo(sx,20);x.lineTo(sx+4,8+r()*6);x.lineTo(sx+8,20);x.fill();}
+}
+function skills(){
+  return CLASSES[G.cls].sk.filter(s=>G.lv>=s.lv);
+}
+function renderCmds(mode){
+  const box=$("bCmds");box.innerHTML="";
+  const mk=(t,fn,dis)=>{const b=document.createElement("button");b.textContent=t;b.disabled=!!dis;
+    b.onclick=()=>{if(!bLock)fn();};box.appendChild(b);};
+  if(mode==="skill"){
+    skills().forEach(s=>mk(`${s.n} (MP${s.mp})`,()=>useSkill(s),G.mp<s.mp));
+    mk("← 戻る",()=>renderCmds());
+  }else if(mode==="item"){
+    const usable=G.inv.filter(i=>i.t==="heal"||i.t==="mana");
+    usable.forEach(it=>mk(`${it.n} ×${it.q}`,()=>useBattleItem(it)));
+    if(!usable.length)mk("使える道具がない",()=>renderCmds());
+    mk("← 戻る",()=>renderCmds());
+  }else{
+    mk("⚔ 攻撃",()=>playerAttack());
+    mk("✨ スキル",()=>renderCmds("skill"));
+    mk("🎒 道具",()=>renderCmds("item"));
+    mk("💨 逃げる",()=>tryFlee(),foe.boss);
+  }
+}
+function dmgCalc(atk,def,mul){
+  const v=Math.max(1,Math.floor((atk*mul-def*0.5)*(0.85+Math.random()*0.3)));
+  const crit=Math.random()<0.08;
+  return {v:crit?Math.floor(v*1.8):v,crit};
+}
+function playerAttack(){
+  bLock=true;
+  const d=dmgCalc(pAtk(),foe.def,1);
+  foe.hp-=d.v;updFoeBar();
+  $("foeCanvas").classList.remove("shake");void $("foeCanvas").offsetWidth;$("foeCanvas").classList.add("shake");
+  blog(`あなたの攻撃!${d.crit?"会心の一撃!":""} ${d.v} のダメージ`);
+  afterPlayerTurn();
+}
+function useSkill(s){
+  bLock=true;G.mp-=s.mp;
+  if(s.t==="heal"){
+    const h=Math.floor(G.mhp*s.heal);G.hp=Math.min(G.mhp,G.hp+h);
+    blog(`${s.n}!HPが ${h} 回復した`);
+  }else{
+    const base=s.t==="mag"?pAtk()*0.8+G.mmp*0.5:pAtk();
+    const d=dmgCalc(base,foe.def,s.pow);
+    foe.hp-=d.v;updFoeBar();
+    $("foeCanvas").classList.remove("flashW");void $("foeCanvas").offsetWidth;$("foeCanvas").classList.add("flashW");
+    blog(`${s.n}!${d.crit?"会心!":""} ${d.v} のダメージ`);
+  }
+  updateHud();afterPlayerTurn();
+}
+function useBattleItem(it){
+  bLock=true;
+  if(it.t==="heal"){G.hp=Math.min(G.mhp,G.hp+it.v);blog(`${it.n} を使った。HP+${it.v}`);}
+  else{G.mp=Math.min(G.mmp,G.mp+it.v);blog(`${it.n} を使った。MP+${it.v}`);}
+  it.q--;if(it.q<=0)G.inv.splice(G.inv.indexOf(it),1);
+  updateHud();afterPlayerTurn();
+}
+function tryFlee(){
+  bLock=true;
+  if(Math.random()<0.55){blog("うまく逃げ切れた!");setTimeout(endBattle,700);}
+  else{blog("逃げられなかった!");setTimeout(foeTurn,600);}
+}
+function afterPlayerTurn(){
+  if(foe.hp<=0){setTimeout(winBattle,600);return;}
+  setTimeout(foeTurn,650);
+}
+function foeTurn(){
+  const strong=Math.random()<0.22;
+  const d=dmgCalc(foe.atk*(strong?1.6:1),pDef(),1);
+  G.hp-=d.v;
+  blog(`${foe.n} の${strong?"強撃":"攻撃"}! ${d.v} のダメージを受けた`);
+  updateHud();
+  document.getElementById("stage").classList.remove("shake");void document.getElementById("stage").offsetWidth;
+  document.getElementById("stage").classList.add("shake");
+  if(G.hp<=0){setTimeout(gameOver,600);return;}
+  bLock=false;
+}
+function winBattle(){
+  blog(`${foe.n} を倒した! EXP+${foe.exp} / ${foe.gold}G`);
+  G.gold+=foe.gold;gainExp(foe.exp);
+  if(G.quest&&foe.n.includes(G.quest.target)){G.questKills++;toast(`討伐 ${G.questKills}/${G.quest.need}`);}
+  if(!foe.boss&&Math.random()<0.16){const it=makeItem(G.lv,Math.random());addItem(it);blog(`${it.n} を拾った!`);}
+  const cb=foe.onWin;
+  setTimeout(()=>{endBattle();if(cb)cb();},900);
+}
+function endBattle(){inBattle=false;$("battleWin").classList.remove("show");updateHud();}
+function gameOver(){
+  endBattle();
+  const lost=Math.floor(G.gold/2);G.gold-=lost;G.hp=1;
+  const c=nearestCityInfo(G.x,G.y,G.world);
+  if(c){G.x=c.pos[0];G.y=c.pos[1]+1;}
+  say("",["目の前が真っ暗になった……","気がつくと、近くの街に運ばれていた。所持金の半分("+lost+"G)を落としてしまった。"]);
+}
+
+/* ---------- 遺跡・刻印・ラスボス ---------- */
+function enterRuin(x,y){
+  const rx=Math.floor(x/REG),ry=Math.floor(y/REG);
+  const key=`ruin:${G.world}:${rx},${ry}`;
+  // 原初の門(ラスボス): 異世界の原点付近
+  if(G.world===1&&Math.abs(rx)<=0&&Math.abs(ry)<=0){lastDungeon();return;}
+  if(G.flags[key]){say("",["この遺跡の主はすでに倒した。静寂だけが残っている。"]);return;}
+  ask("遺跡",`崩れた入口の奥から、圧倒的な気配がする。(推奨Lv:${foeLevel()+3}前後)挑みますか?`,[
+    {label:"挑む",fn:()=>{
+      startBattle(true,null,()=>{
+        G.flags[key]=1;
+        if(G.sigils<12){G.sigils++;
+          say("",[`遺跡の奥で『刻印』が輝いた。(${G.sigils}/12)`,
+            G.sigils>=12?"12の刻印が共鳴している…!異世界の原点(0,0)付近の遺跡=『原初の門』が開かれた!":"残り "+(12-G.sigils)+" 個。"]);
+        }else{
+          say("",["遺跡の宝物庫を発見した!"]);
+        }
+        addItem(makeItem(G.lv+3,hash3(rx,ry,7)));G.gold+=100+G.lv*20;autoSave();
+      });
+    }},
+    {label:"引き返す"}
+  ]);
+}
+function lastDungeon(){
+  if(G.sigils<12){
+    say("原初の門",["巨大な扉は固く閉ざされている。","12の刻印…現在 "+G.sigils+"/12。すべて集めよ、渡り人。"]);
+    return;
+  }
+  ask("原初の門","扉の奥から、世界の時間を喰らう者の鼓動が響く。決戦に挑みますか?",[
+    {label:"挑む(周回"+G.loop+")",fn:()=>{
+      startBattle(true,"時喰い ウロボロスΩ",()=>{});
+      foe.lv=14+G.loop*12;
+      foe.mhp=foe.hp=260+G.loop*220;
+      foe.atk=16+G.loop*14;foe.def=8+G.loop*6;
+      foe.exp=800*G.loop;foe.gold=500*G.loop;
+      $("foeName").textContent=`${foe.n} Lv.${foe.lv}`;updFoeBar();
+      foe.onWin=(()=>{
+        say("時喰い",["グ……オオ……時間ヲ……返ス……","見事だ、渡り人よ。だが知っているか。","世界は一つではない。あと 4,294,967,294 周、あなたを待つ世界がある。"],()=>{
+          G.loop++;G.sigils=0;SEED=(SEED+1)>>>0;G.seed=SEED;
+          for(const k in G.flags)if(k.startsWith("ruin:"))delete G.flags[k];
+          chunkCache.clear();
+          G.gold+=1000;G.mhp+=10;G.hp=G.mhp;
+          say("",["【周回 "+G.loop+" 開始】新たなシードで世界が再生成された。","地形も街も遺跡も、すべてが未知に戻る。あなたの力だけを連れて。"]);
+          autoSave();
+        });
+      });
+    }},
+    {label:"まだ早い"}
+  ]);
+}
+</script>
+<script>
+"use strict";
+/* ---------- メニュー ---------- */
+function openMenu(tab){
+  if(!G||inBattle)return;
+  if(uiLock&&!centerWin.classList.contains("show"))return;
+  tab=tab||"status";
+  const tb=(id,label)=>`<button class="${tab===id?'on':''}" onclick="openMenu('${id}')">${label}</button>`;
+  let html=`<h3 class="wt">メニュー</h3>
+  <div class="tabs">${tb("status","状態")}${tb("inv","道具")}${tb("eq","装備")}${tb("quest","任務")}${tb("save","記録")}</div>`;
+  if(tab==="status"){
+    const kt=G.karma>=6?"聖者寄り":G.karma<=-6?"外道寄り":"中立";
+    html+=`<div class="row"><span>${CLASSES[G.cls].n}</span><span>Lv.${G.lv}</span></div>
+    <div class="row"><span>HP</span><span>${G.hp}/${G.mhp}</span></div>
+    <div class="row"><span>MP</span><span>${G.mp}/${G.mmp}</span></div>
+    <div class="row"><span>攻撃 / 防御 / 速さ</span><span>${pAtk()} / ${pDef()} / ${G.spd}</span></div>
+    <div class="row"><span>EXP</span><span>${G.exp}/${needExp(G.lv)}</span></div>
+    <div class="row"><span>所持金</span><span class="gold">${G.gold}G</span></div>
+    <div class="row"><span>カルマ</span><span>${G.karma}(${kt})</span></div>
+    <div class="row"><span>刻印</span><span>${G.sigils}/12</span></div>
+    <div class="row"><span>勢力: ギルド/帝国/反乱</span><span>${G.rep.guild}/${G.rep.empire}/${G.rep.rebel}</span></div>
+    <div class="row"><span>周回</span><span>${G.loop} / 4,294,967,295</span></div>
+    <div class="row"><span>歩数</span><span>${G.steps.toLocaleString()}</span></div>
+    <div class="row"><span>プレイ時間</span><span>${fmtPlay()}</span></div>`;
+  }
+  if(tab==="inv"){
+    if(!G.inv.length)html+=`<div class="dim">道具を持っていない。</div>`;
+    G.inv.forEach((it,i)=>{
+      const desc=it.slot?`${it.atk?"攻+"+it.atk:""} ${it.def?"防+"+it.def:""}`:`回復${it.v}`;
+      const act=it.slot?`equipItem(${i})`:`useFieldItem(${i})`;
+      html+=`<button class="menuBtn" style="width:100%;margin:3px 0" onclick="${act}">
+        <span class="r${it.rare||0}">${it.n}</span> ×${it.q||1} <span class="dim">${desc} — ${it.slot?"装備する":"使う"}</span></button>`;
+    });
+  }
+  if(tab==="eq"){
+    for(const [slot,label] of [["weapon","武器"],["armor","防具"],["acc","装飾"]]){
+      const e=G.equip[slot];
+      html+=`<div class="row"><span>${label}</span><span class="r${e?e.rare:0}">${e?e.n:"—"}</span></div>`;
+    }
+    html+=`<div class="dim" style="margin-top:8px;font-size:11px">※装備は「道具」タブから。</div>`;
+  }
+  if(tab==="quest"){
+    html+=G.quest?`<div class="row"><span>討伐:「${G.quest.target}」</span><span>${G.questKills}/${G.quest.need}</span></div>
+      <div class="dim" style="font-size:11px;margin-top:6px">報酬:${G.quest.gold}G+EXP。ギルド(冒)へ報告。</div>`
+      :`<div class="dim">受注中の依頼はない。街のギルド(冒)で受けられる。</div>`;
+    html+=`<h3 class="wt" style="margin-top:12px">目的</h3>
+      <div style="font-size:12px" class="dim">・各地の遺跡の主を倒し、刻印を12個集める(${G.sigils}/12)<br>
+      ・異世界アイテルの原点(0,0)付近『原初の門』で決戦<br>
+      ・分岐イベントでカルマと勢力が変化し、出会いが変わる<br>
+      ・地球では駅から鉄道で高速移動できる</div>`;
+  }
+  if(tab==="save"){
+    html+=`<button class="menuBtn" style="width:100%;margin:3px 0" onclick="doSave()">💾 セーブ(本体保存+コード発行)</button>
+    <textarea id="saveArea" placeholder="セーブコード">${makeSaveCode()}</textarea>
+    <div class="dim" style="font-size:10px">このコードを控えれば、別の端末・ブラウザでも「セーブコードを読み込む」から再開できます。宿に泊まると自動セーブされます。</div>
+    <button class="menuBtn" style="width:100%;margin:6px 0" onclick="toTitle()">🏠 タイトルへ戻る</button>`;
+  }
+  html+=`<button class="menuBtn" style="width:100%;margin-top:10px" onclick="closeCenter()">閉じる</button>`;
+  openCenter(html);
+}
+window.openMenu=openMenu;window.closeCenter=closeCenter;
+window.useFieldItem=function(i){
+  const it=G.inv[i];if(!it)return;
+  if(it.t==="heal")G.hp=Math.min(G.mhp,G.hp+it.v);
+  else if(it.t==="mana")G.mp=Math.min(G.mmp,G.mp+it.v);
+  it.q--;if(it.q<=0)G.inv.splice(i,1);
+  toast(it.n+" を使った");updateHud();openMenu("inv");
+};
+window.equipItem=function(i){
+  const it=G.inv[i];if(!it||!it.slot)return;
+  const old=G.equip[it.slot];
+  G.equip[it.slot]=it;G.inv.splice(i,1);
+  if(old)G.inv.push(old);
+  toast(it.n+" を装備した");updateHud();openMenu("inv");
+};
+window.toTitle=function(){closeCenter();autoSave();location.reload();};
+
+/* ---------- セーブ/ロード ---------- */
+function makeSaveCode(){
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify(G))));}catch(e){return "";}
+}
+function loadSaveCode(code){
+  try{
+    const g=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    if(typeof g.x!=="number"||!CLASSES[g.cls])throw 0;
+    G=g;SEED=g.seed>>>0;chunkCache.clear();return true;
+  }catch(e){return false;}
+}
+function storageOk(){try{localStorage.setItem("_t","1");localStorage.removeItem("_t");return true;}catch(e){return false;}}
+function autoSave(){if(storageOk())try{localStorage.setItem("mugenkairo_save",makeSaveCode());}catch(e){}}
+window.doSave=function(){
+  autoSave();
+  const ta=document.getElementById("saveArea");if(ta)ta.value=makeSaveCode();
+  toast(storageOk()?"セーブしました(コードも更新)":"この環境では本体保存不可。コードを控えてください");
+};
+
+/* ---------- HUD・メインループ ---------- */
+function fmtPlay(){
+  const s=Math.floor(G.play),h=Math.floor(s/3600),m=Math.floor(s%3600/60);
+  return `${h}時間${m}分 / 4,294,967,295時間`;
+}
+function updateHud(){
+  if(!G)return;
+  $("barHp").style.width=Math.max(0,G.hp/G.mhp*100)+"%";
+  $("barMp").style.width=Math.max(0,G.mp/G.mmp*100)+"%";
+  $("barXp").style.width=Math.min(100,G.exp/needExp(G.lv)*100)+"%";
+  $("hudName").textContent=`${CLASSES[G.cls].n} Lv.${G.lv}  ${G.gold}G`;
+  $("worldTag").textContent=WORLDS[G.world].tag+(G.loop>1?" ★"+G.loop:"");
+  $("worldTag").style.color=G.world===0?"var(--earth)":"var(--aether)";
+  $("posTag").textContent=`(${G.x}, ${G.y}) 刻印${G.sigils}/12`;
+}
+let lastT=0,running=false;
+function loop(t){
+  if(!running)return;
+  const dt=(t-lastT)/1000;lastT=t;
+  if(G){G.play+=Math.min(dt,0.5);animT++;tryMove();draw();
+    if(animT%30===0)updateHud();}
+  requestAnimationFrame(loop);
+}
+
+/* ---------- タイトル ---------- */
+function startGame(){
+  document.getElementById("title").style.display="none";
+  running=true;lastT=performance.now();
+  requestAnimationFrame(loop);
+  updateHud();
+}
+document.getElementById("btnNew").onclick=()=>{
+  const opts=Object.entries(CLASSES).map(([k,c])=>({label:`<b>${c.n}</b> HP${c.hp} MP${c.mp} 攻${c.atk}`,fn:()=>{
+    const seed=(Math.random()*0xFFFFFFFF)>>>0;
+    newGame(k,seed);
+    startGame();
+    say("導きの声",[
+      "……目を覚ましたか、渡り人よ。",
+      "ここは地球。だが、あちこちに『次元門』が開き、異世界アイテルと繋がってしまった。",
+      "12の刻印を集め、時間を喰らう者を討て。世界の広さは事実上無限、遊べる時間は 4,294,967,295時間。",
+      "まずは街の人と話し、ギルド(冒)で依頼を受け、装備を整えるといい。",
+      "操作:十字キーで移動 / 「調べる」で会話・調査 / 駅の上で「調べる」と鉄道に乗れる。よい旅を!"
+    ],autoSave);
+  }}));
+  document.getElementById("title").style.display="none";
+  ask("運命の選択","あなたの出自を選べ(初期能力とスキルが分岐する)",opts);
+}
+document.getElementById("btnImport").onclick=()=>{
+  document.getElementById("title").style.display="none";
+  openCenter(`<h3 class="wt">セーブコード読み込み</h3>
+    <textarea id="impArea" placeholder="ここにセーブコードを貼り付け"></textarea>
+    <button class="menuBtn" style="width:100%" onclick="doImport()">読み込む</button>
+    <button class="menuBtn" style="width:100%;margin-top:6px" onclick="closeCenter();document.getElementById('title').style.display='flex'">戻る</button>`);
+};
+window.doImport=function(){
+  const v=document.getElementById("impArea").value;
+  if(loadSaveCode(v)){closeCenter();startGame();toast("ロードしました。おかえりなさい!");}
+  else toast("コードが不正です");
+};
+(function init(){
+  if(storageOk()){
+    const s=localStorage.getItem("mugenkairo_save");
+    if(s&&loadSaveCode(s)){
+      const b=document.getElementById("btnCont");
+      b.style.display="inline-block";
+      const saved=s;
+      b.onclick=()=>{loadSaveCode(saved);startGame();toast("つづきから再開");};
+      G=null; // タイトルで待機
+    }
+  }
+})();
+</script>
+</body>
+</html>

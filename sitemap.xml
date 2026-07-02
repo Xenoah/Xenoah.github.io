@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://xenoah.github.io/sitemap.htm</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -32,7 +32,7 @@
   </url>
   <url>
     <loc>https://xenoah.github.io/changelog.htm</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -85,7 +85,25 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://xenoah.github.io/games/train-simulator/shiokaze_train_sim.html</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xenoah.github.io/games/skyracers-fpv/skyracers-fpv.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/games/drone-simulator/drone-sim.html</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xenoah.github.io/games/long-rpg/mugen_kairo.html</loc>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
