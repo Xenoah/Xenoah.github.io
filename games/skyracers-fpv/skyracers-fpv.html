@@ -45,6 +45,65 @@
             background-color: #2563eb; /* Blue-600 */
         }
 
+        .setup-panel,
+        .setup-kpi {
+            border-radius: 8px;
+        }
+        .setup-kpi {
+            min-width: 0;
+        }
+        .setup-meter,
+        .stat-bar-track {
+            height: 0.34rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: rgba(148, 163, 184, 0.16);
+        }
+        .setup-meter-fill,
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            transition: width 0.25s ease;
+        }
+        .stat-bars {
+            display: grid;
+            gap: 0.5rem;
+        }
+        .stat-bar-row {
+            display: grid;
+            grid-template-columns: 4.8rem minmax(0, 1fr) 3.35rem;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+        }
+        .stat-bar-label,
+        .stat-bar-value {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font: 700 0.62rem/1 monospace;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .stat-bar-label {
+            color: rgba(203, 213, 225, 0.7);
+        }
+        .stat-bar-value {
+            color: rgba(241, 245, 249, 0.9);
+            text-align: right;
+            letter-spacing: 0;
+        }
+        .stat-fill-cyan { background: linear-gradient(90deg, #22d3ee, #38bdf8); }
+        .stat-fill-violet { background: linear-gradient(90deg, #a78bfa, #818cf8); }
+        .stat-fill-blue { background: linear-gradient(90deg, #60a5fa, #22d3ee); }
+        .stat-fill-emerald { background: linear-gradient(90deg, #34d399, #22c55e); }
+        .touch-label {
+            border-radius: 9999px;
+            background: rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 0.24rem 0.5rem;
+        }
+
         #canvas-container canvas {
             transition: filter 0.6s ease, transform 0.6s ease;
         }
@@ -60,6 +119,7 @@
             pointer-events: none;
             display: none;
             touch-action: none;
+            z-index: 25;
         }
         .touch-ui.is-visible {
             display: block;
@@ -109,6 +169,17 @@
             box-shadow: 0 6px 16px rgba(0,0,0,0.28);
             pointer-events: none;
         }
+        .touch-stick.is-active {
+            border-color: rgba(34,211,238,0.55);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(34,211,238,0.22), rgba(255,255,255,0.07) 46%, rgba(0,0,0,0.26) 76%),
+                rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 28px rgba(34,211,238,0.12), 0 0 0 3px rgba(34,211,238,0.06);
+        }
+        .touch-stick.is-active .touch-thumb {
+            border-color: rgba(255,255,255,0.44);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.34), 0 0 20px rgba(34,211,238,0.22);
+        }
         .touch-action-btn {
             width: 64px;
             height: 64px;
@@ -128,45 +199,195 @@
             transform: scale(0.96);
             background: rgba(37,99,235,0.45);
         }
+        .touch-action-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .gate-edge-pointer {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 34;
+            width: 96px;
+            min-height: 54px;
+            pointer-events: none;
+            color: white;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.16s ease, left 0.08s linear, top 0.08s linear;
+        }
+        .gate-edge-pointer.is-visible {
+            opacity: 1;
+        }
+        .gate-pointer-arrow {
+            width: 24px;
+            height: 26px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #e0fbff 0%, #22d3ee 52%, #0891b2 100%);
+            clip-path: polygon(50% 0, 100% 100%, 50% 74%, 0 100%);
+            filter: drop-shadow(0 0 10px rgba(34,211,238,0.8));
+            transform: rotate(var(--gate-pointer-rotation, 0rad));
+            transform-origin: 50% 58%;
+        }
+        .gate-pointer-label {
+            margin-top: 4px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            min-width: 74px;
+            padding: 4px 7px;
+            border: 1px solid rgba(34,211,238,0.34);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.58);
+            box-shadow: 0 0 18px rgba(8,145,178,0.22);
+            backdrop-filter: blur(8px);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        .gate-pointer-title {
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            color: #cffafe;
+        }
+        .gate-pointer-meta {
+            font-size: 10px;
+            line-height: 1.2;
+            color: #fef3c7;
+            white-space: nowrap;
+        }
+        .flight-toast {
+            position: absolute;
+            top: clamp(118px, 19vh, 176px);
+            left: 50%;
+            z-index: 35;
+            max-width: min(360px, calc(100vw - 2rem));
+            padding: 8px 12px;
+            border: 1px solid rgba(34,211,238,0.28);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.58);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.24), 0 0 18px rgba(8,145,178,0.16);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            text-align: center;
+            transform: translate(-50%, -8px);
+            opacity: 0;
+            transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        .flight-toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+        .flight-toast[data-tone="good"] {
+            border-color: rgba(16,185,129,0.45);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.24), 0 0 18px rgba(16,185,129,0.14);
+        }
+        .flight-toast[data-tone="warn"] {
+            border-color: rgba(251,191,36,0.5);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.24), 0 0 18px rgba(251,191,36,0.13);
+        }
+        .flight-toast-title {
+            color: #ecfeff;
+            font-size: 11px;
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .flight-toast-copy {
+            margin-top: 3px;
+            color: #bae6fd;
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
         @media (max-width: 640px) {
             #screen-hud {
                 padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
             }
             #screen-hud > .flex:first-child {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
                 align-items: flex-start;
                 gap: 0.5rem;
+                pointer-events: none;
             }
             #screen-hud > .flex:first-child > .bg-black\/40:first-child {
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(3, minmax(48px, 1fr));
                 gap: 0.35rem;
                 padding: 0.55rem 0.65rem;
-                max-width: calc(100vw - 1.5rem);
+                max-width: none;
+                min-width: 0;
                 font-size: 0.68rem;
+                pointer-events: none;
             }
             #screen-hud > .flex:first-child > .bg-black\/40:first-child .w-px {
                 display: none;
             }
+            #screen-hud > .flex:first-child > .bg-black\/40:first-child .flex-col {
+                min-width: 0;
+            }
+            #screen-hud > .flex:first-child > .bg-black\/40:first-child span,
+            #screen-hud > .flex:first-child > .bg-black\/40:first-child div {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
             #hud-timer-container {
-                min-width: 158px;
-                padding: 0.6rem 0.85rem;
+                min-width: 132px;
+                padding: 0.55rem 0.65rem;
+                pointer-events: none;
             }
             #hud-timer {
-                font-size: 1.5rem;
-                line-height: 1.9rem;
+                font-size: 1.35rem;
+                line-height: 1.65rem;
+                letter-spacing: 0;
             }
             #hud-compass canvas {
                 width: min(280px, calc(100vw - 2rem));
                 height: 39px;
+            }
+            #hud-compass {
+                top: 58px;
             }
             #btn-pause,
             #hud-sector-strip,
             #hud-ghost-status {
                 display: none !important;
             }
+            #hud-sector-delta,
+            #hud-laps {
+                font-size: 0.56rem;
+                letter-spacing: 0.08em;
+            }
             #hud-horizon,
             #input-viz-container {
                 display: none !important;
+            }
+            #mission-start-msg {
+                top: 18%;
+                padding-inline: 1rem;
+            }
+            #txt-mission-title {
+                font-size: 2rem;
+                line-height: 2.25rem;
+            }
+            #txt-mission-sub {
+                max-width: calc(100vw - 2rem);
+                font-size: 0.76rem;
+                line-height: 1.15rem;
+            }
+            .touch-ui {
+                padding-top: 0.5rem;
+            }
+            .touch-label {
+                font-size: 0.55rem;
+                letter-spacing: 0.08em;
+                padding: 0.18rem 0.42rem;
             }
             .touch-stick {
                 width: clamp(92px, 28vw, 112px);
@@ -176,6 +397,21 @@
                 width: clamp(48px, 15vw, 58px);
                 height: clamp(48px, 15vw, 58px);
                 font-size: 0.62rem;
+            }
+            .gate-edge-pointer {
+                width: 84px;
+                min-height: 48px;
+            }
+            .gate-pointer-arrow {
+                width: 20px;
+                height: 22px;
+            }
+            .gate-pointer-label {
+                min-width: 64px;
+                padding: 3px 6px;
+            }
+            .flight-toast {
+                top: clamp(98px, 17vh, 138px);
             }
         }
         @media (min-width: 768px) {
@@ -221,6 +457,9 @@
                 <button id="btn-mode-timeattack" class="btn-primary px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/50 flex justify-center items-center gap-2">
                     Time Attack
                 </button>
+                <button id="btn-mode-scoreattack" class="px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/40 flex justify-center items-center gap-2">
+                    Score Attack
+                </button>
                 <button id="btn-mode-freeselect" class="px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-600">
                     Free Flight
                 </button>
@@ -245,6 +484,47 @@
                         <div id="txt-select-step" class="text-xs uppercase tracking-[0.35em] text-cyan-300">Pick a Course</div>
                         <div id="txt-select-helper" class="text-sm text-gray-400 mt-1">Select a course — aircraft selection opens automatically.</div>
                     </div>
+                    <section id="current-setup-panel" class="setup-panel mb-4 border border-cyan-400/20 bg-black/30 p-3 shadow-lg shadow-black/20">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-[10px] uppercase tracking-[0.28em] text-cyan-300">Current Setup</div>
+                                <div id="current-setup-title" class="mt-1 truncate text-sm font-bold text-white">Course not selected</div>
+                            </div>
+                            <span id="current-setup-status" class="shrink-0 rounded-full border border-gray-700 bg-gray-800 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300">Course Needed</span>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <div class="setup-kpi border border-white/8 bg-white/5 p-2">
+                                <div class="text-[10px] uppercase tracking-[0.18em] text-gray-500">Course</div>
+                                <div id="setup-course" class="mt-1 truncate text-xs font-semibold text-gray-100">--</div>
+                            </div>
+                            <div class="setup-kpi border border-white/8 bg-white/5 p-2">
+                                <div class="text-[10px] uppercase tracking-[0.18em] text-gray-500">Drone</div>
+                                <div id="setup-drone" class="mt-1 truncate text-xs font-semibold text-gray-100">--</div>
+                            </div>
+                            <div class="setup-kpi border border-white/8 bg-white/5 p-2">
+                                <div class="text-[10px] uppercase tracking-[0.18em] text-gray-500">Best</div>
+                                <div id="setup-best" class="mt-1 truncate text-xs font-semibold text-cyan-300">--</div>
+                            </div>
+                            <div class="setup-kpi border border-white/8 bg-white/5 p-2">
+                                <div class="text-[10px] uppercase tracking-[0.18em] text-gray-500">Fit</div>
+                                <div id="setup-fit" class="mt-1 truncate text-xs font-semibold text-gray-100">--</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 grid gap-2 sm:grid-cols-3">
+                            <div>
+                                <div class="mb-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-gray-400"><span>Speed</span><span id="setup-speed-label">--</span></div>
+                                <div class="setup-meter"><div id="setup-speed-bar" class="setup-meter-fill stat-fill-blue" style="width:0%"></div></div>
+                            </div>
+                            <div>
+                                <div class="mb-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-gray-400"><span>Agility</span><span id="setup-agility-label">--</span></div>
+                                <div class="setup-meter"><div id="setup-agility-bar" class="setup-meter-fill stat-fill-emerald" style="width:0%"></div></div>
+                            </div>
+                            <div>
+                                <div class="mb-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-gray-400"><span>Endurance</span><span id="setup-endurance-label">--</span></div>
+                                <div class="setup-meter"><div id="setup-endurance-bar" class="setup-meter-fill stat-fill-violet" style="width:0%"></div></div>
+                            </div>
+                        </div>
+                    </section>
                     <div id="selection-grid" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 pr-2"></div>
 
                     <div id="custom-drone-panel" class="hidden bg-gray-800 p-4 rounded border border-gray-700 mt-4">
@@ -367,6 +647,7 @@
                     </div>
                     <span id="hud-sector-delta" class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-2">Sectors armed</span>
                     <span id="hud-ghost-status" class="text-[10px] text-cyan-200/80 uppercase tracking-[0.2em] mt-1">Ghost standby</span>
+                    <span id="hud-training-status" class="hidden text-[10px] text-amber-200 uppercase tracking-[0.2em] mt-1">Training</span>
                 </div>
 
                 <button id="btn-pause" class="bg-black/40 hover:bg-black/60 backdrop-blur p-3 rounded-lg border border-white/10 text-white pointer-events-auto">
@@ -377,6 +658,19 @@
             <!-- 方角ゲージ（コンパステープ） -->
             <div id="hud-compass" class="absolute top-[72px] left-1/2 -translate-x-1/2 pointer-events-none hidden">
                 <canvas id="compass-canvas" width="400" height="52"></canvas>
+            </div>
+
+            <div id="gate-edge-pointer" class="gate-edge-pointer hidden" aria-hidden="true">
+                <div class="gate-pointer-arrow"></div>
+                <div class="gate-pointer-label">
+                    <span id="gate-pointer-title" class="gate-pointer-title">NEXT</span>
+                    <span id="gate-pointer-meta" class="gate-pointer-meta">--m</span>
+                </div>
+            </div>
+
+            <div id="flight-toast" class="flight-toast hidden" aria-live="polite">
+                <div id="flight-toast-title" class="flight-toast-title"></div>
+                <div id="flight-toast-copy" class="flight-toast-copy"></div>
             </div>
 
             <!-- 水平儀（アーティフィシャルホライゾン） -->
@@ -402,7 +696,7 @@
                 <div class="flex items-end justify-between gap-4">
                     <div class="flex items-end gap-4">
                         <div class="flex flex-col items-center gap-2">
-                            <div class="text-[10px] tracking-[0.2em] text-white/45 uppercase font-mono">Throttle / Yaw</div>
+                            <div class="touch-label text-[10px] tracking-[0.2em] text-white/55 uppercase font-mono">Throttle / Yaw</div>
                             <div id="mobile-left-stick" class="touch-stick">
                                 <div id="mobile-left-thumb" class="touch-thumb"></div>
                             </div>
@@ -415,7 +709,7 @@
                             <button id="mobile-btn-pause" class="touch-action-btn">PAUSE</button>
                         </div>
                         <div class="flex flex-col items-center gap-2">
-                            <div class="text-[10px] tracking-[0.2em] text-white/45 uppercase font-mono">Pitch / Roll</div>
+                            <div class="touch-label text-[10px] tracking-[0.2em] text-white/55 uppercase font-mono">Pitch / Roll</div>
                             <div id="mobile-right-stick" class="touch-stick">
                                 <div id="mobile-right-thumb" class="touch-thumb"></div>
                             </div>
@@ -442,11 +736,14 @@
 
         <!-- POPUP: Race Finished -->
         <div id="popup-finish" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto" role="dialog" aria-modal="true" aria-labelledby="finish-title">
-            <div class="bg-gray-900/90 border border-blue-500/30 p-8 rounded-2xl text-center shadow-2xl max-w-md w-full mx-4">
-                <h2 id="finish-title" class="text-4xl font-bold mb-2 italic text-white">LAP COMPLETE</h2>
-                <p id="finish-time" class="text-6xl font-mono text-green-400 mb-2 font-bold tracking-tighter">00.00s</p>
-                <p id="finish-best" class="text-sm font-mono text-cyan-300 mb-4 tracking-wide">BEST --</p>
-                <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-800/60 p-3 rounded-lg text-left">
+            <div class="bg-gray-950/95 border border-blue-400/25 p-6 rounded-lg text-center shadow-2xl max-w-lg w-full mx-4">
+                <div class="mb-5">
+                    <div class="text-[10px] uppercase tracking-[0.32em] text-cyan-300">Result</div>
+                    <h2 id="finish-title" class="mt-2 text-2xl font-bold italic text-white">LAP COMPLETE</h2>
+                    <p id="finish-time" class="mt-3 text-6xl font-mono text-green-400 font-bold tracking-tighter">00.00s</p>
+                    <p id="finish-best" class="mt-2 inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-mono text-cyan-200">BEST --</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4 text-left">
                     <div>
                         <div class="text-[10px] text-gray-400 uppercase tracking-widest">Max Speed</div>
                         <div id="finish-maxspeed" class="font-mono text-cyan-400 text-lg">-- m/s</div>
@@ -465,10 +762,10 @@
                     </div>
                 </div>
                 <div id="finish-sectors" class="mb-6 grid grid-cols-3 gap-2 text-left text-xs font-mono"></div>
-                <div class="flex flex-col gap-3">
-                    <button id="btn-finish-replay" class="w-full px-6 py-3 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Last</button>
-                    <button id="btn-finish-reset" class="w-full px-6 py-3 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Restart Run</button>
-                    <button id="btn-finish-menu" class="w-full px-6 py-3 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700">Back to Menu</button>
+                <div class="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+                    <button id="btn-finish-reset" class="w-full px-6 py-3 rounded-lg font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Restart Run</button>
+                    <button id="btn-finish-replay" class="w-full px-5 py-3 rounded-lg font-bold uppercase bg-emerald-800/80 hover:bg-emerald-700 text-emerald-50 border border-emerald-500/30">Replay Last</button>
+                    <button id="btn-finish-menu" class="w-full px-5 py-3 rounded-lg font-bold uppercase bg-gray-900 hover:bg-gray-800 text-gray-200 border border-gray-700">Back</button>
                 </div>
             </div>
         </div>
@@ -484,13 +781,18 @@
 
         <!-- POPUP: Pause Menu -->
         <div id="popup-pause" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur flex items-center justify-center pointer-events-auto" role="dialog" aria-modal="true" aria-labelledby="pause-title">
-            <div class="bg-gray-900 border border-gray-700 p-8 rounded-xl shadow-2xl w-80 text-center space-y-4">
-                <h2 id="pause-title" class="text-2xl font-bold text-white">PAUSED</h2>
-                <button id="btn-resume" class="w-full px-6 py-2 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Resume</button>
-                <button id="btn-settings-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-white border border-gray-600">Settings</button>
-                <button id="btn-replay-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Best</button>
-                <button id="btn-restart" class="w-full px-6 py-2 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-white border border-gray-600">Restart</button>
-                <button id="btn-quit" class="w-full px-6 py-2 rounded font-bold uppercase bg-red-600 hover:bg-red-500 text-white">Quit to Menu</button>
+            <div class="bg-gray-950/95 border border-gray-700 p-6 rounded-lg shadow-2xl w-80 text-center">
+                <div class="text-[10px] uppercase tracking-[0.32em] text-gray-500">Flight Hold</div>
+                <h2 id="pause-title" class="mt-2 text-2xl font-bold text-white">PAUSED</h2>
+                <div class="mt-5 flex flex-col gap-3">
+                    <button id="btn-resume" class="w-full px-6 py-3 rounded-lg font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Resume</button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-settings-pause" class="px-4 py-2 rounded-lg font-bold uppercase bg-gray-900 hover:bg-gray-800 text-white border border-gray-700">Settings</button>
+                        <button id="btn-restart" class="px-4 py-2 rounded-lg font-bold uppercase bg-gray-900 hover:bg-gray-800 text-white border border-gray-700">Restart</button>
+                    </div>
+                    <button id="btn-replay-pause" class="w-full px-6 py-2 rounded-lg font-bold uppercase bg-emerald-900/70 hover:bg-emerald-800 text-emerald-100 border border-emerald-500/25">Replay Best</button>
+                    <button id="btn-quit" class="w-full px-6 py-2 rounded-lg font-bold uppercase bg-red-950/70 hover:bg-red-900 text-red-100 border border-red-500/25">Quit to Menu</button>
+                </div>
             </div>
         </div>
 
@@ -537,11 +839,37 @@
                         <input type="range" id="input-camera-angle" min="20" max="60" step="1" value="30" class="w-full accent-cyan-500">
                     </div>
                     <div class="border-t border-gray-700 pt-4">
+                        <h3 class="text-lg font-bold mb-3 text-amber-300">TRAINING AIDS</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-chase-camera" class="w-5 h-5 rounded accent-amber-400">
+                                <label for="input-chase-camera" class="text-gray-300 text-sm cursor-pointer select-none">Chase Camera</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-assisted-flight" class="w-5 h-5 rounded accent-amber-400">
+                                <label for="input-assisted-flight" class="text-gray-300 text-sm cursor-pointer select-none">Stabilized Flight</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-gentle-collision" class="w-5 h-5 rounded accent-amber-400">
+                                <label for="input-gentle-collision" class="text-gray-300 text-sm cursor-pointer select-none">Gentle Collisions</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-circular-gate" class="w-5 h-5 rounded accent-amber-400">
+                                <label for="input-circular-gate" class="text-gray-300 text-sm cursor-pointer select-none">Circular Gate Pass</label>
+                            </div>
+                        </div>
+                        <div class="text-xs text-amber-200/80 mt-2">Timed runs with training aids are unranked.</div>
+                    </div>
+                    <div class="border-t border-gray-700 pt-4">
                         <h3 class="text-lg font-bold mb-3 text-green-400">HUD OVERLAYS</h3>
                         <div class="flex flex-col gap-2">
                             <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
                                 <input type="checkbox" id="input-compass" class="w-5 h-5 rounded accent-cyan-500" checked>
                                 <label for="input-compass" class="text-gray-300 text-sm cursor-pointer select-none">Compass / Gate Bearing</label>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
+                                <input type="checkbox" id="input-gate-pointer" class="w-5 h-5 rounded accent-cyan-500" checked>
+                                <label for="input-gate-pointer" class="text-gray-300 text-sm cursor-pointer select-none">Screen-edge Gate Pointer</label>
                             </div>
                             <div class="flex items-center gap-3 bg-black/20 p-3 rounded">
                                 <input type="checkbox" id="input-horizon" class="w-5 h-5 rounded accent-cyan-500" checked>

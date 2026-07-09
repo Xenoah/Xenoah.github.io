@@ -5,6 +5,8 @@
         const TEXT = {
             EN: {
                 startRace: "Time Attack",
+                scoreAttack: "Score Attack",
+                startScoreAttack: "Start Score Attack",
                 freeFlight: "Free Flight",
                 settings: "Settings",
                 back: "Back",
@@ -24,6 +26,8 @@
             },
             JP: {
                 startRace: "タイムアタック",
+                scoreAttack: "スコアアタック",
+                startScoreAttack: "スコアアタック開始",
                 freeFlight: "フリーフライト",
                 settings: "設定",
                 back: "戻る",
@@ -318,10 +322,16 @@
         }
 
         const COURSE_STYLES = {
-            [CONSTANTS.TERRAINS.PLAINS]: { sky: 0x6da9d5, fog: 0x8ab9d8, groundLow: "#6f8f5f", groundMid: "#507247", groundHigh: "#3d5c38", trackBed: "#8c9b66", structure: "#8f7a63", support: "#4b5563", trim: "#fde68a" },
-            [CONSTANTS.TERRAINS.MOUNTAINS]: { sky: 0x5c7fa8, fog: 0x7392b4, groundLow: "#5c6b6f", groundMid: "#47545b", groundHigh: "#2f3942", trackBed: "#687985", structure: "#8b95a1", support: "#374151", trim: "#bfdbfe" },
-            [CONSTANTS.TERRAINS.RUINS]: { sky: 0x7e8a78, fog: 0x909a84, groundLow: "#8d835f", groundMid: "#756c4d", groundHigh: "#5a523a", trackBed: "#9a8f67", structure: "#b59f77", support: "#5b5344", trim: "#fcd34d" },
-            [CONSTANTS.TERRAINS.STADIUM]: { sky: 0x0f172a, fog: 0x18243d, groundLow: "#334155", groundMid: "#1f2937", groundHigh: "#111827", trackBed: "#475569", structure: "#94a3b8", support: "#0f172a", trim: "#22d3ee" }
+            [CONSTANTS.TERRAINS.PLAINS]: { sky: 0x6da9d5, fog: 0x8ab9d8, groundLow: "#6f8f5f", groundMid: "#507247", groundHigh: "#3d5c38", trackBed: "#8c9b66", structure: "#8f7a63", support: "#4b5563", trim: "#fde68a", accent: "#facc15", accentAlt: "#60a5fa" },
+            [CONSTANTS.TERRAINS.MOUNTAINS]: { sky: 0x5c7fa8, fog: 0x7392b4, groundLow: "#5c6b6f", groundMid: "#47545b", groundHigh: "#2f3942", trackBed: "#687985", structure: "#8b95a1", support: "#374151", trim: "#bfdbfe", accent: "#93c5fd", accentAlt: "#67e8f9" },
+            [CONSTANTS.TERRAINS.RUINS]: { sky: 0x7e8a78, fog: 0x909a84, groundLow: "#8d835f", groundMid: "#756c4d", groundHigh: "#5a523a", trackBed: "#9a8f67", structure: "#b59f77", support: "#5b5344", trim: "#fcd34d", accent: "#f59e0b", accentAlt: "#fde68a" },
+            [CONSTANTS.TERRAINS.STADIUM]: { sky: 0x0f172a, fog: 0x18243d, groundLow: "#334155", groundMid: "#1f2937", groundHigh: "#111827", trackBed: "#475569", structure: "#94a3b8", support: "#0f172a", trim: "#22d3ee", accent: "#67e8f9", accentAlt: "#f472b6", reflection: "#0e7490" }
+        };
+
+        const QUALITY_PROFILES = {
+            FLAT: { shadows: false, pixelRatio: 1, textureSize: 0, anisotropy: 1, terrainSegmentsTrack: 56, terrainSegmentsOpen: 72, objectDensity: 0.28, markerDensity: 0.55, lightDensity: 0, reflectionDensity: 0 },
+            TEXTURED: { shadows: true, pixelRatio: 1, textureSize: 64, anisotropy: 2, terrainSegmentsTrack: 96, terrainSegmentsOpen: 112, objectDensity: 0.85, markerDensity: 0.85, lightDensity: 0.45, reflectionDensity: 0.55 },
+            CINEMATIC: { shadows: true, pixelRatio: 1.5, textureSize: 128, anisotropy: 8, terrainSegmentsTrack: 128, terrainSegmentsOpen: 144, objectDensity: 1.25, markerDensity: 1.15, lightDensity: 1, reflectionDensity: 1 }
         };
 
         const COURSE_LAYOUTS = {
@@ -337,14 +347,15 @@
             ladderGrid: { profile: 'Gridline', difficulty: 'Medium', tagline: 'Boxy rooftop hops with a clean visual read at race pace.', gates: [[0,12,0],[28,16,30],[58,20,62],[92,24,96],[126,28,126],[154,24,92],[124,18,58],[88,14,24],[46,12,-2]], props: [{ type: 'platform', position: [26,8,28], size: [34,6,34] }, { type: 'platform', position: [72,14,74], size: [38,6,38] }, { type: 'platform', position: [124,20,118], size: [42,6,42] }, { type: 'wall', position: [112,12,42], size: [18,24,120], rotation: 38 }] },
             microPulse: { profile: 'Tiny Sprint', difficulty: 'Easy', tagline: 'Built for tiny quads: fast resets, close gates, and no dead air.', compact: true, gates: [[0,8,0],[0,8,18],[14,9,32],[28,10,22],[22,9,4],[6,8,-10],[-12,8,2]], props: [{ type: 'arch', position: [0,6,10], size: [16,12,8] }, { type: 'wall', position: [20,8,18], size: [12,16,34], rotation: 22 }, { type: 'platform', position: [-6,5,-2], size: [20,4,18] }] },
             patioSlalom: { profile: 'Whoop Slalom', difficulty: 'Medium', tagline: 'A compact back-and-forth where tiny drones stay loaded every second.', compact: true, gates: [[0,8,0],[12,9,16],[-8,10,30],[18,11,44],[-14,10,56],[10,9,70],[-6,8,84]], props: [{ type: 'tower', position: [8,10,22], size: [8,20,8] }, { type: 'tower', position: [-8,10,50], size: [8,20,8] }, { type: 'arch', position: [2,7,74], size: [18,12,8] }, { type: 'wall', position: [0,8,40], size: [10,16,86], rotation: 14 }] },
-            pocketOrbit: { profile: 'Pocket Orbit', difficulty: 'Medium', tagline: 'A tiny orbit loop that keeps low-mass drones carving nonstop.', compact: true, gates: [[0,8,0],[16,10,10],[24,12,-4],[18,13,-22],[0,12,-28],[-18,10,-18],[-22,9,0],[-10,8,12]], props: [{ type: 'tower', position: [0,16,-6], size: [10,30,10] }, { type: 'bridge', position: [2,12,-6], size: [34,4,10], rotation: 90 }, { type: 'arch', position: [-8,7,6], size: [18,12,8] }] }
+            pocketOrbit: { profile: 'Pocket Orbit', difficulty: 'Medium', tagline: 'A tiny orbit loop that keeps low-mass drones carving nonstop.', compact: true, gates: [[0,8,0],[16,10,10],[24,12,-4],[18,13,-22],[0,12,-28],[-18,10,-18],[-22,9,0],[-10,8,12]], props: [{ type: 'tower', position: [0,16,-6], size: [10,30,10] }, { type: 'bridge', position: [2,12,-6], size: [34,4,10], rotation: 90 }, { type: 'arch', position: [-8,7,6], size: [18,12,8] }] },
+            neonSpiral: { profile: 'Neon Spiral', difficulty: 'Hard', tagline: 'Climb the lit helix, cut across the crown, then dive the return lane without unloading.', gates: [[0,14,0],[34,16,28],[62,23,-6],[42,32,-48],[0,42,-68],[-44,50,-44],[-64,42,2],[-40,32,44],[6,24,62],[48,18,38],[74,14,-4],[42,12,-38]], props: [{ type: 'spiralTower', position: [0,20,-4], size: [18,64,18] }, { type: 'neonPylon', position: [66,0,28], size: [8,34,8] }, { type: 'neonPylon', position: [-66,0,-28], size: [8,34,8] }, { type: 'billboard', position: [24,0,78], size: [44,18,4], rotation: 18 }, { type: 'barrier', position: [72,0,-38], size: [36,7,6], rotation: -24 }, { type: 'barrier', position: [-58,0,48], size: [34,7,6], rotation: 28 }] }
         };
 
         const COURSE_THEME_GROUPS = [
-            { terrain: CONSTANTS.TERRAINS.PLAINS, names: ['Dust Arc','Switchgrass','Sunstep Rise','Haywire Coil','Dryline Rush','Mesa Overpass','Needle Weave','Field Split','Vaulted Dune','Grid Harvest','Pocket Pulse','Patio Dash','Barn Orbit'] },
-            { terrain: CONSTANTS.TERRAINS.MOUNTAINS, names: ['Granite Arc','Snowdrift Switch','Summit Step','Frost Coil','Cliffline Rush','Highpass Over','Spire Crest','Basin Split','Skyvault Drop','Ridge Grid','Pocket Pulse Alpine','Patio Dash Ridge','Summit Orbit'] },
-            { terrain: CONSTANTS.TERRAINS.RUINS, names: ['Relic Arc','Archive Switch','Oracle Step','Shard Coil','Vaultline Rush','Broken Over','Pillar Weave','Court Split','Crypt Drop','Temple Grid','Pocket Pulse Ruins','Patio Dash Vault','Relic Orbit'] },
-            { terrain: CONSTANTS.TERRAINS.STADIUM, names: ['Neon Arc','Pulse Switch','Floodlight Step','Circuit Coil','Velocity Rush','Apex Over','Signal Weave','Arena Split X','Titan Drop','Broadcast Grid','Pocket Pulse X','Patio Dash X','Neon Orbit Mini'] }
+            { terrain: CONSTANTS.TERRAINS.PLAINS, names: ['Dust Arc','Switchgrass','Sunstep Rise','Haywire Coil','Dryline Rush','Mesa Overpass','Needle Weave','Field Split','Vaulted Dune','Grid Harvest','Pocket Pulse','Patio Dash','Barn Orbit','Dust Spiral'] },
+            { terrain: CONSTANTS.TERRAINS.MOUNTAINS, names: ['Granite Arc','Snowdrift Switch','Summit Step','Frost Coil','Cliffline Rush','Highpass Over','Spire Crest','Basin Split','Skyvault Drop','Ridge Grid','Pocket Pulse Alpine','Patio Dash Ridge','Summit Orbit','Aurora Spiral'] },
+            { terrain: CONSTANTS.TERRAINS.RUINS, names: ['Relic Arc','Archive Switch','Oracle Step','Shard Coil','Vaultline Rush','Broken Over','Pillar Weave','Court Split','Crypt Drop','Temple Grid','Pocket Pulse Ruins','Patio Dash Vault','Relic Orbit','Relic Spiral'] },
+            { terrain: CONSTANTS.TERRAINS.STADIUM, names: ['Neon Arc','Pulse Switch','Floodlight Step','Circuit Coil','Velocity Rush','Apex Over','Signal Weave','Arena Split X','Titan Drop','Broadcast Grid','Pocket Pulse X','Patio Dash X','Neon Orbit Mini','Neon Spiral'] }
         ];
 
         function rotateXZ(x, z, degrees) {
@@ -417,6 +428,9 @@
             const right = new THREE.Vector3(normal.z, 0, -normal.x).normalize();
             const localX = crossing.clone().sub(gate.posVec).dot(right);
             const localY = crossing.y - gate.posVec.y;
+            if (state.settings.circularGatePass) {
+                return Math.hypot(localX, localY) <= GATE_HALF_OPENING;
+            }
             return Math.abs(localX) <= GATE_HALF_OPENING && Math.abs(localY) <= GATE_HALF_OPENING;
         }
 
@@ -514,8 +528,17 @@
             };
         }
 
+        const COURSE_LAYOUT_KEYS = Object.keys(COURSE_LAYOUTS);
+        const LEGACY_COURSE_LAYOUT_COUNT = 13;
+        const EXTRA_TRACK_ID_START = 101;
+
+        function getStableTrackId(themeIndex, layoutIndex) {
+            if (layoutIndex < LEGACY_COURSE_LAYOUT_COUNT) return themeIndex * LEGACY_COURSE_LAYOUT_COUNT + layoutIndex + 1;
+            return EXTRA_TRACK_ID_START + themeIndex * (COURSE_LAYOUT_KEYS.length - LEGACY_COURSE_LAYOUT_COUNT) + (layoutIndex - LEGACY_COURSE_LAYOUT_COUNT);
+        }
+
         const TRACKS = COURSE_THEME_GROUPS.flatMap((themeGroup, themeIndex) =>
-            Object.keys(COURSE_LAYOUTS).map((layoutKey, layoutIndex) => {
+            COURSE_LAYOUT_KEYS.map((layoutKey, layoutIndex) => {
                 const layout = COURSE_LAYOUTS[layoutKey];
                 const transform = createTrackVariant(themeIndex, layoutIndex, layout);
                 const gatePoints = layout.gates.map(point => new THREE.Vector3(...transformPoint(point, transform)));
@@ -530,7 +553,7 @@
                     .map(prop => sanitizeTrackProp(prop, gateLayout));
 
                 return {
-                    id: themeIndex * Object.keys(COURSE_LAYOUTS).length + layoutIndex + 1,
+                    id: getStableTrackId(themeIndex, layoutIndex),
                     name: themeGroup.names[layoutIndex],
                     terrain: themeGroup.terrain,
                     gates: gateLayout.length,
@@ -548,11 +571,20 @@
 
         const BEST_TIME_COOKIE_NAME = 'xnh_best_times';
         const LAP_DATA_STORAGE_KEY = 'xnh_lap_data_v1';
-        const SAVE_SCHEMA_VERSION = 2;
+        const SAVE_SCHEMA_VERSION = 3;
         const PHYSICS_VERSION = 'fpv-fixedstep-gateplane-2026-07';
         const MAX_LEADERBOARD_ENTRIES = 10;
         const DEFAULT_SECTOR_COUNT = 3;
+        const SCORE_ATTACK_DURATION_SECONDS = 60;
         const MAX_VALID_LAP_SECONDS = 60 * 60;
+
+        function isTrackFlightMode(mode = state.mode) {
+            return mode === 'TIME_ATTACK' || mode === 'SCORE_ATTACK' || mode === 'OPEN_WORLD';
+        }
+
+        function isTimedRaceMode(mode = state.mode) {
+            return mode === 'TIME_ATTACK' || mode === 'SCORE_ATTACK';
+        }
 
         function readCookieValue(name) {
             const prefix = `${name}=`;
@@ -561,7 +593,7 @@
         }
 
         function getEmptyLapDataStore() {
-            return { leaderboards: {}, sectorBests: {}, ghosts: {} };
+            return { leaderboards: {}, sectorBests: {}, ghosts: {}, scoreRecords: {} };
         }
 
         function isValidRecordKey(key) {
@@ -635,6 +667,37 @@
             };
         }
 
+        function normalizeScoreRecord(record) {
+            const source = Number.isFinite(record) ? { score: record } : record;
+            if (!source || typeof source !== 'object') return null;
+            const score = Math.floor(Number(source.score));
+            if (!Number.isFinite(score) || score < 0 || score > 999999) return null;
+            const boundedInt = (value, fallback, max = 999999) => {
+                const number = Number(value);
+                return Number.isFinite(number) ? Math.floor(clampNumber(number, 0, max)) : fallback;
+            };
+            const durationValue = Number(source.duration);
+            const maxSpeedValue = Number(source.maxSpeed);
+            const normalized = {
+                score,
+                gates: boundedInt(source.gates, score),
+                laps: boundedInt(source.laps, 0),
+                duration: Number(clampNumber(Number.isFinite(durationValue) ? durationValue : SCORE_ATTACK_DURATION_SECONDS, 0, SCORE_ATTACK_DURATION_SECONDS).toFixed(3)),
+                maxSpeed: Number(clampNumber(Number.isFinite(maxSpeedValue) ? maxSpeedValue : 0, 0, 999).toFixed(1)),
+                crashes: boundedInt(source.crashes, 0, 9999)
+            };
+            if (typeof source.recordedAt === 'string' && source.recordedAt.length <= 40) normalized.recordedAt = source.recordedAt;
+            return normalized;
+        }
+
+        function compareScoreRecords(a, b) {
+            return (b.score - a.score)
+                || (b.laps - a.laps)
+                || (a.crashes - b.crashes)
+                || (b.maxSpeed - a.maxSpeed)
+                || (a.duration - b.duration);
+        }
+
         function normalizeLapDataStore(parsed) {
             const store = getEmptyLapDataStore();
             if (!parsed || typeof parsed !== 'object') return store;
@@ -663,6 +726,16 @@
                     if (normalized) store.ghosts[key] = normalized;
                 });
             }
+            if (parsed?.scoreRecords && typeof parsed.scoreRecords === 'object') {
+                Object.entries(parsed.scoreRecords).forEach(([key, value]) => {
+                    if (!isValidRecordKey(key) || !Array.isArray(value)) return;
+                    store.scoreRecords[key] = value
+                        .map(item => normalizeScoreRecord(item))
+                        .filter(item => item !== null)
+                        .sort(compareScoreRecords)
+                        .slice(0, MAX_LEADERBOARD_ENTRIES);
+                });
+            }
             return store;
         }
 
@@ -681,10 +754,17 @@
             return isMobileUA || isSmallTouchScreen || (navigator.maxTouchPoints > 1 && window.matchMedia?.('(pointer: coarse)')?.matches);
         }
         const prefersTouchControls = prefersTouchControlsNow();
+        const TRAINING_AID_OPTIONS = [
+            { key: 'trainingChaseCamera', label: 'Chase cam' },
+            { key: 'assistedFlight', label: 'Stabilized' },
+            { key: 'gentleCollisionPractice', label: 'Gentle collisions' },
+            { key: 'circularGatePass', label: 'Circular gates' }
+        ];
 
         const state = {
             lang: 'EN',
             mode: 'MENU',
+            pendingRaceMode: 'TIME_ATTACK',
             isPaused: false,
             track: null,
             droneClassId: DEFAULT_DRONE_CLASS.id,
@@ -716,7 +796,22 @@
             lastImpactSound: 0,
             throttleLocked: false,
 
-            settings: { volume: 0.4, videoQuality: 'TEXTURED', rate: 1.0, expo: 0.2, deadzone: 0.05, cameraAngleDeg: 30, showInput: false, showCompass: true, showHorizon: true },
+            settings: {
+                volume: 0.4,
+                videoQuality: 'TEXTURED',
+                rate: 1.0,
+                expo: 0.2,
+                deadzone: 0.05,
+                cameraAngleDeg: 30,
+                showInput: false,
+                showCompass: true,
+                showGatePointer: true,
+                showHorizon: true,
+                trainingChaseCamera: false,
+                assistedFlight: false,
+                gentleCollisionPractice: false,
+                circularGatePass: false
+            },
             bestTimes: loadBestTimesFromCookie(),
             
             // 前フレームのボタン状態を残し、押しっぱなしによる多重実行を防ぐ。
@@ -761,8 +856,49 @@
             replayTime: 0,
             respawnCooldown: 0,
             rankLastLap: null,
+            rankedRunEligible: true,
+            scoreAttackScore: 0,
+            scoreAttackGateCount: 0,
+            scoreAttackLapCount: 0,
+            scoreAttackRank: null,
+            flightToast: { title: '', copy: '', tone: 'info', until: 0 },
             ghostVisuals: { line: null, marker: null }
         };
+
+        function getActiveTrainingAids(settings = state.settings) {
+            return TRAINING_AID_OPTIONS
+                .filter(option => settings?.[option.key] === true)
+                .map(option => option.label);
+        }
+
+        function hasTrainingAidsEnabled(settings = state.settings) {
+            return getActiveTrainingAids(settings).length > 0;
+        }
+
+        function updateTrainingAidRunEligibility() {
+            if (!isTimedRaceMode(state.mode)) return true;
+            const aidsEnabled = hasTrainingAidsEnabled();
+            if (state.status === 'READY' && state.currentGate === 0 && !state.startTime) {
+                state.rankedRunEligible = !aidsEnabled;
+            } else if (aidsEnabled) {
+                state.rankedRunEligible = false;
+            }
+            return state.rankedRunEligible && !aidsEnabled;
+        }
+
+        function isRankedTimeAttackRun() {
+            return state.mode === 'TIME_ATTACK'
+                && !state.replayMode
+                && state.rankedRunEligible
+                && !hasTrainingAidsEnabled();
+        }
+
+        function isRankedScoreAttackRun() {
+            return state.mode === 'SCORE_ATTACK'
+                && !state.replayMode
+                && state.rankedRunEligible
+                && !hasTrainingAidsEnabled();
+        }
 
         function persistBestTimesCookie() {
             document.cookie = `${BEST_TIME_COOKIE_NAME}=${encodeURIComponent(JSON.stringify(state.bestTimes))}; path=/; max-age=31536000; samesite=lax`;
@@ -821,6 +957,47 @@
             return { rank, leaderboard: state.lapData.leaderboards[key], sectorBests: state.lapData.sectorBests[key], ghostSaved };
         }
 
+        function getScoreRecords(trackId, droneClassId = state.droneClassId) {
+            const key = getLapDataKey(trackId, droneClassId);
+            if (!key) return [];
+            if (!state.lapData.scoreRecords || typeof state.lapData.scoreRecords !== 'object') return [];
+            return Array.isArray(state.lapData.scoreRecords[key]) ? state.lapData.scoreRecords[key] : [];
+        }
+
+        function getBestScoreRecord(trackId, droneClassId = state.droneClassId) {
+            return getScoreRecords(trackId, droneClassId)[0] || null;
+        }
+
+        function getBestScore(trackId, droneClassId = state.droneClassId) {
+            return getBestScoreRecord(trackId, droneClassId)?.score ?? null;
+        }
+
+        function formatScore(value) {
+            if (value === null || value === undefined) return '--';
+            const score = typeof value === 'object' && value ? Number(value.score) : Number(value);
+            return Number.isFinite(score) ? `${Math.floor(score)} pts` : '--';
+        }
+
+        function updateScoreRecord(trackId, scoreRecord, droneClassId = state.droneClassId) {
+            const key = getLapDataKey(trackId, droneClassId);
+            const normalized = normalizeScoreRecord(scoreRecord);
+            if (!key || !normalized) return { rank: null, best: getBestScoreRecord(trackId, droneClassId), records: [], isNew: false };
+            if (!state.lapData.scoreRecords || typeof state.lapData.scoreRecords !== 'object') state.lapData.scoreRecords = {};
+            const previousBest = getBestScoreRecord(trackId, droneClassId);
+            const sorted = [...getScoreRecords(trackId, droneClassId), normalized].sort(compareScoreRecords);
+            const rank = sorted.indexOf(normalized) + 1;
+            state.lapData.scoreRecords[key] = sorted.slice(0, MAX_LEADERBOARD_ENTRIES);
+            persistLapDataStore();
+            const best = state.lapData.scoreRecords[key][0] || null;
+            return {
+                rank,
+                best,
+                previous: previousBest,
+                records: state.lapData.scoreRecords[key],
+                isNew: rank === 1 && (!previousBest || compareScoreRecords(normalized, previousBest) < 0)
+            };
+        }
+
         function formatDelta(seconds) {
             if (!Number.isFinite(seconds)) return '--';
             const sign = seconds > 0.005 ? '+' : seconds < -0.005 ? '-' : '±';
@@ -833,8 +1010,13 @@
             return (now - state.startTime) / 1000 + state.timePenaltySeconds;
         }
 
+        function getScoreAttackRemainingSeconds() {
+            if (state.status === 'READY' || !state.startTime) return SCORE_ATTACK_DURATION_SECONDS;
+            return Math.max(0, SCORE_ATTACK_DURATION_SECONDS - getCurrentLapTimeSeconds());
+        }
+
         function shouldFreezeRaceClock() {
-            return state.mode === 'TIME_ATTACK' && state.status === 'RUNNING' && state.startTime && !state.replayMode;
+            return isTimedRaceMode(state.mode) && state.status === 'RUNNING' && state.startTime && !state.replayMode;
         }
 
         function beginRaceClockPause() {
@@ -925,13 +1107,19 @@
             state.lapSamples = [];
             state.lapSampleTimer = 0;
             state.lastLapRecord = null;
-            state.ghostRecord = state.track ? getGhostRecord(state.track.id, state.droneClassId) : null;
+            state.ghostRecord = state.mode === 'TIME_ATTACK' && state.track ? getGhostRecord(state.track.id, state.droneClassId) : null;
         }
 
         function renderLeaderboardPanel(trackId, droneClassId, emptyLabel = 'No laps recorded yet.') {
             const rows = getLeaderboard(trackId, droneClassId).slice(0, 3);
             if (!rows.length) return `<div class="text-gray-500">${emptyLabel}</div>`;
             return rows.map((value, index) => `<div class="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2"><span class="text-gray-500">#${index + 1}</span><span class="text-white font-mono">${formatTime(value)}</span></div>`).join('');
+        }
+
+        function renderScoreRecordsPanel(trackId, droneClassId, emptyLabel = 'No scores recorded yet.') {
+            const rows = getScoreRecords(trackId, droneClassId).slice(0, 3);
+            if (!rows.length) return `<div class="text-gray-500">${emptyLabel}</div>`;
+            return rows.map((value, index) => `<div class="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2"><span class="text-gray-500">#${index + 1}</span><span class="text-white font-mono">${formatScore(value)}</span></div>`).join('');
         }
         function getBestTimeKey(trackId, droneClassId = state.droneClassId) {
             if (!trackId || !droneClassId) return null;
@@ -949,6 +1137,97 @@
             return Number.isFinite(seconds) ? `${seconds.toFixed(2)}s` : '--';
         }
 
+        function getDifficultyScore(difficulty) {
+            return ({ Easy: 34, Medium: 62, Hard: 88 }[difficulty] ?? 54);
+        }
+
+        function getPercent(value, max, floor = 0) {
+            if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return floor;
+            return clampNumber((value / max) * 100, floor, 100);
+        }
+
+        function renderStatBars(stats, tone = 'cyan') {
+            const toneClass = `stat-fill-${['cyan', 'violet', 'blue', 'emerald'].includes(tone) ? tone : 'cyan'}`;
+            return `<div class="stat-bars mt-4">${stats.map(stat => {
+                const percent = clampNumber(stat.percent, 0, 100);
+                return `<div class="stat-bar-row"><div class="stat-bar-label">${stat.label}</div><div class="stat-bar-track"><div class="stat-bar-fill ${toneClass}" style="width:${percent.toFixed(0)}%"></div></div><div class="stat-bar-value">${stat.value}</div></div>`;
+            }).join('')}</div>`;
+        }
+
+        function getCourseStatBars(track) {
+            const bounds = getTrackBounds(track.gateLayout);
+            const altitudeSpan = Math.round(bounds.maxY - bounds.minY);
+            return [
+                { label: 'Diff', percent: getDifficultyScore(track.difficulty), value: track.difficulty },
+                { label: 'Gates', percent: getPercent(track.gates, 10, 8), value: `${track.gates}` },
+                { label: 'Range', percent: getPercent(track.lengthMeters, 340, 10), value: `${track.lengthMeters}m` },
+                { label: 'Alt', percent: getPercent(altitudeSpan, 44, 8), value: `${altitudeSpan}m` }
+            ];
+        }
+
+        function getDroneStatBars(drone) {
+            return [
+                { label: 'Speed', percent: getPercent(drone.speed, 170, 8), value: `${drone.speed}` },
+                { label: 'Agile', percent: getPercent(drone.agility, 10.5, 8), value: `${drone.agility}` },
+                { label: 'Flight', percent: getPercent(drone.flightTimeMin, 45, 8), value: formatMinutes(drone.flightTimeMin) },
+                { label: 'Mass', percent: getPercent(drone.weight, 3.6, 8), value: `${drone.weight}` }
+            ];
+        }
+
+        function setSetupText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function setSetupMeter(id, labelId, percent, label) {
+            const meterEl = document.getElementById(id);
+            const labelEl = document.getElementById(labelId);
+            if (meterEl) meterEl.style.width = `${clampNumber(percent, 0, 100).toFixed(0)}%`;
+            if (labelEl) labelEl.textContent = label;
+        }
+
+        function getSetupFitLabel(track, drone) {
+            if (!track) return '--';
+            if (!track.compact) return drone.sizeMm > 650 ? 'Wide gates' : 'Open';
+            if (drone.classId === 'tiny_whoop_fpv' && drone.sizeMm <= 120) return 'Ideal';
+            if (drone.sizeMm <= 250) return 'Tight';
+            return 'Very tight';
+        }
+
+        function updateCurrentSetupPanel() {
+            const track = state.track;
+            const drone = getSelectedDroneStats();
+            const droneClass = getDroneClassById(drone.classId);
+            const statusEl = document.getElementById('current-setup-status');
+            const compactMismatch = !!track?.compact && (drone.sizeMm > 120 || drone.classId !== 'tiny_whoop_fpv');
+            const needsDroneConfirm = !!track && state.selectStage === 'DRONES' && !state.selectDroneConfirmed;
+            const status = !track
+                ? { text: 'Course Needed', className: 'shrink-0 rounded-full border border-gray-700 bg-gray-800 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300' }
+                : needsDroneConfirm
+                    ? { text: 'Confirm Drone', className: 'shrink-0 rounded-full border border-blue-400/30 bg-blue-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-blue-200' }
+                    : compactMismatch
+                        ? { text: 'Tight Fit', className: 'shrink-0 rounded-full border border-amber-400/35 bg-amber-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200' }
+                        : { text: 'Ready', className: 'shrink-0 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200' };
+
+            setSetupText('current-setup-title', track ? `${track.name} / ${drone.name}` : `${drone.name} on standby`);
+            setSetupText('setup-course', track ? track.name : '--');
+            setSetupText('setup-drone', drone.name);
+            setSetupText('setup-best', track
+                ? state.pendingRaceMode === 'SCORE_ATTACK'
+                    ? formatScore(getBestScore(track.id, droneClass.id))
+                    : formatTime(getBestTime(track.id, droneClass.id))
+                : '--');
+            setSetupText('setup-fit', getSetupFitLabel(track, drone));
+            setSetupMeter('setup-speed-bar', 'setup-speed-label', getPercent(drone.speed, 170, 0), `${drone.speed}`);
+            setSetupMeter('setup-agility-bar', 'setup-agility-label', getPercent(drone.agility, 10.5, 0), `${drone.agility}`);
+            setSetupMeter('setup-endurance-bar', 'setup-endurance-label', getPercent(drone.flightTimeMin, 45, 0), formatMinutes(drone.flightTimeMin));
+
+            if (statusEl) {
+                statusEl.textContent = status.text;
+                statusEl.className = status.className;
+            }
+        }
+
 
         function getLoadedBatteryVoltage(stats, storedVoltage, throttle = 0, speed = 0) {
             if (!stats) return storedVoltage;
@@ -964,6 +1243,13 @@
             const lapTime = formatTime(payload.lapTime);
             const bestTime = formatTime(payload.bestTime);
             const lapLabel = Number.isFinite(payload.lapCount) ? payload.lapCount : state.lapCount;
+            const scoreLabel = formatScore(payload.score);
+            const bestScore = formatScore(payload.bestScore);
+            if (state.mode === 'SCORE_ATTACK' || String(kind).startsWith('score')) {
+                if (kind === 'score-finish-new-record') return { title: 'SCORE ATTACK RECORD', sub: `Score ${scoreLabel}  BEST ${bestScore}` };
+                if (kind === 'score-finish') return { title: 'SCORE ATTACK COMPLETE', sub: `Score ${scoreLabel}  BEST ${bestScore}` };
+                return { title: 'SCORE ATTACK', sub: 'Gold gate starts the 60 second clock. Clear as many gates as possible before time expires.' };
+            }
             if (state.lang === 'JP') {
                 if (kind === 'finish-new-record') return { title: `LAP ${lapLabel} BEST`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
                 if (kind === 'finish') return { title: `LAP ${lapLabel} COMPLETE`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
@@ -1002,6 +1288,131 @@
             setMissionBanner(text.title, text.sub, visible);
         }
 
+        function getHudClockMs() {
+            return typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+        }
+
+        function showFlightToast(title, copy = '', options = {}) {
+            state.flightToast = {
+                title,
+                copy,
+                tone: options.tone || 'info',
+                until: getHudClockMs() + (options.duration || 1500)
+            };
+            updateFlightToast();
+        }
+
+        function clearFlightToast() {
+            state.flightToast = { title: '', copy: '', tone: 'info', until: 0 };
+            updateFlightToast();
+        }
+
+        function updateFlightToast() {
+            const toastEl = document.getElementById('flight-toast');
+            if (!toastEl) return;
+            const titleEl = document.getElementById('flight-toast-title');
+            const copyEl = document.getElementById('flight-toast-copy');
+            const toast = state.flightToast || {};
+            const active = isTrackFlightMode(state.mode) && !state.isPaused && !state.replayMode && getHudClockMs() < (toast.until || 0);
+            toastEl.classList.toggle('hidden', !active);
+            toastEl.classList.toggle('is-visible', active);
+            toastEl.dataset.tone = toast.tone || 'info';
+            if (!active) return;
+            if (titleEl) titleEl.textContent = toast.title || '';
+            if (copyEl) {
+                copyEl.textContent = toast.copy || '';
+                copyEl.classList.toggle('hidden', !toast.copy);
+            }
+        }
+
+        function hideGateEdgePointer() {
+            const pointerEl = document.getElementById('gate-edge-pointer');
+            if (!pointerEl) return;
+            pointerEl.classList.add('hidden');
+            pointerEl.classList.remove('is-visible');
+        }
+
+        function getGatePointerPlacement(gatePos, hudRect) {
+            if (!gatePos || !camera) return null;
+            const camSpace = gatePos.clone().applyMatrix4(camera.matrixWorldInverse);
+            const projected = gatePos.clone().project(camera);
+            const inFront = camSpace.z < -0.2;
+            const projectedOk = Number.isFinite(projected.x) && Number.isFinite(projected.y) && Number.isFinite(projected.z);
+            const isInView = inFront
+                && projectedOk
+                && projected.z >= -1
+                && projected.z <= 1
+                && Math.abs(projected.x) <= 0.88
+                && Math.abs(projected.y) <= 0.78;
+            if (isInView) return null;
+
+            const dir = projectedOk && inFront
+                ? new THREE.Vector2(projected.x, -projected.y)
+                : new THREE.Vector2(camSpace.x, -camSpace.y);
+            if (dir.lengthSq() < 0.0001) dir.set(0, 1);
+            dir.normalize();
+
+            const width = Math.max(1, hudRect?.width || window.innerWidth);
+            const height = Math.max(1, hudRect?.height || window.innerHeight);
+            const sideMargin = state.mobile.enabled ? 28 : 36;
+            const topMargin = state.mobile.enabled ? 84 : 118;
+            const bottomMargin = state.mobile.enabled ? 164 : 76;
+            const bounds = {
+                minX: sideMargin,
+                maxX: Math.max(sideMargin + 1, width - sideMargin),
+                minY: topMargin,
+                maxY: Math.max(topMargin + 1, height - bottomMargin)
+            };
+            const center = { x: width / 2, y: height / 2 };
+            const candidates = [];
+            if (dir.x > 0.0001) candidates.push((bounds.maxX - center.x) / dir.x);
+            if (dir.x < -0.0001) candidates.push((bounds.minX - center.x) / dir.x);
+            if (dir.y > 0.0001) candidates.push((bounds.maxY - center.y) / dir.y);
+            if (dir.y < -0.0001) candidates.push((bounds.minY - center.y) / dir.y);
+            const t = Math.min(...candidates.filter(value => Number.isFinite(value) && value > 0));
+            if (!Number.isFinite(t)) return null;
+            return {
+                x: center.x + dir.x * t,
+                y: center.y + dir.y * t,
+                rotation: Math.atan2(dir.x, -dir.y)
+            };
+        }
+
+        function updateGateEdgePointer(inFlight) {
+            const pointerEl = document.getElementById('gate-edge-pointer');
+            if (!pointerEl) return;
+            const shouldShow = inFlight
+                && state.settings.showGatePointer
+                && isTimedRaceMode(state.mode)
+                && !state.isCrashed
+                && state.gates
+                && state.currentGate < state.gates.length;
+            if (!shouldShow) {
+                hideGateEdgePointer();
+                return;
+            }
+            const gate = state.gates[state.currentGate];
+            const hudEl = document.getElementById('screen-hud');
+            const hudRect = hudEl?.getBoundingClientRect?.();
+            const placement = getGatePointerPlacement(gate?.posVec, hudRect);
+            if (!placement) {
+                hideGateEdgePointer();
+                return;
+            }
+
+            const distance = Math.round(state.pos.distanceTo(gate.posVec));
+            const altitudeDelta = Math.round(gate.posVec.y - state.pos.y);
+            const titleEl = document.getElementById('gate-pointer-title');
+            const metaEl = document.getElementById('gate-pointer-meta');
+            if (titleEl) titleEl.textContent = `G${state.currentGate + 1}`;
+            if (metaEl) metaEl.textContent = `${distance}m ${altitudeDelta >= 0 ? '+' : ''}${altitudeDelta}m`;
+            pointerEl.style.left = `${placement.x}px`;
+            pointerEl.style.top = `${placement.y}px`;
+            pointerEl.style.setProperty('--gate-pointer-rotation', `${placement.rotation}rad`);
+            pointerEl.classList.remove('hidden');
+            pointerEl.classList.add('is-visible');
+        }
+
         function completeTimeAttackLap() {
             captureLapSample(true);
             syncSectorProgress(true);
@@ -1009,15 +1420,33 @@
             state.finishTime = getCurrentLapTimeSeconds();
             state.lastLapRecord = buildLapRecord(state.lapSamples, state.sectorTimes, state.finishTime);
             state.lapCount += 1;
-            const bestResult = updateBestTime(state.track?.id, state.finishTime, state.droneClassId);
-            const lapDataResult = updateLapData(state.track?.id, state.finishTime, state.droneClassId, state.sectorTimes, bestResult.isNew ? state.lastLapRecord : null);
+            updateTrainingAidRunEligibility();
+            const rankedRun = isRankedTimeAttackRun();
+            const existingBest = getBestTime(state.track?.id, state.droneClassId);
+            const bestResult = rankedRun
+                ? updateBestTime(state.track?.id, state.finishTime, state.droneClassId)
+                : { best: existingBest, previous: existingBest, isNew: false };
+            const lapDataResult = rankedRun
+                ? updateLapData(state.track?.id, state.finishTime, state.droneClassId, state.sectorTimes, bestResult.isNew ? state.lastLapRecord : null)
+                : { rank: null, leaderboard: getLeaderboard(state.track?.id, state.droneClassId), sectorBests: getSectorBests(state.track?.id, state.droneClassId), ghostSaved: false };
             state.rankLastLap = lapDataResult.rank;
             if (lapDataResult.ghostSaved) refreshGhostRecord();
+            audio.stopEngine(0.03);
             audio.playSE('finish');
+            const titleEl = document.getElementById('finish-title');
+            if (titleEl) titleEl.textContent = 'LAP COMPLETE';
+            const replayBtn = document.getElementById('btn-finish-replay');
+            if (replayBtn) {
+                replayBtn.classList.remove('hidden');
+                replayBtn.disabled = false;
+                replayBtn.textContent = 'Replay Last';
+            }
             const finishTimeEl = document.getElementById('finish-time');
             if (finishTimeEl) finishTimeEl.textContent = formatTime(state.finishTime);
             const finishBestEl = document.getElementById('finish-best');
-            if (finishBestEl) finishBestEl.textContent = bestResult.isNew
+            if (finishBestEl) finishBestEl.textContent = !rankedRun
+                ? `UNRANKED TRAINING / BEST ${formatTime(bestResult.best)}`
+                : bestResult.isNew
                 ? `NEW RECORD / BEST ${formatTime(bestResult.best)}`
                 : `BEST ${formatTime(bestResult.best)}`;
             const msEl = document.getElementById('finish-maxspeed');
@@ -1025,7 +1454,7 @@
             const crEl = document.getElementById('finish-crashes');
             if (crEl) crEl.textContent = state.crashCount + (state.crashCount === 1 ? ' crash' : ' crashes');
             const rankEl = document.getElementById('finish-rank');
-            if (rankEl) rankEl.textContent = state.rankLastLap ? `#${state.rankLastLap}` : '--';
+            if (rankEl) rankEl.textContent = rankedRun ? (state.rankLastLap ? `#${state.rankLastLap}` : '--') : 'TRAINING';
             const replayLabelEl = document.getElementById('finish-replay-label');
             if (replayLabelEl) replayLabelEl.textContent = state.lastLapRecord ? 'Last / Best Ready' : 'Best Ghost';
             renderFinishSectors(state.sectorTimes, getSectorBests(state.track?.id, state.droneClassId));
@@ -1034,7 +1463,87 @@
                 bestTime: bestResult.best,
                 lapCount: state.lapCount
             });
-            setMissionBanner(banner.title, `${banner.sub}  RANK #${state.rankLastLap || '--'}`, true);
+            setMissionBanner(banner.title, `${banner.sub}  ${rankedRun ? `RANK #${state.rankLastLap || '--'}` : 'UNRANKED TRAINING'}`, true);
+            state.status = 'FINISHED';
+            state.isPaused = true;
+            document.getElementById('popup-finish').classList.remove('hidden');
+            setTimeout(() => document.getElementById('btn-finish-reset')?.focus({ preventScroll: true }), 0);
+            updateUI();
+        }
+
+        function buildScoreAttackResult() {
+            return normalizeScoreRecord({
+                score: state.scoreAttackScore,
+                gates: state.scoreAttackGateCount,
+                laps: state.scoreAttackLapCount,
+                duration: Math.min(SCORE_ATTACK_DURATION_SECONDS, getCurrentLapTimeSeconds()),
+                maxSpeed: state.maxSpeed,
+                crashes: state.crashCount,
+                recordedAt: new Date().toISOString()
+            });
+        }
+
+        function renderFinishScoreStats(result, bestRecord) {
+            const el = document.getElementById('finish-sectors');
+            if (!el) return;
+            el.innerHTML = '';
+            const cards = [
+                ['Gates', `${result?.gates ?? 0}`, 'text-cyan-300 border-cyan-500/30 bg-cyan-900/20'],
+                ['Laps', `${result?.laps ?? 0}`, 'text-emerald-300 border-emerald-500/30 bg-emerald-900/20'],
+                ['Best', formatScore(bestRecord), 'text-amber-300 border-amber-500/30 bg-amber-900/20']
+            ];
+            cards.forEach(([label, value, tone]) => {
+                const card = document.createElement('div');
+                card.className = `rounded-lg border ${tone} px-3 py-2`;
+                card.innerHTML = `<div class="text-[10px] uppercase tracking-[0.2em] text-gray-500">${label}</div><div class="mt-1 text-sm text-white">${value}</div><div class="mt-1 text-[10px]">${SCORE_ATTACK_DURATION_SECONDS}s run</div>`;
+                el.appendChild(card);
+            });
+        }
+
+        function completeScoreAttackRun() {
+            if (state.status === 'FINISHED') return;
+            clearRaceClockPause();
+            state.finishTime = Math.min(SCORE_ATTACK_DURATION_SECONDS, getCurrentLapTimeSeconds());
+            updateTrainingAidRunEligibility();
+            const result = buildScoreAttackResult();
+            const rankedRun = isRankedScoreAttackRun();
+            const previousBest = getBestScoreRecord(state.track?.id, state.droneClassId);
+            const scoreResult = rankedRun
+                ? updateScoreRecord(state.track?.id, result, state.droneClassId)
+                : { rank: null, best: previousBest, previous: previousBest, records: getScoreRecords(state.track?.id, state.droneClassId), isNew: false };
+            state.scoreAttackRank = scoreResult.rank;
+            state.rankLastLap = scoreResult.rank;
+            audio.stopEngine(0.03);
+            audio.playSE('finish');
+            const titleEl = document.getElementById('finish-title');
+            if (titleEl) titleEl.textContent = 'SCORE ATTACK COMPLETE';
+            const finishTimeEl = document.getElementById('finish-time');
+            if (finishTimeEl) finishTimeEl.textContent = formatScore(result);
+            const finishBestEl = document.getElementById('finish-best');
+            if (finishBestEl) finishBestEl.textContent = !rankedRun
+                ? `UNRANKED TRAINING / BEST ${formatScore(scoreResult.best)}`
+                : scoreResult.isNew
+                    ? `NEW SCORE RECORD / BEST ${formatScore(scoreResult.best)}`
+                    : `BEST ${formatScore(scoreResult.best)}`;
+            const msEl = document.getElementById('finish-maxspeed');
+            if (msEl) msEl.textContent = state.maxSpeed.toFixed(1) + ' m/s';
+            const crEl = document.getElementById('finish-crashes');
+            if (crEl) crEl.textContent = state.crashCount + (state.crashCount === 1 ? ' crash' : ' crashes');
+            const rankEl = document.getElementById('finish-rank');
+            if (rankEl) rankEl.textContent = rankedRun ? (state.scoreAttackRank ? `#${state.scoreAttackRank}` : '--') : 'TRAINING';
+            const replayLabelEl = document.getElementById('finish-replay-label');
+            if (replayLabelEl) replayLabelEl.textContent = `${result?.laps ?? 0} laps`;
+            const replayBtn = document.getElementById('btn-finish-replay');
+            if (replayBtn) {
+                replayBtn.classList.add('hidden');
+                replayBtn.disabled = true;
+            }
+            renderFinishScoreStats(result, scoreResult.best);
+            const banner = getRaceBannerText(scoreResult.isNew ? 'score-finish-new-record' : 'score-finish', {
+                score: result?.score,
+                bestScore: scoreResult.best?.score
+            });
+            setMissionBanner(banner.title, `${banner.sub}  ${rankedRun ? `RANK #${state.scoreAttackRank || '--'}` : 'UNRANKED TRAINING'}`, true);
             state.status = 'FINISHED';
             state.isPaused = true;
             document.getElementById('popup-finish').classList.remove('hidden');
@@ -1057,7 +1566,7 @@
 
         function clearGhostVisuals() {
             while (ghostGroup.children.length) {
-                const child = ghostGroup.children.pop();
+                const child = ghostGroup.children[0];
                 ghostGroup.remove(child);
                 child.geometry?.dispose?.();
                 disposeMaterial(child.material);
@@ -1110,12 +1619,13 @@
         }
 
         function refreshGhostRecord() {
-            state.ghostRecord = state.track ? getGhostRecord(state.track.id, state.droneClassId) : null;
+            state.ghostRecord = state.mode === 'TIME_ATTACK' && state.track ? getGhostRecord(state.track.id, state.droneClassId) : null;
             rebuildGhostVisuals();
         }
 
         function syncSectorProgress(forceAll = false) {
             if (state.mode !== 'TIME_ATTACK' || !state.track) return;
+            let announced = false;
             while (state.sectorIndex < state.sectorGateIndices.length) {
                 const boundary = state.sectorGateIndices[state.sectorIndex];
                 const reached = forceAll ? true : (state.currentGate >= boundary && boundary < state.gates.length);
@@ -1127,8 +1637,18 @@
                 const bestSector = getSectorBests(state.track.id, state.droneClassId)[state.sectorIndex];
                 state.sectorDelta = Number.isFinite(bestSector) ? Number((sectorTime - bestSector).toFixed(3)) : null;
                 state.sectorFlashTimer = 1.4;
+                if (!forceAll) {
+                    const sectorNumber = state.sectorIndex + 1;
+                    const deltaText = Number.isFinite(state.sectorDelta) ? formatDelta(state.sectorDelta) : 'No sector best';
+                    showFlightToast(`Sector ${sectorNumber} ${formatTime(sectorTime)}`, deltaText, {
+                        tone: Number.isFinite(state.sectorDelta) && state.sectorDelta > 0.005 ? 'warn' : 'good',
+                        duration: 1700
+                    });
+                    announced = true;
+                }
                 state.sectorIndex += 1;
             }
+            return announced;
         }
 
         function renderFinishSectors(sectors = [], bests = []) {
@@ -1166,7 +1686,7 @@
         }
 
         function respawnAtCurrentGate(penaltySeconds = 1.2) {
-            const pose = getGateRespawnPose(state.mode === 'TIME_ATTACK' ? state.currentGate : 0);
+            const pose = getGateRespawnPose(isTimedRaceMode(state.mode) ? state.currentGate : 0);
             if (!pose) {
                 resetRace();
                 return;
@@ -1181,8 +1701,14 @@
             state.throttleStick = 0;
             state.throttleLocked = false;
             state.respawnCooldown = 0.35;
-            if (state.mode === 'TIME_ATTACK') state.timePenaltySeconds += penaltySeconds;
+            if (isTimedRaceMode(state.mode)) state.timePenaltySeconds += penaltySeconds;
             rebuildGates();
+            if (isTimedRaceMode(state.mode)) {
+                showFlightToast(`Gate ${Math.min(state.currentGate + 1, state.gates?.length || 1)} respawn`, `Penalty +${penaltySeconds.toFixed(1)}s`, {
+                    tone: 'warn',
+                    duration: 1500
+                });
+            }
         }
 
         function startReplay(record = state.lastLapRecord || state.ghostRecord, source = state.lastLapRecord ? 'LAST' : 'BEST', returnTarget = 'FINISH') {
@@ -1236,9 +1762,143 @@
             }
             if (state.replayTime >= record.duration - 0.0001) stopReplay(true);
         }
+
+        function updateFlightCamera(dt, spd) {
+            if (state.settings.trainingChaseCamera) {
+                const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(state.quat).normalize();
+                const chaseDistance = THREE.MathUtils.clamp(7.4 + spd * 0.08, 7.4, 12.5);
+                const chaseHeight = THREE.MathUtils.clamp(2.35 + spd * 0.018, 2.35, 4.2);
+                const target = state.pos.clone()
+                    .addScaledVector(forward, -chaseDistance)
+                    .add(new THREE.Vector3(0, chaseHeight, 0));
+                const lookTarget = state.pos.clone()
+                    .addScaledVector(forward, 11 + spd * 0.12)
+                    .add(new THREE.Vector3(0, 0.85, 0));
+                const blend = 1 - Math.exp(-16 * dt);
+                if (!camera.userData.trainingChaseActive || camera.position.distanceTo(target) > 35) {
+                    camera.position.copy(target);
+                } else {
+                    camera.position.lerp(target, blend);
+                }
+                camera.userData.trainingChaseActive = true;
+                camera.up.set(0, 1, 0);
+                camera.lookAt(lookTarget);
+                return;
+            }
+
+            camera.userData.trainingChaseActive = false;
+            camera.position.copy(state.pos);
+            camera.quaternion.copy(state.quat);
+            const cameraAngle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(state.settings.cameraAngleDeg ?? 30, 20, 60));
+            camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), cameraAngle));
+
+            if (spd > 6 && !state.isCrashed) {
+                const t = Date.now() * 0.001;
+                const vib = Math.min(0.055, spd * 0.0016);
+                camera.position.x += Math.sin(t * 23.7) * vib;
+                camera.position.y += Math.cos(t * 17.9) * vib;
+            }
+        }
+
+        function clearPlayerDroneVisual() {
+            while (playerDroneGroup.children.length) {
+                const child = playerDroneGroup.children[0];
+                playerDroneGroup.remove(child);
+                child.traverse(part => {
+                    if (part.geometry) part.geometry.dispose();
+                    if (part.material) disposeMaterial(part.material);
+                });
+            }
+        }
+
+        function rebuildPlayerDroneVisual() {
+            clearPlayerDroneVisual();
+            const drone = getSelectedDroneStats();
+            const scale = THREE.MathUtils.clamp((drone.sizeMm || 220) / 220, 0.55, 1.85);
+            const bodyColor = Number.isFinite(drone.color) ? drone.color : 0x22d3ee;
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: bodyColor,
+                emissive: bodyColor,
+                emissiveIntensity: 0.16,
+                roughness: 0.38,
+                metalness: 0.18
+            });
+            const armMaterial = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                roughness: 0.42,
+                metalness: 0.28
+            });
+            const propMaterial = new THREE.MeshStandardMaterial({
+                color: 0xe2e8f0,
+                emissive: 0x67e8f9,
+                emissiveIntensity: 0.18,
+                transparent: true,
+                opacity: 0.58,
+                roughness: 0.25,
+                metalness: 0.16,
+                depthWrite: false
+            });
+            const noseMaterial = new THREE.MeshStandardMaterial({
+                color: 0xf59e0b,
+                emissive: 0xf59e0b,
+                emissiveIntensity: 0.45,
+                roughness: 0.32
+            });
+
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.78 * scale, 0.24 * scale, 1.42 * scale), bodyMaterial);
+            body.castShadow = true;
+            playerDroneGroup.add(body);
+
+            const nose = new THREE.Mesh(new THREE.BoxGeometry(0.28 * scale, 0.12 * scale, 0.28 * scale), noseMaterial);
+            nose.position.set(0, 0.02 * scale, -0.86 * scale);
+            playerDroneGroup.add(nose);
+
+            [Math.PI / 4, -Math.PI / 4].forEach(angle => {
+                const arm = new THREE.Mesh(new THREE.BoxGeometry(0.18 * scale, 0.1 * scale, 2.68 * scale), armMaterial);
+                arm.rotation.y = angle;
+                arm.castShadow = true;
+                playerDroneGroup.add(arm);
+            });
+
+            const motorOffset = 0.96 * scale;
+            [
+                [ motorOffset, 0.12 * scale, -motorOffset, 1],
+                [-motorOffset, 0.12 * scale, -motorOffset, -1],
+                [ motorOffset, 0.12 * scale,  motorOffset, -1],
+                [-motorOffset, 0.12 * scale,  motorOffset, 1]
+            ].forEach(([x, y, z, spinDir]) => {
+                const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.18 * scale, 0.18 * scale, 0.16 * scale, 14), armMaterial);
+                motor.position.set(x, y - 0.04 * scale, z);
+                motor.castShadow = true;
+                playerDroneGroup.add(motor);
+
+                const prop = new THREE.Mesh(new THREE.CylinderGeometry(0.43 * scale, 0.43 * scale, 0.025 * scale, 28), propMaterial);
+                prop.position.set(x, y + 0.05 * scale, z);
+                prop.userData.isPlayerProp = true;
+                prop.userData.spinDir = spinDir;
+                playerDroneGroup.add(prop);
+            });
+
+            playerDroneGroup.userData.visualDroneId = drone.id;
+        }
+
+        function updatePlayerDroneVisual() {
+            const shouldShow = isTrackFlightMode(state.mode)
+                && !state.isPaused
+                && (state.settings.trainingChaseCamera || state.replayMode);
+            playerDroneGroup.visible = shouldShow;
+            if (!shouldShow) return;
+            if (playerDroneGroup.userData.visualDroneId !== state.droneId) rebuildPlayerDroneVisual();
+            playerDroneGroup.position.copy(state.pos);
+            playerDroneGroup.quaternion.copy(state.quat);
+            const spin = Date.now() * 0.035;
+            playerDroneGroup.traverse(part => {
+                if (part.userData.isPlayerProp) part.rotation.y = spin * (part.userData.spinDir || 1);
+            });
+        }
         // --- HELPER: Terrain Height ---
         function getTerrainHeight(x, y, type) {
-            const activeTrack = ['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode) ? state.track : (state.mode === 'MENU' ? state.menuSceneTrack : null);
+            const activeTrack = isTrackFlightMode(state.mode) ? state.track : (state.mode === 'MENU' ? state.menuSceneTrack : null);
             if (activeTrack) {
                 if (type === CONSTANTS.TERRAINS.STADIUM) {
                     const edge = Math.max(Math.abs(x), Math.abs(y));
@@ -1307,6 +1967,12 @@
                 this.gain.gain.setTargetAtTime(vol, this.ctx.currentTime, 0.05);
                 this.osc1.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.06);
                 this.osc2.frequency.setTargetAtTime(freq * 1.007 + 12, this.ctx.currentTime, 0.06);
+            },
+            stopEngine(timeConstant = 0.04) {
+                if (!this.ctx || !this.gain) return;
+                const now = this.ctx.currentTime;
+                this.gain.gain.cancelScheduledValues(now);
+                this.gain.gain.setTargetAtTime(0, now, timeConstant);
             },
             playSE(type) {
                 if(!this.ctx || state.settings.volume <= 0) return;
@@ -1403,6 +2069,9 @@
         scene.add(worldGroup);
         const ghostGroup = new THREE.Group();
         scene.add(ghostGroup);
+        const playerDroneGroup = new THREE.Group();
+        playerDroneGroup.visible = false;
+        scene.add(playerDroneGroup);
         const textureCache = new Map();
 
         // --- INPUT & CONTROLS ---
@@ -1414,7 +2083,7 @@
 
         function shouldCaptureFlightKey(event) {
             return flightKeyCodes.has(event.code)
-                && ['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode)
+                && isTrackFlightMode(state.mode)
                 && !state.isPaused
                 && !state.replayMode
                 && !isFormControlTarget(event.target);
@@ -1458,6 +2127,7 @@
             state.mobile[side].x = 0;
             state.mobile[side].y = 0;
             state.mobile[side].pointerId = null;
+            document.getElementById(`mobile-${side}-stick`)?.classList.remove('is-active');
             updateMobileThumb(side);
         }
 
@@ -1487,6 +2157,7 @@
                     event.preventDefault();
                     audio.resume();
                     state.mobile[side].pointerId = event.pointerId;
+                    stickEl.classList.add('is-active');
                     stickEl.setPointerCapture(event.pointerId);
                     updateMobileStick(side, event);
                 });
@@ -1567,6 +2238,20 @@
             updateUI();
         }
 
+        function resetFlightInputState(options = {}) {
+            state.throttleStick = 0;
+            state.throttleLocked = false;
+            state.lastControls = { throttle: 0, yaw: 0, pitch: 0, roll: 0, reset: false, respawn: false };
+            state.btnState.reset = false;
+            state.btnState.respawn = false;
+            state.mobile.resetPressed = false;
+            state.mobile.respawnPressed = false;
+            if (options.clearKeys) Object.keys(keys).forEach(key => { keys[key] = false; });
+            if (options.resetMobile) {
+                resetMobileStick('left');
+                resetMobileStick('right');
+            }
+        }
 
         function getControls(dt = 1 / 60) {
             // Gamepad配列には空きがあり得るため、index 0固定ではなく最初の接続済みを使う。
@@ -1656,6 +2341,65 @@
             return { throttle: throt, yaw: apply(yaw), pitch: apply(pitch), roll: apply(roll), reset, respawn };
         }
 
+        function getCollisionPracticeProfile() {
+            if (state.settings.gentleCollisionPractice) {
+                return {
+                    obstacleImpactThreshold: 4,
+                    terrainImpactThreshold: 5,
+                    obstacleDamageScale: 0.16,
+                    terrainDamageScale: 0.22,
+                    healthFloor: 24,
+                    collisionNormalResponse: 0.78,
+                    collisionDamping: 0.55,
+                    terrainBounce: -0.08,
+                    terrainDamping: 0.52,
+                    crashSoundImpact: 18
+                };
+            }
+            return {
+                obstacleImpactThreshold: 6,
+                terrainImpactThreshold: 5,
+                obstacleDamageScale: 1,
+                terrainDamageScale: 1,
+                healthFloor: 0,
+                collisionNormalResponse: 1,
+                collisionDamping: 0.82,
+                terrainBounce: -0.25,
+                terrainDamping: 0.72,
+                crashSoundImpact: 14
+            };
+        }
+
+        function applyCollisionDamage(amount, healthFloor = 0) {
+            if (!Number.isFinite(amount) || amount <= 0) return;
+            if (healthFloor > 0 && state.health <= healthFloor) return;
+            state.health = Math.max(healthFloor, state.health - amount);
+        }
+
+        function applyStabilizedFlightAssist(targetAv, controls, stats, dt) {
+            if (!state.settings.assistedFlight) return targetAv;
+            const attitude = new THREE.Euler().setFromQuaternion(state.quat, 'YXZ');
+            const pitchAuthority = 1 - clampNumber(Math.abs(controls.pitch), 0, 1);
+            const rollAuthority = 1 - clampNumber(Math.abs(controls.roll), 0, 1);
+            const assistRate = Math.max(3.2, (stats.agility || 4) * 0.62);
+            const assistLimit = Math.max(1.8, (stats.agility || 4) * 1.4);
+            targetAv.x += clampNumber(-attitude.x * assistRate * pitchAuthority, -assistLimit, assistLimit);
+            targetAv.z += clampNumber(-attitude.z * assistRate * rollAuthority, -assistLimit, assistLimit);
+            const damping = Math.exp(-2.4 * Math.max(pitchAuthority, rollAuthority) * dt);
+            state.angVel.x *= damping;
+            state.angVel.z *= damping;
+            return targetAv;
+        }
+
+        function settleGroundAttitude(dt) {
+            const attitude = new THREE.Euler().setFromQuaternion(state.quat, 'YXZ');
+            const yawOnly = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, attitude.y, 0, 'YXZ'));
+            state.quat.slerp(yawOnly, 1 - Math.exp(-14 * dt));
+            state.angVel.multiplyScalar(Math.exp(-22 * dt));
+            state.vel.x *= Math.exp(-10 * dt);
+            state.vel.z *= Math.exp(-10 * dt);
+        }
+
         // ゲームパッド操作時だけ、表示中の最前面画面へ仮想フォーカスを与える。
         function isMenuInteractionActive() {
             const isVisible = id => {
@@ -1674,7 +2418,7 @@
 
         function updateMenuNavigation() {
             // 飛行中はスティックを操縦へ専有し、一時停止中だけメニューへ戻す。
-            if (['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode) && !state.isPaused) return;
+            if (isTrackFlightMode(state.mode) && !state.isPaused) return;
 
             const gp = Array.from(navigator.getGamepads()).find(g => g && g.connected) ?? null;
             if (!gp) return;
@@ -1781,6 +2525,11 @@
         function updatePhysics(dt) {
             if (state.isPaused) return;
 
+            if (state.mode === 'SCORE_ATTACK' && state.status === 'RUNNING' && getScoreAttackRemainingSeconds() <= 0) {
+                completeScoreAttackRun();
+                return;
+            }
+
             if (state.isCrashed) {
                 state.crashTimer -= dt;
                 state.angVel.x += (Math.random() - 0.5) * 20 * dt;
@@ -1807,6 +2556,7 @@
 
             const c = getControls(dt);
             state.lastControls = c;
+            updateTrainingAidRunEligibility();
             state.respawnCooldown = Math.max(0, state.respawnCooldown - dt);
             state.lapSampleTimer += dt;
             if (c.reset) { resetRace(); return; }
@@ -1819,13 +2569,21 @@
             const loadedBatteryVoltage = getLoadedBatteryVoltage(stats, state.battery, c.throttle, state.vel.length());
             const batteryFactor = Math.max(0, Math.min(1, (loadedBatteryVoltage - stats.batteryMin) / Math.max(0.2, stats.batteryMax - stats.batteryMin)));
 
+            const terrainBeforeAttitude = getTerrainHeight(state.pos.x, state.pos.z, state.terrain);
+            const groundAttitudeLocked = state.pos.y <= terrainBeforeAttitude + 0.62 && Math.abs(state.vel.y) < 1.2;
+            const attitudeControls = groundAttitudeLocked
+                ? { ...c, yaw: 0, pitch: 0, roll: 0 }
+                : c;
+            if (groundAttitudeLocked) settleGroundAttitude(dt);
+
             const rs = stats.agility * 2.5;
-            const targetAv = new THREE.Vector3(c.pitch * rs, c.yaw * rs, -c.roll * rs);
+            const targetAv = new THREE.Vector3(attitudeControls.pitch * rs, attitudeControls.yaw * rs, -attitudeControls.roll * rs);
+            applyStabilizedFlightAssist(targetAv, attitudeControls, stats, dt);
             const motorResp = stats.motorResponse || 11;
             state.angVel.lerp(targetAv, 1 - Math.exp(-motorResp * dt));
 
             const angSpeed = state.angVel.length();
-            if (c.throttle < 0.28 && angSpeed > 3.5) {
+            if (!groundAttitudeLocked && c.throttle < 0.28 && angSpeed > 3.5) {
                 const wash = (angSpeed - 3.5) * (0.28 - c.throttle) * 2.8;
                 state.angVel.x += (Math.random() - 0.5) * wash * dt * 60;
                 state.angVel.z += (Math.random() - 0.5) * wash * dt * 60;
@@ -1857,17 +2615,18 @@
             const terrainH = getTerrainHeight(state.pos.x, state.pos.z, state.terrain);
             if (state.pos.y < terrainH + 0.5) {
                 state.pos.y = terrainH + 0.5;
+                const collisionProfile = getCollisionPracticeProfile();
                 const impact = Math.abs(state.vel.y);
-                if (impact > 5) {
-                    state.health = Math.max(0, state.health - impact * 1.2);
+                if (impact > collisionProfile.terrainImpactThreshold) {
+                    applyCollisionDamage(impact * 1.2 * collisionProfile.terrainDamageScale, collisionProfile.healthFloor);
                     const now2 = Date.now();
                     if (now2 - state.lastImpactSound > 350) {
-                        audio.playSE(impact > 12 ? 'crash' : 'impact');
+                        audio.playSE(impact > collisionProfile.crashSoundImpact ? 'crash' : 'impact');
                         state.lastImpactSound = now2;
                     }
                 }
-                state.vel.y *= -0.25;
-                state.vel.multiplyScalar(0.72);
+                state.vel.y *= collisionProfile.terrainBounce;
+                state.vel.multiplyScalar(collisionProfile.terrainDamping);
             }
             resolveWorldCollisions();
 
@@ -1876,26 +2635,66 @@
                 return;
             }
 
-            if (state.mode === 'TIME_ATTACK' && state.gates && state.currentGate < state.gates.length) {
-                const g = state.gates[state.currentGate];
+            if (state.mode === 'SCORE_ATTACK' && state.status === 'RUNNING' && getScoreAttackRemainingSeconds() <= 0) {
+                completeScoreAttackRun();
+                return;
+            }
+
+            if (isTimedRaceMode(state.mode) && state.gates && state.currentGate < state.gates.length) {
                 if (didPassGate(state.currentGate, previousPos, state.pos)) {
-                    if (state.currentGate === 0 && state.status === 'READY') {
+                    const clearedGateIndex = state.currentGate;
+                    const startedRun = clearedGateIndex === 0 && state.status === 'READY';
+                    if (startedRun) {
                         state.status = 'RUNNING';
                         state.startTime = Date.now();
                         state.timePenaltySeconds = 0;
                         state.lapSamples = [];
                         state.lapSampleTimer = 0;
-                        captureLapSample(true);
+                        state.scoreAttackScore = 0;
+                        state.scoreAttackGateCount = 0;
+                        state.scoreAttackLapCount = 0;
+                        state.scoreAttackRank = null;
+                        state.rankedRunEligible = !hasTrainingAidsEnabled();
+                        if (state.mode === 'TIME_ATTACK') captureLapSample(true);
                         document.getElementById('mission-start-msg').classList.add('opacity-0');
                         scheduleMissionBannerHide(600);
+                        if (state.mode === 'SCORE_ATTACK') {
+                            state.currentGate = state.gates.length > 1 ? 1 : 0;
+                            audio.playSE('checkpoint');
+                            showFlightToast('Score attack live', `${SCORE_ATTACK_DURATION_SECONDS}s clock started`, { tone: 'good', duration: 1500 });
+                            rebuildGates();
+                            return;
+                        }
                     }
                     state.currentGate++;
                     audio.playSE('checkpoint');
+                    if (state.mode === 'SCORE_ATTACK') {
+                        state.scoreAttackScore += 1;
+                        state.scoreAttackGateCount += 1;
+                        if (clearedGateIndex >= state.gates.length - 1) {
+                            state.scoreAttackLapCount += 1;
+                            state.lapCount = state.scoreAttackLapCount;
+                        }
+                        state.currentGate %= state.gates.length;
+                        if (getScoreAttackRemainingSeconds() <= 0) {
+                            completeScoreAttackRun();
+                            return;
+                        }
+                        showFlightToast(`+1 gate`, `Score ${state.scoreAttackScore} / Next G${state.currentGate + 1}/${state.gates.length}`, { tone: 'info', duration: 900 });
+                        rebuildGates();
+                        return;
+                    }
                     if (state.currentGate >= state.gates.length) {
                         completeTimeAttackLap();
                         return;
                     }
-                    syncSectorProgress(false);
+                    const sectorAnnounced = syncSectorProgress(false);
+                    if (!sectorAnnounced) {
+                        showFlightToast(startedRun ? 'Timer live' : `Gate ${clearedGateIndex + 1} clear`, `Next G${state.currentGate + 1}/${state.gates.length}`, {
+                            tone: startedRun ? 'good' : 'info',
+                            duration: startedRun ? 1500 : 1100
+                        });
+                    }
                     rebuildGates();
                 }
             }
@@ -1937,9 +2736,13 @@
         }
 
         function getQualityDescription(quality) {
-            if (quality === 'FLAT') return 'Flat: lowest cost shading with surface detail disabled.';
-            if (quality === 'CINEMATIC') return 'Cinematic: denser procedural surface detail, higher pixel ratio, and full shadows.';
-            return 'Textured: lightweight procedural surface detail with balanced shadows.';
+            if (quality === 'FLAT') return 'Flat: lowest-cost shading, sparse props, and reflections disabled.';
+            if (quality === 'CINEMATIC') return 'Cinematic: dense environment props, higher pixel ratio, full shadows, and stadium glow reflections.';
+            return 'Textured: balanced procedural detail, prop density, shadows, and light reflections.';
+        }
+
+        function getQualityProfile(quality = state.settings.videoQuality) {
+            return QUALITY_PROFILES[quality] || QUALITY_PROFILES.TEXTURED;
         }
 
         function shadeHex(hex, factor) {
@@ -1965,7 +2768,8 @@
 
         function createSurfaceTexture(baseColor, kind, quality) {
             const normalizedKind = normalizeTextureKind(kind);
-            const size = quality === 'CINEMATIC' ? 128 : 64;
+            const profile = getQualityProfile(quality);
+            const size = profile.textureSize || 64;
             const key = `${quality}:${normalizedKind}:${baseColor}`;
             return getProceduralTexture(key, () => {
                 const canvas = document.createElement('canvas');
@@ -2030,39 +2834,49 @@
                 const texture = new THREE.CanvasTexture(canvas);
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.anisotropy = quality === 'CINEMATIC' ? 8 : 2;
+                texture.anisotropy = profile.anisotropy;
                 texture.colorSpace = THREE.SRGBColorSpace;
                 return texture;
             });
         }
 
         function configureRendererForQuality() {
-            const quality = state.settings.videoQuality;
-            renderer.shadowMap.enabled = quality !== 'FLAT';
-            renderer.shadowMap.type = quality === 'CINEMATIC' ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
-            const pixelRatio = quality === 'CINEMATIC' ? Math.min(window.devicePixelRatio || 1, 1.5) : 1;
+            const profile = getQualityProfile();
+            renderer.shadowMap.enabled = profile.shadows;
+            renderer.shadowMap.type = state.settings.videoQuality === 'CINEMATIC' ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+            const pixelRatio = Math.min(window.devicePixelRatio || 1, profile.pixelRatio);
             renderer.setPixelRatio(pixelRatio);
+            sun.shadow.mapSize.width = profile.shadows ? (state.settings.videoQuality === 'CINEMATIC' ? 2048 : 1024) : 512;
+            sun.shadow.mapSize.height = sun.shadow.mapSize.width;
         }
 
         function createWorldMaterial(baseColor, options = {}) {
             const quality = state.settings.videoQuality;
+            const transparent = options.transparent ?? (options.opacity !== undefined && options.opacity < 1);
             const material = new THREE.MeshStandardMaterial({
                 color: baseColor,
                 roughness: options.roughness ?? 0.88,
                 metalness: options.metalness ?? 0.04,
-                vertexColors: options.vertexColors ?? false
+                vertexColors: options.vertexColors ?? false,
+                emissive: options.emissive ?? 0x000000,
+                emissiveIntensity: options.emissiveIntensity ?? 0,
+                transparent,
+                opacity: options.opacity ?? 1,
+                depthWrite: options.depthWrite ?? true,
+                side: options.side ?? THREE.FrontSide
             });
             if (quality !== 'FLAT' && options.textureKind) {
                 material.map = createSurfaceTexture(baseColor, options.textureKind, quality);
                 const repeat = options.textureRepeat || [1, 1];
                 material.map.repeat.set(repeat[0], repeat[1]);
             }
+            if (options.envMapIntensity !== undefined) material.envMapIntensity = options.envMapIntensity;
             return material;
         }
 
         function refreshCurrentWorldVisuals() {
             configureRendererForQuality();
-            if (state.mode === 'TIME_ATTACK' && state.track) generateWorld(state.track.terrain, 123, state.track.gates, state.track);
+            if (isTimedRaceMode(state.mode) && state.track) generateWorld(state.track.terrain, 123, state.track.gates, state.track);
             else if (state.mode === 'OPEN_WORLD' && state.track) generateWorld(state.track.terrain, 123, state.track.gates, state.track);
             else if (state.mode === 'MENU' && state.menuSceneTrack) generateWorld(state.menuSceneTrack.terrain, 123, state.menuSceneTrack.gates, state.menuSceneTrack);
             else setEnvironmentStyle(state.terrain, false);
@@ -2087,6 +2901,7 @@
         }
 
         function getDefaultTextureRepeat(size, kind) {
+            if (!kind) return [1, 1];
             if (kind === 'ground') return [Math.max(1, size[0] / 14), Math.max(1, size[2] / 14)];
             if (kind === 'trim') return [Math.max(1, size[0] / 10), Math.max(1, Math.max(size[1], size[2]) / 10)];
             if (kind === 'support') return [Math.max(1, size[0] / 12), Math.max(1, Math.max(size[1], size[2]) / 12)];
@@ -2094,12 +2909,19 @@
         }
 
         function addWorldBox(size, position, color, options = {}) {
-            const textureKind = options.textureKind ?? 'panel';
+            const textureKind = options.textureKind === undefined ? 'panel' : options.textureKind;
             const mesh = new THREE.Mesh(
                 new THREE.BoxGeometry(size[0], size[1], size[2]),
                 createWorldMaterial(color, {
                     roughness: options.roughness ?? 0.88,
                     metalness: options.metalness ?? 0.04,
+                    emissive: options.emissive,
+                    emissiveIntensity: options.emissiveIntensity,
+                    transparent: options.transparent,
+                    opacity: options.opacity,
+                    depthWrite: options.depthWrite,
+                    envMapIntensity: options.envMapIntensity,
+                    side: options.side,
                     textureKind,
                     textureRepeat: options.textureRepeat ?? getDefaultTextureRepeat(size, textureKind)
                 })
@@ -2108,6 +2930,7 @@
             mesh.rotation.y = THREE.MathUtils.degToRad(options.rotation || 0);
             mesh.castShadow = options.castShadow ?? true;
             mesh.receiveShadow = options.receiveShadow ?? true;
+            if (options.renderOrder !== undefined) mesh.renderOrder = options.renderOrder;
             Object.assign(mesh.userData, options.userData || {});
             if (options.collider) {
                 state.worldColliders.push({
@@ -2159,23 +2982,24 @@
         function resolveWorldCollisions() {
             const stats = getSelectedDroneStats();
             const radius = THREE.MathUtils.clamp(0.55 + (stats.sizeMm || 220) / 520, 0.65, 2.45);
+            const collisionProfile = getCollisionPracticeProfile();
             for (let pass = 0; pass < 2; pass++) {
                 state.worldColliders.forEach(collider => {
                     const hit = resolveBoxCollision(state.pos, collider, radius);
                     if (!hit) return;
                     state.pos.add(hit.correction);
                     const impact = state.vel.dot(hit.normal);
-                    if (impact < -6) {
-                        state.health = Math.max(0, state.health - Math.abs(impact) * 0.4);
+                    if (impact < -collisionProfile.obstacleImpactThreshold) {
+                        applyCollisionDamage(Math.abs(impact) * 0.4 * collisionProfile.obstacleDamageScale, collisionProfile.healthFloor);
                         const now3 = Date.now();
                         if (now3 - state.lastImpactSound > 350) {
-                            audio.playSE(Math.abs(impact) > 14 ? 'crash' : 'impact');
+                            audio.playSE(Math.abs(impact) > collisionProfile.crashSoundImpact ? 'crash' : 'impact');
                             state.lastImpactSound = now3;
                         }
                     }
                     if (impact < 0) {
-                        state.vel.addScaledVector(hit.normal, -impact);
-                        state.vel.multiplyScalar(0.82);
+                        state.vel.addScaledVector(hit.normal, -impact * collisionProfile.collisionNormalResponse);
+                        state.vel.multiplyScalar(collisionProfile.collisionDamping);
                     }
                 });
             }
@@ -2204,12 +3028,13 @@
             const normal = getGateTravelDirection(gateIndex);
             const right = new THREE.Vector3(normal.z, 0, -normal.x).normalize();
             const rotationY = Math.atan2(normal.x, normal.z);
+            const isPracticeRoute = state.mode === 'OPEN_WORLD';
             const material = new THREE.MeshStandardMaterial({
                 color,
                 emissive: color,
-                emissiveIntensity: gateIndex === state.currentGate ? 1.4 : 0.35,
+                emissiveIntensity: isPracticeRoute ? 0.12 : (gateIndex === state.currentGate ? 1.4 : 0.35),
                 transparent: true,
-                opacity: gateIndex === state.currentGate ? 0.8 : 0.52,
+                opacity: isPracticeRoute ? 0.28 : (gateIndex === state.currentGate ? 0.8 : 0.52),
                 depthWrite: false
             });
             const addBar = (center, size) => {
@@ -2227,6 +3052,33 @@
             addBar(center.clone().add(new THREE.Vector3(0, -GATE_FRAME_OFFSET, 0)), new THREE.Vector3(GATE_FRAME_OFFSET * 2.2, GATE_FRAME_THICKNESS * 2, 0.5));
         }
 
+        function addNeonAccentBox(size, position, color, options = {}) {
+            return addWorldBox(size, position, color, {
+                rotation: options.rotation,
+                roughness: options.roughness ?? 0.32,
+                metalness: options.metalness ?? 0.18,
+                emissive: options.emissive ?? color,
+                emissiveIntensity: options.emissiveIntensity ?? 1.4,
+                transparent: options.transparent,
+                opacity: options.opacity,
+                depthWrite: options.depthWrite,
+                textureKind: false,
+                castShadow: false,
+                receiveShadow: false,
+                renderOrder: options.renderOrder
+            });
+        }
+
+        function addPropPointLight(color, position, intensity = 1.2, distance = 32) {
+            const lightDensity = getQualityProfile().lightDensity;
+            if (lightDensity <= 0) return null;
+            const light = new THREE.PointLight(color, intensity * lightDensity, distance);
+            light.position.set(position[0], position[1], position[2]);
+            light.userData.isEnvironmentProp = true;
+            worldGroup.add(light);
+            return light;
+        }
+
         function addTrackProp(prop, style) {
             const pos = prop.position;
             const size = prop.size;
@@ -2235,6 +3087,12 @@
                 const rotated = rotateXZ(dx, dz, rotation);
                 return [pos[0] + rotated.x, pos[1] + dy, pos[2] + rotated.z];
             };
+            const groundPoint = (dx, centerY, dz) => {
+                const rotated = rotateXZ(dx, dz, rotation);
+                return [pos[0] + rotated.x, centerY, pos[2] + rotated.z];
+            };
+            const accent = prop.accent || style.accent || style.trim;
+            const accentAlt = prop.accentAlt || style.accentAlt || style.trim;
 
             if (prop.type === 'tower') {
                 addWorldBox(size, [pos[0], size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
@@ -2274,14 +3132,215 @@
             if (prop.type === 'stand') {
                 addWorldBox(size, [pos[0], size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
                 addWorldBox([size[0] * 0.8, size[1] * 0.5, size[2] * 0.7], [pos[0], size[1] + 1, pos[2]], style.trackBed, { rotation, collider: true });
+                addNeonAccentBox([size[0] * 0.72, 0.5, 1], groundPoint(0, size[1] + 7, size[2] * 0.36), accent, { rotation, emissiveIntensity: 0.9 });
+                return;
+            }
+            if (prop.type === 'barrier') {
+                const height = size[1];
+                addWorldBox(size, groundPoint(0, height / 2 - 2, 0), style.structure, { rotation, roughness: 0.82, metalness: 0.08, collider: true });
+                addNeonAccentBox([size[0] * 0.88, 0.35, Math.min(1.2, size[2] * 0.5)], groundPoint(0, height - 1.7, size[2] * 0.45), accent, { rotation, emissiveIntensity: 1.1 });
+                addNeonAccentBox([size[0] * 0.88, 0.35, Math.min(1.2, size[2] * 0.5)], groundPoint(0, height - 1.7, -size[2] * 0.45), accentAlt, { rotation, emissiveIntensity: 0.8 });
+                return;
+            }
+            if (prop.type === 'billboard') {
+                const postHeight = size[1] + 8;
+                addWorldBox([1.6, postHeight, 1.6], groundPoint(-size[0] * 0.42, postHeight / 2 - 2, 0), style.support, { rotation, roughness: 0.86, collider: true });
+                addWorldBox([1.6, postHeight, 1.6], groundPoint(size[0] * 0.42, postHeight / 2 - 2, 0), style.support, { rotation, roughness: 0.86, collider: true });
+                addWorldBox(size, groundPoint(0, size[1] / 2 + 5, 0), style.structure, { rotation, roughness: 0.45, metalness: 0.24, collider: true });
+                addNeonAccentBox([size[0] * 0.86, 0.5, size[2] + 0.4], groundPoint(0, size[1] + 5.3, 0), accent, { rotation, emissiveIntensity: 1.6 });
+                addPropPointLight(accent, groundPoint(0, size[1] + 8, 0), 1.1, 42);
+                return;
+            }
+            if (prop.type === 'neonPylon') {
+                const width = size[0], height = size[1], depth = size[2];
+                addWorldBox([width, height, depth], groundPoint(0, height / 2 - 2, 0), style.support, { rotation, roughness: 0.64, metalness: 0.2, collider: true });
+                addNeonAccentBox([width + 1.4, 1.2, depth + 1.4], groundPoint(0, height - 2, 0), accent, { rotation, emissiveIntensity: 1.6 });
+                addNeonAccentBox([0.45, height * 0.72, 0.55], groundPoint(width * 0.54, height * 0.43 - 2, 0), accent, { rotation, emissiveIntensity: 1.1 });
+                addNeonAccentBox([0.45, height * 0.72, 0.55], groundPoint(-width * 0.54, height * 0.43 - 2, 0), accentAlt, { rotation, emissiveIntensity: 0.95 });
+                addPropPointLight(accent, groundPoint(0, height + 2, 0), 1.4, 48);
+                return;
+            }
+            if (prop.type === 'lightMast') {
+                const height = size[1];
+                addWorldBox([2.2, height, 2.2], groundPoint(0, height / 2 - 2, 0), style.support, { rotation, roughness: 0.72, metalness: 0.2, collider: true });
+                addWorldBox([size[0], 1.2, 2.4], groundPoint(0, height - 2, 0), style.structure, { rotation, roughness: 0.34, metalness: 0.28, collider: true });
+                addNeonAccentBox([size[0] * 0.8, 0.55, 2.8], groundPoint(0, height - 1.1, 0), accent, { rotation, emissiveIntensity: 1.8 });
+                addPropPointLight(accent, groundPoint(0, height - 0.5, 0), 1.8, 58);
+                return;
+            }
+            if (prop.type === 'obelisk') {
+                const height = size[1];
+                addWorldBox([size[0], height * 0.52, size[2]], groundPoint(0, height * 0.26 - 2, 0), style.structure, { rotation, roughness: 0.94, collider: true });
+                addWorldBox([size[0] * 0.68, height * 0.32, size[2] * 0.68], groundPoint(0, height * 0.68 - 2, 0), style.structure, { rotation: rotation + 12, roughness: 0.94, collider: true });
+                addWorldBox([size[0] * 0.38, height * 0.18, size[2] * 0.38], groundPoint(0, height * 0.93 - 2, 0), style.trim, { rotation: rotation + 28, roughness: 0.78, collider: true });
+                addNeonAccentBox([size[0] * 0.56, 0.45, 0.55], groundPoint(0, height * 0.63 - 2, size[2] * 0.36), accent, { rotation, emissiveIntensity: 0.7 });
+                return;
+            }
+            if (prop.type === 'spiralTower') {
+                const width = size[0], height = size[1], depth = size[2];
+                addWorldBox([width, height, depth], groundPoint(0, height / 2 - 2, 0), style.support, { rotation, roughness: 0.5, metalness: 0.24, collider: true });
+                addWorldBox([width * 1.4, 4, depth * 1.4], groundPoint(0, height - 1, 0), style.structure, { rotation, roughness: 0.38, metalness: 0.3, collider: true });
+                const ringCount = Math.max(4, Math.round(5 * getQualityProfile().objectDensity));
+                for (let i = 0; i < ringCount; i++) {
+                    const t = ringCount === 1 ? 0 : i / (ringCount - 1);
+                    const y = 8 + t * (height - 16) - 2;
+                    const spin = rotation + i * 31;
+                    const color = i % 2 ? accentAlt : accent;
+                    addNeonAccentBox([width + 18, 0.42, 0.75], groundPoint(0, y, 0), color, { rotation: spin, emissiveIntensity: 1.35 });
+                    addNeonAccentBox([0.75, 0.42, depth + 18], groundPoint(0, y + 0.18, 0), color, { rotation: spin, emissiveIntensity: 1.05 });
+                }
+                addPropPointLight(accent, groundPoint(0, height + 3, 0), 2.2, 70);
                 return;
             }
             addWorldBox(size, [pos[0], size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
         }
 
+        function hashStringToSeed(value) {
+            let hash = 2166136261;
+            const text = String(value);
+            for (let i = 0; i < text.length; i++) {
+                hash ^= text.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            return hash >>> 0;
+        }
+
+        function createSeededRandom(seed) {
+            let value = seed >>> 0;
+            return () => {
+                value += 0x6D2B79F5;
+                let next = value;
+                next = Math.imul(next ^ (next >>> 15), next | 1);
+                next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+                return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        function seededRange(rnd, min, max) {
+            return min + (max - min) * rnd();
+        }
+
+        function makeGeneratedEnvironmentProp(terrain, position, rotation, rnd, compact = false) {
+            const scale = compact ? 0.68 : 1;
+            const roll = rnd();
+            if (terrain === CONSTANTS.TERRAINS.STADIUM) {
+                if (roll < 0.22) return { type: 'lightMast', position, size: [seededRange(rnd, 12, 22) * scale, seededRange(rnd, 24, 40) * scale, 3], rotation };
+                if (roll < 0.48) return { type: 'neonPylon', position, size: [seededRange(rnd, 5, 9) * scale, seededRange(rnd, 22, 38) * scale, seededRange(rnd, 5, 9) * scale], rotation };
+                if (roll < 0.72) return { type: 'billboard', position, size: [seededRange(rnd, 24, 46) * scale, seededRange(rnd, 10, 18) * scale, 3], rotation };
+                if (roll < 0.88) return { type: 'barrier', position, size: [seededRange(rnd, 24, 44) * scale, seededRange(rnd, 5, 8) * scale, seededRange(rnd, 4, 7) * scale], rotation };
+                return { type: 'stand', position, size: [seededRange(rnd, 48, 86) * scale, seededRange(rnd, 12, 18) * scale, seededRange(rnd, 18, 30) * scale], rotation };
+            }
+            if (terrain === CONSTANTS.TERRAINS.RUINS) {
+                if (roll < 0.34) return { type: 'obelisk', position, size: [seededRange(rnd, 8, 14) * scale, seededRange(rnd, 22, 42) * scale, seededRange(rnd, 8, 14) * scale], rotation };
+                if (roll < 0.62) return { type: 'wall', position, size: [seededRange(rnd, 18, 34) * scale, seededRange(rnd, 12, 26) * scale, seededRange(rnd, 5, 9) * scale], rotation };
+                if (roll < 0.82) return { type: 'arch', position, size: [seededRange(rnd, 22, 36) * scale, seededRange(rnd, 16, 26) * scale, seededRange(rnd, 8, 12) * scale], rotation };
+                return { type: 'tower', position, size: [seededRange(rnd, 10, 16) * scale, seededRange(rnd, 26, 48) * scale, seededRange(rnd, 10, 16) * scale], rotation };
+            }
+            if (terrain === CONSTANTS.TERRAINS.MOUNTAINS) {
+                if (roll < 0.28) return { type: 'tower', position, size: [seededRange(rnd, 10, 18) * scale, seededRange(rnd, 28, 54) * scale, seededRange(rnd, 10, 18) * scale], rotation };
+                if (roll < 0.5) return { type: 'bridge', position, size: [seededRange(rnd, 34, 72) * scale, seededRange(rnd, 3, 5) * scale, seededRange(rnd, 10, 16) * scale], rotation };
+                if (roll < 0.72) return { type: 'barrier', position, size: [seededRange(rnd, 26, 52) * scale, seededRange(rnd, 5, 9) * scale, seededRange(rnd, 5, 9) * scale], rotation };
+                return { type: 'billboard', position, size: [seededRange(rnd, 24, 40) * scale, seededRange(rnd, 10, 16) * scale, 3], rotation };
+            }
+            if (roll < 0.26) return { type: 'tower', position, size: [seededRange(rnd, 10, 18) * scale, seededRange(rnd, 22, 42) * scale, seededRange(rnd, 10, 18) * scale], rotation };
+            if (roll < 0.48) return { type: 'arch', position, size: [seededRange(rnd, 22, 38) * scale, seededRange(rnd, 16, 26) * scale, seededRange(rnd, 8, 12) * scale], rotation };
+            if (roll < 0.74) return { type: 'barrier', position, size: [seededRange(rnd, 24, 52) * scale, seededRange(rnd, 5, 8) * scale, seededRange(rnd, 5, 8) * scale], rotation };
+            return { type: 'billboard', position, size: [seededRange(rnd, 24, 44) * scale, seededRange(rnd, 10, 18) * scale, 3], rotation };
+        }
+
+        function isGeneratedPropPlacementClear(prop, gateLayout, placed) {
+            const point = new THREE.Vector3(prop.position[0], prop.position[1], prop.position[2]);
+            const radius = getPropFootprintRadius(prop);
+            for (const gate of gateLayout) {
+                if (Math.hypot(point.x - gate.posVec.x, point.z - gate.posVec.z) < radius + 12) return false;
+            }
+            for (let i = 0; i < gateLayout.length - 1; i++) {
+                const hit = distancePointToSegmentXZ(point, gateLayout[i].posVec, gateLayout[i + 1].posVec);
+                if (hit.distance < radius * 0.45 + 8) return false;
+            }
+            for (const other of placed) {
+                if (Math.hypot(point.x - other.point.x, point.z - other.point.z) < radius + other.radius + 8) return false;
+            }
+            return true;
+        }
+
+        function addSeededEnvironmentProps(track, style, bounds) {
+            const profile = getQualityProfile();
+            if (!track?.gateLayout?.length || profile.objectDensity <= 0) return;
+            const gateLayout = track.gateLayout;
+            const rnd = createSeededRandom(hashStringToSeed(`track-env:${track.id}:${track.name}:${track.terrain}`));
+            const segmentCount = Math.max(1, gateLayout.length - 1);
+            const minProps = profile.objectDensity < 0.5 ? (track.compact ? 1 : 4) : (track.compact ? 3 : 7);
+            const maxProps = track.compact ? 12 : 30;
+            const target = Math.min(maxProps, Math.max(minProps, Math.round((segmentCount + (track.compact ? 3 : 10)) * profile.objectDensity)));
+            const placed = [];
+            const attempts = target * 5;
+
+            for (let attempt = 0; attempt < attempts && placed.length < target; attempt++) {
+                const index = Math.floor(rnd() * segmentCount);
+                const start = gateLayout[index].posVec;
+                const end = gateLayout[Math.min(index + 1, gateLayout.length - 1)].posVec;
+                const segment = end.clone().sub(start).setY(0);
+                if (segment.lengthSq() < 0.001) continue;
+                const length = segment.length();
+                const dir = segment.clone().normalize();
+                const left = new THREE.Vector3(-dir.z, 0, dir.x);
+                const side = rnd() < 0.5 ? -1 : 1;
+                const t = seededRange(rnd, 0.18, 0.82);
+                const base = start.clone().lerp(end, t);
+                const offset = seededRange(rnd, track.compact ? 18 : 32, track.compact ? 36 : 72);
+                const candidate = base.addScaledVector(left, side * offset);
+                const yaw = THREE.MathUtils.radToDeg(Math.atan2(dir.x, dir.z)) + (side > 0 ? 90 : -90) + seededRange(rnd, -18, 18);
+                const prop = makeGeneratedEnvironmentProp(track.terrain, [candidate.x, 0, candidate.z], yaw, rnd, track.compact || length < 30);
+                const moved = sanitizeTrackProp(prop, gateLayout);
+                if (!isGeneratedPropPlacementClear(moved, gateLayout, placed)) continue;
+                addTrackProp(moved, style);
+                placed.push({
+                    point: new THREE.Vector3(moved.position[0], moved.position[1], moved.position[2]),
+                    radius: getPropFootprintRadius(moved)
+                });
+            }
+
+            if (track.terrain === CONSTANTS.TERRAINS.STADIUM && profile.objectDensity > 0.5) {
+                const cornerSize = Math.max(20, Math.min(44, Math.max(bounds.width, bounds.depth) * 0.08));
+                [
+                    [bounds.minX - 34, bounds.minZ - 34, 45],
+                    [bounds.maxX + 34, bounds.minZ - 34, -45],
+                    [bounds.minX - 34, bounds.maxZ + 34, -45],
+                    [bounds.maxX + 34, bounds.maxZ + 34, 45]
+                ].forEach(([x, z, rot], index) => {
+                    if (profile.objectDensity < 1 && index % 2) return;
+                    addTrackProp({ type: 'lightMast', position: [x, 0, z], size: [cornerSize, 34, 3], rotation: rot }, style);
+                });
+            }
+        }
+
+        function addSeededOpenWorldProps(type, seed) {
+            const style = COURSE_STYLES[type] || COURSE_STYLES[CONSTANTS.TERRAINS.PLAINS];
+            const profile = getQualityProfile();
+            if (profile.objectDensity <= 0) return;
+            const rnd = createSeededRandom(hashStringToSeed(`open-env:${type}:${seed}`));
+            const target = Math.round(18 * profile.objectDensity);
+            const placed = [];
+            const gateLayout = state.gates || [];
+            for (let attempt = 0; attempt < target * 4 && placed.length < target; attempt++) {
+                const anchor = gateLayout.length ? gateLayout[Math.floor(rnd() * gateLayout.length)].posVec : new THREE.Vector3();
+                const angle = seededRange(rnd, 0, Math.PI * 2);
+                const distance = seededRange(rnd, 36, 130);
+                const x = anchor.x + Math.cos(angle) * distance;
+                const z = anchor.z + Math.sin(angle) * distance;
+                const prop = makeGeneratedEnvironmentProp(type, [x, 0, z], THREE.MathUtils.radToDeg(angle) + 90, rnd, false);
+                if (!isGeneratedPropPlacementClear(prop, gateLayout, placed)) continue;
+                addTrackProp(prop, style);
+                placed.push({ point: new THREE.Vector3(x, 0, z), radius: getPropFootprintRadius(prop) });
+            }
+        }
+
         function buildTerrainMesh(type, isTrackWorld) {
             const style = COURSE_STYLES[type] || COURSE_STYLES[CONSTANTS.TERRAINS.PLAINS];
-            const geo = new THREE.PlaneGeometry(1000, 1000, isTrackWorld ? 96 : 128, isTrackWorld ? 96 : 128);
+            const profile = getQualityProfile();
+            const segments = isTrackWorld ? profile.terrainSegmentsTrack : profile.terrainSegmentsOpen;
+            const geo = new THREE.PlaneGeometry(1000, 1000, segments, segments);
             const pos = geo.attributes.position;
             const colors = [];
             const low = new THREE.Color(style.groundLow);
@@ -2339,6 +3398,7 @@
         }
 
         function addTrackMarkers(track, style) {
+            const profile = getQualityProfile();
             track.gateLayout.forEach((gate, index) => {
                 if (gate.posVec.y > 16) {
                     const height = Math.max(12, gate.posVec.y - 2);
@@ -2350,6 +3410,7 @@
             });
 
             for (let i = 0; i < track.gateLayout.length - 1; i++) {
+                if (profile.markerDensity < 0.75 && i % 2 === 1) continue;
                 const a = track.gateLayout[i].posVec;
                 const b = track.gateLayout[i + 1].posVec;
                 const mid = a.clone().lerp(b, 0.5);
@@ -2358,7 +3419,8 @@
                 dir.normalize();
                 const left = new THREE.Vector3(-dir.z, 0, dir.x);
                 const yaw = THREE.MathUtils.radToDeg(Math.atan2(dir.x, dir.z));
-                [-1, 1].forEach(sign => {
+                const sides = profile.markerDensity < 0.7 ? [i % 4 === 0 ? -1 : 1] : [-1, 1];
+                sides.forEach(sign => {
                     const pos = mid.clone().add(left.clone().multiplyScalar(sign * 16));
                     addWorldBox([2.4, 6, 14], [pos.x, Math.max(2, mid.y * 0.35), pos.z], sign > 0 ? style.trim : style.structure, { rotation: yaw, collider: true });
                 });
@@ -2368,7 +3430,14 @@
         function addThemeBackdrop(track, style, bounds) {
             const width = Math.max(bounds.width + 180, 520);
             const depth = Math.max(bounds.depth + 180, 520);
-            addWorldBox([width, 4, depth], [bounds.centerX, -4, bounds.centerZ], style.trackBed, { roughness: 1, castShadow: false, textureKind: 'ground' });
+            const isStadium = track.terrain === CONSTANTS.TERRAINS.STADIUM;
+            addWorldBox([width, 4, depth], [bounds.centerX, -4, bounds.centerZ], style.trackBed, {
+                roughness: isStadium ? 0.24 : 1,
+                metalness: isStadium ? 0.34 : 0.04,
+                envMapIntensity: isStadium ? 0.55 : 0,
+                castShadow: false,
+                textureKind: 'ground'
+            });
 
             if (track.terrain === CONSTANTS.TERRAINS.PLAINS) {
                 addWorldBox([width + 40, 24, 28], [bounds.centerX, 8, bounds.minZ - 46], style.structure, { roughness: 1, collider: true });
@@ -2396,13 +3465,69 @@
             }
         }
 
+        function addGlowDisc(position, radius, color, opacity) {
+            const geometry = new THREE.CylinderGeometry(radius, radius, 0.04, 32);
+            const material = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity,
+                depthWrite: false
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(position[0], position[1], position[2]);
+            mesh.userData.isReflection = true;
+            mesh.renderOrder = -1;
+            worldGroup.add(mesh);
+            return mesh;
+        }
+
+        function addStadiumReflections(track, style) {
+            const profile = getQualityProfile();
+            const density = profile.reflectionDensity;
+            if (track.terrain !== CONSTANTS.TERRAINS.STADIUM || density <= 0) return;
+            const routeStep = density >= 0.9 ? 1 : 2;
+            for (let i = 0; i < track.gateLayout.length - 1; i += routeStep) {
+                const a = track.gateLayout[i].posVec;
+                const b = track.gateLayout[i + 1].posVec;
+                const dir = b.clone().sub(a).setY(0);
+                if (dir.lengthSq() < 0.001) continue;
+                const len = dir.length();
+                dir.normalize();
+                const mid = a.clone().lerp(b, 0.5);
+                const yaw = THREE.MathUtils.radToDeg(Math.atan2(dir.x, dir.z));
+                const color = i % 2 ? style.accentAlt : style.accent;
+                addWorldBox([2.4 + density * 1.8, 0.05, Math.max(14, len * 0.64)], [mid.x, -1.76, mid.z], color, {
+                    rotation: yaw,
+                    roughness: 0.1,
+                    metalness: 0.72,
+                    emissive: color,
+                    emissiveIntensity: 0.2,
+                    transparent: true,
+                    opacity: 0.2 + density * 0.16,
+                    depthWrite: false,
+                    textureKind: false,
+                    castShadow: false,
+                    receiveShadow: false,
+                    renderOrder: -2
+                });
+            }
+
+            const gateStep = density >= 0.9 ? 1 : 2;
+            track.gateLayout.forEach((gate, index) => {
+                if (index % gateStep !== 0) return;
+                addGlowDisc([gate.posVec.x, -1.72, gate.posVec.z], 6.5 + density * 2.5, index % 2 ? style.accentAlt : style.accent, 0.12 + density * 0.12);
+            });
+        }
+
         function buildRacingWorld(track) {
             const style = COURSE_STYLES[track.terrain] || COURSE_STYLES[CONSTANTS.TERRAINS.PLAINS];
             buildTerrainMesh(track.terrain, true);
             const bounds = getTrackBounds(track.gateLayout);
             addThemeBackdrop(track, style, bounds);
+            addStadiumReflections(track, style);
             addTrackMarkers(track, style);
             track.props.forEach(prop => addTrackProp(prop, style));
+            addSeededEnvironmentProps(track, style, bounds);
             state.gates = track.gateLayout.map(g => ({ posVec: g.posVec.clone(), rotEuler: g.rotEuler.clone(), id: g.id }));
             rebuildGates();
         }
@@ -2425,6 +3550,7 @@
                 }
                 rebuildGates();
             }
+            addSeededOpenWorldProps(type, seed);
         }
 
         function generateWorld(type, seed, gateCount, track = null) {
@@ -2439,17 +3565,19 @@
         function rebuildGates() {
             clearWorldObjects(o => o.userData.isGate);
             state.worldColliders = state.worldColliders.filter(collider => !collider.isGate);
+            const isPracticeRoute = state.mode === 'OPEN_WORLD';
             state.gates.forEach((g, i) => {
-                const isNext = i === state.currentGate;
-                const isPassed = i < state.currentGate;
-                const col = isPassed ? 0x10b981 : (isNext ? 0xf59e0b : 0x3b82f6);
+                const isNext = !isPracticeRoute && i === state.currentGate;
+                const isPassed = !isPracticeRoute && i < state.currentGate;
+                const col = isPracticeRoute ? 0x38bdf8 : (isPassed ? 0x10b981 : (isNext ? 0xf59e0b : 0x3b82f6));
+                const gateOpacity = isPracticeRoute ? 0.38 : (isNext ? 0.96 : 0.9);
                 const gateMaterial = new THREE.MeshStandardMaterial({
                     color: col,
                     emissive: col,
-                    emissiveIntensity: isNext ? 2.6 : 0.5,
-                    transparent: isNext,
-                    opacity: isNext ? 0.96 : 1,
-                    depthWrite: !isNext
+                    emissiveIntensity: isPracticeRoute ? 0.18 : (isNext ? 2.6 : 0.5),
+                    transparent: isNext || isPracticeRoute,
+                    opacity: gateOpacity,
+                    depthWrite: !(isNext || isPracticeRoute)
                 });
                 if (isNext) gateMaterial.depthTest = false;
                 const torus = new THREE.Mesh(new THREE.TorusGeometry(3, 0.2, 16, 8), gateMaterial);
@@ -2460,7 +3588,7 @@
                 worldGroup.add(torus);
                 addGateFrameVisual(g, i, col);
                 addGateFrameColliders(g, i);
-                if (isNext) {
+                if (isNext && !isPracticeRoute) {
                     const light = new THREE.PointLight(col, 3, 15);
                     light.position.copy(g.posVec);
                     light.userData.isGate = true;
@@ -2478,6 +3606,9 @@
 
         // --- INIT & UI LOGIC ---
         function initGame(mode, arg) {
+            if (mode === 'SELECT' && arg?.raceMode) {
+                state.pendingRaceMode = arg.raceMode === 'SCORE_ATTACK' ? 'SCORE_ATTACK' : 'TIME_ATTACK';
+            }
             state.mode = mode;
             state.isPaused = false;
             state.status = 'READY';
@@ -2495,17 +3626,24 @@
             state.crashCount = 0;
             state.lastImpactSound = 0;
             state.throttleLocked = false;
-            state.throttleStick = 0;
+            resetFlightInputState({ clearKeys: true, resetMobile: !isTrackFlightMode(mode) });
+            audio.stopEngine(0.03);
             state.replayMode = false;
             state.replayRecord = null;
             state.replaySource = 'BEST';
             state.replayTime = 0;
             state.respawnCooldown = 0;
             state.rankLastLap = null;
+            state.rankedRunEligible = !isTimedRaceMode(mode) || !hasTrainingAidsEnabled();
+            state.scoreAttackScore = 0;
+            state.scoreAttackGateCount = 0;
+            state.scoreAttackLapCount = 0;
+            state.scoreAttackRank = null;
             state.vel.set(0,0,0); state.angVel.set(0,0,0); state.pos.set(0, 2, 0); state.quat.identity();
             document.getElementById('popup-finish').classList.add('hidden');
             if (state.bannerHideTimer) { clearTimeout(state.bannerHideTimer); state.bannerHideTimer = null; }
-            restoreMissionBanner(mode === 'TIME_ATTACK');
+            clearFlightToast();
+            restoreMissionBanner(isTimedRaceMode(mode));
             if (mode === 'SELECT') {
                 state.selectStage = 'TRACKS';
                 state.selectDroneConfirmed = false;
@@ -2518,7 +3656,7 @@
             }
 
             let seed=123, cnt=0, type=CONSTANTS.TERRAINS.PLAINS, track=null;
-            if (mode === 'TIME_ATTACK') {
+            if (isTimedRaceMode(mode)) {
                 track = TRACKS.find(tr => tr.id === arg);
                 state.track = track;
                 state.menuSceneTrack = null;
@@ -2577,16 +3715,23 @@
             state.maxSpeed = 0; state.crashCount = 0; state.lastImpactSound = 0;
             state.autoRestartTimer = 0; state.throttleLocked = false;
             state.replayMode = false; state.replayRecord = null; state.replayTime = 0;
+            state.rankedRunEligible = !hasTrainingAidsEnabled();
             resetLapRuntimeState();
             captureLapSample(true);
+            clearFlightToast();
             document.getElementById('popup-finish').classList.add('hidden');
             rebuildGates();
         }
         function togglePause() {
             if (state.mode === 'MENU') return;
             const nextPaused = !state.isPaused;
-            if (nextPaused) beginRaceClockPause();
-            else endRaceClockPause();
+            if (nextPaused) {
+                beginRaceClockPause();
+                resetFlightInputState({ clearKeys: true, resetMobile: true });
+                audio.stopEngine(0.03);
+            } else {
+                endRaceClockPause();
+            }
             state.isPaused = nextPaused;
             updateUI();
             const p = document.getElementById('popup-pause');
@@ -2617,7 +3762,7 @@
                 document.getElementById('btn-back-free')?.click();
                 return;
             }
-            if (['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode)) togglePause();
+            if (isTrackFlightMode(state.mode)) togglePause();
         }
 
         // --- TRANSLATION ---
@@ -2627,6 +3772,7 @@
             const setTxt = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
             
             setTxt('btn-mode-timeattack', T.startRace);
+            setTxt('btn-mode-scoreattack', T.scoreAttack || 'Score Attack');
             setTxt('btn-mode-freeselect', T.freeFlight);
             setTxt('btn-settings-open', T.settings);
             setTxt('btn-settings-pause', T.settings);
@@ -2634,7 +3780,7 @@
             setTxt('btn-back-menu', T.back);
             setTxt('btn-back-free', T.back);
             setTxt('txt-prep', T.prep);
-            setTxt('btn-start-race', T.startRace);
+            setTxt('btn-start-race', state.pendingRaceMode === 'SCORE_ATTACK' ? (T.startScoreAttack || 'Start Score Attack') : T.startRace);
             setTxt('txt-custom-tuning', T.custom);
             setTxt('txt-mission-title', T.missionStart);
             
@@ -2660,7 +3806,7 @@
                 selectedDroneId: state.droneId,
                 lang: state.lang,
                 bestTimes: state.bestTimes,
-                lapData: state.lapData
+                lapData: normalizeLapDataStore(state.lapData)
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
@@ -2686,7 +3832,11 @@
                         if (Number.isFinite(Number(imported.cameraAngleDeg))) nextSettings.cameraAngleDeg = clampNumber(Number(imported.cameraAngleDeg), 20, 60);
                         if (typeof imported.showInput === 'boolean') nextSettings.showInput = imported.showInput;
                         if (typeof imported.showCompass === 'boolean') nextSettings.showCompass = imported.showCompass;
+                        if (typeof imported.showGatePointer === 'boolean') nextSettings.showGatePointer = imported.showGatePointer;
                         if (typeof imported.showHorizon === 'boolean') nextSettings.showHorizon = imported.showHorizon;
+                        TRAINING_AID_OPTIONS.forEach(option => {
+                            if (typeof imported[option.key] === 'boolean') nextSettings[option.key] = imported[option.key];
+                        });
                         state.settings = nextSettings;
                         // Update UI inputs
                         document.getElementById('input-volume').value = state.settings.volume;
@@ -2697,13 +3847,24 @@
                         document.getElementById('input-show').checked = state.settings.showInput;
                         const compassEl2 = document.getElementById('input-compass');
                         if (compassEl2) compassEl2.checked = state.settings.showCompass ?? true;
+                        const gatePointerEl2 = document.getElementById('input-gate-pointer');
+                        if (gatePointerEl2) gatePointerEl2.checked = state.settings.showGatePointer ?? true;
                         const horizonEl2 = document.getElementById('input-horizon');
                         if (horizonEl2) horizonEl2.checked = state.settings.showHorizon ?? true;
+                        const chaseCameraEl = document.getElementById('input-chase-camera');
+                        if (chaseCameraEl) chaseCameraEl.checked = !!state.settings.trainingChaseCamera;
+                        const assistedFlightEl = document.getElementById('input-assisted-flight');
+                        if (assistedFlightEl) assistedFlightEl.checked = !!state.settings.assistedFlight;
+                        const gentleCollisionEl = document.getElementById('input-gentle-collision');
+                        if (gentleCollisionEl) gentleCollisionEl.checked = !!state.settings.gentleCollisionPractice;
+                        const circularGateEl = document.getElementById('input-circular-gate');
+                        if (circularGateEl) circularGateEl.checked = !!state.settings.circularGatePass;
                         document.getElementById('val-volume').innerText = Math.round(state.settings.volume*100)+'%';
                         document.getElementById('val-rate').innerText = state.settings.rate;
                         document.getElementById('val-expo').innerText = state.settings.expo;
                         document.getElementById('val-deadzone').innerText = state.settings.deadzone;
                         document.getElementById('val-camera-angle').innerText = `${state.settings.cameraAngleDeg ?? 30}°`;
+                        updateTrainingAidRunEligibility();
                         updateVideoQualityUI();
                         refreshCurrentWorldVisuals();
                     }
@@ -2746,17 +3907,17 @@
             if (state.mode === 'MENU') showScreen('screen-menu');
             else if (state.mode === 'SELECT') { showScreen('screen-select'); renderSelectPrep(); }
             else if (state.mode === 'FREE_SELECT') { showScreen('screen-freeselect'); renderFreeFlightTracks(); }
-            else if (['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode)) {
+            else if (isTrackFlightMode(state.mode)) {
                 showScreen('screen-hud');
                 const missionEl = document.getElementById('mission-start-msg');
-                const showMission = state.mode === 'TIME_ATTACK' && state.status === 'READY';
+                const showMission = isTimedRaceMode(state.mode) && state.status === 'READY';
                 missionEl.classList.toggle('hidden', !showMission);
                 missionEl.classList.toggle('opacity-0', !showMission);
-                document.getElementById('hud-timer-container').classList.toggle('hidden', state.mode !== 'TIME_ATTACK');
+                document.getElementById('hud-timer-container').classList.toggle('hidden', !isTimedRaceMode(state.mode));
             }
             const mobileControlsEl = document.getElementById('mobile-controls');
             if (mobileControlsEl) {
-                const showMobileControls = state.mobile.enabled && ['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode) && !state.isPaused;
+                const showMobileControls = state.mobile.enabled && isTrackFlightMode(state.mode) && !state.isPaused;
                 mobileControlsEl.classList.toggle('is-visible', showMobileControls);
             }
             updateHUD();
@@ -2783,11 +3944,20 @@
                 spd.className = state.vel.length() > 20 ? 'text-yellow-300 font-mono font-bold' : 'text-cyan-400 font-mono';
             }
 
+            const timerLabel = document.querySelector('#hud-timer-container > span:first-child');
+            if (timerLabel) timerLabel.textContent = state.mode === 'SCORE_ATTACK' ? 'Time Left' : 'Lap Time';
+
             const tm = document.getElementById('hud-timer');
             if (tm) {
                 if (state.replayMode && state.replayRecord) {
                     tm.textContent = `${state.replayTime.toFixed(2)}`;
                     tm.className = 'text-3xl font-mono font-bold text-emerald-300';
+                } else if (state.mode === 'SCORE_ATTACK') {
+                    const remaining = getScoreAttackRemainingSeconds();
+                    tm.textContent = state.status === 'READY' ? `${SCORE_ATTACK_DURATION_SECONDS}` : remaining.toFixed(2);
+                    tm.className = remaining <= 10 && state.status === 'RUNNING'
+                        ? 'text-3xl font-mono font-bold text-red-400 animate-pulse'
+                        : 'text-3xl font-mono font-bold text-amber-300';
                 } else if (state.mode === 'TIME_ATTACK' && state.status === 'RUNNING') {
                     tm.textContent = getCurrentLapTimeSeconds().toFixed(2);
                     tm.className = 'text-3xl font-mono font-bold text-white';
@@ -2798,18 +3968,37 @@
             }
 
             const lapsEl = document.getElementById('hud-laps');
-            if (lapsEl) lapsEl.textContent = state.replayMode ? `Replay ${state.replaySource}` : `Laps ${state.lapCount}`;
+            if (lapsEl) lapsEl.textContent = state.replayMode
+                ? `Replay ${state.replaySource}`
+                : state.mode === 'SCORE_ATTACK'
+                    ? `Score ${state.scoreAttackScore} / Laps ${state.scoreAttackLapCount}`
+                    : `Laps ${state.lapCount}`;
 
-            for (let i = 0; i < DEFAULT_SECTOR_COUNT; i++) {
-                const sectorEl = document.getElementById(`hud-sector-${i + 1}`);
-                if (!sectorEl) continue;
-                const value = state.sectorTimes[i];
-                sectorEl.textContent = `S${i + 1} ${Number.isFinite(value) ? value.toFixed(2) : '--'}`;
-                sectorEl.className = Number.isFinite(value)
-                    ? 'px-2 py-1 rounded bg-emerald-500/15 border border-emerald-400/25 text-emerald-200'
-                    : state.sectorIndex === i
-                        ? 'px-2 py-1 rounded bg-cyan-500/15 border border-cyan-400/25 text-cyan-200'
-                        : 'px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400';
+            if (state.mode === 'SCORE_ATTACK') {
+                const bestScore = getBestScore(state.track?.id, state.droneClassId);
+                const scoreItems = [
+                    ['Score', state.scoreAttackScore, 'bg-amber-500/15 border-amber-400/25 text-amber-200'],
+                    ['Lap', state.scoreAttackLapCount, 'bg-emerald-500/15 border-emerald-400/25 text-emerald-200'],
+                    ['Best', Number.isFinite(bestScore) ? bestScore : '--', 'bg-cyan-500/15 border-cyan-400/25 text-cyan-200']
+                ];
+                scoreItems.forEach(([label, value, tone], index) => {
+                    const sectorEl = document.getElementById(`hud-sector-${index + 1}`);
+                    if (!sectorEl) return;
+                    sectorEl.textContent = `${label} ${value}`;
+                    sectorEl.className = `px-2 py-1 rounded border ${tone}`;
+                });
+            } else {
+                for (let i = 0; i < DEFAULT_SECTOR_COUNT; i++) {
+                    const sectorEl = document.getElementById(`hud-sector-${i + 1}`);
+                    if (!sectorEl) continue;
+                    const value = state.sectorTimes[i];
+                    sectorEl.textContent = `S${i + 1} ${Number.isFinite(value) ? value.toFixed(2) : '--'}`;
+                    sectorEl.className = Number.isFinite(value)
+                        ? 'px-2 py-1 rounded bg-emerald-500/15 border border-emerald-400/25 text-emerald-200'
+                        : state.sectorIndex === i
+                            ? 'px-2 py-1 rounded bg-cyan-500/15 border border-cyan-400/25 text-cyan-200'
+                            : 'px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400';
+                }
             }
 
             const sectorDeltaEl = document.getElementById('hud-sector-delta');
@@ -2817,6 +4006,11 @@
                 if (state.replayMode && state.replayRecord) {
                     sectorDeltaEl.textContent = `Replay ${formatTime(state.replayRecord.duration)}`;
                     sectorDeltaEl.className = 'text-[10px] text-emerald-300 uppercase tracking-[0.2em] mt-2';
+                } else if (state.mode === 'SCORE_ATTACK') {
+                    sectorDeltaEl.textContent = state.status === 'RUNNING'
+                        ? `Next gate ${Math.min(state.currentGate + 1, state.gates?.length || 1)} / ${Math.ceil(getScoreAttackRemainingSeconds())}s`
+                        : '60 second gate rush';
+                    sectorDeltaEl.className = 'text-[10px] text-amber-300 uppercase tracking-[0.2em] mt-2';
                 } else if (Number.isFinite(state.sectorDelta)) {
                     sectorDeltaEl.textContent = `Sector ${formatDelta(state.sectorDelta)}`;
                     sectorDeltaEl.className = `text-[10px] uppercase tracking-[0.2em] mt-2 ${state.sectorDelta <= 0.005 ? 'text-emerald-300' : 'text-amber-300'}`;
@@ -2828,13 +4022,25 @@
 
             const ghostStatusEl = document.getElementById('hud-ghost-status');
             if (ghostStatusEl) {
-                if (state.replayMode && state.replayRecord) ghostStatusEl.textContent = `Replay source ${state.replaySource}`;
+                if (state.mode === 'SCORE_ATTACK') ghostStatusEl.textContent = `Best ${formatScore(getBestScoreRecord(state.track?.id, state.droneClassId))} / Respawn +${state.timePenaltySeconds.toFixed(1)}s`;
+                else if (state.replayMode && state.replayRecord) ghostStatusEl.textContent = `Replay source ${state.replaySource}`;
                 else if (state.ghostRecord) ghostStatusEl.textContent = `Ghost ${formatTime(state.ghostRecord.duration)} / Respawn +${state.timePenaltySeconds.toFixed(1)}s`;
                 else ghostStatusEl.textContent = 'Ghost standby';
             }
 
+            const trainingStatusEl = document.getElementById('hud-training-status');
+            if (trainingStatusEl) {
+                const rankedEligible = updateTrainingAidRunEligibility();
+                const activeAids = getActiveTrainingAids();
+                const showTrainingStatus = activeAids.length > 0 || (isTimedRaceMode() && !rankedEligible);
+                trainingStatusEl.classList.toggle('hidden', !showTrainingStatus);
+                if (showTrainingStatus) {
+                    const aidLabel = activeAids.length ? activeAids.join(' / ') : 'Training';
+                    trainingStatusEl.textContent = isTimedRaceMode() ? `UNRANKED ${aidLabel}` : `TRAINING ${aidLabel}`;
+                }
+            }
 
-            const canReplay = !!(state.ghostRecord || state.lastLapRecord);
+            const canReplay = state.mode === 'TIME_ATTACK' && !!(state.ghostRecord || state.lastLapRecord);
             const finishReplayBtn = document.getElementById('btn-finish-replay');
             if (finishReplayBtn) finishReplayBtn.disabled = !canReplay;
             const pauseReplayBtn = document.getElementById('btn-replay-pause');
@@ -2852,7 +4058,7 @@
             document.getElementById('input-viz-container').classList.toggle('hidden', !state.settings.showInput);
             if (state.settings.showInput) drawInputViz();
 
-            const inFlight = ['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode) && !state.isPaused && !state.replayMode;
+            const inFlight = isTrackFlightMode(state.mode) && !state.isPaused && !state.replayMode;
             const compassEl = document.getElementById('hud-compass');
             if (compassEl) {
                 const show = inFlight && state.settings.showCompass;
@@ -2865,6 +4071,8 @@
                 horizonEl.classList.toggle('hidden', !show);
                 if (show) drawHorizon();
             }
+            updateGateEdgePointer(inFlight);
+            updateFlightToast();
         }
 
         function drawInputViz() {
@@ -2943,7 +4151,7 @@
             ctx.fill();
 
             // 次ゲートのベアリングマーカー（シアン）
-            if (state.mode === 'TIME_ATTACK' && state.gates && state.currentGate < state.gates.length) {
+            if (isTimedRaceMode(state.mode) && state.gates && state.currentGate < state.gates.length) {
                 const gate = state.gates[state.currentGate];
                 const toGate = gate.posVec.clone().sub(state.pos).setY(0);
                 if (toGate.lengthSq() > 1) {
@@ -3203,6 +4411,7 @@
             const track = state.detailTrackId ? (TRACKS.find(item => item.id === state.detailTrackId) || state.track) : state.track;
             const detailClass = state.detailDroneClassId ? getDroneClassById(state.detailDroneClassId) : selectedClass;
             const detailDrone = state.detailDroneId ? getDroneEntryById(state.detailDroneId) : selectedDrone;
+            const scorePrep = state.pendingRaceMode === 'SCORE_ATTACK';
 
             if (!state.detailPanelOpen) {
                 if (emptyTitleEl) emptyTitleEl.textContent = state.selectStage === 'TRACKS'
@@ -3225,7 +4434,7 @@
             }
 
             if (state.detailPanelKind === 'TRACK' && track) {
-                const best = getBestTime(track.id, selectedClass.id);
+                const best = scorePrep ? getBestScore(track.id, selectedClass.id) : getBestTime(track.id, selectedClass.id);
                 const bounds = getTrackBounds(track.gateLayout);
                 if (kickerEl) kickerEl.textContent = 'Course Detail';
                 if (titleEl) titleEl.textContent = track.name;
@@ -3234,16 +4443,18 @@
                 setDetailStat(1, 'Profile', track.profile);
                 setDetailStat(2, 'Difficulty', track.difficulty);
                 setDetailStat(3, 'Length', `${track.lengthMeters}m`);
-                setDetailStat(4, 'Class Best', formatTime(best), true);
-                if (summaryEl) summaryEl.textContent = track.compact ? `Current class: ${selectedClass.displayName}. This is a compact layout tuned for Tiny and Whoop pace, with class-separated records.` : `Current class: ${selectedClass.displayName}. Time Attack records are stored separately for each drone class on the same course.`;
+                setDetailStat(4, scorePrep ? 'Score Best' : 'Class Best', scorePrep ? formatScore(best) : formatTime(best), true);
+                if (summaryEl) summaryEl.textContent = scorePrep
+                    ? `Current class: ${selectedClass.displayName}. Score Attack records are stored separately for each drone class on the same course.`
+                    : track.compact ? `Current class: ${selectedClass.displayName}. This is a compact layout tuned for Tiny and Whoop pace, with class-separated records.` : `Current class: ${selectedClass.displayName}. Time Attack records are stored separately for each drone class on the same course.`;
                 if (metaEl) metaEl.textContent = `${track.compact ? 'Compact / ' : ''}${track.gates} gates / Span ${Math.round(Math.max(bounds.width, bounds.depth))}m / Alt ${Math.round(bounds.maxY - bounds.minY)}m / Spawn ${track.spawnDistance}m`;
                 if (rankingEl) rankingEl.classList.remove('hidden');
-                if (rankingBodyEl) rankingBodyEl.innerHTML = renderLeaderboardPanel(track.id, selectedClass.id);
+                if (rankingBodyEl) rankingBodyEl.innerHTML = scorePrep ? renderScoreRecordsPanel(track.id, selectedClass.id) : renderLeaderboardPanel(track.id, selectedClass.id);
                 if (previewWrapEl) previewWrapEl.classList.remove('hidden');
                 renderTrackAerialPreview(track);
             } else if (state.detailPanelKind === 'CLASS' && detailClass) {
                 const rep = detailClass.entries[0];
-                const classBest = track ? getBestTime(track.id, detailClass.id) : null;
+                const classBest = track ? (scorePrep ? getBestScore(track.id, detailClass.id) : getBestTime(track.id, detailClass.id)) : null;
                 if (kickerEl) kickerEl.textContent = 'Drone Class Detail';
                 if (titleEl) titleEl.textContent = detailClass.displayName;
                 if (subtitleEl) subtitleEl.textContent = detailClass.designRole;
@@ -3251,17 +4462,17 @@
                 setDetailStat(1, 'Entries', `${detailClass.entries.length}`);
                 setDetailStat(2, 'Rep Voltage', `${rep.batteryNominal.toFixed(1)}V`);
                 setDetailStat(3, 'Rep Mass', formatMassKg(rep.massKg));
-                setDetailStat(4, 'Course Best', formatTime(classBest), true);
+                setDetailStat(4, scorePrep ? 'Score Best' : 'Course Best', scorePrep ? formatScore(classBest) : formatTime(classBest), true);
                 if (summaryEl) summaryEl.textContent = `${rep.name} is the representative setup. Speed ${rep.speed}, agility ${rep.agility}, weight ${rep.weight}, flight ${formatMinutes(rep.flightTimeMin)}.`;
                 if (metaEl) metaEl.textContent = track
                     ? `${track.name} keeps a separate record for ${detailClass.displayName}.`
-                    : 'Choose a course to compare this class against a Time Attack record.';
+                    : `Choose a course to compare this class against a ${scorePrep ? 'Score Attack' : 'Time Attack'} record.`;
                 if (rankingEl) rankingEl.classList.toggle('hidden', !track);
-                if (rankingBodyEl) rankingBodyEl.innerHTML = track ? renderLeaderboardPanel(track.id, detailClass.id) : '';
+                if (rankingBodyEl) rankingBodyEl.innerHTML = track ? (scorePrep ? renderScoreRecordsPanel(track.id, detailClass.id) : renderLeaderboardPanel(track.id, detailClass.id)) : '';
                 if (previewWrapEl) previewWrapEl.classList.add('hidden');
                 renderTrackAerialPreview(null);
             } else if (detailDrone) {
-                const droneBest = track ? getBestTime(track.id, detailDrone.classId) : null;
+                const droneBest = track ? (scorePrep ? getBestScore(track.id, detailDrone.classId) : getBestTime(track.id, detailDrone.classId)) : null;
                 const droneClass = getDroneClassById(detailDrone.classId);
                 if (kickerEl) kickerEl.textContent = 'Drone Detail';
                 if (titleEl) titleEl.textContent = detailDrone.name;
@@ -3273,10 +4484,10 @@
                 setDetailStat(4, 'Battery', `${detailDrone.batteryNominal.toFixed(1)}V`, true);
                 if (summaryEl) summaryEl.textContent = `${detailDrone.topSpeedKmh ? `Top ${detailDrone.topSpeedKmh} km/h / ` : ""}Mass ${formatMassKg(detailDrone.massKg)} / Flight ${formatMinutes(detailDrone.flightTimeMin)} / Class ${droneClass.displayName}.`;
                 if (metaEl) metaEl.textContent = track
-                    ? `${track.name} / ${droneClass.displayName} best: ${formatTime(droneBest)}`
-                    : 'Choose a course to compare this drone class against a Time Attack record.';
+                    ? `${track.name} / ${droneClass.displayName} best: ${scorePrep ? formatScore(droneBest) : formatTime(droneBest)}`
+                    : `Choose a course to compare this drone class against a ${scorePrep ? 'Score Attack' : 'Time Attack'} record.`;
                 if (rankingEl) rankingEl.classList.toggle('hidden', !track);
-                if (rankingBodyEl) rankingBodyEl.innerHTML = track ? renderLeaderboardPanel(track.id, detailDrone.classId) : '';
+                if (rankingBodyEl) rankingBodyEl.innerHTML = track ? (scorePrep ? renderScoreRecordsPanel(track.id, detailDrone.classId) : renderLeaderboardPanel(track.id, detailDrone.classId)) : '';
                 if (previewWrapEl) previewWrapEl.classList.add('hidden');
                 renderTrackAerialPreview(null);
             }
@@ -3302,7 +4513,13 @@
 
             if (stepEl) stepEl.textContent = stepTitle;
             if (helperEl) helperEl.textContent = helperText;
-            if (startBtn) startBtn.disabled = !(track && state.selectDroneConfirmed);
+            if (startBtn) {
+                startBtn.disabled = !(track && state.selectDroneConfirmed);
+                const T = TEXT[state.lang] || TEXT.EN;
+                startBtn.textContent = state.pendingRaceMode === 'SCORE_ATTACK'
+                    ? (T.startScoreAttack || 'Start Score Attack')
+                    : `Start ${T.startRace || 'Time Attack'}`;
+            }
             if (hintEl) {
                 const compactWarning = track?.compact && (droneStats.sizeMm > 120 || droneStats.classId !== 'tiny_whoop_fpv')
                     ? ' Compact course: Tiny/Whoop class is recommended; larger drones have tight clearance.'
@@ -3316,6 +4533,7 @@
                             : `${track.name} / ${droneClass.displayName}. Choose your drone or open Detail for full specs.${compactWarning}`;
             }
 
+            updateCurrentSetupPanel();
             updateDetailPanel();
         }
 
@@ -3419,11 +4637,15 @@
             document.getElementById('custom-drone-panel').classList.add('hidden');
 
             TRACKS.forEach(t => {
-                const best = getBestTime(t.id, state.droneClassId);
+                const scorePrep = state.pendingRaceMode === 'SCORE_ATTACK';
+                const best = scorePrep ? getBestScore(t.id, state.droneClassId) : getBestTime(t.id, state.droneClassId);
+                const bestLabel = scorePrep ? 'Score Best' : 'Class Best';
+                const bestValue = scorePrep ? formatScore(best) : formatTime(best);
                 const selected = state.track?.id === t.id;
+                const courseBars = renderStatBars(getCourseStatBars(t), 'cyan');
                 const el = document.createElement('article');
-                el.className = `w-full p-4 rounded-2xl border transition-colors ${selected ? 'border-cyan-400 bg-cyan-950/30 shadow-lg shadow-cyan-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
-                el.innerHTML = `<div class="flex justify-between items-start gap-3"><div><h3 class="font-bold text-lg">${t.name}</h3><div class="text-xs text-gray-400 mt-1">${t.profile}</div></div><div class="flex flex-col items-end gap-2"><span class="text-xs bg-gray-700 px-2 py-1 rounded-full">${t.terrain}</span>${t.compact ? '<span class="text-[10px] uppercase tracking-[0.25em] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full border border-emerald-400/30">Compact</span>' : ''}</div></div><div class="text-xs text-gray-300 mt-3">${t.difficulty} / Gates: ${t.gates} / Length: ${t.lengthMeters}m</div><div class="text-xs text-cyan-300 mt-1">Class Best: ${formatTime(best)}</div><div class="text-xs text-gray-500 mt-2">${t.tagline}</div><div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Select Again' : 'Select Course'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
+                el.className = `w-full p-4 rounded-lg border transition-colors ${selected ? 'border-cyan-400 bg-cyan-950/30 shadow-lg shadow-cyan-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
+                el.innerHTML = `<div class="flex justify-between items-start gap-3"><div><h3 class="font-bold text-lg">${t.name}</h3><div class="text-xs text-gray-400 mt-1">${t.profile}</div></div><div class="flex flex-col items-end gap-2"><span class="text-xs bg-gray-700 px-2 py-1 rounded-full">${t.terrain}</span>${t.compact ? '<span class="text-[10px] uppercase tracking-[0.25em] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full border border-emerald-400/30">Compact</span>' : ''}</div></div><div class="text-xs text-gray-300 mt-3">${t.difficulty} / Gates: ${t.gates} / Length: ${t.lengthMeters}m</div><div class="text-xs text-cyan-300 mt-1">${bestLabel}: ${bestValue}</div><div class="text-xs text-gray-500 mt-2">${t.tagline}</div>${courseBars}<div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Select Again' : 'Select Course'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
                 el.querySelector('[data-action="select"]').onclick = () => {
                     state.track = t;
                     state.selectStage = 'CLASSES';
@@ -3445,15 +4667,19 @@
             DRONE_CLASSES.forEach(droneClass => {
                 const representative = droneClass.entries[0];
                 const selected = state.droneClassId === droneClass.id;
-                const classBest = state.track ? getBestTime(state.track.id, droneClass.id) : null;
+                const scorePrep = state.pendingRaceMode === 'SCORE_ATTACK';
+                const classBest = state.track ? (scorePrep ? getBestScore(state.track.id, droneClass.id) : getBestTime(state.track.id, droneClass.id)) : null;
+                const bestLabel = scorePrep ? 'Score Best' : 'Course Best';
+                const bestValue = scorePrep ? formatScore(classBest) : formatTime(classBest);
+                const classBars = renderStatBars(getDroneStatBars(representative), 'violet');
                 const el = document.createElement('article');
-                el.className = `w-full p-4 rounded-2xl border transition-colors ${selected ? 'border-violet-400 bg-violet-950/30 shadow-lg shadow-violet-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
-                el.innerHTML = `<div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-lg">${droneClass.displayName}</h3><div class="text-xs text-gray-400 mt-1">${droneClass.designRole}</div></div><span class="text-xs rounded-full px-2 py-1 bg-gray-700 text-gray-200">${droneClass.entries.length} ${droneClass.entries.length === 1 ? 'entry' : 'entries'}</span></div><div class="grid grid-cols-3 gap-2 mt-3 text-xs text-gray-300"><div>Voltage ${representative.batteryNominal.toFixed(1)}V</div><div>Mass ${formatMassKg(representative.massKg)}</div><div>Flight ${formatMinutes(representative.flightTimeMin)}</div></div><div class="text-xs text-cyan-300 mt-2">Course Best: ${formatTime(classBest)}</div><div class="text-xs text-gray-500 mt-1">${droneClass.batteryBand}</div><div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Use Class' : 'Select Class'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
+                el.className = `w-full p-4 rounded-lg border transition-colors ${selected ? 'border-violet-400 bg-violet-950/30 shadow-lg shadow-violet-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
+                el.innerHTML = `<div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-lg">${droneClass.displayName}</h3><div class="text-xs text-gray-400 mt-1">${droneClass.designRole}</div></div><span class="text-xs rounded-full px-2 py-1 bg-gray-700 text-gray-200">${droneClass.entries.length} ${droneClass.entries.length === 1 ? 'entry' : 'entries'}</span></div><div class="grid grid-cols-3 gap-2 mt-3 text-xs text-gray-300"><div>Voltage ${representative.batteryNominal.toFixed(1)}V</div><div>Mass ${formatMassKg(representative.massKg)}</div><div>Flight ${formatMinutes(representative.flightTimeMin)}</div></div><div class="text-xs text-cyan-300 mt-2">${bestLabel}: ${bestValue}</div><div class="text-xs text-gray-500 mt-1">${droneClass.batteryBand}</div>${classBars}<div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Use Class' : 'Select Class'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
                 el.querySelector('[data-action="select"]').onclick = () => {
                     state.droneClassId = droneClass.id;
                     state.droneId = representative.id;
                     state.selectStage = 'DRONES';
-                    state.selectDroneConfirmed = false;
+                    state.selectDroneConfirmed = true;
                     renderSelectPrep();
                 };
                 el.querySelector('[data-action="detail"]').onclick = () => showDetailPanel('CLASS', { droneClassId: droneClass.id, trackId: state.track?.id });
@@ -3471,10 +4697,14 @@
 
             droneClass.entries.forEach(drone => {
                 const selected = state.droneId === drone.id;
-                const droneBest = state.track ? getBestTime(state.track.id, drone.classId) : null;
+                const scorePrep = state.pendingRaceMode === 'SCORE_ATTACK';
+                const droneBest = state.track ? (scorePrep ? getBestScore(state.track.id, drone.classId) : getBestTime(state.track.id, drone.classId)) : null;
+                const bestLabel = scorePrep ? 'Score Best' : 'Class Best';
+                const bestValue = scorePrep ? formatScore(droneBest) : formatTime(droneBest);
+                const droneBars = renderStatBars(getDroneStatBars(drone), 'blue');
                 const el = document.createElement('article');
-                el.className = `w-full p-4 rounded-2xl border transition-colors ${selected ? 'border-blue-400 bg-blue-950/30 shadow-lg shadow-blue-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
-                el.innerHTML = `<div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-lg" style="color:#${drone.color.toString(16).padStart(6, '0')}">${drone.name}</h3><div class="text-xs text-gray-400 mt-1">${drone.typeNote}</div></div><span class="text-xs rounded-full px-2 py-1 bg-gray-700 text-gray-200">${drone.sizeMm}mm</span></div><div class="grid grid-cols-3 gap-2 mt-3 text-xs text-gray-300"><div>Speed ${drone.speed}</div><div>Agility ${drone.agility}</div><div>Weight ${drone.weight}</div></div><div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-400"><div>Mass ${formatMassKg(drone.massKg)}</div><div>Battery ${drone.batteryNominal.toFixed(1)}V</div><div>Flight ${formatMinutes(drone.flightTimeMin)}</div></div><div class="text-xs text-cyan-300 mt-2">Class Best: ${formatTime(droneBest)}</div><div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Select Again' : 'Select Drone'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
+                el.className = `w-full p-4 rounded-lg border transition-colors ${selected ? 'border-blue-400 bg-blue-950/30 shadow-lg shadow-blue-900/20' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
+                el.innerHTML = `<div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-lg" style="color:#${drone.color.toString(16).padStart(6, '0')}">${drone.name}</h3><div class="text-xs text-gray-400 mt-1">${drone.typeNote}</div></div><span class="text-xs rounded-full px-2 py-1 bg-gray-700 text-gray-200">${drone.sizeMm}mm</span></div><div class="grid grid-cols-3 gap-2 mt-3 text-xs text-gray-300"><div>Speed ${drone.speed}</div><div>Agility ${drone.agility}</div><div>Weight ${drone.weight}</div></div><div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-400"><div>Mass ${formatMassKg(drone.massKg)}</div><div>Battery ${drone.batteryNominal.toFixed(1)}V</div><div>Flight ${formatMinutes(drone.flightTimeMin)}</div></div><div class="text-xs text-cyan-300 mt-2">${bestLabel}: ${bestValue}</div>${droneBars}<div class="mt-4 flex gap-2"><button data-action="select" class="flex-1 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-[0.2em]">${selected ? 'Select Again' : 'Select Drone'}</button><button data-action="detail" class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-950 border border-gray-700 text-gray-200 text-xs font-bold uppercase tracking-[0.2em]">Detail</button></div>`;
                 el.querySelector('[data-action="select"]').onclick = () => {
                     state.droneClassId = drone.classId;
                     state.droneId = drone.id;
@@ -3500,17 +4730,30 @@
             const grid = document.getElementById('terrain-grid'); grid.innerHTML = '';
             TRACKS.forEach(t => {
                 const best = getBestTime(t.id, state.droneClassId);
+                const courseBars = renderStatBars(getCourseStatBars(t), 'cyan');
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left p-4 rounded border transition-colors ${state.track?.id===t.id ? 'border-cyan-400 bg-cyan-950/30' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
-                btn.innerHTML = `<div class="flex justify-between"><h3 class="font-bold">${t.name}</h3><div class="flex items-center gap-2"><span class="text-xs bg-gray-700 px-2 rounded">${t.terrain}</span>${t.compact ? '<span class="text-[10px] uppercase tracking-[0.25em] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full border border-emerald-400/30">Compact</span>' : ''}</div></div><div class="text-xs text-gray-400 mt-2">${t.profile} / ${t.difficulty} / Gates: ${t.gates} / Length: ${t.lengthMeters}m</div><div class="text-xs text-cyan-300 mt-1">${t.compact ? 'Compact Best' : 'Time Attack Best'}: ${formatTime(best)}</div><div class="text-xs text-gray-500 mt-1">${t.tagline}</div>`;
+                btn.className = `w-full text-left p-4 rounded-lg border transition-colors ${state.track?.id===t.id ? 'border-cyan-400 bg-cyan-950/30' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}`;
+                btn.innerHTML = `<div class="flex justify-between"><h3 class="font-bold">${t.name}</h3><div class="flex items-center gap-2"><span class="text-xs bg-gray-700 px-2 rounded">${t.terrain}</span>${t.compact ? '<span class="text-[10px] uppercase tracking-[0.25em] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full border border-emerald-400/30">Compact</span>' : ''}</div></div><div class="text-xs text-gray-400 mt-2">${t.profile} / ${t.difficulty} / Gates: ${t.gates} / Length: ${t.lengthMeters}m</div><div class="text-xs text-cyan-300 mt-1">${t.compact ? 'Compact Best' : 'Time Attack Best'}: ${formatTime(best)}</div><div class="text-xs text-gray-500 mt-1">${t.tagline}</div>${courseBars}`;
                 btn.onclick = () => initGame('OPEN_WORLD', t.id);
                 grid.appendChild(btn);
             });
         }
 
         // --- BINDING ---
+        function ensureScoreAttackMenuButton() {
+            const timeBtn = document.getElementById('btn-mode-timeattack');
+            if (!timeBtn || document.getElementById('btn-mode-scoreattack')) return;
+            const scoreBtn = document.createElement('button');
+            scoreBtn.id = 'btn-mode-scoreattack';
+            scoreBtn.className = 'px-6 py-3 rounded font-bold uppercase tracking-wider transition-transform transform hover:scale-105 active:scale-95 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/40 flex justify-center items-center gap-2';
+            scoreBtn.textContent = 'Score Attack';
+            timeBtn.insertAdjacentElement('afterend', scoreBtn);
+        }
+
+        ensureScoreAttackMenuButton();
         const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.onclick = fn; };
-        bind('btn-mode-timeattack', () => initGame('SELECT'));
+        bind('btn-mode-timeattack', () => initGame('SELECT', { raceMode: 'TIME_ATTACK' }));
+        bind('btn-mode-scoreattack', () => initGame('SELECT', { raceMode: 'SCORE_ATTACK' }));
         bind('btn-mode-freeselect', () => { state.mode='FREE_SELECT'; updateUI(); });
         bind('btn-back-menu', () => {
             if (state.mode === 'SELECT' && state.selectStage === 'DRONES') {
@@ -3529,7 +4772,7 @@
             initGame('MENU');
         });
         bind('btn-back-free', () => initGame('MENU'));
-        bind('btn-start-race', () => state.track && state.selectDroneConfirmed && initGame('TIME_ATTACK', state.track.id));
+        bind('btn-start-race', () => state.track && state.selectDroneConfirmed && initGame(state.pendingRaceMode === 'SCORE_ATTACK' ? 'SCORE_ATTACK' : 'TIME_ATTACK', state.track.id));
         bind('detail-panel-close', closeDetailPanel);
         bind('detail-panel-toggle', () => setDetailPanelCollapsed(!state.detailPanelCollapsed));
         bind('btn-pause', togglePause);
@@ -3580,7 +4823,21 @@
         document.getElementById('input-camera-angle').oninput = e => { state.settings.cameraAngleDeg = parseFloat(e.target.value); document.getElementById('val-camera-angle').innerText = `${state.settings.cameraAngleDeg}°`; };
         document.getElementById('input-show').onchange = e => { state.settings.showInput = e.target.checked; updateUI(); };
         document.getElementById('input-compass').onchange = e => { state.settings.showCompass = e.target.checked; updateUI(); };
+        document.getElementById('input-gate-pointer').onchange = e => { state.settings.showGatePointer = e.target.checked; updateUI(); };
         document.getElementById('input-horizon').onchange = e => { state.settings.showHorizon = e.target.checked; updateUI(); };
+        const bindTrainingAidToggle = (id, key) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.onchange = e => {
+                state.settings[key] = e.target.checked;
+                updateTrainingAidRunEligibility();
+                updateUI();
+            };
+        };
+        bindTrainingAidToggle('input-chase-camera', 'trainingChaseCamera');
+        bindTrainingAidToggle('input-assisted-flight', 'assistedFlight');
+        bindTrainingAidToggle('input-gentle-collision', 'gentleCollisionPractice');
+        bindTrainingAidToggle('input-circular-gate', 'circularGatePass');
 
         // Custom Drone Inputs
         const updateCustom = () => {
@@ -3638,20 +4895,11 @@
                 camera.updateProjectionMatrix();
 
                 if (!state.replayMode) {
-                    camera.position.copy(state.pos);
-                    camera.quaternion.copy(state.quat);
-                    const cameraAngle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(state.settings.cameraAngleDeg ?? 30, 20, 60));
-                    camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), cameraAngle));
-
-                    if (spd > 6 && !state.isCrashed) {
-                        const t = Date.now() * 0.001;
-                        const vib = Math.min(0.055, spd * 0.0016);
-                        camera.position.x += Math.sin(t * 23.7) * vib;
-                        camera.position.y += Math.cos(t * 17.9) * vib;
-                    }
+                    updateFlightCamera(dt, spd);
                 }
             }
             updateGhostVisuals();
+            updatePlayerDroneVisual();
             renderer.render(scene, camera);
             hudAccumulator += dt;
             if (hudAccumulator >= HUD_STEP || state.isPaused || state.mode === 'MENU') {
