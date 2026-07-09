@@ -17,7 +17,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="FPVドローン・レーシングシミュレーター | SkyRacers FPV | Xenoah">
   <meta name="twitter:description" content="ブラウザでFPVドローンの操縦、タイムアタック、フリーフライト、機体チューニングを体験できる3Dゲームです。 / A browser-based 3D FPV drone simulator with racing, free flight and drone tuning.">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom Scrollbar & Range Input */
         ::-webkit-scrollbar { width: 8px; }
@@ -25,6 +25,7 @@
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         input[type=range] { height: 0.5rem; background-color: #374151; border-radius: 0.5rem; appearance: none; cursor: pointer; }
+        html, body { min-height: 100dvh; }
         
         /* Loading Overlay */
         #loading-screen {
@@ -55,7 +56,7 @@
         .touch-ui {
             position: absolute;
             inset: auto 0 0 0;
-            padding: 1rem;
+            padding: 1rem max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
             pointer-events: none;
             display: none;
             touch-action: none;
@@ -127,6 +128,56 @@
             transform: scale(0.96);
             background: rgba(37,99,235,0.45);
         }
+        @media (max-width: 640px) {
+            #screen-hud {
+                padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+            }
+            #screen-hud > .flex:first-child {
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            #screen-hud > .flex:first-child > .bg-black\/40:first-child {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.35rem;
+                padding: 0.55rem 0.65rem;
+                max-width: calc(100vw - 1.5rem);
+                font-size: 0.68rem;
+            }
+            #screen-hud > .flex:first-child > .bg-black\/40:first-child .w-px {
+                display: none;
+            }
+            #hud-timer-container {
+                min-width: 158px;
+                padding: 0.6rem 0.85rem;
+            }
+            #hud-timer {
+                font-size: 1.5rem;
+                line-height: 1.9rem;
+            }
+            #hud-compass canvas {
+                width: min(280px, calc(100vw - 2rem));
+                height: 39px;
+            }
+            #btn-pause,
+            #hud-sector-strip,
+            #hud-ghost-status {
+                display: none !important;
+            }
+            #hud-horizon,
+            #input-viz-container {
+                display: none !important;
+            }
+            .touch-stick {
+                width: clamp(92px, 28vw, 112px);
+                height: clamp(92px, 28vw, 112px);
+            }
+            .touch-action-btn {
+                width: clamp(48px, 15vw, 58px);
+                height: clamp(48px, 15vw, 58px);
+                font-size: 0.62rem;
+            }
+        }
         @media (min-width: 768px) {
             .touch-ui {
                 padding: 1.5rem;
@@ -138,7 +189,7 @@
         }
     </style>
 </head>
-<body class="bg-black text-white select-none overflow-hidden w-full h-screen relative font-sans">
+<body class="bg-black text-white select-none overflow-hidden w-full min-h-[100dvh] relative font-sans">
 
     <!-- Loading Screen -->
     <div id="loading-screen">
@@ -335,7 +386,7 @@
 
             <div id="mission-start-msg" class="absolute top-1/4 left-0 right-0 text-center pointer-events-none transition-opacity duration-500">
                 <h2 id="txt-mission-title" class="text-4xl md:text-6xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse">TIME ATTACK</h2>
-                <p id="txt-mission-sub" class="text-blue-200 mt-2 bg-black/50 inline-block px-4 py-1 rounded backdrop-blur">Fly through the first gate and keep the laps flowing.</p>
+                <p id="txt-mission-sub" class="text-blue-200 mt-2 bg-black/50 inline-block px-4 py-1 rounded backdrop-blur">Gold gate starts the timer. Cyan compass marker points to the next gate; match altitude before crossing.</p>
             </div>
 
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/30">
@@ -359,6 +410,7 @@
                     </div>
                     <div class="flex items-end gap-3">
                         <div class="flex flex-col gap-3 pb-1">
+                            <button id="mobile-btn-respawn" class="touch-action-btn">GATE</button>
                             <button id="mobile-btn-reset" class="touch-action-btn">RESET</button>
                             <button id="mobile-btn-pause" class="touch-action-btn">PAUSE</button>
                         </div>
@@ -389,9 +441,9 @@
         </div>
 
         <!-- POPUP: Race Finished -->
-        <div id="popup-finish" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto">
+        <div id="popup-finish" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto" role="dialog" aria-modal="true" aria-labelledby="finish-title">
             <div class="bg-gray-900/90 border border-blue-500/30 p-8 rounded-2xl text-center shadow-2xl max-w-md w-full mx-4">
-                <h2 class="text-4xl font-bold mb-2 italic text-white">LAP COMPLETE</h2>
+                <h2 id="finish-title" class="text-4xl font-bold mb-2 italic text-white">LAP COMPLETE</h2>
                 <p id="finish-time" class="text-6xl font-mono text-green-400 mb-2 font-bold tracking-tighter">00.00s</p>
                 <p id="finish-best" class="text-sm font-mono text-cyan-300 mb-4 tracking-wide">BEST --</p>
                 <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-800/60 p-3 rounded-lg text-left">
@@ -414,7 +466,7 @@
                 </div>
                 <div id="finish-sectors" class="mb-6 grid grid-cols-3 gap-2 text-left text-xs font-mono"></div>
                 <div class="flex flex-col gap-3">
-                    <button id="btn-finish-replay" class="w-full px-6 py-3 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Best</button>
+                    <button id="btn-finish-replay" class="w-full px-6 py-3 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Last</button>
                     <button id="btn-finish-reset" class="w-full px-6 py-3 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Restart Run</button>
                     <button id="btn-finish-menu" class="w-full px-6 py-3 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700">Back to Menu</button>
                 </div>
@@ -431,9 +483,9 @@
         </div>
 
         <!-- POPUP: Pause Menu -->
-        <div id="popup-pause" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur flex items-center justify-center pointer-events-auto">
+        <div id="popup-pause" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur flex items-center justify-center pointer-events-auto" role="dialog" aria-modal="true" aria-labelledby="pause-title">
             <div class="bg-gray-900 border border-gray-700 p-8 rounded-xl shadow-2xl w-80 text-center space-y-4">
-                <h2 class="text-2xl font-bold text-white">PAUSED</h2>
+                <h2 id="pause-title" class="text-2xl font-bold text-white">PAUSED</h2>
                 <button id="btn-resume" class="w-full px-6 py-2 rounded font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white">Resume</button>
                 <button id="btn-settings-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-gray-800 hover:bg-gray-700 text-white border border-gray-600">Settings</button>
                 <button id="btn-replay-pause" class="w-full px-6 py-2 rounded font-bold uppercase bg-emerald-700 hover:bg-emerald-600 text-white">Replay Best</button>
@@ -443,10 +495,10 @@
         </div>
 
         <!-- POPUP: Settings -->
-        <div id="popup-settings" class="hidden absolute inset-0 z-60 bg-black/90 flex items-center justify-center pointer-events-auto p-4 overflow-y-auto">
+        <div id="popup-settings" class="hidden absolute inset-0 z-60 bg-black/90 flex items-center justify-center pointer-events-auto p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="settings-title">
             <div class="bg-gray-800 p-6 md:p-8 rounded-xl w-full max-w-lg text-white shadow-2xl my-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold flex items-center gap-2">SETTINGS</h2>
+                    <h2 id="settings-title" class="text-2xl font-bold flex items-center gap-2">SETTINGS</h2>
                     <button id="btn-close-settings" class="px-4 py-1 rounded bg-gray-700 hover:bg-gray-600">Close</button>
                 </div>
                 <div class="space-y-6">
@@ -461,7 +513,7 @@
                     </div>
 
                     <div>
-                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Master Volume <span id="val-volume">40%</span></label>
+                        <label for="input-volume" class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Master Volume <span id="val-volume">40%</span></label>
                         <input type="range" id="input-volume" min="0" max="1" step="0.1" value="0.4" class="w-full accent-blue-500">
                     </div>
                     <div class="border-t border-gray-700 pt-4">
@@ -475,12 +527,14 @@
                     </div>
                     <div class="border-t border-gray-700 pt-4">
                         <h3 class="text-lg font-bold mb-4 text-blue-400">FLIGHT CONTROLLER</h3>
-                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">RC Rate (Sensitivity) <span id="val-rate">1.0</span></label>
+                        <label for="input-rate" class="flex justify-between mb-2 text-gray-300 font-mono text-sm">RC Rate (Sensitivity) <span id="val-rate">1.0</span></label>
                         <input type="range" id="input-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full accent-green-500 mb-4">
-                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Expo (Curve) <span id="val-expo">0.2</span></label>
+                        <label for="input-expo" class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Expo (Curve) <span id="val-expo">0.2</span></label>
                         <input type="range" id="input-expo" min="0" max="0.8" step="0.1" value="0.2" class="w-full accent-purple-500 mb-4">
-                        <label class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Deadzone <span id="val-deadzone">0.05</span></label>
-                        <input type="range" id="input-deadzone" min="0" max="0.2" step="0.01" value="0.05" class="w-full accent-red-500">
+                        <label for="input-deadzone" class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Deadzone <span id="val-deadzone">0.05</span></label>
+                        <input type="range" id="input-deadzone" min="0" max="0.2" step="0.01" value="0.05" class="w-full accent-red-500 mb-4">
+                        <label for="input-camera-angle" class="flex justify-between mb-2 text-gray-300 font-mono text-sm">Camera Angle <span id="val-camera-angle">30°</span></label>
+                        <input type="range" id="input-camera-angle" min="20" max="60" step="1" value="30" class="w-full accent-cyan-500">
                     </div>
                     <div class="border-t border-gray-700 pt-4">
                         <h3 class="text-lg font-bold mb-3 text-green-400">HUD OVERLAYS</h3>

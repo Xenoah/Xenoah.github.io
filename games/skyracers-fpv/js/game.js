@@ -13,7 +13,7 @@
                 prep: "FLIGHT PREP",
                 selectTerrain: "SELECT FREE FLIGHT COURSE",
                 missionStart: "TIME ATTACK",
-                missionSub: "Fly through the first gate and keep the laps flowing.",
+                missionSub: "Gold gate starts the timer. Cyan compass marker points to the next gate; match altitude before crossing.",
                 courseComplete: "LAP COMPLETE",
                 replay: "Restart Run",
                 toMenu: "Back to Menu",
@@ -32,7 +32,7 @@
                 prep: "フライト準備",
                 selectTerrain: "地形選択",
                 missionStart: "タイムアタック",
-                missionSub: "最初のゲートを通過してラップをつなげよう。",
+                missionSub: "金色のゲートで計測開始。シアンのコンパスが次ゲート方向、高度差も合わせよう。",
                 courseComplete: "ラップ完了",
                 replay: "再スタート",
                 toMenu: "メニューへ戻る",
@@ -388,6 +388,42 @@
             return Math.round(total);
         }
 
+        function getGateTravelDirection(gateIndex, gateLayout = state.gates) {
+            if (!Array.isArray(gateLayout) || !gateLayout[gateIndex]) return new THREE.Vector3(0, 0, 1);
+            const current = gateLayout[gateIndex].posVec;
+            const next = gateLayout[Math.min(gateIndex + 1, gateLayout.length - 1)]?.posVec;
+            const previous = gateLayout[Math.max(gateIndex - 1, 0)]?.posVec;
+            const target = gateIndex < gateLayout.length - 1 ? next : previous;
+            const dir = gateIndex < gateLayout.length - 1
+                ? target.clone().sub(current)
+                : current.clone().sub(target);
+            dir.setY(0);
+            if (dir.lengthSq() < 0.0001) dir.set(0, 0, 1);
+            return dir.normalize();
+        }
+
+        function didPassGate(gateIndex, previousPos, currentPos) {
+            const gate = state.gates?.[gateIndex];
+            if (!gate || !previousPos || !currentPos) return false;
+            const normal = getGateTravelDirection(gateIndex);
+            const prevSide = previousPos.clone().sub(gate.posVec).dot(normal);
+            const currSide = currentPos.clone().sub(gate.posVec).dot(normal);
+            if (prevSide > 0.2 || currSide < -0.2) return false;
+
+            const denom = currSide - prevSide;
+            const crossing = Math.abs(denom) > 0.0001
+                ? previousPos.clone().lerp(currentPos, THREE.MathUtils.clamp(-prevSide / denom, 0, 1))
+                : currentPos.clone();
+            const right = new THREE.Vector3(normal.z, 0, -normal.x).normalize();
+            const localX = crossing.clone().sub(gate.posVec).dot(right);
+            const localY = crossing.y - gate.posVec.y;
+            return Math.abs(localX) <= GATE_HALF_OPENING && Math.abs(localY) <= GATE_HALF_OPENING;
+        }
+
+        const GATE_HALF_OPENING = 5.2;
+        const GATE_FRAME_OFFSET = 5.55;
+        const GATE_FRAME_THICKNESS = 0.32;
+
         function getPropFootprintRadius(prop) {
             const size = prop?.size || [0, 0, 0];
             return Math.max(4, Math.hypot(size[0] * 0.5, size[2] * 0.5));
@@ -512,8 +548,11 @@
 
         const BEST_TIME_COOKIE_NAME = 'xnh_best_times';
         const LAP_DATA_STORAGE_KEY = 'xnh_lap_data_v1';
+        const SAVE_SCHEMA_VERSION = 2;
+        const PHYSICS_VERSION = 'fpv-fixedstep-gateplane-2026-07';
         const MAX_LEADERBOARD_ENTRIES = 10;
         const DEFAULT_SECTOR_COUNT = 3;
+        const MAX_VALID_LAP_SECONDS = 60 * 60;
 
         function readCookieValue(name) {
             const prefix = `${name}=`;
@@ -521,21 +560,40 @@
             return entry ? decodeURIComponent(entry.slice(prefix.length)) : '';
         }
 
+        function getEmptyLapDataStore() {
+            return { leaderboards: {}, sectorBests: {}, ghosts: {} };
+        }
+
+        function isValidRecordKey(key) {
+            return typeof key === 'string' && /^[A-Za-z0-9_-]+::[A-Za-z0-9_-]+$/.test(key);
+        }
+
+        function normalizeTimeValue(value, allowZero = false) {
+            const number = Number(value);
+            if (!Number.isFinite(number)) return null;
+            if (allowZero ? number < 0 : number <= 0) return null;
+            if (number > MAX_VALID_LAP_SECONDS) return null;
+            return Number(number.toFixed(3));
+        }
+
+        function normalizeBestTimesStore(raw) {
+            if (!raw || typeof raw !== 'object') return {};
+            const store = {};
+            Object.entries(raw).forEach(([key, value]) => {
+                if (!isValidRecordKey(key)) return;
+                const normalized = normalizeTimeValue(value);
+                if (normalized !== null) store[key] = normalized;
+            });
+            return store;
+        }
+
         function loadBestTimesFromCookie() {
             try {
                 const raw = readCookieValue(BEST_TIME_COOKIE_NAME);
-                if (!raw) return {};
-                const parsed = JSON.parse(raw);
-                return Object.fromEntries(
-                    Object.entries(parsed).filter(([trackId, value]) => typeof trackId === 'string' && Number.isFinite(value))
-                );
+                return raw ? normalizeBestTimesStore(JSON.parse(raw)) : {};
             } catch (err) {
                 return {};
             }
-        }
-
-        function getEmptyLapDataStore() {
-            return { leaderboards: {}, sectorBests: {}, ghosts: {} };
         }
 
         function readLocalStorageValue(key) {
@@ -558,50 +616,71 @@
 
         function normalizeLapRecord(record) {
             if (!record || !Array.isArray(record.samples)) return null;
+            let previousTime = -1;
             const samples = record.samples
                 .map(sample => Array.isArray(sample) ? sample.slice(0, 8).map(Number) : null)
-                .filter(sample => sample && sample.length === 8 && sample.every(Number.isFinite));
+                .filter(sample => {
+                    if (!sample || sample.length !== 8 || !sample.every(Number.isFinite) || sample[0] < 0 || sample[0] > MAX_VALID_LAP_SECONDS) return false;
+                    if (sample[0] < previousTime) return false;
+                    previousTime = sample[0];
+                    return true;
+                });
             if (samples.length < 2) return null;
+            const duration = normalizeTimeValue(record.duration) ?? normalizeTimeValue(samples[samples.length - 1][0]);
+            if (duration === null) return null;
             return {
-                duration: Number.isFinite(record.duration) ? Number(record.duration) : samples[samples.length - 1][0],
-                sectors: Array.isArray(record.sectors) ? record.sectors.filter(Number.isFinite).map(value => Number(value)) : [],
+                duration,
+                sectors: Array.isArray(record.sectors) ? record.sectors.map(value => normalizeTimeValue(value, true)).filter(value => value !== null) : [],
                 samples
             };
+        }
+
+        function normalizeLapDataStore(parsed) {
+            const store = getEmptyLapDataStore();
+            if (!parsed || typeof parsed !== 'object') return store;
+            if (parsed?.leaderboards && typeof parsed.leaderboards === 'object') {
+                Object.entries(parsed.leaderboards).forEach(([key, value]) => {
+                    if (!isValidRecordKey(key) || !Array.isArray(value)) return;
+                    store.leaderboards[key] = value
+                        .map(item => normalizeTimeValue(item))
+                        .filter(item => item !== null)
+                        .sort((a, b) => a - b)
+                        .slice(0, MAX_LEADERBOARD_ENTRIES);
+                });
+            }
+            if (parsed?.sectorBests && typeof parsed.sectorBests === 'object') {
+                Object.entries(parsed.sectorBests).forEach(([key, value]) => {
+                    if (!isValidRecordKey(key) || !Array.isArray(value)) return;
+                    store.sectorBests[key] = value
+                        .map(item => normalizeTimeValue(item, true))
+                        .filter(item => item !== null);
+                });
+            }
+            if (parsed?.ghosts && typeof parsed.ghosts === 'object') {
+                Object.entries(parsed.ghosts).forEach(([key, value]) => {
+                    if (!isValidRecordKey(key)) return;
+                    const normalized = normalizeLapRecord(value);
+                    if (normalized) store.ghosts[key] = normalized;
+                });
+            }
+            return store;
         }
 
         function loadLapDataStore() {
             try {
                 const raw = readLocalStorageValue(LAP_DATA_STORAGE_KEY);
-                if (!raw) return getEmptyLapDataStore();
-                const parsed = JSON.parse(raw);
-                const store = getEmptyLapDataStore();
-                if (parsed?.leaderboards && typeof parsed.leaderboards === 'object') {
-                    Object.entries(parsed.leaderboards).forEach(([key, value]) => {
-                        if (!Array.isArray(value)) return;
-                        store.leaderboards[key] = value.filter(Number.isFinite).map(item => Number(item)).sort((a, b) => a - b).slice(0, MAX_LEADERBOARD_ENTRIES);
-                    });
-                }
-                if (parsed?.sectorBests && typeof parsed.sectorBests === 'object') {
-                    Object.entries(parsed.sectorBests).forEach(([key, value]) => {
-                        if (!Array.isArray(value)) return;
-                        store.sectorBests[key] = value.filter(Number.isFinite).map(item => Number(item));
-                    });
-                }
-                if (parsed?.ghosts && typeof parsed.ghosts === 'object') {
-                    Object.entries(parsed.ghosts).forEach(([key, value]) => {
-                        const normalized = normalizeLapRecord(value);
-                        if (normalized) store.ghosts[key] = normalized;
-                    });
-                }
-                return store;
+                return raw ? normalizeLapDataStore(JSON.parse(raw)) : getEmptyLapDataStore();
             } catch (err) {
                 return getEmptyLapDataStore();
             }
         }
         // タッチ対応PCへ仮想スティックを誤表示しないよう、UAと小画面・粗いポインターを併用する。
         const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isSmallTouchScreen = (window.matchMedia?.('(pointer: coarse)')?.matches ?? false) && window.innerWidth < 1024;
-        const prefersTouchControls = isMobileUA || isSmallTouchScreen;
+        function prefersTouchControlsNow() {
+            const isSmallTouchScreen = (window.matchMedia?.('(pointer: coarse)')?.matches ?? false) && window.innerWidth < 1024;
+            return isMobileUA || isSmallTouchScreen || (navigator.maxTouchPoints > 1 && window.matchMedia?.('(pointer: coarse)')?.matches);
+        }
+        const prefersTouchControls = prefersTouchControlsNow();
 
         const state = {
             lang: 'EN',
@@ -623,6 +702,7 @@
             // レース・損傷・バッテリー・記録の進行状態。
             status: 'READY',
             startTime: 0,
+            pauseStartedAt: 0,
             finishTime: 0,
             autoRestartTimer: 0,
             currentGate: 0,
@@ -636,7 +716,7 @@
             lastImpactSound: 0,
             throttleLocked: false,
 
-            settings: { volume: 0.4, videoQuality: 'TEXTURED', rate: 1.0, expo: 0.2, deadzone: 0.05, showInput: false, showCompass: true, showHorizon: true },
+            settings: { volume: 0.4, videoQuality: 'TEXTURED', rate: 1.0, expo: 0.2, deadzone: 0.05, cameraAngleDeg: 30, showInput: false, showCompass: true, showHorizon: true },
             bestTimes: loadBestTimesFromCookie(),
             
             // 前フレームのボタン状態を残し、押しっぱなしによる多重実行を防ぐ。
@@ -652,7 +732,8 @@
                 enabled: prefersTouchControls,
                 left: { x: 0, y: 0, pointerId: null },
                 right: { x: 0, y: 0, pointerId: null },
-                resetPressed: false
+                resetPressed: false,
+                respawnPressed: false
             },
             gamepadCalibration: { active: false, axes: [0,0,0,0] }, // 未使用（キャリブレーション廃止）
             bannerHideTimer: null,
@@ -676,6 +757,7 @@
             replayMode: false,
             replayRecord: null,
             replaySource: 'BEST',
+            replayReturnTarget: 'FINISH',
             replayTime: 0,
             respawnCooldown: 0,
             rankLastLap: null,
@@ -724,7 +806,9 @@
                 if (!Number.isFinite(value)) return;
                 sectorBest[index] = Number.isFinite(sectorBest[index]) ? Math.min(sectorBest[index], value) : value;
             });
-            state.lapData.sectorBests[key] = sectorBest.map(value => Number(value.toFixed(3)));
+            state.lapData.sectorBests[key] = sectorBest
+                .map(value => Number.isFinite(value) ? Number(value.toFixed(3)) : null)
+                .filter(value => value !== null);
 
             let ghostSaved = false;
             const currentBest = getGhostRecord(trackId, droneClassId);
@@ -745,7 +829,26 @@
 
         function getCurrentLapTimeSeconds() {
             if (!state.startTime) return 0;
-            return (Date.now() - state.startTime) / 1000 + state.timePenaltySeconds;
+            const now = state.pauseStartedAt || Date.now();
+            return (now - state.startTime) / 1000 + state.timePenaltySeconds;
+        }
+
+        function shouldFreezeRaceClock() {
+            return state.mode === 'TIME_ATTACK' && state.status === 'RUNNING' && state.startTime && !state.replayMode;
+        }
+
+        function beginRaceClockPause() {
+            if (shouldFreezeRaceClock() && !state.pauseStartedAt) state.pauseStartedAt = Date.now();
+        }
+
+        function endRaceClockPause() {
+            if (!state.pauseStartedAt) return;
+            if (state.startTime) state.startTime += Date.now() - state.pauseStartedAt;
+            state.pauseStartedAt = 0;
+        }
+
+        function clearRaceClockPause() {
+            state.pauseStartedAt = 0;
         }
 
         function getSectorGateIndices(track) {
@@ -776,8 +879,8 @@
             const target = Math.max(0, Math.min(timeSeconds, record.duration));
             const samples = record.samples;
             let upperIndex = samples.findIndex(sample => sample[0] >= target);
-            if (upperIndex <= 0) upperIndex = 1;
             if (upperIndex < 0) upperIndex = samples.length - 1;
+            else if (upperIndex === 0) upperIndex = 1;
             const prev = samples[upperIndex - 1];
             const next = samples[upperIndex];
             const span = Math.max(0.0001, next[0] - prev[0]);
@@ -864,11 +967,11 @@
             if (state.lang === 'JP') {
                 if (kind === 'finish-new-record') return { title: `LAP ${lapLabel} BEST`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
                 if (kind === 'finish') return { title: `LAP ${lapLabel} COMPLETE`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
-                return { title: 'TIME ATTACK', sub: '最初のゲートを通過してラップをつなげよう。' };
+                return { title: 'TIME ATTACK', sub: '金色のゲートで計測開始。シアンのコンパスが次ゲート方向、高度差も合わせよう。' };
             }
             if (kind === 'finish-new-record') return { title: `LAP ${lapLabel} NEW RECORD`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
             if (kind === 'finish') return { title: `LAP ${lapLabel} COMPLETE`, sub: `Lap ${lapTime}  BEST ${bestTime}` };
-            return { title: 'TIME ATTACK', sub: 'Fly through the first gate and keep the laps flowing.' };
+            return { title: 'TIME ATTACK', sub: 'Gold gate starts the timer. Cyan compass marker points to the next gate; match altitude before crossing.' };
         }
 
         function setMissionBanner(title, sub, visible = true) {
@@ -902,6 +1005,7 @@
         function completeTimeAttackLap() {
             captureLapSample(true);
             syncSectorProgress(true);
+            clearRaceClockPause();
             state.finishTime = getCurrentLapTimeSeconds();
             state.lastLapRecord = buildLapRecord(state.lapSamples, state.sectorTimes, state.finishTime);
             state.lapCount += 1;
@@ -931,27 +1035,19 @@
                 lapCount: state.lapCount
             });
             setMissionBanner(banner.title, `${banner.sub}  RANK #${state.rankLastLap || '--'}`, true);
-            scheduleMissionBannerHide();
-            state.startTime = Date.now();
-            state.currentGate = 0;
-            state.status = 'RUNNING';
-            state.sectorTimes = [];
-            state.sectorIndex = 0;
-            state.sectorDelta = null;
-            state.sectorFlashTimer = 0;
-            state.timePenaltySeconds = 0;
-            state.lapSamples = [];
-            state.lapSampleTimer = 0;
-            rebuildGates();
-            captureLapSample(true);
+            state.status = 'FINISHED';
+            state.isPaused = true;
+            document.getElementById('popup-finish').classList.remove('hidden');
+            setTimeout(() => document.getElementById('btn-finish-reset')?.focus({ preventScroll: true }), 0);
+            updateUI();
         }
 
         function updateBestTime(trackId, seconds, droneClassId = state.droneClassId) {
             const key = getBestTimeKey(trackId, droneClassId);
-            if (!key || !Number.isFinite(seconds)) return { best: getBestTime(trackId, droneClassId), isNew: false };
+            const normalized = normalizeTimeValue(seconds);
+            if (!key || normalized === null) return { best: getBestTime(trackId, droneClassId), isNew: false };
             const previous = getBestTime(trackId, droneClassId);
-            if (previous === null || seconds < previous) {
-                const normalized = Number(seconds.toFixed(3));
+            if (previous === null || normalized < previous) {
                 state.bestTimes[key] = normalized;
                 persistBestTimesCookie();
                 return { best: normalized, previous, isNew: true };
@@ -1089,24 +1185,33 @@
             rebuildGates();
         }
 
-        function startReplay(record = state.lastLapRecord || state.ghostRecord, source = state.lastLapRecord ? 'LAST' : 'BEST') {
+        function startReplay(record = state.lastLapRecord || state.ghostRecord, source = state.lastLapRecord ? 'LAST' : 'BEST', returnTarget = 'FINISH') {
             if (!record || state.mode !== 'TIME_ATTACK') return;
+            const normalized = normalizeLapRecord(record);
+            if (!normalized) return;
+            clearRaceClockPause();
             state.replayMode = true;
-            state.replayRecord = record;
+            state.replayRecord = normalized;
             state.replaySource = source;
+            state.replayReturnTarget = returnTarget;
             state.replayTime = 0;
             state.isPaused = false;
             state.status = 'REPLAY';
             document.getElementById('popup-finish').classList.add('hidden');
+            document.getElementById('popup-pause').classList.add('hidden');
         }
 
         function stopReplay(showFinishPopup = false) {
+            const returnTarget = state.replayReturnTarget;
             state.replayMode = false;
             state.replayRecord = null;
             state.replayTime = 0;
+            state.replayReturnTarget = 'FINISH';
             state.status = 'READY';
             if (showFinishPopup) {
-                document.getElementById('popup-finish').classList.remove('hidden');
+                state.isPaused = true;
+                if (returnTarget === 'PAUSE') document.getElementById('popup-pause').classList.remove('hidden');
+                else document.getElementById('popup-finish').classList.remove('hidden');
                 updateGhostVisuals();
                 return;
             }
@@ -1129,7 +1234,7 @@
                 camera.position.copy(chasePos);
                 camera.lookAt(state.pos.clone().add(forward.clone().multiplyScalar(10)));
             }
-            if (state.replayTime >= record.duration - 0.0001) stopReplay(false);
+            if (state.replayTime >= record.duration - 0.0001) stopReplay(true);
         }
         // --- HELPER: Terrain Height ---
         function getTerrainHeight(x, y, type) {
@@ -1302,8 +1407,40 @@
 
         // --- INPUT & CONTROLS ---
         const keys = {};
-        window.addEventListener('keydown', e => { keys[e.key] = true; if(e.key === 'Escape') togglePause(); audio.resume(); });
-        window.addEventListener('keyup', e => keys[e.key] = false);
+        const flightKeyCodes = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyR', 'KeyG', 'Escape']);
+        function isFormControlTarget(target) {
+            return target instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName);
+        }
+
+        function shouldCaptureFlightKey(event) {
+            return flightKeyCodes.has(event.code)
+                && ['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode)
+                && !state.isPaused
+                && !state.replayMode
+                && !isFormControlTarget(event.target);
+        }
+
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            keys[e.key] = true;
+            if (shouldCaptureFlightKey(e)) e.preventDefault();
+            if(e.code === 'Escape') handleEscapeAction();
+            audio.resume();
+        });
+        window.addEventListener('keyup', e => {
+            keys[e.code] = false;
+            keys[e.key] = false;
+        });
+        window.addEventListener('blur', () => {
+            Object.keys(keys).forEach(key => { keys[key] = false; });
+            state.throttleStick = 0;
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                Object.keys(keys).forEach(key => { keys[key] = false; });
+                state.throttleStick = 0;
+            }
+        });
         window.addEventListener('click', () => audio.resume());
 
         function updateMobileThumb(side) {
@@ -1387,6 +1524,22 @@
                 });
             }
 
+            const respawnBtn = document.getElementById('mobile-btn-respawn');
+            if (respawnBtn) {
+                const setRespawnPressed = pressed => {
+                    state.mobile.respawnPressed = pressed;
+                    respawnBtn.classList.toggle('is-active', pressed);
+                };
+                respawnBtn.addEventListener('pointerdown', event => {
+                    event.preventDefault();
+                    audio.resume();
+                    setRespawnPressed(true);
+                });
+                ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => {
+                    respawnBtn.addEventListener(type, () => setRespawnPressed(false));
+                });
+            }
+
             const pauseBtn = document.getElementById('mobile-btn-pause');
             if (pauseBtn) {
                 pauseBtn.addEventListener('pointerdown', event => {
@@ -1403,11 +1556,22 @@
             ['left', 'right'].forEach(updateMobileThumb);
         }
 
+        function refreshTouchControlMode() {
+            const nextEnabled = prefersTouchControlsNow();
+            if (state.mobile.enabled === nextEnabled) return;
+            state.mobile.enabled = nextEnabled;
+            resetMobileStick('left');
+            resetMobileStick('right');
+            state.mobile.resetPressed = false;
+            state.mobile.respawnPressed = false;
+            updateUI();
+        }
 
-        function getControls() {
+
+        function getControls(dt = 1 / 60) {
             // Gamepad配列には空きがあり得るため、index 0固定ではなく最初の接続済みを使う。
             const gp = Array.from(navigator.getGamepads()).find(g => g && g.connected) ?? null;
-            let throt = 0, yaw = 0, pitch = 0, roll = 0, reset = false, respawn = false;
+            let throt = 0, yaw = 0, pitch = 0, roll = 0, resetHeld = false, respawnHeld = false;
 
             if (isMenuInteractionActive()) {
                 state.throttleStick = 0;
@@ -1416,7 +1580,8 @@
 
             if (gp) {
                 // 機種差で範囲外値や-1始まりの軸が来ても、操作値を必ず-1〜1へ収める。
-                const padDz = Math.max(state.settings.deadzone, 0.15);
+                const padDz = state.settings.deadzone;
+                const throttleDz = Math.max(0.04, Math.min(0.12, state.settings.deadzone));
                 const axis = i => Number.isFinite(gp.axes?.[i]) ? Math.max(-1, Math.min(1, gp.axes[i])) : 0;
 
                 const leftX  = axis(0);
@@ -1426,14 +1591,15 @@
 
                 // スロットルだけは片方向0〜1へ変換し、姿勢軸のexpoを適用しない。
                 const rawThrot = -leftY;
-                throt = rawThrot < padDz ? 0 : (rawThrot - padDz) / (1 - padDz);
+                throt = rawThrot < throttleDz ? 0 : (rawThrot - throttleDz) / (1 - throttleDz);
+                state.throttleStick = throt;
 
                 yaw   = -leftX;   // left stick right → yaw right (CW)
                 pitch =  rightY;  // right stick down → nose up
                 roll  =  rightX;  // right stick right → roll right
 
-                reset = gp.buttons[2]?.pressed; // X button
-                respawn = gp.buttons[3]?.pressed; // Y button
+                resetHeld = gp.buttons[2]?.pressed; // X button
+                respawnHeld = gp.buttons[3]?.pressed; // Y button
 
                 // Startボタンは立上り時だけ反応させる。
                 if (gp.buttons[9]?.pressed && !state.btnState[9]) togglePause();
@@ -1441,23 +1607,29 @@
 
             } else if (state.mobile.enabled) {
                 throt = Math.max(0, state.mobile.left.y);
+                state.throttleStick = throt;
                 yaw = -state.mobile.left.x;
                 pitch = -state.mobile.right.y;
                 roll = state.mobile.right.x;
-                reset = state.mobile.resetPressed;
+                resetHeld = state.mobile.resetPressed;
+                respawnHeld = state.mobile.respawnPressed;
             } else {
-                if (keys['w'] || keys['W']) state.throttleStick = Math.min(1, state.throttleStick + 0.04);
-                else state.throttleStick = 0; // W離したらスロットルオフ
+                if (!keys['KeyW'] && !keys['w'] && !keys['W'] && !keys['KeyS'] && !keys['s'] && !keys['S']) {
+                    state.throttleStick = 0;
+                }
+                const throttleRate = 1.15;
+                if (keys['KeyW'] || keys['w'] || keys['W']) state.throttleStick = Math.min(1, state.throttleStick + throttleRate * dt);
+                if (keys['KeyS'] || keys['s'] || keys['S']) state.throttleStick = Math.max(0, state.throttleStick - throttleRate * dt);
                 throt = state.throttleStick;
                 
-                if (keys['a'] || keys['A']) yaw = 1;
-                if (keys['d'] || keys['D']) yaw = -1;
+                if (keys['KeyA'] || keys['a'] || keys['A']) yaw = 1;
+                if (keys['KeyD'] || keys['d'] || keys['D']) yaw = -1;
                 if (keys['ArrowUp']) pitch = -1;
                 if (keys['ArrowDown']) pitch = 1;
                 if (keys['ArrowLeft']) roll = -1;
                 if (keys['ArrowRight']) roll = 1;
-                reset = keys['r'] || keys['R'];
-                respawn = keys['g'] || keys['G'];
+                resetHeld = keys['KeyR'] || keys['r'] || keys['R'];
+                respawnHeld = keys['KeyG'] || keys['g'] || keys['G'];
             }
 
             const batteryEmpty = state.battery <= getSelectedDroneStats().batteryMin;
@@ -1475,6 +1647,11 @@
                 const curved = raw * (1 - state.settings.expo) + Math.pow(raw, 3) * state.settings.expo;
                 return Math.sign(v) * curved * state.settings.rate;
             };
+
+            const reset = !!resetHeld && !state.btnState.reset;
+            const respawn = !!respawnHeld && !state.btnState.respawn;
+            state.btnState.reset = !!resetHeld;
+            state.btnState.respawn = !!respawnHeld;
 
             return { throttle: throt, yaw: apply(yaw), pitch: apply(pitch), roll: apply(roll), reset, respawn };
         }
@@ -1502,14 +1679,37 @@
             const gp = Array.from(navigator.getGamepads()).find(g => g && g.connected) ?? null;
             if (!gp) return;
 
+            if (gp.buttons[9]?.pressed && !state.btnState[9]) {
+                state.btnState[9] = true;
+                if (isVisibleElement('popup-settings')) document.getElementById('btn-close-settings')?.click();
+                else if (isVisibleElement('popup-pause')) togglePause();
+            } else if (!gp.buttons[9]?.pressed) {
+                state.btnState[9] = false;
+            }
+
             // 表示中の画面とポップアップから操作可能要素を抽出する。
             const visibleScreens = Array.from(document.querySelectorAll('.screen:not(.hidden), div[id^="popup-"]:not(.hidden)'));
             // DOM順で最後の表示要素を最前面ポップアップとして扱う。
             const activeContainer = visibleScreens[visibleScreens.length - 1];
             if (!activeContainer) return;
 
-            const interactables = Array.from(activeContainer.querySelectorAll('button:not(:disabled), input[type="range"]'));
+            const interactables = Array.from(activeContainer.querySelectorAll('button:not(:disabled), input[type="range"], input[type="checkbox"]'));
             if (interactables.length === 0) return;
+            state.menuIndex = Math.max(0, Math.min(state.menuIndex || 0, interactables.length - 1));
+            const setMenuFocus = index => {
+                state.menuIndex = Math.max(0, Math.min(index, interactables.length - 1));
+                interactables.forEach(el => el.classList.remove('btn-focus'));
+                const selected = interactables[state.menuIndex];
+                selected.classList.add('btn-focus');
+                selected.focus?.({ preventScroll: true });
+                selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+            if (!interactables.some(el => el.classList.contains('btn-focus'))) {
+                const preferred = activeContainer.querySelector('.btn-primary, #btn-resume, #btn-start-race:not(:disabled), #btn-finish-reset, #btn-mode-timeattack');
+                const preferredIndex = interactables.indexOf(preferred);
+                if (preferredIndex >= 0) state.menuIndex = preferredIndex;
+                setMenuFocus(state.menuIndex);
+            }
 
             // D-padとスティックの連続入力は150ms間隔へ制限する。
             const now = Date.now();
@@ -1527,6 +1727,23 @@
             if (menuAxis(0) < -menuThreshold || gp.buttons[14]?.pressed) move = -1; // Left
             if (menuAxis(0) > menuThreshold || gp.buttons[15]?.pressed) move = 1; // Right
 
+            const horizontalDirection = (menuAxis(0) < -menuThreshold || gp.buttons[14]?.pressed)
+                ? -1
+                : (menuAxis(0) > menuThreshold || gp.buttons[15]?.pressed) ? 1 : 0;
+            const selected = interactables[state.menuIndex];
+            if (horizontalDirection !== 0 && selected?.type === 'range') {
+                const rawStep = selected.step === 'any' ? (Number(selected.max) - Number(selected.min)) / 100 : Number(selected.step || 1);
+                const step = Number.isFinite(rawStep) && rawStep > 0 ? rawStep : 1;
+                const min = Number.isFinite(Number(selected.min)) ? Number(selected.min) : 0;
+                const max = Number.isFinite(Number(selected.max)) ? Number(selected.max) : 1;
+                const current = Number.isFinite(Number(selected.value)) ? Number(selected.value) : min;
+                selected.value = String(Number(clampNumber(current + step * horizontalDirection, min, max).toFixed(4)));
+                selected.dispatchEvent(new Event('input', { bubbles: true }));
+                selected.dispatchEvent(new Event('change', { bubbles: true }));
+                state.lastMenuMove = now;
+                return;
+            }
+
             if (move !== 0) {
                 state.lastMenuMove = now;
                 state.menuIndex += move;
@@ -1537,6 +1754,7 @@
                 // ネイティブfocusではなく、ゲーム用クラスで選択位置を表示する。
                 interactables.forEach(el => el.classList.remove('btn-focus'));
                 interactables[state.menuIndex].classList.add('btn-focus');
+                interactables[state.menuIndex].focus?.({ preventScroll: true });
                 interactables[state.menuIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
@@ -1552,7 +1770,7 @@
             if (gp.buttons[1]?.pressed && !state.btnState[1]) {
                 state.btnState[1] = true;
                 // 画面ごとに異なる戻るボタンIDから、現在存在するものを選ぶ。
-                const closeBtn = activeContainer.querySelector('#btn-back-menu, #btn-back-free, #btn-close-settings, #btn-quit, #btn-finish-menu');
+                const closeBtn = activeContainer.querySelector('#btn-resume, #btn-back-menu, #btn-back-free, #btn-close-settings, #btn-finish-menu, #btn-quit');
                 if (closeBtn) closeBtn.click();
             } else if (!gp.buttons[1]?.pressed) {
                 state.btnState[1] = false;
@@ -1587,7 +1805,7 @@
                 return;
             }
 
-            const c = getControls();
+            const c = getControls(dt);
             state.lastControls = c;
             state.respawnCooldown = Math.max(0, state.respawnCooldown - dt);
             state.lapSampleTimer += dt;
@@ -1604,7 +1822,7 @@
             const rs = stats.agility * 2.5;
             const targetAv = new THREE.Vector3(c.pitch * rs, c.yaw * rs, -c.roll * rs);
             const motorResp = stats.motorResponse || 11;
-            state.angVel.lerp(targetAv, motorResp * dt);
+            state.angVel.lerp(targetAv, 1 - Math.exp(-motorResp * dt));
 
             const angSpeed = state.angVel.length();
             if (c.throttle < 0.28 && angSpeed > 3.5) {
@@ -1632,6 +1850,7 @@
             const newSpeed = state.vel.length();
             if (newSpeed > state.maxSpeed) state.maxSpeed = newSpeed;
 
+            const previousPos = state.pos.clone();
             state.pos.add(state.vel.clone().multiplyScalar(dt));
             audio.update(c.throttle, newSpeed);
 
@@ -1659,7 +1878,7 @@
 
             if (state.mode === 'TIME_ATTACK' && state.gates && state.currentGate < state.gates.length) {
                 const g = state.gates[state.currentGate];
-                if (state.pos.distanceTo(g.posVec) < 5) {
+                if (didPassGate(state.currentGate, previousPos, state.pos)) {
                     if (state.currentGate === 0 && state.status === 'READY') {
                         state.status = 'RUNNING';
                         state.startTime = Date.now();
@@ -1938,7 +2157,8 @@
         }
 
         function resolveWorldCollisions() {
-            const radius = 1.2;
+            const stats = getSelectedDroneStats();
+            const radius = THREE.MathUtils.clamp(0.55 + (stats.sizeMm || 220) / 520, 0.65, 2.45);
             for (let pass = 0; pass < 2; pass++) {
                 state.worldColliders.forEach(collider => {
                     const hit = resolveBoxCollision(state.pos, collider, radius);
@@ -1961,10 +2181,60 @@
             }
         }
 
+        function addGateFrameColliders(gate, gateIndex) {
+            const normal = getGateTravelDirection(gateIndex);
+            const right = new THREE.Vector3(normal.z, 0, -normal.x).normalize();
+            const rotationY = Math.atan2(normal.x, normal.z);
+            const addCollider = (center, half) => {
+                state.worldColliders.push({
+                    center,
+                    half,
+                    rotationY,
+                    isGate: true
+                });
+            };
+            const center = gate.posVec;
+            addCollider(center.clone().addScaledVector(right, GATE_FRAME_OFFSET), new THREE.Vector3(GATE_FRAME_THICKNESS, 4.9, 0.42));
+            addCollider(center.clone().addScaledVector(right, -GATE_FRAME_OFFSET), new THREE.Vector3(GATE_FRAME_THICKNESS, 4.9, 0.42));
+            addCollider(center.clone().add(new THREE.Vector3(0, GATE_FRAME_OFFSET, 0)), new THREE.Vector3(GATE_FRAME_OFFSET, GATE_FRAME_THICKNESS, 0.42));
+            addCollider(center.clone().add(new THREE.Vector3(0, -GATE_FRAME_OFFSET, 0)), new THREE.Vector3(GATE_FRAME_OFFSET, GATE_FRAME_THICKNESS, 0.42));
+        }
+
+        function addGateFrameVisual(gate, gateIndex, color) {
+            const normal = getGateTravelDirection(gateIndex);
+            const right = new THREE.Vector3(normal.z, 0, -normal.x).normalize();
+            const rotationY = Math.atan2(normal.x, normal.z);
+            const material = new THREE.MeshStandardMaterial({
+                color,
+                emissive: color,
+                emissiveIntensity: gateIndex === state.currentGate ? 1.4 : 0.35,
+                transparent: true,
+                opacity: gateIndex === state.currentGate ? 0.8 : 0.52,
+                depthWrite: false
+            });
+            const addBar = (center, size) => {
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), material);
+                mesh.position.copy(center);
+                mesh.rotation.y = rotationY;
+                mesh.userData.isGate = true;
+                mesh.renderOrder = gateIndex === state.currentGate ? 32 : 0;
+                worldGroup.add(mesh);
+            };
+            const center = gate.posVec;
+            addBar(center.clone().addScaledVector(right, GATE_FRAME_OFFSET), new THREE.Vector3(GATE_FRAME_THICKNESS * 2, 10.1, 0.5));
+            addBar(center.clone().addScaledVector(right, -GATE_FRAME_OFFSET), new THREE.Vector3(GATE_FRAME_THICKNESS * 2, 10.1, 0.5));
+            addBar(center.clone().add(new THREE.Vector3(0, GATE_FRAME_OFFSET, 0)), new THREE.Vector3(GATE_FRAME_OFFSET * 2.2, GATE_FRAME_THICKNESS * 2, 0.5));
+            addBar(center.clone().add(new THREE.Vector3(0, -GATE_FRAME_OFFSET, 0)), new THREE.Vector3(GATE_FRAME_OFFSET * 2.2, GATE_FRAME_THICKNESS * 2, 0.5));
+        }
+
         function addTrackProp(prop, style) {
             const pos = prop.position;
             const size = prop.size;
             const rotation = prop.rotation || 0;
+            const localPoint = (dx, dy, dz) => {
+                const rotated = rotateXZ(dx, dz, rotation);
+                return [pos[0] + rotated.x, pos[1] + dy, pos[2] + rotated.z];
+            };
 
             if (prop.type === 'tower') {
                 addWorldBox(size, [pos[0], size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
@@ -1982,22 +2252,23 @@
             }
             if (prop.type === 'bridge') {
                 addWorldBox([size[0], size[1], size[2]], [pos[0], pos[1], pos[2]], style.structure, { rotation, collider: true });
-                addWorldBox([size[0], 2, 2], [pos[0], pos[1] + size[1] / 2 + 1, pos[2] + size[2] / 2 - 1], style.trim, { rotation, collider: true });
-                addWorldBox([size[0], 2, 2], [pos[0], pos[1] + size[1] / 2 + 1, pos[2] - size[2] / 2 + 1], style.trim, { rotation, collider: true });
+                addWorldBox([size[0], 2, 2], localPoint(0, size[1] / 2 + 1, size[2] / 2 - 1), style.trim, { rotation, collider: true });
+                addWorldBox([size[0], 2, 2], localPoint(0, size[1] / 2 + 1, -size[2] / 2 + 1), style.trim, { rotation, collider: true });
                 return;
             }
             if (prop.type === 'tunnel') {
-                addWorldBox([size[0], size[1], 2], [pos[0], pos[1], pos[2] + size[2] / 2], style.structure, { rotation, collider: true });
-                addWorldBox([size[0], size[1], 2], [pos[0], pos[1], pos[2] - size[2] / 2], style.structure, { rotation, collider: true });
-                addWorldBox([2, size[1], size[2]], [pos[0] + size[0] / 2, pos[1], pos[2]], style.structure, { rotation, collider: true });
-                addWorldBox([2, size[1], size[2]], [pos[0] - size[0] / 2, pos[1], pos[2]], style.structure, { rotation, collider: true });
+                addWorldBox([size[0], size[1], 2], localPoint(0, 0, size[2] / 2), style.structure, { rotation, collider: true });
+                addWorldBox([size[0], size[1], 2], localPoint(0, 0, -size[2] / 2), style.structure, { rotation, collider: true });
+                addWorldBox([2, size[1], size[2]], localPoint(size[0] / 2, 0, 0), style.structure, { rotation, collider: true });
+                addWorldBox([2, size[1], size[2]], localPoint(-size[0] / 2, 0, 0), style.structure, { rotation, collider: true });
                 addWorldBox([size[0], 2, size[2]], [pos[0], pos[1] + size[1] / 2, pos[2]], style.trim, { rotation, collider: true });
                 return;
             }
             if (prop.type === 'arch') {
-                addWorldBox([4, size[1], size[2]], [pos[0] - size[0] / 2, size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
-                addWorldBox([4, size[1], size[2]], [pos[0] + size[0] / 2, size[1] / 2 - 2, pos[2]], style.structure, { rotation, collider: true });
-                addWorldBox([size[0] + 8, 4, size[2]], [pos[0], size[1] - 2, pos[2]], style.trim, { rotation, collider: true });
+                const archBaseY = pos[1] || 0;
+                addWorldBox([4, size[1], size[2]], localPoint(-size[0] / 2, archBaseY + size[1] / 2 - 2 - pos[1], 0), style.structure, { rotation, collider: true });
+                addWorldBox([4, size[1], size[2]], localPoint(size[0] / 2, archBaseY + size[1] / 2 - 2 - pos[1], 0), style.structure, { rotation, collider: true });
+                addWorldBox([size[0] + 8, 4, size[2]], localPoint(0, archBaseY + size[1] - 2 - pos[1], 0), style.trim, { rotation, collider: true });
                 return;
             }
             if (prop.type === 'stand') {
@@ -2167,6 +2438,7 @@
 
         function rebuildGates() {
             clearWorldObjects(o => o.userData.isGate);
+            state.worldColliders = state.worldColliders.filter(collider => !collider.isGate);
             state.gates.forEach((g, i) => {
                 const isNext = i === state.currentGate;
                 const isPassed = i < state.currentGate;
@@ -2186,6 +2458,8 @@
                 torus.renderOrder = isNext ? 40 : 0;
                 torus.userData.isGate = true;
                 worldGroup.add(torus);
+                addGateFrameVisual(g, i, col);
+                addGateFrameColliders(g, i);
                 if (isNext) {
                     const light = new THREE.PointLight(col, 3, 15);
                     light.position.copy(g.posVec);
@@ -2208,6 +2482,7 @@
             state.isPaused = false;
             state.status = 'READY';
             state.startTime = 0;
+            state.pauseStartedAt = 0;
             state.finishTime = 0;
             state.autoRestartTimer = 0;
             state.currentGate = 0;
@@ -2296,6 +2571,7 @@
         function resetRace() { initGame(state.mode, state.track?.id || state.terrain); }
         function restartLap() {
             state.status = 'RUNNING'; state.startTime = Date.now(); state.currentGate = 1; state.lapCount = 0;
+            state.pauseStartedAt = 0;
             state.health = 100; state.battery = getSelectedDroneStats().batteryMax;
             state.isCrashed = false; state.crashTimer = 0;
             state.maxSpeed = 0; state.crashCount = 0; state.lastImpactSound = 0;
@@ -2308,10 +2584,40 @@
         }
         function togglePause() {
             if (state.mode === 'MENU') return;
-            state.isPaused = !state.isPaused;
+            const nextPaused = !state.isPaused;
+            if (nextPaused) beginRaceClockPause();
+            else endRaceClockPause();
+            state.isPaused = nextPaused;
             updateUI();
             const p = document.getElementById('popup-pause');
             state.isPaused ? p.classList.remove('hidden') : p.classList.add('hidden');
+            if (state.isPaused) setTimeout(() => document.getElementById('btn-resume')?.focus({ preventScroll: true }), 0);
+        }
+
+        function isVisibleElement(id) {
+            const el = document.getElementById(id);
+            return !!(el && !el.classList.contains('hidden'));
+        }
+
+        function handleEscapeAction() {
+            if (isVisibleElement('popup-settings')) {
+                document.getElementById('btn-close-settings')?.click();
+                return;
+            }
+            if (isVisibleElement('popup-finish')) return;
+            if (isVisibleElement('popup-pause')) {
+                togglePause();
+                return;
+            }
+            if (state.mode === 'SELECT') {
+                document.getElementById('btn-back-menu')?.click();
+                return;
+            }
+            if (state.mode === 'FREE_SELECT') {
+                document.getElementById('btn-back-free')?.click();
+                return;
+            }
+            if (['TIME_ATTACK', 'OPEN_WORLD'].includes(state.mode)) togglePause();
         }
 
         // --- TRANSLATION ---
@@ -2347,15 +2653,20 @@
         // --- IMPORT/EXPORT ---
         function exportSave() {
             const data = {
+                schemaVersion: SAVE_SCHEMA_VERSION,
+                physicsVersion: PHYSICS_VERSION,
                 settings: state.settings,
                 selectedDroneClassId: state.droneClassId,
                 selectedDroneId: state.droneId,
-                lang: state.lang
+                lang: state.lang,
+                bestTimes: state.bestTimes,
+                lapData: state.lapData
             };
-            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = 'skyracers_save.json';
             a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 0);
         }
         function importSave(e) {
             const file = e.target.files[0];
@@ -2364,13 +2675,25 @@
             reader.onload = (evt) => {
                 try {
                     const data = JSON.parse(evt.target.result);
-                    if(data.settings) {
-                        state.settings = { ...state.settings, ...data.settings };
+                    if(data.settings && typeof data.settings === 'object') {
+                        const imported = data.settings;
+                        const nextSettings = { ...state.settings };
+                        if (Number.isFinite(Number(imported.volume))) nextSettings.volume = clampNumber(Number(imported.volume), 0, 1);
+                        if (['FLAT', 'TEXTURED', 'CINEMATIC'].includes(imported.videoQuality)) nextSettings.videoQuality = imported.videoQuality;
+                        if (Number.isFinite(Number(imported.rate))) nextSettings.rate = clampNumber(Number(imported.rate), 0.5, 2);
+                        if (Number.isFinite(Number(imported.expo))) nextSettings.expo = clampNumber(Number(imported.expo), 0, 0.8);
+                        if (Number.isFinite(Number(imported.deadzone))) nextSettings.deadzone = clampNumber(Number(imported.deadzone), 0, 0.2);
+                        if (Number.isFinite(Number(imported.cameraAngleDeg))) nextSettings.cameraAngleDeg = clampNumber(Number(imported.cameraAngleDeg), 20, 60);
+                        if (typeof imported.showInput === 'boolean') nextSettings.showInput = imported.showInput;
+                        if (typeof imported.showCompass === 'boolean') nextSettings.showCompass = imported.showCompass;
+                        if (typeof imported.showHorizon === 'boolean') nextSettings.showHorizon = imported.showHorizon;
+                        state.settings = nextSettings;
                         // Update UI inputs
                         document.getElementById('input-volume').value = state.settings.volume;
                         document.getElementById('input-rate').value = state.settings.rate;
                         document.getElementById('input-expo').value = state.settings.expo;
                         document.getElementById('input-deadzone').value = state.settings.deadzone;
+                        document.getElementById('input-camera-angle').value = state.settings.cameraAngleDeg ?? 30;
                         document.getElementById('input-show').checked = state.settings.showInput;
                         const compassEl2 = document.getElementById('input-compass');
                         if (compassEl2) compassEl2.checked = state.settings.showCompass ?? true;
@@ -2380,14 +2703,30 @@
                         document.getElementById('val-rate').innerText = state.settings.rate;
                         document.getElementById('val-expo').innerText = state.settings.expo;
                         document.getElementById('val-deadzone').innerText = state.settings.deadzone;
+                        document.getElementById('val-camera-angle').innerText = `${state.settings.cameraAngleDeg ?? 30}°`;
                         updateVideoQualityUI();
                         refreshCurrentWorldVisuals();
                     }
+                    if (data.bestTimes && typeof data.bestTimes === 'object') {
+                        state.bestTimes = normalizeBestTimesStore(data.bestTimes);
+                        persistBestTimesCookie();
+                    }
+                    if (data.lapData && typeof data.lapData === 'object') {
+                        state.lapData = normalizeLapDataStore(data.lapData);
+                        persistLapDataStore();
+                    }
                     if (data.selectedDroneClassId) state.droneClassId = getDroneClassById(data.selectedDroneClassId).id;
                     if (data.selectedDroneId) state.droneId = getDroneEntryById(data.selectedDroneId).id;
-                    if(data.lang) { state.lang = data.lang; updateText(); }
+                    if(['EN', 'JP'].includes(data.lang)) { state.lang = data.lang; updateText(); }
+                    refreshGhostRecord();
+                    updateUI();
                     alert("Data Loaded!");
                 } catch(err) { alert("Invalid Save File"); }
+                e.target.value = '';
+            };
+            reader.onerror = () => {
+                alert("Invalid Save File");
+                e.target.value = '';
             };
             reader.readAsText(file);
         }
@@ -2608,6 +2947,8 @@
                 const gate = state.gates[state.currentGate];
                 const toGate = gate.posVec.clone().sub(state.pos).setY(0);
                 if (toGate.lengthSq() > 1) {
+                    const altitudeDelta = gate.posVec.y - state.pos.y;
+                    const altLabel = `${altitudeDelta >= 0 ? '+' : ''}${Math.round(altitudeDelta)}m`;
                     const gateBrg = ((Math.atan2(toGate.x, -toGate.z) * 180 / Math.PI) + 360) % 360;
                     let rel = gateBrg - heading;
                     if (rel > 180) rel -= 360;
@@ -2628,6 +2969,8 @@
                         ctx.font = '8px monospace';
                         ctx.textAlign = 'center';
                         ctx.fillText(dist + 'm', gx, 34);
+                        ctx.fillStyle = altitudeDelta >= 0 ? '#fbbf24' : '#60a5fa';
+                        ctx.fillText(altLabel, gx, 44);
                     } else {
                         // テープ外: 端に矢印
                         const ex = rel > 0 ? W - 18 : 18;
@@ -2635,6 +2978,9 @@
                         ctx.font = 'bold 16px monospace';
                         ctx.textAlign = 'center';
                         ctx.fillText(rel > 0 ? '▶' : '◀', ex, H / 2 + 6);
+                        ctx.font = '8px monospace';
+                        ctx.fillStyle = altitudeDelta >= 0 ? '#fbbf24' : '#60a5fa';
+                        ctx.fillText(altLabel, ex, H - 6);
                     }
                 }
             }
@@ -2949,7 +3295,7 @@
             const startBtn = document.getElementById('btn-start-race');
             const stageLabels = {
                 TRACKS: ['Pick a Course', 'Select a course, or use Detail to inspect the route first.'],
-                CLASSES: ['Choose Drone Class', 'Pick a class. Detail shows its course-specific record and representative setup.'],
+                CLASSES: ['Choose Drone Class', 'Start now with the current drone, or pick a class to tune the lineup.'],
                 DRONES: ['Choose Drone', 'Pick the exact drone. Detail opens the full spec sheet.']
             };
             const [stepTitle, helperText] = stageLabels[state.selectStage] || stageLabels.TRACKS;
@@ -2958,13 +3304,16 @@
             if (helperEl) helperEl.textContent = helperText;
             if (startBtn) startBtn.disabled = !(track && state.selectDroneConfirmed);
             if (hintEl) {
+                const compactWarning = track?.compact && (droneStats.sizeMm > 120 || droneStats.classId !== 'tiny_whoop_fpv')
+                    ? ' Compact course: Tiny/Whoop class is recommended; larger drones have tight clearance.'
+                    : '';
                 hintEl.textContent = !track
                     ? 'Pick a course to begin.'
                     : state.selectStage === 'CLASSES'
-                        ? `${track.name} selected. Choose a drone class, or inspect one with Detail.`
+                        ? `${track.name} / ${droneStats.name}. Ready now, or choose a class for a different setup.${compactWarning}`
                         : state.selectDroneConfirmed
-                            ? `${track.name} / ${droneStats.name}. Ready to launch.`
-                            : `${track.name} / ${droneClass.displayName}. Choose your drone or open Detail for full specs.`;
+                            ? `${track.name} / ${droneStats.name}. Ready to launch.${compactWarning}`
+                            : `${track.name} / ${droneClass.displayName}. Choose your drone or open Detail for full specs.${compactWarning}`;
             }
 
             updateDetailPanel();
@@ -3078,7 +3427,7 @@
                 el.querySelector('[data-action="select"]').onclick = () => {
                     state.track = t;
                     state.selectStage = 'CLASSES';
-                    state.selectDroneConfirmed = false;
+                    state.selectDroneConfirmed = true;
                     renderSelectPrep();
                 };
                 el.querySelector('[data-action="detail"]').onclick = () => showDetailPanel('TRACK', { trackId: t.id });
@@ -3185,10 +3534,10 @@
         bind('detail-panel-toggle', () => setDetailPanelCollapsed(!state.detailPanelCollapsed));
         bind('btn-pause', togglePause);
         bind('btn-resume', togglePause);
-        bind('btn-replay-pause', () => { document.getElementById('popup-pause').classList.add('hidden'); startReplay(state.ghostRecord || state.lastLapRecord, state.ghostRecord ? 'BEST' : 'LAST'); });
+        bind('btn-replay-pause', () => { document.getElementById('popup-pause').classList.add('hidden'); startReplay(state.ghostRecord || state.lastLapRecord, state.ghostRecord ? 'BEST' : 'LAST', 'PAUSE'); });
         bind('btn-restart', () => { togglePause(); resetRace(); });
         bind('btn-quit', () => { togglePause(); initGame('MENU'); });
-        bind('btn-finish-replay', () => startReplay(state.ghostRecord || state.lastLapRecord, state.ghostRecord ? 'BEST' : 'LAST'));
+        bind('btn-finish-replay', () => startReplay(state.lastLapRecord || state.ghostRecord, state.lastLapRecord ? 'LAST' : 'BEST'));
         bind('btn-finish-reset', resetRace);
         bind('btn-finish-menu', () => { document.getElementById('popup-finish').classList.add('hidden'); initGame('SELECT'); });
         
@@ -3198,11 +3547,18 @@
 
         // Settings
         const setPopup = document.getElementById('popup-settings');
-        bind('btn-settings-open', () => setPopup.classList.remove('hidden'));
-        bind('btn-settings-pause', () => { document.getElementById('popup-pause').classList.add('hidden'); setPopup.classList.remove('hidden'); });
+        const openSettingsPopup = () => {
+            setPopup.classList.remove('hidden');
+            setTimeout(() => document.getElementById('btn-close-settings')?.focus({ preventScroll: true }), 0);
+        };
+        bind('btn-settings-open', openSettingsPopup);
+        bind('btn-settings-pause', () => { document.getElementById('popup-pause').classList.add('hidden'); openSettingsPopup(); });
         bind('btn-close-settings', () => { 
             setPopup.classList.add('hidden'); 
-            if(state.isPaused && state.mode!=='MENU') document.getElementById('popup-pause').classList.remove('hidden'); 
+            if(state.isPaused && state.mode!=='MENU') {
+                document.getElementById('popup-pause').classList.remove('hidden');
+                setTimeout(() => document.getElementById('btn-resume')?.focus({ preventScroll: true }), 0);
+            }
         });
         bind('btn-export', exportSave);
         bind('btn-import', () => document.getElementById('file-import').click());
@@ -3221,6 +3577,7 @@
         document.getElementById('input-rate').oninput = e => { state.settings.rate = parseFloat(e.target.value); document.getElementById('val-rate').innerText = state.settings.rate; };
         document.getElementById('input-expo').oninput = e => { state.settings.expo = parseFloat(e.target.value); document.getElementById('val-expo').innerText = state.settings.expo; };
         document.getElementById('input-deadzone').oninput = e => { state.settings.deadzone = parseFloat(e.target.value); document.getElementById('val-deadzone').innerText = state.settings.deadzone; };
+        document.getElementById('input-camera-angle').oninput = e => { state.settings.cameraAngleDeg = parseFloat(e.target.value); document.getElementById('val-camera-angle').innerText = `${state.settings.cameraAngleDeg}°`; };
         document.getElementById('input-show').onchange = e => { state.settings.showInput = e.target.checked; updateUI(); };
         document.getElementById('input-compass').onchange = e => { state.settings.showCompass = e.target.checked; updateUI(); };
         document.getElementById('input-horizon').onchange = e => { state.settings.showHorizon = e.target.checked; updateUI(); };
@@ -3241,6 +3598,11 @@
 
         // --- LOOP ---
         const clock = new THREE.Clock();
+        const PHYSICS_STEP = 1 / 120;
+        const MAX_PHYSICS_STEPS = 6;
+        const HUD_STEP = 1 / 30;
+        let physicsAccumulator = 0;
+        let hudAccumulator = 0;
         function animate() {
             requestAnimationFrame(animate);
             updateMenuNavigation();
@@ -3256,8 +3618,19 @@
                 );
                 camera.lookAt(center.x, center.y + Math.sin(t * 0.5) * 5, center.z);
             } else if (!state.isPaused) {
-                if (state.replayMode) updateReplay(dt);
-                else updatePhysics(dt);
+                if (state.replayMode) {
+                    physicsAccumulator = 0;
+                    updateReplay(dt);
+                } else {
+                    physicsAccumulator += dt;
+                    let steps = 0;
+                    while (physicsAccumulator >= PHYSICS_STEP && steps < MAX_PHYSICS_STEPS) {
+                        updatePhysics(PHYSICS_STEP);
+                        physicsAccumulator -= PHYSICS_STEP;
+                        steps++;
+                    }
+                    if (steps >= MAX_PHYSICS_STEPS) physicsAccumulator = 0;
+                }
 
                 const spd = state.vel.length();
                 const targetFov = state.replayMode ? 82 : 90 + Math.min(spd * 0.45, 22);
@@ -3267,7 +3640,8 @@
                 if (!state.replayMode) {
                     camera.position.copy(state.pos);
                     camera.quaternion.copy(state.quat);
-                    camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 6));
+                    const cameraAngle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(state.settings.cameraAngleDeg ?? 30, 20, 60));
+                    camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), cameraAngle));
 
                     if (spd > 6 && !state.isCrashed) {
                         const t = Date.now() * 0.001;
@@ -3279,7 +3653,11 @@
             }
             updateGhostVisuals();
             renderer.render(scene, camera);
-            updateHUD();
+            hudAccumulator += dt;
+            if (hudAccumulator >= HUD_STEP || state.isPaused || state.mode === 'MENU') {
+                updateHUD();
+                hudAccumulator = 0;
+            }
         }
 
         configureRendererForQuality();
@@ -3289,4 +3667,13 @@
         setTimeout(() => document.getElementById('loading-screen').remove(), 500);
         initGame('MENU');
         animate();
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); configureRendererForQuality(); });
+        function handleViewportResize() {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            configureRendererForQuality();
+            refreshTouchControlMode();
+        }
+        window.addEventListener('resize', handleViewportResize);
+        window.addEventListener('orientationchange', handleViewportResize);
+        window.visualViewport?.addEventListener('resize', handleViewportResize);
