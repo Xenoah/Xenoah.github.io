@@ -209,11 +209,6 @@ const pages = {
     description: "GIF、動画、連番画像をフレーム編集し、速度、サイズ、色数を調整してGIFや動画形式へ変換します。 / Edit frames and convert GIFs, videos and image sequences with timing, size and color controls.",
     canonical: "/tools/gif-converter/gif-converter.htm",
   },
-  "tools/pdf-editor/pdf-editor.htm": {
-    title: "ブラウザPDF編集・結合・注釈 | PDF Editor | Xenoah",
-    description: "PDFのページ並べ替え、結合、抽出、注釈、署名、スタンプ、QRコード、透かし、検索、保存をブラウザ内で行えます。 / Edit, merge, annotate, sign, search and export PDF files locally in your browser.",
-    canonical: "/tools/pdf-editor/pdf-editor.htm",
-  },
   "tools/qr-code-tool/qr-code-tool.htm": {
     title: "QRコード読取・生成・保存 | QR Code Reader and Generator | Xenoah",
     description: "画像やカメラからQRコードを読み取り、テキスト、URL、Wi-Fi情報のQRコードをデザインして保存できます。 / Scan QR codes and create downloadable codes for text, URLs and Wi-Fi details.",
@@ -228,11 +223,6 @@ const pages = {
     title: "科学計算・グラフ・統計・数式OCR | Scientific Calculator | Xenoah",
     description: "関数電卓、数式グラフ、CSV統計、画像からの数式OCRを一つにまとめたブラウザ科学計算ツールです。 / A browser scientific calculator with graphing, CSV statistics and equation OCR.",
     canonical: "/tools/scientific-calculator/scientific-calculator.htm",
-  },
-  "tools/simple-2d-cad/simple-2d-cad.htm": {
-    title: "ブラウザ2D CAD・DXF編集 | Simple 2D CAD | Xenoah",
-    description: "線、円、円弧、寸法、レイヤー、スナップ、トリム、オフセットを使い、DXF入出力もできるブラウザ2D CADです。 / A browser-based 2D CAD with drawing, dimensions, layers, snapping and DXF import/export.",
-    canonical: "/tools/simple-2d-cad/simple-2d-cad.htm",
   },
   "tools/svg-converter/svg-converter.htm": {
     title: "画像からSVGベクター変換 | SVG Converter | Xenoah",
