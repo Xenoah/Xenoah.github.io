@@ -1,0 +1,64 @@
+name: Update sitemap thumbnails
+
+on:
+  push:
+    branches: [main]
+    # サムネイル自体の書き戻しコミットで再実行されないようにする(無限ループ防止)
+    paths-ignore:
+      - 'images_sitemap/**'
+  schedule:
+    # 毎週月曜 09:00 JST — 別リポジトリのアプリ(game-sandbox等)の見た目変更を拾う
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: read
+
+concurrency:
+  group: sitemap-thumbnails
+  cancel-in-progress: true
+
+jobs:
+  thumbnails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Japanese fonts
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q fonts-noto-cjk fonts-noto-color-emoji
+
+      - name: Wait for GitHub Pages deployment of this commit
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 20); do
+            status="$(gh api "repos/${{ github.repository }}/pages/builds/latest" --jq '.status' 2>/dev/null || echo unknown)"
+            commit="$(gh api "repos/${{ github.repository }}/pages/builds/latest" --jq '.commit' 2>/dev/null || echo unknown)"
+            echo "pages build: status=$status commit=$commit (want ${{ github.sha }})"
+            if [ "$status" = "built" ] && [ "$commit" = "${{ github.sha }}" ]; then
+              echo "Pages deployment finished."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Timed out waiting for Pages deployment; capturing anyway."
+
+      - name: Capture thumbnails
+        run: bash scripts/update_sitemap_thumbs.sh
+
+      - name: Commit and push updated thumbnails
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add images_sitemap
+          if git diff --cached --quiet; then
+            echo "No thumbnail changes."
+            exit 0
+          fi
+          git commit -m "Update sitemap thumbnails (auto)"
+          git pull --rebase origin main
+          git push origin main
