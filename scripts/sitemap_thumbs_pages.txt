@@ -29,6 +29,7 @@ qr-code-tool tools/qr-code-tool/qr-code-tool.htm
 qr-painting tools/qr-painting/qr-painting.htm
 pdf-editor WEBAPP_PDF-EDITOR/
 moji-mic moji-mic/
+wave-daw wave-daw/
 audio-converter tools/audio-converter/audio-converter.htm
 audio-to-arduino-tone tools/audio-to-arduino-tone/audio-to-arduino-tone.htm
 svg-converter tools/svg-converter/svg-converter.htm
