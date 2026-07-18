@@ -1,301 +1,454 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://xenoah.github.io/</loc>
     <lastmod>2026-06-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/index.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/top.htm</loc>
     <lastmod>2025-12-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/top.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/sitemap.htm</loc>
-    <lastmod>2026-07-18</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/sitemap.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/links.htm</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/links.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/portfolio.htm</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/portfolio.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/changelog.htm</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/changelog.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/vrchat.htm</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/vrchat.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/environment.htm</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/environment.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/archive-3dmodels/</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/archive-3dmodels.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/archive-3dmodels/terms/</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/archive-3dmodels-terms.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/font-sense/font-sense.html</loc>
     <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/font-sense.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/perfect-pitch-quiz/perfect-pitch-quiz.html</loc>
     <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/perfect-pitch-quiz.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/chord-breaker/chord-breaker.html</loc>
     <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/chord-breaker.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/synth-wave-match/synth-wave-match.html</loc>
     <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/synth-wave-match.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/train-simulator/shiokaze_train_sim.html</loc>
     <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/train-simulator.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/skyracers-fpv/skyracers-fpv.html</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/skyracers-fpv.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/game-sandbox/</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/game-sandbox.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/long-rpg/mugen_kairo.html</loc>
     <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/long-rpg.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/games/haiku-generator/haiku-generator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/haiku-generator.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/blog/</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/blog.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/blog/2026/05/08/blog-start/</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/blog-start.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/blog/2026/05/05/vrchat/</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/blog-vrchat.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/audio-converter/audio-converter.htm</loc>
     <lastmod>2026-01-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/audio-converter.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm</loc>
     <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/audio-to-arduino-tone.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/scientific-calculator/scientific-calculator.htm</loc>
     <lastmod>2026-01-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/scientific-calculator.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/qr-painting/qr-painting.htm</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/qr-painting.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/qr-code-tool/qr-code-tool.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/qr-code-tool.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/WEBAPP_PDF-EDITOR/</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/pdf-editor.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/svg-converter/svg-converter.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/svg-converter.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/gif-converter/gif-converter.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/gif-converter.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/WEBAPP_2DCAD/</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/2dcad.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/moji-mic/</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/moji-mic.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/dtmf-toolkit/dtmf-toolkit.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/dtmf-toolkit.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/tools/vj-fx-maker/vj-fx-maker.htm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/vj-fx-maker.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/intmath.html</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/arithmetic/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-arithmetic.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/trig_unit_circle/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-trig-unit-circle.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/nd_coords/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-nd-coords.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/fourier/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-fourier.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/collatz/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-collatz.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/linear_algebra/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-linear-algebra.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/calculus/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-calculus.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/chaos/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-chaos.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/probability/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-probability.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/complex_analysis/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-complex-analysis.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/factorization/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-factorization.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/primes/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/intmath-primes.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html</loc>
     <lastmod>2026-02-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/db-spacecraft.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html</loc>
     <lastmod>2026-02-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/db-institutes.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/XNH_news-atlas/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/news-atlas.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://xenoah.github.io/XNH_BBS/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/xnh-bbs.jpg</image:loc>
+    </image:image>
   </url>
 </urlset>
