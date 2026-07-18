@@ -274,8 +274,8 @@
     "missionType": "Technology Demonstration",
     "objective": "高精度月面着陸技術の実証（ピンポイント着陸）",
     "target": "Moon",
-    "description": "「降りたいところに降りる」ピンポイント着陸技術を実証するための小型月着陸機。2024年1月20日、日本初となる月面着陸に成功（世界で5カ国目）。着陸時の姿勢異常により太陽電池が働かなかったが、その後日照条件の回復により復活し、越夜にも成功した。",
-    "descriptionEn": "Small lunar lander to demonstrate 'pinpoint landing' technology. On Jan 20, 2024, achieved Japan's first lunar landing (5th country in history). Despite attitude anomaly affecting solar power, it revived and survived the lunar night.",
+    "description": "「降りたいところに降りる」ピンポイント着陸技術を実証するための小型月着陸機。2024年1月20日に日本初の月面着陸と世界初のピンポイント着陸に成功し、計3回の越夜も達成した。2024年8月23日の停波運用をもって月面での運用を終了した。",
+    "descriptionEn": "Small lunar lander built to demonstrate pinpoint landing technology. It achieved Japan's first lunar landing and the world's first pinpoint lunar landing on January 20, 2024, then survived three lunar nights. Surface operations ended with a shutdown command on August 23, 2024.",
     "achievements": [
       "日本初の月面着陸成功",
       "目標地点へのピンポイント着陸成功（誤差100m以内達成）",
@@ -318,10 +318,15 @@
           "date": "2024-03-28",
           "event": "2回目の越夜成功",
           "eventEn": "Survived 2nd Lunar Night"
+        },
+        {
+          "date": "2024-08-23",
+          "event": "停波運用を実施し月面での運用を終了",
+          "eventEn": "Surface operations ended after shutdown procedure"
         }
       ],
-      "lastSignal": "2024-04-29",
-      "endDate": null
+      "lastSignal": "2024-04-28",
+      "endDate": "2024-08-23"
     },
     "launchDetails": {
       "rocket": "H-IIA Launch Vehicle No. 47 (H-IIA F47)",
@@ -370,7 +375,7 @@
       "noradId": "57800"
     },
     "links": {
-      "official": "https://www.jaxa.jp/projects/sas/slim/index_j.html",
+      "official": "https://www.jaxa.jp/press/2024/08/20240826-1_j.html",
       "data": "https://zenodo.org/records/10846200"
     },
     "imageUrl": "https://www.satnavi.jaxa.jp/files/project/slim/slim_1.jpg"
@@ -387,8 +392,8 @@
     "missionType": "Navigation / Positioning",
     "objective": "日本周辺での高精度測位サービス（GNSS補強・補完）",
     "target": "Earth (Japan/Asia-Pacific)",
-    "description": "日本のほぼ天頂（真上）を通る軌道を持つ衛星システム。GPSと互換性を持ち、山間部やビル街でも測位信号を受信しやすくすることで、安定した高精度測位サービスを提供する。現在は4機体制で運用中。",
-    "descriptionEn": "Satellite system with an orbit passing near the zenith over Japan. Compatible with GPS, it improves reception in mountainous and urban areas to provide stable high-precision positioning. Currently operational with 4 satellites.",
+    "description": "日本のほぼ天頂（真上）を通る軌道を主体とする衛星測位システム。GPSと互換性を持ち、山間部やビル街での測位を補完・補強する。2018年に4機体制でサービスを開始し、2025年7月に6号機がサービスを開始したことで、現在は5機を運用している。",
+    "descriptionEn": "Japan's satellite positioning system, built mainly around quasi-zenith orbits. It is compatible with GPS and improves positioning in mountainous and urban areas. Four-satellite service began in 2018, and QZS-6 entered service in July 2025, bringing the operational constellation to five satellites.",
     "achievements": [
       "センチメータ級測位補強サービスの提供",
       "災害・危機管理通報サービスへの活用",
@@ -416,6 +421,11 @@
           "date": "2018-11-01",
           "event": "4機体制でのサービス開始",
           "eventEn": "Start of 4-satellite Service"
+        },
+        {
+          "date": "2025-07-18",
+          "event": "6号機のサービス開始（5機運用体制）",
+          "eventEn": "QZS-6 entered service, expanding operations to five satellites"
         }
       ],
       "lastSignal": null,
@@ -485,11 +495,11 @@
     "descriptionEn": "Successor to Daichi-2, equipped with L-band SAR (PALSAR-3). Observes earth surface day/night and in bad weather for disaster monitoring, forest/ocean surveillance, and crustal deformation. Achieves high resolution with significantly wider observation swath.",
     "achievements": [
       "フェーズドアレイアンテナ展開成功",
-      "初期機能確認中"
+      "定常観測運用と観測データ提供を開始"
     ],
     "achievementsEn": [
       "Successful deployment of phased array antenna",
-      "Initial functional verification in progress"
+      "Regular observations and data distribution started"
     ],
     "timeline": {
       "launchDate": "2024-07-01",
@@ -503,6 +513,16 @@
           "date": "2024-07-03",
           "event": "初期運用（クリティカル運用）完了",
           "eventEn": "Completion of critical operations"
+        },
+        {
+          "date": "2024-10-18",
+          "event": "定常運用へ移行",
+          "eventEn": "Transitioned to regular operations"
+        },
+        {
+          "date": "2025-03-31",
+          "event": "定常観測運用を開始",
+          "eventEn": "Regular observation operations started"
         }
       ],
       "lastSignal": null,
@@ -722,13 +742,13 @@
     "officialName": "金星探査機「あかつき」",
     "officialNameEn": "Venus Climate Orbiter Akatsuki",
     "abbreviation": "VCO",
-    "status": "Operational",
+    "status": "Retired",
     "type": "Orbiter",
     "missionType": "Planetary Science",
     "objective": "金星大気の力学・熱構造・雲の形成過程の解明",
     "target": "Venus",
-    "description": "金星大気を複数波長で観測する金星周回機。2010年に打ち上げ後、2015年に金星周回軌道投入に成功。",
-    "descriptionEn": "Venus orbiter observing the atmosphere and clouds at multiple wavelengths. Launched in 2010; successfully entered Venus orbit in 2015.",
+    "description": "金星大気を複数波長で観測した金星周回機。2010年に打ち上げられ、2015年に金星周回軌道投入に成功した。2024年4月末に通信を確立できなくなり、復旧運用を続けたものの回復が見込めないため、2025年9月18日に運用を終了した。",
+    "descriptionEn": "Venus orbiter that observed the atmosphere and clouds at multiple wavelengths. Launched in 2010, it successfully entered Venus orbit in 2015. Communications were lost in late April 2024, and after recovery attempts proved unsuccessful, operations ended on September 18, 2025.",
     "achievements": [
       "金星周回軌道投入成功（2015年）"
     ],
@@ -742,10 +762,25 @@
           "date": "2010-05-21",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2015-12-07",
+          "event": "金星周回軌道投入に成功",
+          "eventEn": "Successfully entered Venus orbit"
+        },
+        {
+          "date": "2024-04",
+          "event": "通信途絶",
+          "eventEn": "Communications lost"
+        },
+        {
+          "date": "2025-09-18",
+          "event": "停波作業を実施し運用終了",
+          "eventEn": "Operations ended after shutdown procedure"
         }
       ],
-      "lastSignal": null,
-      "endDate": null
+      "lastSignal": "2024-04",
+      "endDate": "2025-09-18"
     },
     "launchDetails": {
       "rocket": "H-IIA F17",
@@ -792,7 +827,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://global.jaxa.jp/projects/sas/akatsuki/",
+      "official": "https://www.jaxa.jp/press/2025/09/20250918-2_j.html",
       "data": ""
     },
     "imageUrl": ""
@@ -804,13 +839,13 @@
     "officialName": "ジオスペース探査衛星「あらせ」（ERG）",
     "officialNameEn": "Exploration of energization and Radiation in Geospace (ERG) / Arase",
     "abbreviation": "ERG",
-    "status": "Retired",
+    "status": "Operational",
     "type": "Observation",
     "missionType": "Space Physics",
     "objective": "地球放射線帯の粒子加速・輸送過程の解明",
     "target": "Earth magnetosphere",
-    "description": "地球放射線帯を詳細観測するジオスペース探査衛星。",
-    "descriptionEn": "Geospace exploration satellite investigating Earth's radiation belts.",
+    "description": "地球放射線帯を詳細観測するジオスペース探査衛星。JAXA宇宙科学研究所の運用中ミッションとして観測を継続している。",
+    "descriptionEn": "Geospace exploration satellite investigating Earth's radiation belts. It remains an active JAXA/ISAS mission.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -868,7 +903,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://global.jaxa.jp/projects/sas/erg/",
+      "official": "https://www.isas.jaxa.jp/missions/spacecraft/current/erg.html",
       "data": ""
     },
     "imageUrl": ""
@@ -1181,8 +1216,8 @@
     "missionType": "Earth Observation",
     "objective": "雲・エアロゾルと放射収支の関係解明",
     "target": "Earth",
-    "description": "ESA/JAXA共同の地球観測衛星。雲・エアロゾル・放射を4つの機器で観測。",
-    "descriptionEn": "ESA/JAXA Earth observation mission studying clouds, aerosols, and radiation with four instruments.",
+    "description": "ESA/JAXA共同の地球観測衛星（和名「はくりゅう」）。雲・エアロゾル・放射を4つの機器で観測し、2025年1月に定常運用段階へ移行した。",
+    "descriptionEn": "Joint ESA/JAXA Earth observation mission, known in Japan as Hakuryu, studying clouds, aerosols, and radiation with four instruments. It entered routine operations in January 2025.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -1192,6 +1227,11 @@
           "date": "2024-05-29",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2025-01-14",
+          "event": "定常運用段階へ移行",
+          "eventEn": "Transitioned to routine operations"
         }
       ],
       "lastSignal": null,
@@ -1263,7 +1303,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://earth.esa.int/eogateway/missions/earthcare",
+      "official": "https://www.jaxa.jp/press/2025/01/20250114-1_j.html",
       "data": ""
     },
     "imageUrl": ""
@@ -1280,8 +1320,8 @@
     "missionType": "Technology Demonstration",
     "objective": "衛星通信等の先端技術実証",
     "target": "Earth (geostationary)",
-    "description": "先端技術の軌道上実証を目的とする技術試験衛星（打上げ日などは要確認）。",
-    "descriptionEn": "Engineering test satellite for advanced technologies (launch date to be confirmed).",
+    "description": "フルデジタル通信ペイロードやホールスラスタなど、国際競争力のある衛星システム技術の軌道上実証を目的とする技術試験衛星。JAXAは2026年度以降の打上げを予定している。",
+    "descriptionEn": "Engineering test satellite intended to demonstrate competitive satellite-system technologies in orbit, including a fully digital communications payload and Hall thrusters. JAXA lists the launch for fiscal 2026 or later.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -1291,9 +1331,9 @@
       "endDate": null
     },
     "launchDetails": {
-      "rocket": "Unknown",
-      "site": "Unknown",
-      "provider": "Unknown",
+      "rocket": "H3 Launch Vehicle (planned)",
+      "site": "To be determined",
+      "provider": "To be determined",
       "payloads": []
     },
     "organizations": {
@@ -1325,7 +1365,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://global.jaxa.jp/projects/sat/ets9/",
+      "official": "https://www.satnavi.jaxa.jp/ja/project/ets-9/",
       "data": ""
     },
     "imageUrl": ""
@@ -1491,13 +1531,13 @@
     "officialName": "全球水循環変動観測衛星「しずく」（GCOM-W）",
     "officialNameEn": "Global Change Observation Mission - Water (GCOM-W)",
     "abbreviation": "GCOM-W",
-    "status": "Retired",
+    "status": "Operational",
     "type": "Observation",
     "missionType": "Earth Observation",
     "objective": "水循環（降水・水蒸気・海面水温など）の観測",
     "target": "Earth",
-    "description": "水循環観測を目的とした地球観測衛星。",
-    "descriptionEn": "Earth observation satellite focused on the water cycle.",
+    "description": "高性能マイクロ波放射計2（AMSR2）で水蒸気、降水、海面水温、土壌水分、雪氷などを観測する地球観測衛星。JAXAの運用中衛星として観測を継続している。",
+    "descriptionEn": "Earth observation satellite using AMSR2 to observe water vapor, precipitation, sea-surface temperature, soil moisture, snow, and ice. It remains in operation at JAXA.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -1528,7 +1568,7 @@
       {
         "name": "マイクロ波放射計",
         "nameEn": "Microwave radiometer",
-        "abbreviation": "",
+        "abbreviation": "AMSR2",
         "type": "Radiometer",
         "description": "水蒸気・降水等を観測。"
       }
@@ -1555,7 +1595,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://global.jaxa.jp/projects/sat/gcom_w/",
+      "official": "https://www.satnavi.jaxa.jp/ja/project/gcom-w/",
       "data": ""
     },
     "imageUrl": ""
@@ -1713,6 +1753,105 @@
     "imageUrl": ""
   },
   {
+    "id": "gosat-gw",
+    "name": "いぶきGW",
+    "englishName": "GOSAT-GW",
+    "officialName": "温室効果ガス・水循環観測技術衛星「いぶきGW」（GOSAT-GW）",
+    "officialNameEn": "Global Observing SATellite for Greenhouse gases and Water cycle (GOSAT-GW)",
+    "abbreviation": "GOSAT-GW",
+    "status": "Operational",
+    "type": "Observation",
+    "missionType": "Earth Observation",
+    "objective": "温室効果ガスと水循環の継続的・高精度な観測",
+    "target": "Earth",
+    "description": "「しずく」の水循環変動観測と「いぶき」「いぶき2号」の温室効果ガス観測を発展的に継続する地球観測衛星。AMSR3とTANSO-3を搭載し、JAXAの運用中衛星として観測を行っている。",
+    "descriptionEn": "Earth observation satellite that advances the water-cycle observations of GCOM-W and the greenhouse-gas observations of GOSAT and GOSAT-2. It carries AMSR3 and TANSO-3 and is currently operational.",
+    "achievements": [
+      "クリティカル運用期間を完了",
+      "AMSR3観測データの提供開始"
+    ],
+    "achievementsEn": [
+      "Completed critical operations",
+      "AMSR3 observation data distribution started"
+    ],
+    "timeline": {
+      "launchDate": "2025-06-29",
+      "keyEvents": [
+        {
+          "date": "2025-06-29",
+          "event": "Launch",
+          "eventEn": "Launch"
+        },
+        {
+          "date": "2025-07-01",
+          "event": "クリティカル運用期間を終了",
+          "eventEn": "Critical operations completed"
+        },
+        {
+          "date": "2026-06-30",
+          "event": "AMSR3観測データの提供開始",
+          "eventEn": "AMSR3 observation data distribution started"
+        }
+      ],
+      "lastSignal": null,
+      "endDate": null
+    },
+    "launchDetails": {
+      "rocket": "H-IIA Launch Vehicle No. 50 (H-IIA F50)",
+      "site": "Tanegashima Space Center (TNSC)",
+      "provider": "Mitsubishi Heavy Industries (MHI)",
+      "payloads": []
+    },
+    "organizations": {
+      "lead": "JAXA / MOEJ / NIES",
+      "developer": "Mitsubishi Electric",
+      "operator": "JAXA",
+      "partners": []
+    },
+    "instruments": [
+      {
+        "name": "高性能マイクロ波放射計3",
+        "nameEn": "Advanced Microwave Scanning Radiometer 3",
+        "abbreviation": "AMSR3",
+        "type": "Radiometer",
+        "description": "降水、水蒸気、海面水温、土壌水分、雪氷などの水循環を観測。"
+      },
+      {
+        "name": "温室効果ガス観測センサ3型",
+        "nameEn": "Total Anthropogenic and Natural emissions mapping SpectrOmeter-3",
+        "abbreviation": "TANSO-3",
+        "type": "Spectrometer",
+        "description": "二酸化炭素、メタン、二酸化窒素を面的に観測。"
+      }
+    ],
+    "specs": {
+      "mass": "Approx. 2600 kg",
+      "dimensions": "",
+      "power": "Approx. 5300 W (EOL)",
+      "communication": ""
+    },
+    "propulsion": {
+      "type": "Chemical",
+      "engineType": "",
+      "engineName": "",
+      "role": "Orbit maintenance/attitude control"
+    },
+    "orbit": {
+      "type": "Sun-Synchronous Sub-Recurrent Orbit",
+      "altitude": "666 km",
+      "landingSite": null
+    },
+    "ids": {
+      "cosparId": "",
+      "noradId": ""
+    },
+    "links": {
+      "official": "https://www.satnavi.jaxa.jp/ja/project/gosat-gw/",
+      "data": ""
+    },
+    "imageUrl": ""
+  },
+  {
     "id": "himawari-6",
     "name": "ひまわり6号",
     "englishName": "Himawari-6",
@@ -1860,8 +1999,8 @@
     "missionType": "Meteorology",
     "objective": "高頻度・高分解能の気象観測（台風監視等）",
     "target": "Earth",
-    "description": "静止気象衛星。AHIで雲・水蒸気等を観測。",
-    "descriptionEn": "Geostationary meteorological satellite with AHI imager.",
+    "description": "AHIで雲・水蒸気等を観測する静止気象衛星。2015年7月から観測運用を担い、2022年12月に9号へ交代した。現在は待機運用中で、9号の障害時には観測を引き継ぐ。",
+    "descriptionEn": "Geostationary meteorological satellite with the AHI imager. It served as the primary observation satellite from July 2015 until the handover to Himawari-9 in December 2022. It is currently maintained on standby and takes over observations when needed.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -1871,6 +2010,26 @@
           "date": "2014-10-07",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2015-07-07",
+          "event": "観測運用開始",
+          "eventEn": "Observation operations started"
+        },
+        {
+          "date": "2022-12-13",
+          "event": "9号へ観測運用を交代し待機運用開始",
+          "eventEn": "Entered standby after handing primary observations to Himawari-9"
+        },
+        {
+          "date": "2025-10-12",
+          "event": "9号の観測障害により観測運用を一時再開",
+          "eventEn": "Temporarily resumed observations after a Himawari-9 outage"
+        },
+        {
+          "date": "2025-11-26",
+          "event": "9号へ観測運用を戻し待機運用へ移行",
+          "eventEn": "Returned to standby after observations switched back to Himawari-9"
         }
       ],
       "lastSignal": null,
@@ -1919,7 +2078,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "",
+      "official": "https://www.data.jma.go.jp/mscweb/ja/oper/satellite.html",
       "data": ""
     },
     "imageUrl": ""
@@ -1936,8 +2095,8 @@
     "missionType": "Meteorology",
     "objective": "高頻度・高分解能の気象観測（バックアップ含む）",
     "target": "Earth",
-    "description": "静止気象衛星。AHIで観測。",
-    "descriptionEn": "Geostationary meteorological satellite with AHI imager.",
+    "description": "AHIで雲・水蒸気等を観測する静止気象衛星。2022年12月に8号から観測運用を引き継いだ。2025年10月の観測障害後、同年11月26日に観測運用へ復帰し、現在も運用中。",
+    "descriptionEn": "Geostationary meteorological satellite with the AHI imager. It took over primary observations from Himawari-8 in December 2022. Following an observation outage in October 2025, it returned to service on November 26, 2025 and remains operational.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -1947,6 +2106,26 @@
           "date": "2016-11-02",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2017-03-10",
+          "event": "待機運用開始",
+          "eventEn": "Standby operations started"
+        },
+        {
+          "date": "2022-12-13",
+          "event": "8号から観測運用を引き継ぎ",
+          "eventEn": "Took over primary observations from Himawari-8"
+        },
+        {
+          "date": "2025-10-12",
+          "event": "観測障害により8号へ観測運用を交代",
+          "eventEn": "Observation outage prompted handover to Himawari-8"
+        },
+        {
+          "date": "2025-11-26",
+          "event": "観測運用へ復帰",
+          "eventEn": "Returned to observation operations"
         }
       ],
       "lastSignal": null,
@@ -1995,7 +2174,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "",
+      "official": "https://www.data.jma.go.jp/mscweb/ja/oper/satellite.html",
       "data": ""
     },
     "imageUrl": ""
@@ -2855,6 +3034,79 @@
     "imageUrl": ""
   },
   {
+    "id": "qzs-5",
+    "name": "みちびき5号機",
+    "englishName": "QZS-5",
+    "officialName": "準天頂衛星システム 5号機",
+    "officialNameEn": "QZSS QZS-5 (Michibiki-5)",
+    "abbreviation": "QZS-5",
+    "status": "Failed",
+    "type": "Navigation",
+    "missionType": "Navigation / Positioning",
+    "objective": "準天頂衛星システムの7機体制構築",
+    "target": "Earth",
+    "description": "準天頂衛星システムの追加衛星。2025年12月22日にH3ロケット8号機で打ち上げられたが、第2段エンジンの異常により予定軌道へ投入できず、衛星は喪失した。",
+    "descriptionEn": "Additional QZSS constellation satellite. It was launched on H3 Flight 8 on December 22, 2025, but was lost after a second-stage engine anomaly prevented insertion into the planned orbit.",
+    "achievements": [],
+    "achievementsEn": [],
+    "timeline": {
+      "launchDate": "2025-12-22",
+      "keyEvents": [
+        {
+          "date": "2025-12-22",
+          "event": "打上げ失敗により予定軌道へ投入できず",
+          "eventEn": "Launch failed to place the satellite into its planned orbit"
+        },
+        {
+          "date": "2025-12-25",
+          "event": "内閣府が衛星の喪失を発表",
+          "eventEn": "Cabinet Office announced the loss of the satellite"
+        }
+      ],
+      "lastSignal": null,
+      "endDate": "2025-12-22"
+    },
+    "launchDetails": {
+      "rocket": "H3 Launch Vehicle No. 8 (H3 F8)",
+      "site": "Tanegashima Space Center (TNSC)",
+      "provider": "Mitsubishi Heavy Industries (MHI)",
+      "payloads": []
+    },
+    "organizations": {
+      "lead": "Cabinet Office (Japan) / JAXA",
+      "developer": "Mitsubishi Electric",
+      "operator": "Cabinet Office (Japan)",
+      "partners": []
+    },
+    "instruments": [],
+    "specs": {
+      "mass": "",
+      "dimensions": "",
+      "power": "",
+      "communication": ""
+    },
+    "propulsion": {
+      "type": "Chemical",
+      "engineType": "",
+      "engineName": "",
+      "role": "Station keeping"
+    },
+    "orbit": {
+      "type": "Quasi-Zenith / Geosynchronous (planned)",
+      "altitude": null,
+      "landingSite": null
+    },
+    "ids": {
+      "cosparId": "",
+      "noradId": ""
+    },
+    "links": {
+      "official": "https://qzss.go.jp/info/information/qzs-5_251225.html",
+      "data": ""
+    },
+    "imageUrl": ""
+  },
+  {
     "id": "qzs-6",
     "name": "みちびき6号機",
     "englishName": "QZS-6",
@@ -2866,8 +3118,8 @@
     "missionType": "Navigation / Positioning",
     "objective": "準天頂衛星システムのサービス提供",
     "target": "Earth",
-    "description": "準天頂衛星システムの追加衛星。",
-    "descriptionEn": "Additional QZSS constellation satellite.",
+    "description": "準天頂衛星システムの追加衛星。2025年2月2日に打ち上げられ、同年7月18日に衛星測位サービスと高精度測位補強サービスを開始した。",
+    "descriptionEn": "Additional QZSS constellation satellite. Launched on February 2, 2025, it began satellite positioning and high-precision augmentation services on July 18, 2025.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
@@ -2877,6 +3129,11 @@
           "date": "2025-02-02",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2025-07-18",
+          "event": "衛星測位・高精度測位補強サービス開始",
+          "eventEn": "Positioning and high-precision augmentation services started"
         }
       ],
       "lastSignal": null,
@@ -2917,7 +3174,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "",
+      "official": "https://qzss.go.jp/info/information/qzs6_250718.html",
       "data": ""
     },
     "imageUrl": ""
@@ -2934,17 +3191,17 @@
     "missionType": "Navigation / Positioning",
     "objective": "準天頂衛星システムのサービス提供（増強）",
     "target": "Earth",
-    "description": "H3 9号機で打上げ予定（スケジュールは変更の可能性あり）。",
-    "descriptionEn": "Planned launch on H3 F9 (schedule subject to change).",
+    "description": "準天頂衛星システムの追加衛星。H3ロケット9号機により2026年8月7日に打上げ予定。",
+    "descriptionEn": "Additional QZSS constellation satellite scheduled for launch on H3 Flight 9 on August 7, 2026.",
     "achievements": [],
     "achievementsEn": [],
     "timeline": {
-      "launchDate": "2026-02-01",
+      "launchDate": "2026-08-07",
       "keyEvents": [
         {
-          "date": "2026-02-01",
-          "event": "Launch",
-          "eventEn": "Launch"
+          "date": "2026-08-07",
+          "event": "打上げ予定",
+          "eventEn": "Planned launch"
         }
       ],
       "lastSignal": null,
@@ -2985,7 +3242,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "",
+      "official": "https://qzss.go.jp/info/information/qzs-7_260708.html",
       "data": ""
     },
     "imageUrl": ""
@@ -3559,10 +3816,12 @@
     "description": "高分解能分光で銀河団やブラックホール周辺などの高温プラズマを観測するX線天文衛星。SLIMと相乗りで打ち上げ。",
     "descriptionEn": "X-ray astronomy mission to study high-temperature plasmas in the Universe with high-resolution spectroscopy. Launched together with SLIM.",
     "achievements": [
-      "H-IIA 47号機で打ち上げ成功"
+      "H-IIA 47号機で打ち上げ成功",
+      "定常運用へ移行し科学観測を開始"
     ],
     "achievementsEn": [
-      "Successful launch on H-IIA F47"
+      "Successful launch on H-IIA F47",
+      "Transitioned to routine operations and began science observations"
     ],
     "timeline": {
       "launchDate": "2023-09-07",
@@ -3571,6 +3830,11 @@
           "date": "2023-09-07",
           "event": "Launch",
           "eventEn": "Launch"
+        },
+        {
+          "date": "2024-02-08",
+          "event": "初期機能確認を完了し定常運用へ移行",
+          "eventEn": "Completed initial checkout and entered routine operations"
         }
       ],
       "lastSignal": null,
@@ -3628,7 +3892,7 @@
       "noradId": ""
     },
     "links": {
-      "official": "https://global.jaxa.jp/projects/sas/xrism/",
+      "official": "https://www.jaxa.jp/press/2024/03/20240304-1_j.html",
       "data": ""
     },
     "imageUrl": ""

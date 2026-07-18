@@ -25,6 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # menu.htm に追加されたサイト内リンクを sitemap.htm / sitemap.xml / 撮影リストへ自動追記
+      - name: Sync sitemap from menu links
+        run: node scripts/sync_sitemap_from_menu.js
+
       - name: Install Japanese fonts
         run: |
           sudo apt-get update -q
@@ -50,15 +54,15 @@ jobs:
       - name: Capture thumbnails
         run: bash scripts/update_sitemap_thumbs.sh
 
-      - name: Commit and push updated thumbnails
+      - name: Commit and push updated sitemap and thumbnails
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add images_sitemap
+          git add images_sitemap sitemap.htm sitemap.xml scripts/sitemap_thumbs_pages.txt
           if git diff --cached --quiet; then
-            echo "No thumbnail changes."
+            echo "No sitemap or thumbnail changes."
             exit 0
           fi
-          git commit -m "Update sitemap thumbnails (auto)"
+          git commit -m "Update sitemap and thumbnails (auto)"
           git pull --rebase origin main
           git push origin main
