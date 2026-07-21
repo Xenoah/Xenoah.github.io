@@ -460,4 +460,13 @@
       <image:loc>https://xenoah.github.io/images_sitemap/xnh-bbs.jpg</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://xenoah.github.io/5w1h-generator</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://xenoah.github.io/images_sitemap/5w1h-generator.jpg</image:loc>
+    </image:image>
+  </url>
 </urlset>
