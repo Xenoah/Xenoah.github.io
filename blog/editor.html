@@ -16,6 +16,7 @@ permalink: /blog/editor.html
       <span id="draftSaved" class="save-indicator" role="status">下書きを確認中…</span>
     </div>
     <div class="writing-actions">
+      <button id="openDraftsBtn" class="writing-button quiet" type="button">下書き一覧</button>
       <button id="openImportBtn" class="writing-button quiet" type="button">記事を開く</button>
       <button id="previewBtn" class="writing-button" type="button" aria-pressed="false">プレビュー</button>
       <button id="openExportBtn" class="writing-button primary" type="button">書き出す <span aria-hidden="true">↗</span></button>
@@ -133,6 +134,12 @@ permalink: /blog/editor.html
   <input id="coverFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif,image/svg+xml" hidden>
   <input id="importHtmlFile" type="file" accept=".html,.htm" hidden>
   <input id="importFolder" type="file" webkitdirectory multiple hidden>
+  <dialog id="draftsDialog" class="writing-dialog" aria-labelledby="draftsDialogTitle">
+    <div class="dialog-heading"><h2 id="draftsDialogTitle">下書きと保存履歴</h2><button class="dialog-close" type="button" data-close="draftsDialog" aria-label="閉じる">×</button></div>
+    <p class="writing-hint">記事ごとに本文と画像を保存します。履歴は直近10件まで、復元すると別の下書きができます。</p>
+    <div id="draftList" class="draft-list"></div>
+    <p id="draftStatus" role="status"></p>
+  </dialog>
   <dialog id="insertDialog" class="writing-dialog" aria-labelledby="insertDialogTitle">
     <form id="insertForm">
       <div class="dialog-heading"><h2 id="insertDialogTitle">リンクを挿入</h2><button class="dialog-close" type="button" data-close="insertDialog" aria-label="閉じる">×</button></div>
@@ -161,4 +168,5 @@ permalink: /blog/editor.html
   </dialog>
 </div>
 <script src="{{ '/blog/assets/editor-core.js' | relative_url }}"></script>
+<script src="{{ '/blog/assets/editor-storage.js' | relative_url }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}"></script>

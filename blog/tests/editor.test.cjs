@@ -37,7 +37,7 @@ async function editor(options = {}) {
     w.indexedDB = { open() { throw new Error("Storage denied"); } };
     w.Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); };
   }
-  w.eval(coreSource); w.eval(editorSource);
+  w.eval(coreSource); w.eval(fs.readFileSync(path.join(root, "assets/editor-storage.js"), "utf8")); w.eval(editorSource);
   await until(() => w.document.getElementById("editorApp").inert === false);
   const $ = (id) => w.document.getElementById(id);
   const input = (id, value) => { $(id).value = value; $(id).dispatchEvent(new w.Event("input", { bubbles: true })); };
@@ -177,6 +177,35 @@ test("legacy drafts restore automatically and storage failures stay visible", as
   await failed.click("saveDraftBtn");
   await until(() => failed.$("draftSaved").dataset.state === "error");
   assert.match(failed.$("draftSaved").textContent, /保存できません/);
+});
+
+test("multiple drafts remain available and concurrent edits fork without overwriting", async (t) => {
+  const database = new IDBFactory(), e = await editor({ database });
+  t.after(() => e.dom.window.close());
+  e.input("title", "First draft"); await e.click("saveDraftBtn");
+  const other = await editor({ database }); t.after(() => other.dom.window.close());
+  e.input("title", "First draft updated"); await e.click("saveDraftBtn");
+  other.input("title", "Concurrent version"); await other.click("saveDraftBtn");
+  assert.match(other.$("appStatus").textContent, /別の下書き/);
+  await e.click("newArticleBtn"); e.input("title", "Second draft"); await e.click("saveDraftBtn");
+  await e.click("openDraftsBtn");
+  const entries = [...e.$("draftList").querySelectorAll(".draft-entry > button")];
+  assert.equal(entries.length, 3);
+  entries.find((button) => button.textContent.includes("First draft updated")).click(); await tick();
+  assert.equal(e.$("title").value, "First draft updated");
+});
+
+test("draft store retains image bytes across bounded revisions and rejects stale writes", async () => {
+  const DraftStore = require("../assets/editor-storage.js"), store = new DraftStore(new IDBFactory());
+  const data = { title: "one", body: "<p>one</p>", savedAt: new Date().toISOString(), assets: [{ id: "photo", name: "photo.png", file: new Blob(["image"]) }] };
+  let record = await store.save("a", data, 0);
+  for (let i = 0; i < 15; i++) record = await store.save("a", { ...data, title: "revision " + i }, record.seq, true);
+  assert.equal(record.history.length, 10);
+  const restored = await store.read("a", record.history[0].seq);
+  assert.equal(await restored.data.assets[0].file.text(), "image");
+  await assert.rejects(store.save("a", data, 1), { name: "DraftConflictError" });
+  assert.equal((await store.read("a")).data.title, "revision 14");
+  (await store.open()).close();
 });
 test("missing title blocks export and script source cannot execute in preview", async (t) => {
   const e = await editor(); t.after(() => e.dom.window.close());

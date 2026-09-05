@@ -14,7 +14,6 @@
   let savedRange = null, selectedMedia = null, linkNode = null, insertKind = "link";
   let saveTimer, historyTimer, statusTimer, revision = 0, savedRevision = 0, saveQueue = Promise.resolve();
   let history = [], historyIndex = -1;
-  let databasePromise;
   fields.date.value = C.localDate();
 
   function notify(message) {
@@ -85,7 +84,7 @@
     savedRange = null;
   }
   function dataSnapshot(includeFiles = true) {
-    const data = { ...metadata(), body: getBody(), savedAt: new Date().toISOString(), version: 2 };
+    const data = { ...metadata(), body: getBody(), savedAt: new Date().toISOString(), version: 3, draftId };
     data.assets = assets.map(({ id, name, file, aliases }) => ({ id, name, aliases: [...aliases], ...(includeFiles ? { file } : {}) }));
     return data;
   }
@@ -143,33 +142,26 @@
     if (immediate) recordHistory(); else historyTimer = setTimeout(recordHistory, 400);
   }
 
-  // 画像Blobも同じトランザクションに入れ、復元時の本文と画像を一致させる。
-  function database() {
-    if (!databasePromise) databasePromise = new Promise((resolve, reject) => {
-      const request = indexedDB.open("xenoah-blog-studio", 1);
-      request.onupgradeneeded = () => request.result.createObjectStore("drafts");
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-      request.onblocked = () => reject(new Error("別のタブを閉じて保存し直してください。"));
-    });
-    return databasePromise;
-  }
+  const draftStore = new window.BlogDraftStore();
+  let draftId = crypto.randomUUID(), draftSequence = 0;
   async function readStored() {
-    const db = await database();
-    return new Promise((resolve, reject) => {
-      const request = db.transaction("drafts").objectStore("drafts").get("current");
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
+    const record = await draftStore.current();
+    if (!record) return null;
+    draftId = record.id; draftSequence = record.seq;
+    return record.data;
   }
-  async function writeStored(data) {
-    const db = await database();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction("drafts", "readwrite");
-      tx.objectStore("drafts").put(data, "current");
-      tx.oncomplete = resolve;
-      tx.onerror = tx.onabort = () => reject(tx.error || new Error("保存できませんでした。"));
-    });
+  async function writeStored(data, checkpoint) {
+    try {
+      const record = await draftStore.save(draftId, data, draftSequence, checkpoint);
+      draftSequence = record.seq;
+    } catch (error) {
+      if (error.name !== "DraftConflictError") throw error;
+      draftId = crypto.randomUUID(); draftSequence = 0;
+      const record = await draftStore.save(draftId, data, 0);
+      draftSequence = record.seq;
+      notify("別のタブの更新を保護するため、今の原稿を別の下書きとして保存しました。");
+      return true;
+    }
   }
   function saveDraft(showMessage = false) {
     if (!ready || composing) return Promise.resolve();
@@ -177,11 +169,12 @@
     const data = dataSnapshot(), currentRevision = revision;
     saveQueue = saveQueue.catch(() => {}).then(async () => {
       try {
-        await writeStored(data);
+        const forked = await writeStored(data, showMessage);
         try { localStorage.removeItem(backupKey); } catch { /* IndexedDB is sufficient */ }
         savedRevision = currentRevision;
         if (revision === currentRevision) saveState(`保存済み ${new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`);
-        if (showMessage) notify("本文と画像を下書きに保存しました。");
+        if (showMessage && !forked) notify("本文と画像を下書きに保存しました。");
+        return true;
       } catch {
         let backedUp = false;
         try {
@@ -193,6 +186,7 @@
         saveState(backedUp ? (assets.length ? "本文のみ保存・画像はZIPへ" : "本文を保存済み") : "保存できません・ZIPで保存", assets.length || !backedUp ? "error" : "");
         if (showMessage || assets.length || !backedUp) notify(backedUp ? "本文を保存しました。画像の保存ができないため、画像込みZIPをダウンロードしてください。" : "下書きを保存できません。記事をZIPでダウンロードしてください。");
       }
+      return false;
     });
     return saveQueue;
   }
@@ -203,6 +197,7 @@
     try { legacy = JSON.parse(localStorage.getItem(legacyKey) || "null"); } catch { /* Keep invalid legacy data untouched. */ }
     const data = fallback && (!stored || fallback.savedAt > stored.savedAt) ? fallback : stored || legacy;
     if (!data || typeof data.body !== "string") return false;
+    if (data !== stored) { draftId = crypto.randomUUID(); draftSequence = 0; }
     const restored = [];
     for (const asset of data.assets || []) {
       const file = asset.file || stored?.assets?.find((item) => item.id === asset.id)?.file;
@@ -230,6 +225,37 @@
     setBody(data.body);
     updatePanels();
     refresh();
+  }
+
+  async function retainCurrent() {
+    if (composing) throw new Error("文字の変換を確定してから切り替えてください。");
+    if (!fields.title.value.trim() && !C.textFromHtml(getBody()) && !assets.length) return;
+    app.inert = true;
+    try {
+      if (!await saveDraft(true)) throw new Error("現在の下書きを保存できません。ZIPで保存してから切り替えてください。");
+    } finally { app.inert = false; }
+  }
+  function loadDocument(data, id = crypto.randomUUID(), seq = 0) {
+    clearTimeout(saveTimer); clearTimeout(historyTimer);
+    assets.forEach((asset) => URL.revokeObjectURL(asset.url));
+    assets = (data.assets || []).filter((asset) => asset.file instanceof Blob).map((asset) =>
+      ({ ...asset, aliases: asset.aliases || [], url: URL.createObjectURL(asset.file) }));
+    draftId = id; draftSequence = seq;
+    applyData(data); renderAssets(); history = []; historyIndex = -1; recordHistory();
+    revision++; savedRevision = seq ? revision : revision - 1;
+  }
+  async function showDrafts() {
+    $("draftStatus").textContent = "";
+    $("draftsDialog").showModal();
+    try {
+      await retainCurrent();
+      const list = await draftStore.list();
+      $("draftList").innerHTML = list.map((item) => `<section class="draft-entry">
+        <button class="writing-button" type="button" data-draft="${esc(item.id)}">${esc(item.data.title || "無題の記事")}${item.id === draftId ? "（編集中）" : ""}
+        <small>${esc(new Date(item.data.savedAt).toLocaleString("ja-JP"))}</small></button>
+        ${item.history.length ? `<details><summary>保存履歴（${item.history.length}件）</summary>${[...item.history].reverse().map((entry) =>
+          `<button class="writing-button quiet" type="button" data-draft="${esc(item.id)}" data-version="${entry.seq}">${esc(new Date(entry.data.savedAt).toLocaleString("ja-JP"))} を復元</button>`).join("")}</details>` : ""}</section>`).join("") || '<p class="writing-hint">下書きはまだありません。</p>';
+    } catch (error) { $("draftStatus").textContent = error.message; }
   }
 
   // ブラウザの選択範囲を保持し、ツールバーやダイアログの操作後も挿入位置を維持。
@@ -428,9 +454,8 @@
     const file = folder ? files.find((item) => /(^|\/)index\.html?$/i.test(item.webkitRelativePath || item.name) && (item.webkitRelativePath || item.name).split("/").length <= 2) : files[0];
     if (!file) throw new Error("選んだフォルダの直下に index.html が見つかりません。");
     const data = C.parseArticle(await file.text());
-    if (!confirmReplace()) return;
-    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
-    applyData(data);
+    await retainCurrent();
+    loadDocument(data);
     if (folder) addFiles(files.filter(isImage), "library", C.folderPath(data));
     // 相対パスで書かれた既存記事も、記事フォルダ内の画像として解決する。
     setBody(data.body);
@@ -439,9 +464,6 @@
     renderAssets(); history = []; historyIndex = -1; changed(true);
     $("importDialog").close();
     notify(`${file.name} を読み込みました。${folder ? "画像も一緒に編集できます。" : "画像が表示されない場合は記事フォルダごと開いてください。"}`);
-  }
-  function confirmReplace() {
-    return (!fields.title.value.trim() && !C.textFromHtml(getBody()) && !assets.length) || window.confirm("編集中の記事と下書きを置き換えます。残したい記事は先にZIPで書き出してください。置き換えますか？");
   }
   function appendHtml() {
     const html = C.sanitize($("htmlInput").value);
@@ -604,7 +626,7 @@
   });
   document.addEventListener("pointerdown", (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); });
   window.addEventListener("resize", () => closeContextMenu());
-  window.addEventListener("scroll", (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); }, true);
+  window.addEventListener("scroll", (event) => { if (!(event.target instanceof Node) || !contextMenu.contains(event.target)) closeContextMenu(); }, true);
 
   document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
   $("formatToolbar").addEventListener("mousedown", (event) => { if (event.target.closest("button")) event.preventDefault(); else captureRange(); });
@@ -759,11 +781,10 @@
   on("importHtmlFile", "change", async () => { try { await importFiles($("importHtmlFile").files); } finally { $("importHtmlFile").value = ""; } });
   on("importFolder", "change", async () => { try { await importFiles($("importFolder").files, true); } finally { $("importFolder").value = ""; } });
   on("appendHtmlBtn", "click", appendHtml);
-  on("replaceHtmlBtn", "click", () => {
-    if (!$("htmlInput").value.trim() || !confirmReplace()) return;
+  on("replaceHtmlBtn", "click", async () => {
+    if (!$("htmlInput").value.trim()) return;
     const data = C.parseArticle($("htmlInput").value);
-    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
-    applyData(data); renderAssets(); history = []; historyIndex = -1; changed(true); $("importDialog").close();
+    await retainCurrent(); loadDocument(data); changed(true); $("importDialog").close();
   });
   on("outline", "click", (event) => {
     const button = event.target.closest("[data-heading]");
@@ -776,10 +797,25 @@
     }
   });
   on("saveDraftBtn", "click", () => saveDraft(true));
-  on("newArticleBtn", "click", () => {
-    if (!confirmReplace()) return;
-    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
-    applyData({ body: "", date: C.localDate(), slug: "new-article" });
+  on("openDraftsBtn", "click", showDrafts);
+  on("draftList", "click", async (event) => {
+    const button = event.target.closest("[data-draft]");
+    if (!button) return;
+    try {
+      await retainCurrent();
+      const version = button.hasAttribute("data-version") ? Number(button.dataset.version) : undefined;
+      const record = await draftStore.read(button.dataset.draft, version);
+      if (!record) throw new Error("下書きが見つかりません。");
+      if (version == null) {
+        loadDocument(record.data, record.id, record.seq);
+        await draftStore.setting("activeDraft", record.id);
+      } else { loadDocument(record.data); await saveDraft(); }
+      $("draftsDialog").close(); saveState(version == null ? "下書きを開きました" : "履歴を別の下書きへ復元しました");
+    } catch (error) { $("draftStatus").textContent = error.message; }
+  });
+  on("newArticleBtn", "click", async () => {
+    await retainCurrent();
+    loadDocument({ body: "", date: C.localDate(), slug: "new-article" });
     delete fields.slug.dataset.touched; renderAssets(); history = []; historyIndex = -1; changed(true); fields.title.focus();
   });
   on("openExportBtn", "click", () => { refresh(); renderChecklist(); $("exportStatus").textContent = ""; $("exportDialog").showModal(); });
