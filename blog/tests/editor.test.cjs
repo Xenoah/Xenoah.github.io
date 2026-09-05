@@ -97,6 +97,16 @@ test("YouTube URLs support watch, short and embed links without arbitrary iframe
   for (const url of ["https://youtu.be/_zW-6VN1NFc", "https://www.youtube.com/watch?v=_zW-6VN1NFc", "https://www.youtube.com/shorts/_zW-6VN1NFc", "https://www.youtube.com/embed/_zW-6VN1NFc?rel=0"]) assert.equal(C.youtubeUrl(url), "https://www.youtube.com/embed/_zW-6VN1NFc?rel=0");
   assert.equal(C.youtubeUrl("https://youtube.com.evil.test/watch?v=_zW-6VN1NFc"), "");
 });
+test("document paste becomes paragraphs without losing text or intentional emphasis", () => {
+  const input = '<h1><span id="docs-internal-guid-example" style="font-weight:normal"><p><span style="color:rgb(0,0,0);background-color:transparent">最初</span></p><p>続き<strong>強調</strong><mark>マーカー</mark></p></span></h1>';
+  const clean = C.sanitize(input), doc = new DOMParser().parseFromString(clean, "text/html");
+  assert.equal(doc.body.querySelectorAll("h1, span").length, 0);
+  assert.equal(doc.body.children.length, 2);
+  assert.equal(doc.body.textContent, "最初続き強調マーカー");
+  assert.equal(doc.querySelector("strong").textContent, "強調");
+  assert.equal(doc.querySelector("mark").textContent, "マーカー");
+  assert.equal(C.sanitize("<h1>章の見出し</h1>"), "<h2>章の見出し</h2>");
+});
 test("ZIP opens in Python zipfile with correct UTF-8 names, content and CRC", async () => {
   const bytes = new Uint8Array([0, 255, 128, 42, 7]);
   const zip = await C.createZip([{ path: "2026-09-05-日記/index.html", bytes: new TextEncoder().encode("<p>日本語</p>") }, { path: "2026-09-05-日記/写真.png", bytes: new Blob([bytes]) }]);

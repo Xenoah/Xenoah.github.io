@@ -39,6 +39,13 @@
   function sanitize(html) {
     const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
     doc.querySelectorAll("script,style,noscript,template,object,embed,form,input,button,textarea,select,svg,math,link,meta,base").forEach((node) => node.remove());
+    // 文書ソフト由来の「見出し > span > 段落群」を本文の段落へ戻す。
+    for (const node of [...doc.body.querySelectorAll("h1,h2,h3,h4,h5,h6,span,b,strong,i,em")]) {
+      if (node.querySelector("p,div,ul,ol,figure,blockquote,pre,table")) node.replaceWith(...node.childNodes);
+    }
+    doc.body.querySelectorAll("h1").forEach((node) => {
+      const heading = doc.createElement("h2"); heading.append(...node.childNodes); node.replaceWith(heading);
+    });
     const tags = new Set("p div span br h1 h2 h3 h4 h5 h6 strong b em i u s del mark small sub sup a img figure figcaption ul ol li blockquote pre code hr table thead tbody tfoot tr th td caption colgroup col details summary iframe video audio source".split(" "));
     const attrs = new Set("class id title alt href src width height colspan rowspan scope start reversed type controls loop muted poster preload open".split(" "));
     for (const node of Array.from(doc.body.querySelectorAll("*"))) {
@@ -54,6 +61,11 @@
       const rel = node.getAttribute("rel") || "";
       for (const attr of Array.from(node.attributes)) if (!attrs.has(attr.name)) node.removeAttribute(attr.name);
       for (const [prop, value] of Object.entries(styles)) node.style.setProperty(prop, value);
+      if (/^docs-internal-guid-/.test(node.id)) node.removeAttribute("id");
+      if (node.style.color === "rgb(0, 0, 0)") node.style.removeProperty("color");
+      if (node.style.backgroundColor === "transparent") node.style.removeProperty("background-color");
+      if (node.style.fontWeight === "normal") node.style.removeProperty("font-weight");
+      if (!node.getAttribute("style")) node.removeAttribute("style");
       for (const attr of ["href", "src", "poster"]) {
         if (node.hasAttribute(attr)) {
           const url = safeUrl(node.getAttribute(attr), attr !== "href");
@@ -75,6 +87,7 @@
         node.setAttribute("rel", [...new Set(["noopener", "noreferrer", ...rel.split(/\s+/).filter((x) => ["nofollow", "ugc", "sponsored"].includes(x))])].join(" "));
       }
     }
+    doc.body.querySelectorAll("span").forEach((node) => { if (!node.attributes.length) node.replaceWith(...node.childNodes); });
     const walker = doc.createTreeWalker(doc.body, 128);
     const comments = [];
     while (walker.nextNode()) comments.push(walker.currentNode);
