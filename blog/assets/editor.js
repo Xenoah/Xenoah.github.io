@@ -356,6 +356,7 @@
     document.execCommand("insertHTML", false, holder.innerHTML);
     prepareBody(); captureRange(); changed(true);
   }
+  let formatting;
   function toolbarState() {
     const selection = window.getSelection();
     if (!selection.rangeCount || !body.contains(selection.anchorNode)) return;
@@ -365,12 +366,13 @@
     const node = selection.anchorNode.nodeType === 1 ? selection.anchorNode : selection.anchorNode.parentElement;
     const block = node.closest("h2,h3,blockquote,pre,p");
     $("blockFormat").value = block?.localName || "p";
+    formatting?.state(node, selection.getRangeAt(0));
   }
   function updatePanels() {
     $("visualPanel").hidden = previewing || mode !== "visual";
     $("htmlPanel").hidden = previewing || mode !== "html";
     $("previewPanel").hidden = !previewing;
-    $("formatToolbar").hidden = previewing || mode !== "visual";
+    $("wordRibbon").hidden = previewing || mode !== "visual";
     $("visualModeBtn").setAttribute("aria-pressed", String(mode === "visual" && !previewing));
     $("htmlModeBtn").setAttribute("aria-pressed", String(mode === "html" && !previewing));
     $("previewBtn").setAttribute("aria-pressed", String(previewing));
@@ -648,21 +650,37 @@
     contextMenu.style.top = Math.max(8, Math.min(y, window.innerHeight - contextMenu.offsetHeight - 8)) + "px";
     contextMenu.querySelector("button:not([disabled]):not([hidden])")?.focus({ preventScroll: true });
   }
-  async function contextClipboard(action) {
+  async function contextClipboard(action, rich = false) {
     const source = $("htmlSource"), revisionAtClick = revision;
     if (action === "paste") {
       try {
-        const text = await navigator.clipboard.readText();
+        let text = "", html = "", files = [];
+        if (rich && navigator.clipboard.read) {
+          const items = await navigator.clipboard.read();
+          for (const item of items) {
+            if (item.types.includes("text/html")) html += await (await item.getType("text/html")).text();
+            if (item.types.includes("text/plain")) text += await (await item.getType("text/plain")).text();
+            const type = item.types.find((type) => type.startsWith("image/"));
+            if (type && !html) files.push(new File([await item.getType(type)], "clipboard." + type.split("/")[1], { type }));
+          }
+        } else text = await navigator.clipboard.readText();
         if (revision !== revisionAtClick) { notify("本文が変更されたため、貼り付け位置を選び直してください。"); return; }
         if (mode === "html") {
-          recordHistory(); source.setRangeText(esc(text), contextSourceSelection.start, contextSourceSelection.end, "end"); changed(true);
-        } else insertHtml(text.split(/\r?\n\r?\n/).map((p) => "<p>" + esc(p).replace(/\r?\n/g, "<br>") + "</p>").join(""));
+          recordHistory(); source.setRangeText(text, contextSourceSelection.start, contextSourceSelection.end, "end"); changed(true);
+        } else if (files.length && !html) await addFiles(files, "insert");
+        else if (html || text) insertHtml(html || text.split(/\r?\n\r?\n/).map((p) => "<p>" + esc(p).replace(/\r?\n/g, "<br>") + "</p>").join(""));
       } catch { notify("貼り付けを許可するか、本文で Ctrl / ⌘ + V を使ってください。"); }
       return;
     }
     const text = mode === "html" ? source.value.slice(contextSourceSelection.start, contextSourceSelection.end) : savedRange?.toString();
     if (!text) return;
-    await navigator.clipboard.writeText(text);
+    if (rich && mode === "visual" && navigator.clipboard.write && window.ClipboardItem) {
+      const holder = document.createElement("div"); holder.append(savedRange.cloneContents()); mapMedia(holder, false);
+      await navigator.clipboard.write([new ClipboardItem({
+        "text/plain": new Blob([text], { type: "text/plain" }),
+        "text/html": new Blob([C.sanitize(holder.innerHTML)], { type: "text/html" })
+      })]);
+    } else await navigator.clipboard.writeText(text);
     if (action === "cut" && revision === revisionAtClick) {
       recordHistory();
       if (mode === "html") source.setRangeText("", contextSourceSelection.start, contextSourceSelection.end, "end");
@@ -711,11 +729,22 @@
   }
 
   document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
-  $("formatToolbar").addEventListener("mousedown", (event) => { if (event.target.closest("button")) event.preventDefault(); else captureRange(); });
+  $("wordRibbon").addEventListener("mousedown", (event) => { captureRange(); if (event.target.closest("button")) event.preventDefault(); });
+  formatting = window.BlogEditorFormatting.mount({
+    body, $, on, command, insertHtml, notify, clipboard: contextClipboard,
+    edit(callback, mutates = true) {
+      if (mode !== "visual" || previewing || composing) return;
+      if (mutates) recordHistory();
+      const next = callback(restoreRange());
+      if (next) { savedRange = next; restoreRange(); }
+      captureRange();
+      if (mutates) { prepareBody(); changed(true); }
+      toolbarState();
+    }
+  });
   document.querySelectorAll("[data-command]").forEach((button) => button.addEventListener("click", () => command(button.dataset.command)));
   document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => $(button.dataset.close).close()));
   on("blockFormat", "change", () => command("formatBlock", $("blockFormat").value));
-  on("highlightBtn", "click", () => command("hiliteColor", "#fff0a8"));
   on("dividerBtn", "click", () => insertHtml("<hr><p><br></p>", true));
   on("undoBtn", "click", () => undoRedo(-1));
   on("redoBtn", "click", () => undoRedo(1));
@@ -742,9 +771,9 @@
     if (linkNode && body.contains(linkNode)) linkNode.replaceWith(...linkNode.childNodes);
     $("insertDialog").close(); changed(true);
   });
-  on("body", "input", () => { if (!composing) changed(); });
+  on("body", "input", () => { if (!composing) { formatting.normalizeTyping(); changed(); } });
   on("body", "compositionstart", () => { composing = true; clearTimeout(historyTimer); });
-  on("body", "compositionend", () => { composing = false; changed(); });
+  on("body", "compositionend", () => { composing = false; formatting.normalizeTyping(); changed(); });
   on("body", "beforeinput", (event) => {
     if (event.inputType === "historyUndo" || event.inputType === "historyRedo") {
       event.preventDefault(); undoRedo(event.inputType === "historyUndo" ? -1 : 1);
@@ -766,6 +795,25 @@
     if (selectedMedia && ["Delete", "Backspace"].includes(event.key)) { event.preventDefault(); removeMedia(); return; }
     const selection = window.getSelection();
     const node = selection.anchorNode?.nodeType === 1 ? selection.anchorNode : selection.anchorNode?.parentElement;
+    if (event.key === "Tab" && node?.closest("td,th")) {
+      const cell = node.closest("td,th"), table = cell.closest("table");
+      const cells = [...table.querySelectorAll("td,th")].filter((item) => item.closest("table") === table);
+      let next = cells[cells.indexOf(cell) + (event.shiftKey ? -1 : 1)];
+      if (!next && !event.shiftKey) {
+        recordHistory();
+        const row = table.createTBody === undefined ? null : (table.tBodies[0] || table.createTBody()).insertRow();
+        if (row) {
+          for (let i = 0; i < cell.parentElement.cells.length; i++) row.insertCell().innerHTML = "<p><br></p>";
+          next = row.cells[0];
+        }
+        changed(true);
+      }
+      if (next) {
+        event.preventDefault();
+        savedRange = document.createRange(); savedRange.selectNodeContents(next.querySelector("p") || next); savedRange.collapse(true); restoreRange();
+      }
+      return;
+    }
     if (event.key === "Enter" && !event.shiftKey && node?.closest("figcaption")) {
       event.preventDefault(); const figure = node.closest("figure");
       const paragraph = document.createElement("p"); paragraph.innerHTML = "<br>"; figure.after(paragraph);

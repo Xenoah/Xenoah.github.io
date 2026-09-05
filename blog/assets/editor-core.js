@@ -38,7 +38,18 @@
   }
   function sanitize(html) {
     const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+    const documentPaste = !!doc.querySelector('[id^="docs-internal-guid-"]');
     doc.querySelectorAll("script,style,noscript,template,object,embed,form,input,button,textarea,select,svg,math,link,meta,base").forEach((node) => node.remove());
+    // Native contenteditable commands can produce legacy FONT elements.
+    doc.querySelectorAll("font").forEach((node) => {
+      const span = doc.createElement("span");
+      span.style.cssText = node.style.cssText;
+      if (node.face) span.style.fontFamily = node.face;
+      if (node.color) span.style.color = node.color;
+      const size = Number(node.getAttribute("size"));
+      if (size >= 1 && size <= 7) span.style.fontSize = [0, 8, 10, 12, 14, 18, 24, 36][size] + "pt";
+      span.append(...node.childNodes); node.replaceWith(span);
+    });
     // 文書ソフト由来の「見出し > span > 段落群」を本文の段落へ戻す。
     for (const node of [...doc.body.querySelectorAll("h1,h2,h3,h4,h5,h6,span,b,strong,i,em")]) {
       if (node.querySelector("p,div,ul,ol,figure,blockquote,pre,table")) node.replaceWith(...node.childNodes);
@@ -52,8 +63,22 @@
       if (!node.parentNode) continue;
       if (!tags.has(node.localName)) { node.replaceWith(...node.childNodes); continue; }
       const styles = {};
-      for (const prop of ["color", "background-color", "font-weight", "font-style", "text-decoration", "text-align"]) {
+      for (const prop of ["color", "background-color", "font-weight", "font-style", "text-decoration", "text-align", "font-family", "vertical-align", "list-style-type"]) {
         if (node.style[prop]) styles[prop] = node.style[prop];
+      }
+      const bounded = (prop, pattern, max) => {
+        const value = node.style.getPropertyValue(prop);
+        if (pattern.test(value) && parseFloat(value) <= max) styles[prop] = value;
+      };
+      bounded("font-size", /^\d+(?:\.\d+)?(?:px|pt|em|rem|%)$/, 200);
+      bounded("line-height", /^\d+(?:\.\d+)?$/, 4);
+      bounded("margin-left", /^\d+(?:\.\d+)?px$/, 160);
+      for (const side of ["top", "right", "bottom", "left"]) {
+        bounded("border-" + side + "-width", /^\d+(?:\.\d+)?px$/, 4);
+        for (const part of ["style", "color"]) {
+          const prop = "border-" + side + "-" + part;
+          if (node.style.getPropertyValue(prop)) styles[prop] = node.style.getPropertyValue(prop);
+        }
       }
       const background = node.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
       if (background && safeUrl(background, true)) styles["background-image"] = `url("${safeUrl(background, true).replace(/"/g, "%22")}")`;
@@ -62,9 +87,9 @@
       for (const attr of Array.from(node.attributes)) if (!attrs.has(attr.name)) node.removeAttribute(attr.name);
       for (const [prop, value] of Object.entries(styles)) node.style.setProperty(prop, value);
       if (/^docs-internal-guid-/.test(node.id)) node.removeAttribute("id");
-      if (node.style.color === "rgb(0, 0, 0)") node.style.removeProperty("color");
+      if (documentPaste && node.style.color === "rgb(0, 0, 0)") node.style.removeProperty("color");
       if (node.style.backgroundColor === "transparent") node.style.removeProperty("background-color");
-      if (node.style.fontWeight === "normal") node.style.removeProperty("font-weight");
+      if (documentPaste && node.style.fontWeight === "normal") node.style.removeProperty("font-weight");
       if (!node.getAttribute("style")) node.removeAttribute("style");
       for (const attr of ["href", "src", "poster"]) {
         if (node.hasAttribute(attr)) {

@@ -28,6 +28,7 @@ test("native typing, formatting, context menu, links and undo retain the manuscr
   await page.locator("#undoBtn").click(); await expect(body.locator("h2")).toHaveCount(0);
   await page.locator("#redoBtn").click(); await expect(body.locator("h2")).toHaveCount(1);
   await selectText(body.locator("h2"));
+  await page.locator("#ribbonInsertTab").click();
   await page.locator("#linkBtn").click();
   await page.locator("#insertUrl").fill("https://example.com/");
   await page.locator("#insertForm button[type=submit]").click();
@@ -84,4 +85,93 @@ test("context menu stays inside the viewport and keyboard dismissal restores foc
   await page.keyboard.press("End"); await page.keyboard.press("Escape");
   await expect(menu).toBeHidden(); await expect(page.locator("#body")).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+});
+
+async function enterHtml(page, html) {
+  await page.locator("#htmlModeBtn").click(); await page.locator("#htmlSource").fill(html);
+  await page.locator("#visualModeBtn").click();
+}
+async function changeColor(page, id, value) {
+  await page.locator("#" + id).evaluate((input, color) => { input.value = color; input.dispatchEvent(new Event("change", { bubbles: true })); }, value);
+}
+test("Word Home ribbon retains character and paragraph formatting in drafts and exports", async ({ page }, testInfo) => {
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.locator("#title").fill("Word ribbon");
+  expect(await page.locator("#ribbonHome > [role=group]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("aria-label")))).toEqual(["クリップボード", "フォント", "段落", "スタイル"]);
+  await enterHtml(page, "<p>Styled text</p><p>Other paragraph</p>");
+  const paragraph = page.locator("#body > p").first();
+  await selectText(paragraph);
+  await page.locator("#fontFamily").selectOption("Georgia, serif");
+  await page.locator("#fontSize").fill("22"); await page.locator("#fontSize").press("Enter");
+  await changeColor(page, "fontColor", "#000000");
+  await changeColor(page, "highlightColor", "#ffdd88");
+  await page.locator('[data-command="justifyCenter"]').click();
+  await page.locator("#lineSpacing").selectOption("1.5");
+  await page.locator("#indentBtn").click();
+  await page.locator("#paragraphBorder").selectOption("bottom");
+  await expect(paragraph).toHaveCSS("text-align", "center");
+  await expect(paragraph).toHaveCSS("margin-left", "24px");
+  await expect(paragraph).toHaveCSS("border-bottom-width", "1px");
+  const styled = paragraph.locator("span").last();
+  await expect(styled).toHaveCSS("font-size", /29\.33/);
+  await expect(styled).toHaveCSS("color", "rgb(0, 0, 0)");
+  await expect(styled).toHaveCSS("background-color", "rgb(255, 221, 136)");
+  await page.locator("#showMarksBtn").click(); await expect(page.locator("#body")).toHaveClass(/show-marks/);
+  await page.locator("#previewBtn").click();
+  await expect(page.locator("#preview")).toContainText("Styled text");
+  await page.locator("#previewBtn").click();
+  await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
+  await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
+  await expect(paragraph.locator("span").last()).toHaveCSS("font-size", /29\.33/);
+  await expect(paragraph).toHaveCSS("border-bottom-width", "1px");
+  await page.locator("#htmlModeBtn").click();
+  const html = await page.locator("#htmlSource").inputValue();
+  expect(html).toContain("22pt"); expect(html).toContain("Georgia"); expect(html).toContain("line-height: 1.5"); expect(html).not.toContain("¶"); expect(html).not.toContain("blogTyping");
+  await page.locator("#visualModeBtn").click();
+  await page.evaluate(() => scrollTo(0, 0));
+  await testInfo.attach("Word ribbon", { body: await page.screenshot(), contentType: "image/png" });
+  await page.locator("#openExportBtn").click();
+  const downloadPromise = page.waitForEvent("download"); await page.locator("#downloadBtn").click();
+  const download = await downloadPromise, stream = await download.createReadStream(), chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  expect(Buffer.concat(chunks).toString("utf8")).toContain(html);
+  expect(errors).toEqual([]);
+});
+
+test("caret formatting, format painter and inserted tables work with native editing", async ({ page }) => {
+  await enterHtml(page, "<p>Start </p><p>Target</p>");
+  const paragraphs = page.locator("#body > p");
+  await paragraphs.first().evaluate((node) => {
+    node.parentElement.focus(); const range = document.createRange(); range.selectNodeContents(node); range.collapse(false);
+    getSelection().removeAllRanges(); getSelection().addRange(range); document.dispatchEvent(new Event("selectionchange"));
+  });
+  await page.locator("#fontSize").fill("24"); await page.locator("#fontSize").press("Enter");
+  await page.keyboard.type("Larger");
+  await expect(paragraphs.first()).toHaveText("Start Larger");
+  const large = paragraphs.first().locator("font,span").last();
+  await expect(large).toHaveCSS("font-size", "32px");
+  await selectText(large);
+  await page.locator("#formatPainterBtn").click();
+  await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "true");
+  await selectText(paragraphs.nth(1));
+  await paragraphs.nth(1).dispatchEvent("pointerup");
+  await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "false");
+  await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("font-size", "32px");
+  await paragraphs.nth(1).click(); await page.keyboard.press("End");
+  await page.locator("#ribbonInsertTab").click(); await expect(page.locator("#ribbonHome")).toBeHidden();
+  await page.locator("#insertTableBtn").click(); await page.locator("#tableColumns").fill("2"); await page.locator("#tableRows").fill("1");
+  await page.locator("#tableForm button[type=submit]").click();
+  const table = page.locator("#body table");
+  await expect(table.locator("th")).toHaveCount(2); await expect(table.locator("td")).toHaveCount(2);
+  await table.locator("td p").first().click(); await page.keyboard.type("Cell one"); await page.keyboard.press("Tab"); await page.keyboard.type("Cell two");
+  await expect(table.locator("td").nth(1)).toHaveText("Cell two");
+  await page.keyboard.press("Tab"); await page.keyboard.type("New row");
+  await expect(table.locator("td")).toHaveCount(4); await expect(table.locator("td").nth(2)).toHaveText("New row");
+  await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
+  await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
+  await expect(table.locator("td").nth(2)).toHaveText("New row");
+  await expect(page.locator("#body")).not.toContainText("blogTyping");
+  await page.locator("#ribbonHomeTab").focus(); await page.keyboard.press("ArrowRight");
+  await expect(page.locator("#ribbonInsertTab")).toBeFocused(); await expect(page.locator("#ribbonInsertTab")).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Home"); await expect(page.locator("#ribbonHomeTab")).toBeFocused();
 });

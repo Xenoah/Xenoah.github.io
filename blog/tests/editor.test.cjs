@@ -39,7 +39,7 @@ async function editor(options = {}) {
     w.Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); };
   }
   w.eval(coreSource);
-  for (const file of ["editor-storage.js", "editor-images.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
+  for (const file of ["editor-storage.js", "editor-images.js", "editor-formatting.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
   w.eval(editorSource);
   await until(() => w.document.getElementById("editorApp").inert === false);
   const $ = (id) => w.document.getElementById(id);
@@ -52,6 +52,37 @@ async function editor(options = {}) {
   };
   return { dom, w, $, input, click, downloads, clipboard, fileInput };
 }
+
+test("Word ribbon styles survive article serialization without allowing layout injection", () => {
+  const result = new DOMParser().parseFromString(C.sanitize('<p style="line-height:1.5;margin-left:24px;border:1px solid #123456;position:fixed;inset:0"><font face="Georgia" size="5" color="#000000">Title</font><span style="font-size:22pt;font-weight:normal;background-color:#ffeeaa">text</span></p><p style="font-size:999px;margin-left:999px;line-height:99">bounded</p>'), "text/html");
+  const p = result.querySelector("p"), spans = result.querySelectorAll("span");
+  assert.equal(p.style.lineHeight, "1.5"); assert.equal(p.style.marginLeft, "24px"); assert.equal(p.style.borderTopWidth, "1px");
+  assert.equal(p.style.position, ""); assert.equal(p.style.inset, "");
+  assert.equal(spans[0].style.fontFamily, "Georgia"); assert.equal(spans[0].style.fontSize, "18pt"); assert.equal(spans[0].style.color, "rgb(0, 0, 0)");
+  assert.equal(spans[1].style.fontSize, "22pt"); assert.equal(spans[1].style.fontWeight, "normal");
+  assert.equal(result.querySelectorAll("p")[1].getAttribute("style"), null);
+});
+
+test("partial formatting across paragraphs preserves links, unselected text and undo", async () => {
+  const { dom, w, $, click } = await editor();
+  try {
+    $("body").innerHTML = '<p>before <a href="https://example.com/">First</a></p><p>Second after</p>';
+    $("body").dispatchEvent(new w.Event("input", { bubbles: true }));
+    const range = w.document.createRange();
+    range.setStart($("body").querySelector("a").firstChild, 1);
+    range.setEnd($("body").querySelectorAll("p")[1].firstChild, 3);
+    w.getSelection().removeAllRanges(); w.getSelection().addRange(range); w.document.dispatchEvent(new w.Event("selectionchange"));
+    $("fontSize").value = "22"; $("fontSize").dispatchEvent(new w.Event("change"));
+    assert.equal($("body").textContent, "before FirstSecond after");
+    assert.equal($("body").querySelectorAll("p").length, 2);
+    assert.equal($("body").querySelector("a").textContent, "First");
+    assert.deepEqual([...$("body").querySelectorAll("span")].map((node) => node.textContent), ["irst", "Sec"]);
+    assert.ok([...$("body").querySelectorAll("span")].every((node) => node.style.fontSize === "22pt"));
+    await click("undoBtn"); assert.equal($("body").querySelectorAll("span").length, 0);
+    await click("redoBtn"); assert.equal($("body").querySelectorAll("span").length, 2);
+    await click("htmlModeBtn"); assert.match($("htmlSource").value, /font-size: 22pt/);
+  } finally { dom.window.close(); }
+});
 
 test("every article source retains text, media, metadata and its own permalink", () => {
   for (const entry of fs.readdirSync(path.join(root, "articles"), { withFileTypes: true }).filter((entry) => entry.isDirectory())) {

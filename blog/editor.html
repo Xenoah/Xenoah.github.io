@@ -22,6 +22,99 @@ permalink: /blog/editor.html
       <button id="openExportBtn" class="writing-button primary" type="button">書き出す <span aria-hidden="true">↗</span></button>
     </div>
   </header>
+  <section id="wordRibbon" class="word-ribbon" aria-label="記事のリボン">
+    <div class="ribbon-topline">
+      <div class="ribbon-tabs" role="tablist" aria-label="リボンのタブ">
+        <button id="ribbonHomeTab" type="button" role="tab" aria-selected="true" aria-controls="ribbonHome">ホーム</button>
+        <button id="ribbonInsertTab" type="button" role="tab" aria-selected="false" aria-controls="ribbonInsert" tabindex="-1">挿入</button>
+      </div>
+      <div class="ribbon-history" role="group" aria-label="編集履歴">
+        <button id="undoBtn" type="button" title="元に戻す (Ctrl / ⌘ + Z)" aria-label="元に戻す" disabled>↶</button>
+        <button id="redoBtn" type="button" title="やり直す (Ctrl / ⌘ + Shift + Z)" aria-label="やり直す" disabled>↷</button>
+      </div>
+    </div>
+    <div id="formatToolbar" class="format-toolbar">
+      <div id="ribbonHome" class="ribbon-panel" role="tabpanel" aria-labelledby="ribbonHomeTab">
+        <div class="ribbon-group clipboard-group" role="group" aria-label="クリップボード">
+          <div class="ribbon-group-content clipboard-tools">
+            <button id="ribbonPasteBtn" class="ribbon-large" type="button" title="貼り付け (Ctrl / ⌘ + V)"><span class="clipboard-symbol" aria-hidden="true">▤</span><span>貼り付け</span></button>
+            <div class="ribbon-stack">
+              <button id="ribbonCutBtn" class="ribbon-labeled" type="button" disabled><span aria-hidden="true">✂</span>切り取り</button>
+              <button id="ribbonCopyBtn" class="ribbon-labeled" type="button" disabled><span aria-hidden="true">▱</span>コピー</button>
+              <button id="formatPainterBtn" class="ribbon-labeled" type="button" aria-pressed="false" title="選択した文字の書式をコピーして別の文字へ適用"><span aria-hidden="true">▰</span>書式のコピー</button>
+            </div>
+          </div>
+          <span class="ribbon-group-name">クリップボード</span>
+        </div>
+        <div class="ribbon-group font-group" role="group" aria-label="フォント">
+          <div class="ribbon-group-content">
+            <div class="ribbon-row">
+              <select id="fontFamily" aria-label="フォント名" title="フォント名">
+                <option value="">標準のフォント</option><option value="'Yu Mincho', 'Hiragino Mincho ProN', serif">游明朝</option><option value="'Yu Gothic', 'Hiragino Kaku Gothic ProN', sans-serif">游ゴシック</option><option value="Meiryo, sans-serif">メイリオ</option><option value="Arial, sans-serif">Arial</option><option value="Georgia, serif">Georgia</option><option value="'Times New Roman', serif">Times New Roman</option><option value="Consolas, monospace">Consolas</option>
+              </select>
+              <input id="fontSize" type="number" min="8" max="96" step="1" value="12" list="fontSizeOptions" aria-label="フォントサイズ（pt）" title="フォントサイズ（pt）">
+              <datalist id="fontSizeOptions"><option value="8"><option value="9"><option value="10"><option value="11"><option value="12"><option value="14"><option value="16"><option value="18"><option value="20"><option value="24"><option value="28"><option value="36"><option value="48"><option value="72"></datalist>
+              <button id="growFontBtn" type="button" title="フォントサイズの拡大" aria-label="フォントサイズの拡大">A<span class="ribbon-sup">⌃</span></button>
+              <button id="shrinkFontBtn" type="button" title="フォントサイズの縮小" aria-label="フォントサイズの縮小">A<span class="ribbon-sub">⌄</span></button>
+              <select id="letterCase" class="ribbon-compact-select" aria-label="大文字・小文字の変更" title="大文字・小文字の変更"><option value="">Aa</option><option value="upper">大文字</option><option value="lower">小文字</option><option value="title">単語の先頭を大文字</option></select>
+              <button type="button" data-command="removeFormat" title="すべての文字書式をクリア" aria-label="文字装飾を解除">A<span class="eraser-symbol" aria-hidden="true">▱</span></button>
+            </div>
+            <div class="ribbon-row">
+              <button type="button" data-command="bold" title="太字 (Ctrl / ⌘ + B)" aria-label="太字" aria-pressed="false"><b>B</b></button>
+              <button type="button" data-command="italic" title="斜体 (Ctrl / ⌘ + I)" aria-label="斜体" aria-pressed="false"><i>I</i></button>
+              <button type="button" data-command="underline" title="下線 (Ctrl / ⌘ + U)" aria-label="下線" aria-pressed="false"><u>U</u></button>
+              <button type="button" data-command="strikeThrough" title="取り消し線" aria-label="取り消し線" aria-pressed="false"><s>abc</s></button>
+              <button type="button" data-command="subscript" title="下付き文字" aria-label="下付き文字" aria-pressed="false">x<sub>2</sub></button>
+              <button type="button" data-command="superscript" title="上付き文字" aria-label="上付き文字" aria-pressed="false">x<sup>2</sup></button>
+              <span class="ribbon-separator" aria-hidden="true"></span>
+              <button id="highlightBtn" type="button" title="蛍光ペンの色を適用" aria-label="マーカー"><span class="marker-icon">ab</span></button>
+              <label class="ribbon-color" title="蛍光ペンの色"><span class="sr-only">蛍光ペンの色</span><input id="highlightColor" type="color" value="#fff0a8" aria-label="蛍光ペンの色"></label>
+              <label class="ribbon-color font-color" title="文字の色"><span aria-hidden="true">A</span><input id="fontColor" type="color" value="#c42b37" aria-label="文字の色"></label>
+            </div>
+          </div>
+          <span class="ribbon-group-name">フォント</span>
+        </div>
+        <div class="ribbon-group paragraph-group" role="group" aria-label="段落">
+          <div class="ribbon-group-content">
+            <div class="ribbon-row">
+              <button type="button" data-command="insertUnorderedList" title="箇条書き" aria-label="箇条書き" aria-pressed="false">• ≡</button>
+              <button type="button" data-command="insertOrderedList" title="段落番号" aria-label="番号付きリスト" aria-pressed="false">1. ≡</button>
+              <select id="listStyle" class="ribbon-compact-select" title="番号の書式" aria-label="番号の書式"><option value="">1 a i</option><option value="decimal">1, 2, 3</option><option value="lower-alpha">a, b, c</option><option value="lower-roman">i, ii, iii</option><option value="disc">●</option><option value="circle">○</option><option value="square">■</option></select>
+              <span class="ribbon-separator" aria-hidden="true"></span>
+              <button id="outdentBtn" type="button" title="インデントを減らす" aria-label="インデントを減らす">←≡</button>
+              <button id="indentBtn" type="button" title="インデントを増やす" aria-label="インデントを増やす">≡→</button>
+              <button id="sortParagraphsBtn" type="button" title="選択した段落を昇順に並べ替え" aria-label="段落を並べ替え">A<span class="ribbon-sub">Z↓</span></button>
+              <button id="showMarksBtn" type="button" title="段落記号の表示・非表示" aria-label="段落記号を表示" aria-pressed="false">¶</button>
+            </div>
+            <div class="ribbon-row">
+              <button type="button" data-command="justifyLeft" title="左揃え" aria-label="左揃え" aria-pressed="false"><span class="alignment-icon left" aria-hidden="true"></span></button>
+              <button type="button" data-command="justifyCenter" title="中央揃え" aria-label="中央揃え" aria-pressed="false"><span class="alignment-icon center" aria-hidden="true"></span></button>
+              <button type="button" data-command="justifyRight" title="右揃え" aria-label="右揃え" aria-pressed="false"><span class="alignment-icon right" aria-hidden="true"></span></button>
+              <button type="button" data-command="justifyFull" title="両端揃え" aria-label="両端揃え" aria-pressed="false"><span class="alignment-icon justify" aria-hidden="true"></span></button>
+              <span class="ribbon-separator" aria-hidden="true"></span>
+              <select id="lineSpacing" class="ribbon-compact-select" aria-label="行間" title="行間"><option value="">↕ ≡</option><option value="1">1.0</option><option value="1.15">1.15</option><option value="1.5">1.5</option><option value="2">2.0</option><option value="2.5">2.5</option><option value="3">3.0</option></select>
+              <label class="ribbon-color paragraph-color" title="段落の網かけ"><span aria-hidden="true">▰</span><input id="paragraphColor" type="color" value="#eef3f8" aria-label="段落の網かけ"></label>
+              <select id="paragraphBorder" class="ribbon-compact-select" title="段落の罫線" aria-label="段落の罫線"><option value="">▦</option><option value="none">枠なし</option><option value="bottom">下罫線</option><option value="all">外枠</option></select>
+            </div>
+          </div>
+          <span class="ribbon-group-name">段落</span>
+        </div>
+        <div class="ribbon-group styles-group" role="group" aria-label="スタイル">
+          <div class="ribbon-group-content">
+            <div class="style-gallery"><button type="button" data-block="p"><span>Aa</span>標準</button><button type="button" data-block="h2"><span>Aa</span>見出し1</button><button type="button" data-block="h3"><span>Aa</span>見出し2</button></div>
+            <select id="blockFormat" aria-label="段落の種類" title="段落の種類"><option value="p">本文</option><option value="h2">見出し1</option><option value="h3">見出し2</option><option value="blockquote">引用</option><option value="pre">コード</option></select>
+          </div>
+          <span class="ribbon-group-name">スタイル</span>
+        </div>
+      </div>
+      <div id="ribbonInsert" class="ribbon-panel" role="tabpanel" aria-labelledby="ribbonInsertTab" hidden>
+        <div class="ribbon-group" role="group" aria-label="表"><div class="ribbon-group-content"><button id="insertTableBtn" class="ribbon-large" type="button"><span class="insert-symbol" aria-hidden="true">▦</span>表</button></div><span class="ribbon-group-name">表</span></div>
+        <div class="ribbon-group" role="group" aria-label="メディア"><div class="ribbon-group-content ribbon-row"><button id="insertImageBtn" class="ribbon-large" type="button"><span class="insert-symbol" aria-hidden="true">▧</span>画像</button><button id="videoBtn" class="ribbon-large" type="button"><span class="insert-symbol" aria-hidden="true">▷</span>動画</button></div><span class="ribbon-group-name">メディア</span></div>
+        <div class="ribbon-group" role="group" aria-label="リンク"><div class="ribbon-group-content"><button id="linkBtn" class="ribbon-large" type="button" title="リンク (Ctrl / ⌘ + K)" aria-label="リンクを挿入"><span class="insert-symbol" aria-hidden="true">↗</span>リンク</button></div><span class="ribbon-group-name">リンク</span></div>
+        <div class="ribbon-group" role="group" aria-label="区切り"><div class="ribbon-group-content"><button id="dividerBtn" class="ribbon-large" type="button" title="区切り線" aria-label="区切り線を挿入"><span class="insert-symbol" aria-hidden="true">―</span>区切り線</button></div><span class="ribbon-group-name">区切り</span></div>
+      </div>
+    </div>
+  </section>
   <div class="writing-layout">
     <section class="manuscript" aria-label="記事の編集">
       <div class="writing-mode-bar">
@@ -30,28 +123,6 @@ permalink: /blog/editor.html
           <button id="htmlModeBtn" type="button" aria-pressed="false">HTML</button>
         </div>
         <span class="writing-count"><strong id="charCount">0</strong> 文字 <span class="count-divider">/</span> 約 <span id="readTime">1</span> 分</span>
-      </div>
-      <div id="formatToolbar" class="format-toolbar" role="group" aria-label="本文の書式">
-        <select id="blockFormat" aria-label="段落の種類" title="段落の種類">
-          <option value="p">本文</option><option value="h2">大見出し</option><option value="h3">小見出し</option><option value="blockquote">引用</option><option value="pre">コード</option>
-        </select>
-        <span class="toolbar-divider" aria-hidden="true"></span>
-        <button type="button" data-command="bold" title="太字 (Ctrl / ⌘ + B)" aria-label="太字" aria-pressed="false"><b>B</b></button>
-        <button type="button" data-command="italic" title="斜体 (Ctrl / ⌘ + I)" aria-label="斜体" aria-pressed="false"><i>I</i></button>
-        <button type="button" data-command="underline" title="下線 (Ctrl / ⌘ + U)" aria-label="下線" aria-pressed="false"><u>U</u></button>
-        <button type="button" data-command="strikeThrough" title="取り消し線" aria-label="取り消し線" aria-pressed="false"><s>S</s></button>
-        <button type="button" id="highlightBtn" title="マーカー" aria-label="マーカー"><span class="marker-icon">A</span></button>
-        <span class="toolbar-divider" aria-hidden="true"></span>
-        <button type="button" data-command="insertUnorderedList" title="箇条書き" aria-label="箇条書き" aria-pressed="false">• ≡</button>
-        <button type="button" data-command="insertOrderedList" title="番号付きリスト" aria-label="番号付きリスト" aria-pressed="false">1. ≡</button>
-        <button type="button" id="linkBtn" title="リンク (Ctrl / ⌘ + K)" aria-label="リンクを挿入">↗</button>
-        <button type="button" id="insertImageBtn" class="text-tool" title="画像を追加">画像</button>
-        <button type="button" id="videoBtn" class="text-tool" title="YouTube動画を挿入">動画</button>
-        <button type="button" id="dividerBtn" title="区切り線" aria-label="区切り線を挿入">―</button>
-        <button type="button" data-command="removeFormat" title="文字装飾を解除" aria-label="文字装飾を解除">Tx</button>
-        <span class="toolbar-divider" aria-hidden="true"></span>
-        <button id="undoBtn" type="button" title="元に戻す (Ctrl / ⌘ + Z)" aria-label="元に戻す" disabled>↶</button>
-        <button id="redoBtn" type="button" title="やり直す (Ctrl / ⌘ + Shift + Z)" aria-label="やり直す" disabled>↷</button>
       </div>
       <div id="mediaTools" class="media-tools" hidden>
         <label>画像の説明 <input id="mediaAlt" type="text" placeholder="画像が伝える内容"></label>
@@ -143,6 +214,18 @@ permalink: /blog/editor.html
     <div id="draftList" class="draft-list"></div>
     <p id="draftStatus" role="status"></p>
   </dialog>
+  <dialog id="tableDialog" class="writing-dialog" aria-labelledby="tableDialogTitle">
+    <form id="tableForm">
+      <div class="dialog-heading"><h2 id="tableDialogTitle">表を挿入</h2><button class="dialog-close" type="button" data-close="tableDialog" aria-label="閉じる">×</button></div>
+      <div class="table-dimensions">
+        <div class="field"><label for="tableColumns">列数</label><input id="tableColumns" type="number" min="1" max="12" value="3" required></div>
+        <div class="field"><label for="tableRows">本文の行数</label><input id="tableRows" type="number" min="1" max="12" value="2" required></div>
+      </div>
+      <label class="table-header-option"><input id="tableHeader" type="checkbox" checked> 見出し行を付ける</label>
+      <p class="writing-hint">セルをクリックして入力できます。Tabキーで次のセルへ移動します。</p>
+      <div class="dialog-actions"><button class="writing-button" type="button" data-close="tableDialog">キャンセル</button><button class="writing-button primary" type="submit">挿入する</button></div>
+    </form>
+  </dialog>
   <dialog id="insertDialog" class="writing-dialog" aria-labelledby="insertDialogTitle">
     <form id="insertForm">
       <div class="dialog-heading"><h2 id="insertDialogTitle">リンクを挿入</h2><button class="dialog-close" type="button" data-close="insertDialog" aria-label="閉じる">×</button></div>
@@ -178,4 +261,5 @@ permalink: /blog/editor.html
 <script src="{{ '/blog/assets/editor-core.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor-storage.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor-images.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/blog/assets/editor-formatting.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
