@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- title/description の組み立ては静的生成スクリプト側の出力規則と揃える -->
+  <!-- 記事情報は文字列として扱い、出力先でエスケープする。 -->
   {% assign page_title = page.title | default: site.title %}
   {% assign raw_description = page.description | default: site.description %}
   {% capture seo_title %}{{ page_title }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
-  {% capture meta_description %}{{ raw_description | strip_html | strip_newlines }}{% if page.description_en %} / {{ page.description_en | strip_html | strip_newlines }}{% endif %}{% endcapture %}
+  {% capture meta_description %}{{ raw_description }}{% if page.description_en %} / {{ page.description_en }}{% endif %}{% endcapture %}
   <title>{{ seo_title | strip | escape }}</title>
   <meta name="description" content="{{ meta_description | escape }}">
   <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' | escape }}">

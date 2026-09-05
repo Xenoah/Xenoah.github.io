@@ -2,3 +2,4 @@ node_modules/
 .npm-cache/
 test-results/
 playwright-report/
+ci-meta-*.html

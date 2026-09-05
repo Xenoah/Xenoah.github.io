@@ -30,6 +30,8 @@ jobs:
         run: |
           npm run check:articles
           npm test
+      - name: Create metadata escaping fixtures
+        run: node blog/scripts/make-ci-fixture.cjs
       - name: Build actual Jekyll output
         uses: actions/jekyll-build-pages@v1
         with:
