@@ -241,6 +241,24 @@ test("missing title blocks export and script source cannot execute in preview", 
   assert.equal(e.$("preview").querySelector("img").hasAttribute("onerror"), false);
 });
 
+test("publishing blocks empty bodies, missing images and another article's URL", async (t) => {
+  const e = await editor({ fetch: async () => ({ ok: true, json: async () => [{ title: "Existing", url: "/blog/2026/09/05/taken/" }] }) });
+  t.after(() => e.dom.window.close());
+  e.input("title", "New"); e.input("date", "2026-09-05"); e.input("slug", "taken");
+  await e.click("openExportBtn"); await e.click("exportFolderBtn");
+  assert.match(e.$("exportStatus").textContent, /本文/);
+  e.$("exportDialog").close(); await e.click("htmlModeBtn");
+  e.input("htmlSource", '<p>Text</p><img src="/missing.png">');
+  await e.click("openExportBtn"); await e.click("exportFolderBtn");
+  assert.match(e.$("exportStatus").textContent, /未追加/);
+  e.$("exportDialog").close(); e.input("htmlSource", "<p>Text</p>");
+  await e.click("openExportBtn"); await e.click("exportFolderBtn");
+  assert.match(e.$("exportStatus").textContent, /別の記事/);
+  assert.equal(e.downloads.length, 0);
+  assert.ok(C.publicationIssues({ title: "A", date: "2026-02-30", slug: "a", body: "<p>Body</p>" }).some((issue) => issue.field === "date"));
+  assert.ok(C.publicationIssues({ title: "A", date: "2026-09-05", slug: "a", body: "<p>Body</p>", description: "検索結果やSNSカードに表示する短い説明文。" }).some((issue) => issue.field === "description"));
+});
+
 test("context menu preserves selected text, supports keyboard dismissal and native-menu opt out", async (t) => {
   const e = await editor(); t.after(() => e.dom.window.close());
   await e.click("htmlModeBtn"); e.input("htmlSource", "<p>選択した文章</p>"); await e.click("visualModeBtn");

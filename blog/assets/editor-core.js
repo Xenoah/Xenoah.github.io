@@ -97,6 +97,23 @@
   function textFromHtml(html) {
     return (new DOMParser().parseFromString(html, "text/html").body.textContent || "").replace(/\s+/g, " ").trim();
   }
+  function mediaReferences(html, cover = "") {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return [...new Set([cover, ...[...doc.querySelectorAll("img,video,audio,source,[poster],[style]")].flatMap((node) =>
+      [node.getAttribute("src"), node.getAttribute("poster"), node.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1]])].filter(Boolean))];
+  }
+  function publicationIssues(data) {
+    const issues = [], doc = new DOMParser().parseFromString(data.body || "", "text/html");
+    const add = (field, message) => issues.push({ field, message });
+    if (!String(data.title || "").trim()) add("title", "記事タイトルを入力してください。");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date || "") || Number.isNaN(Date.parse(data.date)) || new Date(data.date).toISOString().slice(0, 10) !== data.date) add("date", "正しい公開日を入力してください。");
+    if (!String(data.slug || "").trim()) add("slug", "URLの末尾を入力してください。");
+    if (!textFromHtml(data.body) && !doc.querySelector("img[src],iframe[src],video[src],audio[src],video source[src],audio source[src]")) add("body", "本文を入力してください。");
+    if (/^(検索結果やSNSカードに表示する短い説明文。|ここに.*(?:説明|概要).*|TODO)$/i.test(String(data.description || "").trim())) add("description", "記事の説明がサンプル文のままです。内容に合う説明に変更してください。");
+    if (data.image && !safeUrl(data.image, true)) add("image", "カバー画像のURLを確認してください。");
+    if (doc.querySelector("img:not([src]), img[src='']")) add("body", "URLのない画像があります。画像を追加し直すか削除してください。");
+    return issues;
+  }
   function yamlValue(value) {
     value = value.trim();
     if (value.startsWith('"') && value.endsWith('"')) {
@@ -183,7 +200,7 @@
     const size = central.reduce((sum, part) => sum + part.length, 0);
     return new Blob([...local, ...central, new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(size), ...u32(offset), ...u16(0)])], { type: "application/zip" });
   }
-  const api = { escapeHtml, slugify, localDate, folderName, folderPath, permalink, safeUrl, youtubeUrl, sanitize, textFromHtml, parseArticle, articleSource, createZip };
+  const api = { escapeHtml, slugify, localDate, folderName, folderPath, permalink, safeUrl, youtubeUrl, sanitize, textFromHtml, mediaReferences, publicationIssues, parseArticle, articleSource, createZip };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.BlogEditorCore = api;
 })(globalThis);

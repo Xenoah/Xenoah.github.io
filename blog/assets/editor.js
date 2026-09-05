@@ -523,24 +523,27 @@
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
   function validate() {
-    if (!fields.title.value.trim()) throw new Error("記事タイトルを入力してください。");
-    if (!fields.date.value || !fields.date.checkValidity()) throw new Error("公開日を入力してください。");
-    if (!fields.slug.value.trim()) throw new Error("URLの末尾を入力してください。");
-    if (fields.image.value && !C.safeUrl(fields.image.value, true)) throw new Error("カバー画像のURLを確認してください。");
+    const issues = exportIssues();
+    if (issues.length) throw new Error(issues[0].message);
+    if (extra.originalPermalink && normalizePath(extra.originalPermalink) !== normalizePath(C.permalink(metadata())) &&
+      !window.confirm("公開日またはURL末尾が変わっています。新しいURLで書き出しますか？ 既存記事へのリンクを維持する場合は元の設定へ戻してください。")) throw new DOMException("Canceled", "AbortError");
+  }
+  function missingAssets() {
+    return C.mediaReferences(getBody(), fields.image.value).filter((ref) => !findAsset(ref) && !/^(?:https?:|data:)/i.test(ref));
+  }
+  function exportIssues() {
+    const data = metadata(), issues = C.publicationIssues({ ...data, body: getBody() });
+    if (missingAssets().length) issues.push({ field: "imagesCard", message: "未追加の画像・メディアがあります。ライブラリへ追加するか、公開済みのURLを指定してください。" });
+    const url = normalizePath(C.permalink(data));
+    if (catalog?.some((article) => normalizePath(article.url) === url) && normalizePath(extra.originalPermalink) !== url) issues.push({ field: "slug", message: "この公開URLは別の記事で使用中です。URLの末尾を変更するか、公開済みの記事を開いて編集してください。" });
+    return issues;
   }
   function renderChecklist() {
-    const html = getBody(), doc = new DOMParser().parseFromString(html, "text/html");
-    const missing = [...doc.querySelectorAll("img")].filter((img) => !findAsset(img.getAttribute("src")) && !/^(?:https?:|data:)/.test(img.getAttribute("src") || ""));
-    if (fields.image.value && !findAsset(fields.image.value) && !/^https?:/.test(fields.image.value)) missing.push(fields.image);
-    const checks = [
-      [!!fields.title.value.trim(), "記事タイトル"],
-      [!!fields.date.value && !!fields.slug.value.trim(), "公開日とURL"],
-      [!!C.textFromHtml(html) || !!doc.querySelector("img,iframe"), "本文"],
-      [!!fields.description.value.trim(), "記事の説明（任意）"],
-      [!!fields.image.value, "カバー画像（任意）"],
-      [!missing.length, missing.length ? "未追加の画像があります。必要な画像をライブラリに追加してください。" : "画像の保存準備ができています"]
-    ];
-    $("publishChecklist").innerHTML = checks.map(([ok, text]) => `<li class="${ok ? "ok" : "warn"}">${esc(text)}</li>`).join("");
+    const issues = exportIssues();
+    $("publishChecklist").innerHTML = issues.map((issue) => `<li class="warn"><button type="button" data-fix="${issue.field}">${esc(issue.message)}</button></li>`).join("") +
+      (!issues.length ? '<li class="ok">本文・記事情報・画像の準備ができています</li>' : "") +
+      (!fields.description.value.trim() ? '<li class="warn">説明は未入力です。「本文から説明を作る」で追加できます。</li>' : "") +
+      (!catalog ? '<li class="warn">公開URLの重複チェックは未実施です。通信状態を確認して、この画面を開き直してください。</li>' : "");
   }
   const source = () => C.articleSource({ ...metadata(), body: getBody() });
   async function exportZip() {
@@ -875,7 +878,27 @@
     loadDocument({ body: "", date: C.localDate(), slug: "new-article" });
     delete fields.slug.dataset.touched; renderAssets(); history = []; historyIndex = -1; changed(true); fields.title.focus();
   });
-  on("openExportBtn", "click", () => { refresh(); renderChecklist(); $("exportStatus").textContent = ""; $("exportDialog").showModal(); });
+  on("makeDescriptionBtn", "click", () => {
+    fields.description.value = Array.from(C.textFromHtml(getBody())).slice(0, 150).join("");
+    changed(); fields.description.focus(); notify("本文の先頭から説明を作りました。内容を確認して整えてください。");
+  });
+  on("publishChecklist", "click", (event) => {
+    const button = event.target.closest("[data-fix]");
+    if (!button) return;
+    $("exportDialog").close();
+    const field = $(button.dataset.fix);
+    if (field.closest("details")) field.closest("details").open = true;
+    if (button.dataset.fix === "body") setMode("visual");
+    field.scrollIntoView({ block: "center" }); field.focus();
+  });
+  on("openExportBtn", "click", async () => {
+    refresh(); renderChecklist(); $("exportStatus").textContent = "公開URLを確認しています…"; $("exportDialog").showModal();
+    const buttons = ["exportFolderBtn", "saveFolderBtn", "downloadBtn", "copyBtn"].map($);
+    buttons.forEach((button) => { button.disabled = true; });
+    try { await readCatalog(); $("exportStatus").textContent = ""; }
+    catch { catalog = null; $("exportStatus").textContent = "記事一覧を取得できませんでした。オフラインでも書き出せますが、公開URLの重複は確認してください。"; }
+    finally { buttons.forEach((button) => { button.disabled = false; }); renderChecklist(); }
+  });
   on("exportFolderBtn", "click", exportZip);
   on("saveFolderBtn", "click", saveFolder);
   on("downloadBtn", "click", () => { validate(); download(new Blob([source()], { type: "text/html;charset=utf-8" }), "index.html"); $("exportStatus").textContent = "HTMLを書き出しました。画像は別途、同じ記事フォルダに配置してください。"; });
