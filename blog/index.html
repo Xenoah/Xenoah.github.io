@@ -1,8 +1,8 @@
 ---
 layout: blog
-title: ????????
+title: ブログと制作の記録
 title_en: Blog and Build Notes
-description: Web???VRChat???????????????????????Xenoah???????
+description: Web制作、VRChat、電子工作、日々の発見をまとめたXenoahのブログです。
 description_en: Xenoah's blog about web development, VRChat, electronics, creative processes and continuous learning.
 permalink: /blog/
 ---
@@ -10,14 +10,14 @@ permalink: /blog/
 <section class="blog-index-head">
   <div>
     <p class="section-label">Xenoah Journal</p>
-    <h1>??????????????????</h1>
-    <p>???VRChat??????????????????????</p>
+    <h1>つくること、遊ぶこと、日々のこと。</h1>
+    <p>WebやVRChat、ものづくりの記録を、少しずつ。</p>
   </div>
-  <aside class="blog-index-meta" aria-label="???">
+  <aside class="blog-index-meta" aria-label="記事数">
     <span>{{ all_articles.size }}</span><small>Articles</small>
   </aside>
 </section>
-<section class="post-list" aria-label="????">
+<section class="post-list" aria-label="記事一覧">
   {% for article in all_articles %}
   <article class="post-card">
     <a href="{{ article.url | relative_url }}">
@@ -31,5 +31,5 @@ permalink: /blog/
       </span>
     </a>
   </article>
-  {% else %}<p class="empty-state">???????????</p>{% endfor %}
+  {% else %}<p class="empty-state">記事を準備しています。</p>{% endfor %}
 </section>
