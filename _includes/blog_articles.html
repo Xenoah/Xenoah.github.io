@@ -1,0 +1,2 @@
+{%- assign folder_articles = site.pages | where: "blog_article", true -%}
+{%- assign all_articles = site.posts | concat: folder_articles | where_exp: "article", "article.published != false" | sort: "date" | reverse -%}

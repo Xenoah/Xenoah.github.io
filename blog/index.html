@@ -6,8 +6,7 @@ description: Web???VRChat???????????????????????Xenoah???????
 description_en: Xenoah's blog about web development, VRChat, electronics, creative processes and continuous learning.
 permalink: /blog/
 ---
-{% assign folder_articles = site.pages | where: "blog_article", true %}
-{% assign all_articles = site.posts | concat: folder_articles | where_exp: "article", "article.published != false" | sort: "date" | reverse %}
+{% include blog_articles.html %}
 <section class="blog-index-head">
   <div>
     <p class="section-label">Xenoah Journal</p>

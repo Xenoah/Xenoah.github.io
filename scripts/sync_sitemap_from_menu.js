@@ -104,6 +104,8 @@ function main() {
 
     const added = [];
     for (const link of menuLinks) {
+        // ブログ記事のXMLはJekyllが記事ソースから生成する。
+        if (/^blog\/\d{4}\/\d{2}\/\d{2}\//.test(link.rel)) continue;
         const loc = SITE_ORIGIN + link.rel;
         if (xml.includes("<loc>" + loc + "</loc>")) continue; // 掲載済み
 

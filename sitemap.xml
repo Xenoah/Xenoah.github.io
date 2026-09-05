@@ -1,3 +1,8 @@
+---
+layout: null
+permalink: /sitemap.xml
+sitemap: false
+---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
@@ -179,16 +184,7 @@
       <image:loc>https://xenoah.github.io/images_sitemap/blog.jpg</image:loc>
     </image:image>
   </url>
-  <url>
-    <loc>https://xenoah.github.io/blog/2026/05/08/blog-start/</loc>
-    <lastmod>2026-05-09</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-    <image:image>
-      <image:loc>https://xenoah.github.io/images_sitemap/blog-start.jpg</image:loc>
-    </image:image>
-  </url>
-  <url>
+<url>
     <loc>https://xenoah.github.io/blog/2026/05/05/vrchat/</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>yearly</changefreq>
@@ -469,4 +465,12 @@
       <image:loc>https://xenoah.github.io/images_sitemap/5w1h-generator.jpg</image:loc>
     </image:image>
   </url>
+  {% include blog_articles.html %}
+  {% for article in all_articles %}
+  <url>
+    <loc>{{ article.url | absolute_url | xml_escape }}</loc>
+    <lastmod>{{ article.last_modified_at | default: article.date | date_to_xmlschema }}</lastmod>
+    {% if article.image %}<image:image><image:loc>{{ article.image | absolute_url | xml_escape }}</image:loc></image:image>{% endif %}
+  </url>
+  {% endfor %}
 </urlset>

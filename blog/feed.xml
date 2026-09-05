@@ -11,8 +11,7 @@ permalink: /blog/feed.xml
     <atom:link href="{{ '/blog/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml" />
     <language>ja</language>
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
-    {% assign folder_articles = site.pages | where: "blog_article", true %}
-    {% assign all_articles = site.posts | concat: folder_articles | sort: "date" | reverse %}
+    {% include blog_articles.html %}
     {% for post in all_articles limit: 20 %}
     <item>
       <title>{{ post.title | xml_escape }}</title>
