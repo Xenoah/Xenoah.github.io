@@ -181,3 +181,38 @@ test("missing title blocks export and script source cannot execute in preview", 
   assert.equal(e.$("preview").querySelector("script"), null);
   assert.equal(e.$("preview").querySelector("img").hasAttribute("onerror"), false);
 });
+
+test("context menu preserves selected text, supports keyboard dismissal and native-menu opt out", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  await e.click("htmlModeBtn"); e.input("htmlSource", "<p>選択した文章</p>"); await e.click("visualModeBtn");
+  const range = e.w.document.createRange(); range.selectNodeContents(e.$("body").querySelector("p"));
+  e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range);
+  const event = new e.w.MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 100, clientY: 100 });
+  e.$("body").dispatchEvent(event);
+  assert.equal(event.defaultPrevented, true);
+  assert.equal(e.$("editorContextMenu").hidden, false);
+  const copy = e.$("editorContextMenu").querySelector('[data-context="copy"]');
+  assert.equal(copy.disabled, false); copy.click(); await tick();
+  assert.equal(e.clipboard.at(-1), "選択した文章");
+  assert.equal(e.$("editorContextMenu").hidden, true);
+  e.$("body").dispatchEvent(new e.w.MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 100, clientY: 100 }));
+  e.$("editorContextMenu").dispatchEvent(new e.w.KeyboardEvent("keydown", { key: "End", bubbles: true }));
+  assert.equal(e.w.document.activeElement.dataset.context, "image");
+  e.$("editorContextMenu").dispatchEvent(new e.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(e.$("editorContextMenu").hidden, true);
+  assert.equal(e.w.getSelection().toString(), "選択した文章");
+  const native = new e.w.MouseEvent("contextmenu", { bubbles: true, cancelable: true, shiftKey: true });
+  e.$("body").dispatchEvent(native); assert.equal(native.defaultPrevented, false);
+});
+
+test("image context menu removes the clicked image and undo restores it", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  await e.click("htmlModeBtn"); e.input("htmlSource", '<figure><img src="/photo.png" alt="写真"><figcaption>説明</figcaption></figure><p>本文</p>'); await e.click("visualModeBtn");
+  e.$("body").querySelector("img").dispatchEvent(new e.w.MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 50, clientY: 50 }));
+  const remove = e.$("editorContextMenu").querySelector('[data-context="removeImage"]');
+  assert.equal(remove.hidden, false); remove.click(); await tick();
+  assert.equal(e.$("body").querySelector("img"), null);
+  await e.click("undoBtn");
+  assert.equal(e.$("body").querySelector("img").alt, "写真");
+  assert.equal(e.$("body").querySelector("figcaption").textContent, "説明");
+});

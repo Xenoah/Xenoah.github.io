@@ -108,6 +108,27 @@ permalink: /blog/editor.html
     </aside>
   </div>
   <p id="appStatus" class="app-status" role="status" aria-live="polite"></p>
+  <div id="editorContextMenu" class="editor-context-menu" role="menu" aria-label="記事の編集メニュー" hidden>
+    <button type="button" role="menuitem" data-context="undo">元に戻す <kbd>Ctrl Z</kbd></button>
+    <button type="button" role="menuitem" data-context="redo">やり直す <kbd>Ctrl Shift Z</kbd></button>
+    <hr role="separator">
+    <button type="button" role="menuitem" data-context="cut">切り取り <kbd>Ctrl X</kbd></button>
+    <button type="button" role="menuitem" data-context="copy">コピー <kbd>Ctrl C</kbd></button>
+    <button type="button" role="menuitem" data-context="paste">テキストを貼り付け <kbd>Ctrl V</kbd></button>
+    <button type="button" role="menuitem" data-context="selectAll">本文をすべて選択</button>
+    <hr role="separator">
+    <button type="button" role="menuitem" data-context="bold" data-visual>太字</button>
+    <button type="button" role="menuitem" data-context="highlight" data-visual>マーカー</button>
+    <button type="button" role="menuitem" data-context="h2" data-visual>大見出しにする</button>
+    <button type="button" role="menuitem" data-context="h3" data-visual>小見出しにする</button>
+    <button type="button" role="menuitem" data-context="p" data-visual>本文にする</button>
+    <button type="button" role="menuitem" data-context="link" data-visual>リンクを追加・編集</button>
+    <button type="button" role="menuitem" data-context="image" data-visual>画像を挿入</button>
+    <button type="button" role="menuitem" data-context="editImage" data-media>画像の説明・サイズ</button>
+    <button type="button" role="menuitem" data-context="cover" data-media>この画像をカバーにする</button>
+    <button type="button" role="menuitem" data-context="removeImage" data-media>この画像を削除</button>
+    <small>Shift＋右クリックでブラウザのメニュー</small>
+  </div>
   <input id="imageFiles" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif,image/svg+xml" multiple hidden>
   <input id="coverFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif,image/svg+xml" hidden>
   <input id="importHtmlFile" type="file" accept=".html,.htm" hidden>

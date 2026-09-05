@@ -516,6 +516,96 @@
     });
   }
 
+  let contextImage = null, contextSourceSelection = null;
+  const contextMenu = $("editorContextMenu");
+  function closeContextMenu(restoreFocus = false) {
+    if (contextMenu.hidden) return;
+    contextMenu.hidden = true;
+    if (restoreFocus) {
+      if (mode === "html") $("htmlSource").focus(); else restoreRange();
+    }
+  }
+  function openContextMenu(event) {
+    if (event.shiftKey || previewing || composing) return;
+    event.preventDefault();
+    recordHistory(); captureRange();
+    contextImage = event.target.closest("img");
+    if (contextImage && !body.contains(contextImage)) contextImage = null;
+    if (contextImage) selectMedia(contextImage);
+    const source = $("htmlSource");
+    contextSourceSelection = { start: source.selectionStart, end: source.selectionEnd };
+    const hasSelection = mode === "html" ? source.selectionStart !== source.selectionEnd : !!savedRange?.toString();
+    contextMenu.querySelectorAll("[data-visual]").forEach((button) => { button.hidden = mode !== "visual" || !!contextImage; });
+    contextMenu.querySelectorAll("[data-media]").forEach((button) => { button.hidden = !contextImage; });
+    contextMenu.querySelector('[data-context="undo"]').disabled = historyIndex < 1;
+    contextMenu.querySelector('[data-context="redo"]').disabled = historyIndex >= history.length - 1;
+    for (const action of ["cut", "copy"]) contextMenu.querySelector(`[data-context="${action}"]`).disabled = !hasSelection;
+    contextMenu.querySelector('[data-context="paste"]').disabled = !navigator.clipboard?.readText;
+    contextMenu.hidden = false;
+    const x = event.clientX || (mode === "html" ? source : body).getBoundingClientRect().left + 24;
+    const y = event.clientY || (mode === "html" ? source : body).getBoundingClientRect().top + 24;
+    contextMenu.style.left = Math.max(8, Math.min(x, window.innerWidth - contextMenu.offsetWidth - 8)) + "px";
+    contextMenu.style.top = Math.max(8, Math.min(y, window.innerHeight - contextMenu.offsetHeight - 8)) + "px";
+    contextMenu.querySelector("button:not([disabled]):not([hidden])")?.focus();
+  }
+  async function contextClipboard(action) {
+    const source = $("htmlSource"), revisionAtClick = revision;
+    if (action === "paste") {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (revision !== revisionAtClick) { notify("本文が変更されたため、貼り付け位置を選び直してください。"); return; }
+        if (mode === "html") {
+          recordHistory(); source.setRangeText(esc(text), contextSourceSelection.start, contextSourceSelection.end, "end"); changed(true);
+        } else insertHtml(text.split(/\r?\n\r?\n/).map((p) => "<p>" + esc(p).replace(/\r?\n/g, "<br>") + "</p>").join(""));
+      } catch { notify("貼り付けを許可するか、本文で Ctrl / ⌘ + V を使ってください。"); }
+      return;
+    }
+    const text = mode === "html" ? source.value.slice(contextSourceSelection.start, contextSourceSelection.end) : savedRange?.toString();
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    if (action === "cut" && revision === revisionAtClick) {
+      recordHistory();
+      if (mode === "html") source.setRangeText("", contextSourceSelection.start, contextSourceSelection.end, "end");
+      else { restoreRange().deleteContents(); captureRange(); }
+      changed(true);
+    }
+  }
+  on("visualPanel", "contextmenu", (event) => { if (!event.target.closest("textarea, input, button")) openContextMenu(event); });
+  on("htmlSource", "contextmenu", openContextMenu);
+  on("editorContextMenu", "click", async (event) => {
+    const button = event.target.closest("[data-context]");
+    if (!button || button.disabled) return;
+    const action = button.dataset.context;
+    closeContextMenu();
+    if (action === "undo" || action === "redo") undoRedo(action === "undo" ? -1 : 1);
+    else if (["copy", "cut", "paste"].includes(action)) await contextClipboard(action);
+    else if (action === "selectAll") {
+      if (mode === "html") { $("htmlSource").focus(); $("htmlSource").select(); }
+      else { savedRange = document.createRange(); savedRange.selectNodeContents(body); restoreRange(); }
+    } else if (action === "bold") command("bold");
+    else if (action === "highlight") command("hiliteColor", "#fff0a8");
+    else if (["h2", "h3", "p"].includes(action)) command("formatBlock", action);
+    else if (action === "link") openInsert("link");
+    else if (action === "image") { $("imageFiles").dataset.action = "insert"; $("imageFiles").click(); }
+    else if (action === "editImage") { selectMedia(contextImage); $("mediaAlt").focus(); }
+    else if (action === "cover") {
+      const asset = findAsset(contextImage.getAttribute("src"));
+      fields.image.value = asset ? assetPath(asset) : contextImage.getAttribute("src"); changed();
+    } else if (action === "removeImage") { selectedMedia = contextImage; removeMedia(); }
+  });
+  on("editorContextMenu", "keydown", (event) => {
+    if (event.key === "Escape" || event.key === "Tab") { event.preventDefault(); closeContextMenu(true); return; }
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const buttons = [...contextMenu.querySelectorAll("button:not([disabled]):not([hidden])")];
+    let index = buttons.indexOf(document.activeElement);
+    index = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : (index + (event.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+    buttons[index]?.focus();
+  });
+  document.addEventListener("pointerdown", (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); });
+  window.addEventListener("resize", () => closeContextMenu());
+  window.addEventListener("scroll", (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); }, true);
+
   document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
   $("formatToolbar").addEventListener("mousedown", (event) => { if (event.target.closest("button")) event.preventDefault(); else captureRange(); });
   document.querySelectorAll("[data-command]").forEach((button) => button.addEventListener("click", () => command(button.dataset.command)));
