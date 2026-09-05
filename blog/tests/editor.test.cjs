@@ -69,7 +69,7 @@ test("every article source retains text, media, metadata and its own permalink",
   }
 });
 test("rendered article imports only the article body and reads metadata", () => {
-  const source = fs.readFileSync(path.join(root, "2026/05/08/blog-start/index.html"), "utf8");
+  const source = '<!doctype html><html><head><title>ブログ機能を追加しました | Xenoah</title><link rel="canonical" href="https://xenoah.github.io/blog/2026/05/08/blog-start/"><meta property="article:published_time" content="2026-05-08T00:00:00+09:00"></head><body><header class="blog-header">ナビゲーション</header><article><header class="article-head"><h1>ブログ機能を追加しました</h1></header><div class="article-body"><p>記事の本文です。</p></div></article><nav class="post-nav">戻る</nav></body></html>';
   const article = C.parseArticle(source);
   assert.equal(article.title, "ブログ機能を追加しました");
   assert.equal(article.date, "2026-05-08");
