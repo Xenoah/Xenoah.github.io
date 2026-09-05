@@ -41,7 +41,8 @@ jobs:
         working-directory: blog
         run: npm run test:browser
       - name: Remove generated test fixtures from publication output
-        run: node blog/scripts/clean-ci-fixtures.cjs
+        # Jekyll's Docker action creates the output directory as root.
+        run: sudo node blog/scripts/clean-ci-fixtures.cjs
       - name: Upload tested site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
