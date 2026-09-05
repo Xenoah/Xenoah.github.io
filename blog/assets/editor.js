@@ -1,668 +1,717 @@
-// ブログ記事のfront matter・本文・画像を、配置可能なフォルダ一式として書き出す。
-// 公開URLと保存先の規則は scripts/render_static_blog_*.js と共有する。
+/* 依存ライブラリ・通信なしで動くビジュアル記事エディター。 */
 (function () {
-  const $ = (id) => document.getElementById(id);
-  // 保存形式を変更した場合に旧下書きと混在しないよう、キー末尾で世代を管理する。
-  const draftKey = "xenoah_blog_editor_draft_html_v1";
-  const encoder = new TextEncoder();
-  let assets = [];
-  let draftTimer = 0;
+  "use strict";
+  const C = window.BlogEditorCore, esc = C.escapeHtml;
+  // 取り込んだ記事内のidと操作UIのidが重なっても、参照先を変えない。
+  const elements = Object.fromEntries(Array.from(document.querySelectorAll("#editorApp, #editorApp [id]")).map((element) => [element.id, element]));
+  const $ = (id) => elements[id];
+  const body = $("body"), app = $("editorApp");
+  const fieldNames = ["title", "date", "slug", "description", "tags", "image", "title_en", "description_en"];
+  const fields = Object.fromEntries(fieldNames.map((key) => [key, $(key)]));
+  const legacyKey = "xenoah_blog_editor_draft_html_v1";
+  const backupKey = "xenoah_blog_editor_draft_visual_v2";
+  let assets = [], extra = {}, mode = "visual", previewing = false, ready = false, composing = false;
+  let savedRange = null, selectedMedia = null, linkNode = null, insertKind = "link";
+  let saveTimer, historyTimer, statusTimer, revision = 0, savedRevision = 0, saveQueue = Promise.resolve();
+  let history = [], historyIndex = -1;
+  let databasePromise;
+  fields.date.value = C.localDate();
 
-  const fields = {
-    title: $("title"),
-    date: $("date"),
-    slug: $("slug"),
-    description: $("description"),
-    tags: $("tags"),
-    image: $("image"),
-    body: $("body"),
-    imageFiles: $("imageFiles"),
-    importHtmlFile: $("importHtmlFile"),
-    htmlInput: $("htmlInput")
-  };
-
-  const exportStatus = $("exportStatus");
-  const draftStatus = $("draftStatus");
-  const draftSaved = $("draftSaved");
-  const imageStatus = $("imageStatus");
-  const htmlStatus = $("htmlStatus");
-  const checkStatus = $("checkStatus");
-  const previewStatus = $("previewStatus");
-  const articleFolderPath = $("articleFolderPath");
-  const postPath = $("postPath");
-  const preview = $("preview");
-  const assetList = $("assetList");
-  const publishChecklist = $("publishChecklist");
-  const charCount = $("charCount");
-  const imageCount = $("imageCount");
-  const readTime = $("readTime");
-
-  fields.date.value = new Date().toISOString().slice(0, 10);
-
-  function slugify(value) {
-    return String(value || "")
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 80) || "article";
+  function notify(message) {
+    $("appStatus").textContent = message;
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { $("appStatus").textContent = ""; }, 6000);
   }
-
-  function cleanFileName(value) {
-    const parts = String(value || "image.png").split(".");
-    const ext = parts.length > 1 ? parts.pop().toLowerCase() : "png";
-    const base = slugify(parts.join(".") || "image");
-    return `${base}.${ext.replace(/[^a-z0-9]/g, "") || "png"}`;
+  function saveState(text, state = "") {
+    $("draftSaved").textContent = text;
+    $("draftSaved").dataset.state = state;
   }
-
-  function uniqueAssetName(name) {
-    const clean = cleanFileName(name);
-    const dot = clean.lastIndexOf(".");
-    const base = dot >= 0 ? clean.slice(0, dot) : clean;
-    const ext = dot >= 0 ? clean.slice(dot) : "";
-    const used = new Set(assets.map((asset) => asset.name));
-    let candidate = clean;
-    let count = 2;
-    while (used.has(candidate)) {
-      candidate = `${base}-${count}${ext}`;
-      count += 1;
-    }
-    return candidate;
-  }
-
-  function yamlString(value) {
-    return String(value || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  }
-
-  function splitTags() {
-    return fields.tags.value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-  }
-
-  function articleFolderName() {
-    return `${fields.date.value}-${slugify(fields.slug.value)}`;
-  }
-
-  function articleFolder() {
-    return `blog/articles/${articleFolderName()}/`;
-  }
-
-  function publicArticleFolder() {
-    return `/blog/articles/${articleFolderName()}/`;
-  }
-
-  function articleIndexPath() {
-    return `${articleFolder()}index.html`;
-  }
-
-  function publicPermalink() {
-    return `/blog/${fields.date.value.slice(0, 4)}/${fields.date.value.slice(5, 7)}/${fields.date.value.slice(8, 10)}/${slugify(fields.slug.value)}/`;
-  }
-
-  function assetPublicPath(asset) {
-    return `${publicArticleFolder()}${asset.name}`;
-  }
-
-  function updatePaths() {
-    articleFolderPath.textContent = articleFolder();
-    postPath.textContent = articleIndexPath();
-  }
-
-  function frontMatter() {
-    const tags = splitTags();
-    const lines = [
-      "---",
-      "layout: post",
-      "blog_article: true",
-      `title: "${yamlString(fields.title.value)}"`,
-      `date: ${fields.date.value}`,
-      `description: "${yamlString(fields.description.value)}"`,
-      `permalink: ${publicPermalink()}`
-    ];
-
-    if (tags.length) {
-      lines.push("tags:");
-      tags.forEach((tag) => lines.push(`  - "${yamlString(tag)}"`));
-    }
-
-    if (fields.image.value.trim()) {
-      lines.push(`image: "${yamlString(fields.image.value.trim())}"`);
-    }
-
-    lines.push("---", "");
-    return lines.join("\n");
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function sanitizeUrl(value) {
-    const trimmed = String(value || "").trim();
-    if (/^\s*javascript:/i.test(trimmed)) {
-      return "";
-    }
-    return trimmed;
-  }
-
-  function sanitizeArticleHtml(html) {
-    // プレビューへの再挿入と公開HTML出力の両方で、実行可能な属性・要素を除外する。
-    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
-    doc.querySelectorAll("script,style,noscript,iframe[srcdoc]").forEach((node) => node.remove());
-    doc.body.querySelectorAll("*").forEach((node) => {
-      Array.from(node.attributes).forEach((attr) => {
-        const name = attr.name.toLowerCase();
-        if (name.startsWith("on")) {
-          node.removeAttribute(attr.name);
-        }
-        if ((name === "href" || name === "src") && !sanitizeUrl(attr.value)) {
-          node.removeAttribute(attr.name);
-        }
-      });
-      if (node.tagName.toLowerCase() === "img" && !node.hasAttribute("loading")) {
-        node.setAttribute("loading", "lazy");
-      }
-      if (node.tagName.toLowerCase() === "a" && node.getAttribute("target") === "_blank" && !node.getAttribute("rel")) {
-        node.setAttribute("rel", "noopener noreferrer");
-      }
-    });
-    return doc.body.innerHTML.trim();
-  }
-
-  function articleHtmlSource() {
-    const body = sanitizeArticleHtml(fields.body.value).trim();
-    return `${frontMatter()}${body}\n`;
-  }
-
-  function tagHtml() {
-    const tags = splitTags();
-    if (!tags.length) {
-      return "";
-    }
-    return `<div class="tag-row">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>`;
-  }
-
-  function updatePreview() {
-    updatePaths();
-    const cover = fields.image.value.trim();
-    const bodyHtml = sanitizeArticleHtml(fields.body.value);
-    preview.innerHTML = `
-      <article class="article preview-article">
-        <header class="article-head">
-          <p class="article-kicker">${escapeHtml(fields.date.value.replaceAll("-", "."))}</p>
-          <h1>${escapeHtml(fields.title.value || "無題の記事")}</h1>
-          ${fields.description.value.trim() ? `<p class="article-lead">${escapeHtml(fields.description.value.trim())}</p>` : ""}
-          ${tagHtml()}
-        </header>
-        ${cover ? `<figure class="eyecatch"><img src="${escapeHtml(cover)}" alt=""></figure>` : ""}
-        <div class="article-body">${bodyHtml}</div>
-      </article>
-    `;
-    updateStats(bodyHtml);
-    updateChecklist();
-  }
-
-  function textFromHtml(html) {
-    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
-    return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
-  }
-
-  function updateStats(html) {
-    const chars = textFromHtml(html || fields.body.value).length;
-    charCount.textContent = String(chars);
-    imageCount.textContent = String(assets.length);
-    readTime.textContent = String(Math.max(1, Math.ceil(chars / 600)));
-  }
-
-  function checklistItem(ok, text) {
-    return `<li class="${ok ? "ok" : "warn"}"><span>${ok ? "OK" : "!"}</span>${escapeHtml(text)}</li>`;
-  }
-
-  function updateChecklist() {
-    const hasLocalCover = !fields.image.value.trim() || fields.image.value.startsWith(publicArticleFolder()) || fields.image.value.startsWith("/");
-    const bodyTextLength = textFromHtml(fields.body.value).length;
-    const checks = [
-      [fields.title.value.trim().length >= 4, "タイトルが入っている"],
-      [fields.description.value.trim().length >= 50 && fields.description.value.trim().length <= 160, "説明文が50-160文字"],
-      [slugify(fields.slug.value) === fields.slug.value.trim() || fields.slug.value.trim().length > 0, "スラッグが設定済み"],
-      [bodyTextLength >= 80, "本文が80文字以上"],
-      [splitTags().length > 0, "タグが1つ以上"],
-      [hasLocalCover, "アイキャッチ画像パスを確認"],
-      [articleHtmlSource().includes("blog_article: true"), "HTML記事設定あり"]
-    ];
-    publishChecklist.innerHTML = checks.map(([ok, text]) => checklistItem(ok, text)).join("");
-  }
-
-  function setStatus(element, message) {
-    element.textContent = message;
-  }
-
-  function draftData() {
-    return {
-      title: fields.title.value,
-      date: fields.date.value,
-      slug: fields.slug.value,
-      description: fields.description.value,
-      tags: fields.tags.value,
-      image: fields.image.value,
-      body: fields.body.value,
-      savedAt: new Date().toISOString()
-    };
-  }
-
-  function saveDraft(showMessage) {
-    localStorage.setItem(draftKey, JSON.stringify(draftData()));
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    draftSaved.textContent = `下書き保存済み ${time}`;
-    if (showMessage) {
-      setStatus(draftStatus, "下書きを保存しました。画像ファイル本体はブラウザ仕様上、再読み込み後は選び直してください。");
-    }
-  }
-
-  function scheduleDraftSave() {
-    draftSaved.textContent = "下書き保存中...";
-    clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => saveDraft(false), 700);
-  }
-
-  function loadDraft() {
-    const raw = localStorage.getItem(draftKey);
-    if (!raw) {
-      setStatus(draftStatus, "保存された下書きはありません。");
-      return;
-    }
-    const data = JSON.parse(raw);
-    Object.keys(data).forEach((key) => {
-      if (fields[key]) {
-        fields[key].value = data[key] || "";
-      }
-    });
-    updatePreview();
-    setStatus(draftStatus, "下書きを復元しました。");
-    draftSaved.textContent = "下書き復元済み";
-  }
-
-  function clearDraft() {
-    localStorage.removeItem(draftKey);
-    setStatus(draftStatus, "下書きを削除しました。");
-    draftSaved.textContent = "下書きなし";
-  }
-
-  function insertAtCursor(textarea, insert, before, after) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = textarea.value.slice(start, end);
-    const value = before ? `${before}${selected || "text"}${after || ""}` : insert;
-    textarea.setRangeText(value, start, end, "end");
-    textarea.focus();
-    updatePreview();
-    scheduleDraftSave();
-  }
-
-  function downloadBlob(blob, name) {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = name;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
-
-  function addFiles(fileList) {
-    Array.from(fileList || []).forEach((file) => {
-      const name = uniqueAssetName(file.name);
-      const asset = {
-        id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-        file,
-        name,
-        url: URL.createObjectURL(file),
-        alt: fields.title.value || "記事画像"
-      };
-      assets.push(asset);
-    });
-    renderAssets();
-    updatePreview();
-    scheduleDraftSave();
-    setStatus(imageStatus, `${assets.length} 個の画像を管理中です。`);
-  }
-
-  function renderAssets() {
-    if (!assets.length) {
-      assetList.innerHTML = '<p class="empty-state">画像を選ぶとここに並びます。</p>';
-      return;
-    }
-
-    assetList.innerHTML = assets.map((asset) => `
-      <article class="asset-item" data-id="${asset.id}">
-        <img src="${asset.url}" alt="">
-        <div>
-          <strong>${escapeHtml(asset.name)}</strong>
-          <code>${escapeHtml(assetPublicPath(asset))}</code>
-          <input type="text" value="${escapeHtml(asset.alt)}" aria-label="Alt text">
-          <div class="asset-actions">
-            <button type="button" data-action="insert">挿入</button>
-            <button type="button" data-action="cover">表紙</button>
-            <button type="button" data-action="download">保存</button>
-            <button type="button" data-action="remove">削除</button>
-          </div>
-        </div>
-      </article>
-    `).join("");
-  }
-
-  function assetById(id) {
-    return assets.find((asset) => asset.id === id);
-  }
-
-  function handleAssetAction(event) {
-    const button = event.target.closest("button[data-action]");
-    if (!button) {
-      return;
-    }
-    const item = button.closest(".asset-item");
-    const asset = assetById(item.dataset.id);
-    if (!asset) {
-      return;
-    }
-    const input = item.querySelector("input");
-    asset.alt = input.value.trim() || "画像";
-
-    if (button.dataset.action === "insert") {
-      insertAtCursor(fields.body, `<figure>\n  <img loading="lazy" src="${assetPublicPath(asset)}" alt="${escapeHtml(asset.alt)}">\n  <figcaption>${escapeHtml(asset.alt)}</figcaption>\n</figure>`, "", "");
-      setStatus(imageStatus, `${asset.name} を本文に挿入しました。`);
-    } else if (button.dataset.action === "cover") {
-      fields.image.value = assetPublicPath(asset);
-      updatePreview();
-      scheduleDraftSave();
-      setStatus(imageStatus, `${asset.name} をアイキャッチに設定しました。`);
-    } else if (button.dataset.action === "download") {
-      downloadBlob(asset.file, asset.name);
-    } else if (button.dataset.action === "remove") {
-      URL.revokeObjectURL(asset.url);
-      assets = assets.filter((candidate) => candidate.id !== asset.id);
-      renderAssets();
-      updatePreview();
-      scheduleDraftSave();
-    }
-  }
-
-  function downloadArticleOnly() {
-    downloadBlob(new Blob([articleHtmlSource()], { type: "text/html;charset=utf-8" }), "index.html");
-    setStatus(exportStatus, `index.html を書き出しました。${articleFolder()} に配置してください。`);
-    saveDraft(false);
-  }
-
-  async function copyArticle() {
-    await navigator.clipboard.writeText(articleHtmlSource());
-    setStatus(exportStatus, "HTML全文をクリップボードにコピーしました。");
-  }
-
-  function crc32(bytes) {
-    let crc = -1;
-    for (let i = 0; i < bytes.length; i += 1) {
-      crc ^= bytes[i];
-      for (let j = 0; j < 8; j += 1) {
-        crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
-      }
-    }
-    return (crc ^ -1) >>> 0;
-  }
-
-  function u16(value) {
-    return [value & 255, (value >>> 8) & 255];
-  }
-
-  function u32(value) {
-    return [value & 255, (value >>> 8) & 255, (value >>> 16) & 255, (value >>> 24) & 255];
-  }
-
-  function dosDateTime(date) {
-    const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
-    const day = ((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
-    return { time, day };
-  }
-
-  async function createZip(files) {
-    // エディター単体で配布できるよう、無圧縮の最小ZIPを外部ライブラリなしで組み立てる。
-    const localParts = [];
-    const centralParts = [];
-    let offset = 0;
-    const now = dosDateTime(new Date());
-
-    for (const file of files) {
-      const nameBytes = encoder.encode(file.path.replace(/\\/g, "/"));
-      const data = file.bytes instanceof Uint8Array ? file.bytes : new Uint8Array(await file.bytes.arrayBuffer());
-      const crc = crc32(data);
-      const localHeader = new Uint8Array([
-        ...u32(0x04034b50), ...u16(20), ...u16(0), ...u16(0), ...u16(now.time), ...u16(now.day),
-        ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(nameBytes.length), ...u16(0)
-      ]);
-      localParts.push(localHeader, nameBytes, data);
-
-      const centralHeader = new Uint8Array([
-        ...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0), ...u16(0), ...u16(now.time), ...u16(now.day),
-        ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(nameBytes.length), ...u16(0), ...u16(0),
-        ...u16(0), ...u16(0), ...u32(0), ...u32(offset)
-      ]);
-      centralParts.push(centralHeader, nameBytes);
-      offset += localHeader.length + nameBytes.length + data.length;
-    }
-
-    const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
-    const end = new Uint8Array([
-      ...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length),
-      ...u32(centralSize), ...u32(offset), ...u16(0)
-    ]);
-    return new Blob([...localParts, ...centralParts, end], { type: "application/zip" });
-  }
-
-  async function articleFiles() {
-    const folder = articleFolderName();
-    const files = [{
-      path: `${folder}/index.html`,
-      bytes: encoder.encode(articleHtmlSource())
-    }];
-
-    for (const asset of assets) {
-      files.push({
-        path: `${folder}/${asset.name}`,
-        bytes: asset.file
-      });
-    }
-    return files;
-  }
-
-  async function exportZip() {
-    const zip = await createZip(await articleFiles());
-    downloadBlob(zip, `${articleFolderName()}.zip`);
-    setStatus(exportStatus, `${articleFolderName()}.zip を書き出しました。解凍したフォルダを blog/articles に置いてください。`);
-    saveDraft(false);
-  }
-
-  async function saveFolder() {
-    // File System Access API 非対応ブラウザでは、同じ内容を作れるZIP出力へ誘導する。
-    if (!window.showDirectoryPicker) {
-      setStatus(exportStatus, "このブラウザはフォルダ保存に未対応です。ZIP書き出しを使ってください。");
-      return;
-    }
-    const root = await window.showDirectoryPicker();
-    const dir = await root.getDirectoryHandle(articleFolderName(), { create: true });
-    const indexHandle = await dir.getFileHandle("index.html", { create: true });
-    const indexWritable = await indexHandle.createWritable();
-    await indexWritable.write(articleHtmlSource());
-    await indexWritable.close();
-
-    for (const asset of assets) {
-      const handle = await dir.getFileHandle(asset.name, { create: true });
-      const writable = await handle.createWritable();
-      await writable.write(asset.file);
-      await writable.close();
-    }
-
-    setStatus(exportStatus, `${articleFolderName()} フォルダを書き出しました。blog/articles に配置してください。`);
-    saveDraft(false);
-  }
-
-  function importFullHtml(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const meta = (selector) => doc.querySelector(selector)?.getAttribute("content")?.trim() || "";
-    const text = (selector) => doc.querySelector(selector)?.textContent?.trim() || "";
-    const title = meta('meta[property="og:title"]') || text(".article-head h1") || text("h1") || text("title").replace(/\s*\|.*$/, "");
-    const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || text(".article-lead");
-    const date = meta('meta[property="article:published_time"]').slice(0, 10) || text(".article-kicker").replaceAll(".", "-");
-    const canonical = doc.querySelector('link[rel="canonical"]')?.getAttribute("href") || meta('meta[property="og:url"]');
-    const image = meta('meta[property="og:image"]').replace(/^https:\/\/xenoah\.github\.io/, "");
-    const tags = Array.from(doc.querySelectorAll('meta[property="article:tag"]')).map((node) => node.getAttribute("content")).filter(Boolean);
-    const body = doc.querySelector(".article-body") || doc.body;
-
-    if (title) fields.title.value = title;
-    if (description) fields.description.value = description;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) fields.date.value = date;
-    if (image) fields.image.value = image;
-    if (tags.length) fields.tags.value = tags.join(", ");
-    if (canonical) {
-      const url = canonical.replace(/^https:\/\/xenoah\.github\.io/, "");
-      const parts = url.split("/").filter(Boolean);
-      fields.slug.value = parts[parts.length - 1] || fields.slug.value;
-      fields.slug.dataset.touched = "true";
-    }
-    fields.body.value = sanitizeArticleHtml(body.innerHTML);
-  }
-
-  function parseFrontMatter(html) {
-    html = String(html || "").replace(/^\uFEFF/, "");
-    const match = html.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
-    if (!match) {
-      importFullHtml(html);
-      return;
-    }
-    const yaml = match[1];
-    fields.body.value = sanitizeArticleHtml(html.slice(match[0].length));
-    const read = (key) => {
-      const found = yaml.match(new RegExp(`^${key}:\\s*"?([^"\\n]+)"?\\s*$`, "m"));
-      return found ? found[1].trim() : "";
-    };
-    fields.title.value = read("title") || fields.title.value;
-    fields.date.value = read("date") || fields.date.value;
-    fields.description.value = read("description") || fields.description.value;
-    fields.image.value = read("image") || fields.image.value;
-    const tagsBlock = yaml.match(/^tags:\s*\n((?:\s+-\s+.+\n?)+)/m);
-    if (tagsBlock) {
-      fields.tags.value = tagsBlock[1].split(/\r?\n/).map((line) => line.replace(/^\s+-\s+/, "").replace(/^"|"$/g, "").trim()).filter(Boolean).join(", ");
-    }
-    const permalink = read("permalink");
-    if (permalink) {
-      const parts = permalink.split("/").filter(Boolean);
-      fields.slug.value = parts[parts.length - 1] || fields.slug.value;
-      fields.slug.dataset.touched = "true";
-    }
-  }
-
-  async function importHtmlFile() {
-    const file = fields.importHtmlFile.files && fields.importHtmlFile.files[0];
-    if (!file) return;
-    parseFrontMatter(await file.text());
-    updatePreview();
-    scheduleDraftSave();
-    setStatus(draftStatus, `${file.name} を読み込みました。`);
-  }
-
-  function applyHtmlInput(mode) {
-    const html = sanitizeArticleHtml(fields.htmlInput.value);
-    if (!textFromHtml(html) && !/<img|<iframe|<figure/i.test(html)) {
-      setStatus(htmlStatus, "取り込めるHTMLがありません。");
-      return;
-    }
-    if (mode === "replace") {
-      fields.body.value = html;
-    } else {
-      fields.body.value = `${fields.body.value.trim()}\n\n${html}`.trim();
-    }
-    updatePreview();
-    scheduleDraftSave();
-    setStatus(htmlStatus, "HTMLを本文へ取り込みました。プレビューで崩れがないか確認してください。");
-  }
-
-  function folderTree() {
-    const names = ["index.html", ...assets.map((asset) => asset.name)];
-    return `${articleFolderName()}/\n${names.map((name, index) => `${index === names.length - 1 ? "`-" : "|-"} ${name}`).join("\n")}`;
-  }
-
-  async function copyText(text, statusElement, message) {
-    await navigator.clipboard.writeText(text);
-    setStatus(statusElement, message);
-  }
-
-  function bindChangeEvents() {
-    [fields.date, fields.description, fields.tags, fields.image, fields.body].forEach((field) => {
-      field.addEventListener("input", () => {
-        updatePreview();
-        scheduleDraftSave();
-      });
-    });
-    fields.title.addEventListener("input", () => {
-      if (!fields.slug.dataset.touched) {
-        fields.slug.value = slugify(fields.title.value);
-      }
-      updatePreview();
-      scheduleDraftSave();
-    });
-    fields.slug.addEventListener("input", () => {
-      fields.slug.dataset.touched = "true";
-      updatePreview();
-      scheduleDraftSave();
-    });
-  }
-
-  document.querySelectorAll("[data-insert], [data-before]").forEach((button) => {
-    button.addEventListener("click", () => {
-      insertAtCursor(fields.body, button.dataset.insert || "", button.dataset.before, button.dataset.after);
-    });
-  });
-
-  bindChangeEvents();
-  fields.imageFiles.addEventListener("change", () => addFiles(fields.imageFiles.files));
-  fields.importHtmlFile.addEventListener("change", () => importHtmlFile().catch((error) => setStatus(draftStatus, error.message)));
-  assetList.addEventListener("click", handleAssetAction);
-  assetList.addEventListener("input", (event) => {
-    const item = event.target.closest(".asset-item");
-    const asset = item && assetById(item.dataset.id);
-    if (asset) {
-      asset.alt = event.target.value.trim();
-      scheduleDraftSave();
-    }
-  });
-
-  $("exportFolderBtn").addEventListener("click", () => exportZip().catch((error) => setStatus(exportStatus, error.message)));
-  $("saveFolderBtn").addEventListener("click", () => saveFolder().catch((error) => setStatus(exportStatus, error.message)));
-  $("downloadBtn").addEventListener("click", downloadArticleOnly);
-  $("copyBtn").addEventListener("click", () => copyArticle().catch((error) => setStatus(exportStatus, error.message)));
-  $("saveDraftBtn").addEventListener("click", () => saveDraft(true));
-  $("loadDraftBtn").addEventListener("click", () => {
+  const metadata = () => ({ ...extra, ...Object.fromEntries(fieldNames.map((key) => [key, fields[key].value])) });
+  const assetPath = (asset) => C.folderPath(metadata()) + encodeURIComponent(asset.name);
+  function normalizePath(value) {
     try {
-      loadDraft();
-    } catch (error) {
-      setStatus(draftStatus, error.message);
-    }
-  });
-  $("clearDraftBtn").addEventListener("click", clearDraft);
-  $("convertHtmlReplaceBtn").addEventListener("click", () => applyHtmlInput("replace"));
-  $("convertHtmlAppendBtn").addEventListener("click", () => applyHtmlInput("append"));
-  $("copyPermalinkBtn").addEventListener("click", () => copyText(`https://xenoah.github.io${publicPermalink()}`, checkStatus, "公開URLをコピーしました。"));
-  $("copyTreeBtn").addEventListener("click", () => copyText(folderTree(), checkStatus, "フォルダ構成をコピーしました。"));
-
-  if (localStorage.getItem(draftKey)) {
-    draftSaved.textContent = "保存済み下書きあり";
-    setStatus(draftStatus, "前回の下書きがあります。復元ボタンで読み込めます。");
+      return decodeURIComponent(String(value || "").replace(/^https:\/\/xenoah\.github\.io/, "").replace(/^\.\//, ""));
+    } catch { return String(value || ""); }
+  }
+  function findAsset(value) {
+    const path = normalizePath(value);
+    return assets.find((asset) => asset.url === value || normalizePath(assetPath(asset)) === path || asset.aliases.some((alias) => normalizePath(alias) === path));
+  }
+  function rememberPaths() {
+    assets.forEach((asset) => {
+      const path = assetPath(asset);
+      if (!asset.aliases.includes(path)) asset.aliases.push(path);
+    });
+  }
+  function mapMedia(container, local) {
+    container.querySelectorAll("[src], [poster], [style]").forEach((node) => {
+      for (const attr of ["src", "poster"]) {
+        const asset = findAsset(node.getAttribute(attr));
+        if (asset) node.setAttribute(attr, local ? asset.url : assetPath(asset));
+      }
+      const background = node.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
+      const asset = background && findAsset(background);
+      if (asset) node.style.backgroundImage = `url("${local ? asset.url : assetPath(asset)}")`;
+    });
+  }
+  function getBody() {
+    // HTMLモードの入力は必ず不活性なDOMParserで除染してから扱う。
+    // ビジュアル側はcloneを使い、表示中のBlob URLを失わず公開パスへ戻す。
+    const container = mode === "html" ? document.createElement("div") : body.cloneNode(true);
+    if (mode === "html") container.innerHTML = C.sanitize($("htmlSource").value);
+    mapMedia(container, false);
+    return C.sanitize(container.innerHTML);
+  }
+  function prepareBody() {
+    mapMedia(body, true);
+    body.querySelectorAll("[id]").forEach((node) => {
+      if (elements[node.id]) node.removeAttribute("id");
+    });
+    body.querySelectorAll("figure").forEach((figure) => {
+      figure.contentEditable = "false";
+      const caption = figure.querySelector("figcaption");
+      if (caption) { caption.contentEditable = "true"; caption.tabIndex = 0; caption.setAttribute("aria-label", "画像のキャプション"); }
+    });
+    body.querySelectorAll(".embed").forEach((node) => {
+      node.contentEditable = "false";
+      node.tabIndex = 0;
+      node.setAttribute("aria-label", "動画。Deleteキーで削除");
+    });
+  }
+  function setBody(html) {
+    closeMedia();
+    body.innerHTML = C.sanitize(html) || "<p><br></p>";
+    prepareBody();
+    savedRange = null;
+  }
+  function dataSnapshot(includeFiles = true) {
+    const data = { ...metadata(), body: getBody(), savedAt: new Date().toISOString(), version: 2 };
+    data.assets = assets.map(({ id, name, file, aliases }) => ({ id, name, aliases: [...aliases], ...(includeFiles ? { file } : {}) }));
+    return data;
+  }
+  function growTitle() {
+    fields.title.style.height = "auto";
+    fields.title.style.height = Math.max(56, fields.title.scrollHeight) + "px";
+  }
+  function refresh() {
+    const html = getBody(), data = metadata(), cover = C.safeUrl(data.image, true);
+    const coverAsset = findAsset(cover);
+    if (coverAsset) fields.image.value = assetPath(coverAsset);
+    rememberPaths();
+    body.dataset.empty = String(!C.textFromHtml(html) && !/<(?:img|iframe|video|hr|table)\b/i.test(html));
+    const characters = Array.from(C.textFromHtml(html)).length;
+    $("charCount").textContent = characters.toLocaleString();
+    $("readTime").textContent = Math.max(1, Math.ceil(characters / 600));
+    $("imageCount").textContent = assets.length;
+    $("descriptionCount").textContent = `${Array.from(data.description).length} / 160`;
+    $("permalinkPreview").textContent = C.permalink(data);
+    $("postPath").textContent = C.folderPath(data).slice(1) + "index.html";
+    $("coverArea").classList.toggle("has-cover", !!cover);
+    $("coverPreview").hidden = !cover;
+    $("removeCoverBtn").hidden = !cover;
+    if (cover) {
+      const src = coverAsset?.url || cover;
+      if ($("coverPreview").getAttribute("src") !== src) $("coverPreview").src = src;
+    } else $("coverPreview").removeAttribute("src");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    $("outline").innerHTML = Array.from(doc.querySelectorAll("h2,h3")).map((heading, index) =>
+      `<button type="button" data-heading="${index}" class="${heading.localName === "h3" ? "subheading" : ""}">${esc(heading.textContent || "無題の見出し")}</button>`
+    ).join("") || '<p class="writing-hint">見出しを追加すると、ここに目次ができます。</p>';
+    if (previewing) renderPreview();
+    if ($("exportDialog").open) renderChecklist();
+    growTitle();
+  }
+  function renderPreview() {
+    const data = metadata(), cover = C.safeUrl(data.image, true);
+    $("preview").innerHTML = `<article class="article"><header class="article-head">
+      <p class="article-kicker">${esc(data.date.replaceAll("-", "."))}</p>
+      <h1>${esc(data.title || "無題の記事")}</h1>
+      ${data.description ? `<p class="article-lead">${esc(data.description)}</p>` : ""}
+      <div class="tag-row">${data.tags.split(/[,、]/).map((tag) => tag.trim()).filter(Boolean).map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>
+      </header>${cover ? `<figure class="eyecatch"><img src="${esc(cover)}" alt=""></figure>` : ""}
+      <div class="article-body">${getBody()}</div></article>`;
+    mapMedia($("preview"), true);
+  }
+  function changed(immediate = false) {
+    if (!ready || composing) return;
+    revision++;
+    refresh();
+    saveState("保存中…");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => saveDraft(), 700);
+    clearTimeout(historyTimer);
+    if (immediate) recordHistory(); else historyTimer = setTimeout(recordHistory, 400);
   }
 
-  renderAssets();
-  updatePreview();
-  previewStatus.textContent = "リアルタイム";
+  // 画像Blobも同じトランザクションに入れ、復元時の本文と画像を一致させる。
+  function database() {
+    if (!databasePromise) databasePromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open("xenoah-blog-studio", 1);
+      request.onupgradeneeded = () => request.result.createObjectStore("drafts");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+      request.onblocked = () => reject(new Error("別のタブを閉じて保存し直してください。"));
+    });
+    return databasePromise;
+  }
+  async function readStored() {
+    const db = await database();
+    return new Promise((resolve, reject) => {
+      const request = db.transaction("drafts").objectStore("drafts").get("current");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function writeStored(data) {
+    const db = await database();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("drafts", "readwrite");
+      tx.objectStore("drafts").put(data, "current");
+      tx.oncomplete = resolve;
+      tx.onerror = tx.onabort = () => reject(tx.error || new Error("保存できませんでした。"));
+    });
+  }
+  function saveDraft(showMessage = false) {
+    if (!ready || composing) return Promise.resolve();
+    clearTimeout(saveTimer);
+    const data = dataSnapshot(), currentRevision = revision;
+    saveQueue = saveQueue.catch(() => {}).then(async () => {
+      try {
+        await writeStored(data);
+        try { localStorage.removeItem(backupKey); } catch { /* IndexedDB is sufficient */ }
+        savedRevision = currentRevision;
+        if (revision === currentRevision) saveState(`保存済み ${new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`);
+        if (showMessage) notify("本文と画像を下書きに保存しました。");
+      } catch {
+        let backedUp = false;
+        try {
+          const fallback = { ...data, assets: data.assets.map(({ file, ...rest }) => rest) };
+          localStorage.setItem(backupKey, JSON.stringify(fallback));
+          backedUp = true;
+          if (!assets.length) savedRevision = currentRevision;
+        } catch { /* Storage can be disabled or full. Never claim success. */ }
+        saveState(backedUp ? (assets.length ? "本文のみ保存・画像はZIPへ" : "本文を保存済み") : "保存できません・ZIPで保存", assets.length || !backedUp ? "error" : "");
+        if (showMessage || assets.length || !backedUp) notify(backedUp ? "本文を保存しました。画像の保存ができないため、画像込みZIPをダウンロードしてください。" : "下書きを保存できません。記事をZIPでダウンロードしてください。");
+      }
+    });
+    return saveQueue;
+  }
+  async function restoreDraft() {
+    let stored, fallback, legacy;
+    try { stored = await readStored(); } catch { /* A text backup can still be restored. */ }
+    try { fallback = JSON.parse(localStorage.getItem(backupKey) || "null"); } catch { /* Invalid backups don't stop the editor. */ }
+    try { legacy = JSON.parse(localStorage.getItem(legacyKey) || "null"); } catch { /* Keep invalid legacy data untouched. */ }
+    const data = fallback && (!stored || fallback.savedAt > stored.savedAt) ? fallback : stored || legacy;
+    if (!data || typeof data.body !== "string") return false;
+    const restored = [];
+    for (const asset of data.assets || []) {
+      const file = asset.file || stored?.assets?.find((item) => item.id === asset.id)?.file;
+      if (file instanceof Blob && typeof asset.name === "string") {
+        restored.push({ ...asset, file, aliases: Array.isArray(asset.aliases) ? asset.aliases : [], url: URL.createObjectURL(file) });
+      }
+    }
+    assets = restored;
+    applyData(data);
+    if ((data.assets || []).length > restored.length) {
+      saveState("本文を復元・画像は選び直し", "error");
+      notify("本文を復元しました。保存できなかった画像は再度追加してください。");
+    } else saveState("前回の下書きを復元しました");
+    renderAssets();
+    return true;
+  }
+  function applyData(data) {
+    for (const key of fieldNames) fields[key].value = typeof data[key] === "string" ? data[key] : "";
+    fields.date.value ||= C.localDate();
+    fields.slug.value ||= "new-article";
+    fields.slug.dataset.touched = "true";
+    extra = Object.fromEntries(["author", "robots", "last_modified_at"].filter((key) => typeof data[key] === "string").map((key) => [key, data[key]]));
+    mode = "visual";
+    previewing = false;
+    setBody(data.body);
+    updatePanels();
+    refresh();
+  }
+
+  // ブラウザの選択範囲を保持し、ツールバーやダイアログの操作後も挿入位置を維持。
+  function captureRange() {
+    const selection = window.getSelection();
+    if (selection.rangeCount && body.contains(selection.getRangeAt(0).commonAncestorContainer)) savedRange = selection.getRangeAt(0).cloneRange();
+  }
+  function restoreRange() {
+    body.focus();
+    const selection = window.getSelection();
+    if (!savedRange || !body.contains(savedRange.commonAncestorContainer)) {
+      savedRange = document.createRange();
+      savedRange.selectNodeContents(body);
+      savedRange.collapse(false);
+    }
+    selection.removeAllRanges();
+    selection.addRange(savedRange);
+    return savedRange;
+  }
+  function bookmark() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return null;
+    const range = selection.getRangeAt(0);
+    if (!body.contains(range.commonAncestorContainer)) return null;
+    const path = (node) => {
+      const result = [];
+      while (node !== body) { result.unshift(Array.prototype.indexOf.call(node.parentNode.childNodes, node)); node = node.parentNode; }
+      return result;
+    };
+    return { start: path(range.startContainer), startOffset: range.startOffset, end: path(range.endContainer), endOffset: range.endOffset };
+  }
+  function restoreBookmark(mark) {
+    if (!mark) return;
+    try {
+      const nodeAt = (path) => path.reduce((node, index) => node.childNodes[index], body);
+      const range = document.createRange();
+      range.setStart(nodeAt(mark.start), mark.startOffset);
+      range.setEnd(nodeAt(mark.end), mark.endOffset);
+      savedRange = range; restoreRange();
+    } catch { savedRange = null; }
+  }
+  function recordHistory() {
+    if (composing) return;
+    clearTimeout(historyTimer);
+    const html = getBody(), selection = bookmark();
+    if (history[historyIndex]?.html === html) { history[historyIndex].selection = selection; return; }
+    history = history.slice(0, historyIndex + 1);
+    history.push({ html, selection });
+    if (history.length > 100) history.shift();
+    historyIndex = history.length - 1;
+    updateHistoryButtons();
+  }
+  function updateHistoryButtons() {
+    $("undoBtn").disabled = historyIndex < 1;
+    $("redoBtn").disabled = historyIndex >= history.length - 1;
+  }
+  function undoRedo(direction) {
+    recordHistory();
+    const next = historyIndex + direction;
+    if (next < 0 || next >= history.length) return;
+    historyIndex = next;
+    const entry = history[historyIndex];
+    if (mode === "html") $("htmlSource").value = entry.html; else { setBody(entry.html); restoreBookmark(entry.selection); }
+    revision++; refresh(); updateHistoryButtons();
+    saveState("保存中…"); clearTimeout(saveTimer); saveTimer = setTimeout(() => saveDraft(), 700);
+  }
+  function command(name, value = null) {
+    if (mode !== "visual" || previewing) return;
+    recordHistory(); restoreRange();
+    // ネイティブの編集命令を使用。履歴は画像の挿入・削除も含めてアプリ側で統一。
+    document.execCommand(name, false, value);
+    captureRange(); prepareBody(); changed(true); toolbarState();
+  }
+  function insertHtml(html, block = false) {
+    recordHistory();
+    if (mode === "html") {
+      const source = $("htmlSource");
+      source.setRangeText(C.sanitize(html), source.selectionStart, source.selectionEnd, "end");
+      changed(true); return;
+    }
+    const range = restoreRange();
+    const fragment = range.createContextualFragment(C.sanitize(html));
+    if (block) {
+      const node = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
+      const locked = node.closest("figure,.embed");
+      if (locked && body.contains(locked)) {
+        range.setStartAfter(locked); range.collapse(true);
+      }
+    }
+    // insertHTML は段落を分割してブロックを挿入できる（Range.insertNodeだけではpが入れ子になる）。
+    const holder = document.createElement("div"); holder.append(fragment);
+    document.execCommand("insertHTML", false, holder.innerHTML);
+    prepareBody(); captureRange(); changed(true);
+  }
+  function toolbarState() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount || !body.contains(selection.anchorNode)) return;
+    document.querySelectorAll("[data-command][aria-pressed]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(document.queryCommandState(button.dataset.command)));
+    });
+    const node = selection.anchorNode.nodeType === 1 ? selection.anchorNode : selection.anchorNode.parentElement;
+    const block = node.closest("h2,h3,blockquote,pre,p");
+    $("blockFormat").value = block?.localName || "p";
+  }
+  function updatePanels() {
+    $("visualPanel").hidden = previewing || mode !== "visual";
+    $("htmlPanel").hidden = previewing || mode !== "html";
+    $("previewPanel").hidden = !previewing;
+    $("formatToolbar").hidden = previewing || mode !== "visual";
+    $("visualModeBtn").setAttribute("aria-pressed", String(mode === "visual" && !previewing));
+    $("htmlModeBtn").setAttribute("aria-pressed", String(mode === "html" && !previewing));
+    $("previewBtn").setAttribute("aria-pressed", String(previewing));
+    $("previewBtn").textContent = previewing ? "編集に戻る" : "プレビュー";
+    closeMedia();
+  }
+  function setMode(next) {
+    recordHistory();
+    const html = getBody();
+    if (next === "html" && mode !== "html") $("htmlSource").value = html;
+    if (next === "visual" && mode !== "visual") setBody(html);
+    mode = next; previewing = false; updatePanels(); refresh();
+  }
+  function openInsert(kind) {
+    captureRange();
+    insertKind = kind;
+    linkNode = savedRange ? (savedRange.startContainer.nodeType === 1 ? savedRange.startContainer : savedRange.startContainer.parentElement).closest("a") : null;
+    $("insertDialogTitle").textContent = kind === "link" ? "リンクを挿入" : "YouTube動画を挿入";
+    $("insertUrl").value = kind === "link" ? linkNode?.getAttribute("href") || "" : "";
+    $("insertText").value = savedRange?.toString() || linkNode?.textContent || "";
+    $("linkTextField").hidden = kind !== "link";
+    $("unlinkBtn").hidden = kind !== "link" || !linkNode;
+    $("insertError").textContent = "";
+    $("insertDialog").showModal();
+    $("insertUrl").focus();
+  }
+  function closeMedia() {
+    body.querySelectorAll("[data-selected]").forEach((node) => node.removeAttribute("data-selected"));
+    selectedMedia = null; $("mediaTools").hidden = true;
+  }
+  function selectMedia(image) {
+    closeMedia(); captureRange();
+    selectedMedia = image;
+    image.dataset.selected = "true";
+    $("mediaAlt").value = image.alt;
+    $("mediaSize").value = image.closest("figure")?.classList.contains("small-media") ? "small-media" : image.closest("figure")?.classList.contains("medium-media") ? "medium-media" : "";
+    $("mediaTools").hidden = false;
+  }
+  function removeMedia() {
+    if (!selectedMedia) return;
+    recordHistory();
+    (selectedMedia.closest("figure") || selectedMedia).remove();
+    closeMedia(); changed(true);
+  }
+
+  function isImage(file) { return /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(file.name) && (!file.type || /^image\//.test(file.type)); }
+  function uniqueName(value) {
+    const original = String(value).replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "") || "image.png";
+    const dot = original.lastIndexOf("."), base = original.slice(0, dot), ext = original.slice(dot);
+    let name = original, index = 2;
+    while (assets.some((asset) => asset.name.toLowerCase() === name.toLowerCase())) name = `${base}-${index++}${ext}`;
+    return name;
+  }
+  function addFiles(fileList, action = "library", prefix = "") {
+    const incoming = Array.from(fileList || []), added = [];
+    for (const file of incoming) {
+      if (!isImage(file)) continue;
+      const name = uniqueName(file.name);
+      const aliases = [C.folderPath(metadata()) + encodeURIComponent(name)];
+      if (prefix) aliases.push(prefix + file.name, prefix + encodeURIComponent(file.name), file.name, file.webkitRelativePath?.split("/").slice(1).join("/") || file.name);
+      const asset = { id: crypto.randomUUID(), name, file, url: URL.createObjectURL(file), aliases };
+      assets.push(asset); added.push(asset);
+    }
+    if (!added.length) { notify("PNG・JPEG・GIF・WebP・AVIF・SVGの画像を選んでください。"); return []; }
+    renderAssets();
+    if (action === "insert") insertImages(added);
+    else if (action === "cover") { fields.image.value = assetPath(added[0]); changed(); }
+    else { prepareBody(); changed(); }
+    if (added.length < incoming.length) notify("対応している画像のみ追加しました。");
+    return added;
+  }
+  function insertImages(items) {
+    insertHtml(items.map((asset) => `<figure><img src="${esc(assetPath(asset))}" alt="" loading="lazy"><figcaption></figcaption></figure>`).join("") + "<p><br></p>", true);
+  }
+  function renderAssets() {
+    $("assetList").innerHTML = assets.map((asset) => `<div class="library-item" data-asset="${esc(asset.id)}">
+      <button class="library-image" type="button" data-action="insert" aria-label="${esc(asset.name)}を本文に挿入"><img src="${esc(asset.url)}" alt=""></button>
+      <span title="${esc(asset.name)}">${esc(asset.name)}</span>
+      <div class="library-actions"><button type="button" data-action="cover">カバーに</button><button type="button" data-action="download" aria-label="${esc(asset.name)}を保存">保存</button><button type="button" data-action="remove" aria-label="${esc(asset.name)}を削除">×</button></div></div>`).join("");
+  }
+  function assetReferenced(asset) {
+    const html = getBody();
+    return findAsset(fields.image.value) === asset || html.includes(assetPath(asset)) || asset.aliases.some((path) => path && html.includes(path));
+  }
+  async function importFiles(fileList, folder = false) {
+    const files = Array.from(fileList || []);
+    const file = folder ? files.find((item) => /(^|\/)index\.html?$/i.test(item.webkitRelativePath || item.name) && (item.webkitRelativePath || item.name).split("/").length <= 2) : files[0];
+    if (!file) throw new Error("選んだフォルダの直下に index.html が見つかりません。");
+    const data = C.parseArticle(await file.text());
+    if (!confirmReplace()) return;
+    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
+    applyData(data);
+    if (folder) addFiles(files.filter(isImage), "library", C.folderPath(data));
+    // 相対パスで書かれた既存記事も、記事フォルダ内の画像として解決する。
+    setBody(data.body);
+    const coverAsset = findAsset(fields.image.value);
+    if (coverAsset) fields.image.value = assetPath(coverAsset);
+    renderAssets(); history = []; historyIndex = -1; changed(true);
+    $("importDialog").close();
+    notify(`${file.name} を読み込みました。${folder ? "画像も一緒に編集できます。" : "画像が表示されない場合は記事フォルダごと開いてください。"}`);
+  }
+  function confirmReplace() {
+    return (!fields.title.value.trim() && !C.textFromHtml(getBody()) && !assets.length) || window.confirm("編集中の記事と下書きを置き換えます。残したい記事は先にZIPで書き出してください。置き換えますか？");
+  }
+  function appendHtml() {
+    const html = C.sanitize($("htmlInput").value);
+    if (!html) return;
+    recordHistory();
+    const combined = getBody() + "\n" + html;
+    if (mode === "html") $("htmlSource").value = combined; else setBody(combined);
+    changed(true); $("importDialog").close(); notify("本文の末尾に追加しました。");
+  }
+  function download(blob, name) {
+    const link = document.createElement("a"), url = URL.createObjectURL(blob);
+    link.href = url; link.download = name;
+    document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+  function validate() {
+    if (!fields.title.value.trim()) throw new Error("記事タイトルを入力してください。");
+    if (!fields.date.value || !fields.date.checkValidity()) throw new Error("公開日を入力してください。");
+    if (!fields.slug.value.trim()) throw new Error("URLの末尾を入力してください。");
+    if (fields.image.value && !C.safeUrl(fields.image.value, true)) throw new Error("カバー画像のURLを確認してください。");
+  }
+  function renderChecklist() {
+    const html = getBody(), doc = new DOMParser().parseFromString(html, "text/html");
+    const missing = [...doc.querySelectorAll("img")].filter((img) => !findAsset(img.getAttribute("src")) && !/^(?:https?:|data:)/.test(img.getAttribute("src") || ""));
+    if (fields.image.value && !findAsset(fields.image.value) && !/^https?:/.test(fields.image.value)) missing.push(fields.image);
+    const checks = [
+      [!!fields.title.value.trim(), "記事タイトル"],
+      [!!fields.date.value && !!fields.slug.value.trim(), "公開日とURL"],
+      [!!C.textFromHtml(html) || !!doc.querySelector("img,iframe"), "本文"],
+      [!!fields.description.value.trim(), "記事の説明（任意）"],
+      [!!fields.image.value, "カバー画像（任意）"],
+      [!missing.length, missing.length ? "未追加の画像があります。必要な画像をライブラリに追加してください。" : "画像の保存準備ができています"]
+    ];
+    $("publishChecklist").innerHTML = checks.map(([ok, text]) => `<li class="${ok ? "ok" : "warn"}">${esc(text)}</li>`).join("");
+  }
+  const source = () => C.articleSource({ ...metadata(), body: getBody() });
+  async function exportZip() {
+    validate();
+    const data = metadata(), folder = C.folderName(data), html = source();
+    const files = [{ path: folder + "/index.html", bytes: new TextEncoder().encode(html) }, ...assets.map((asset) => ({ path: folder + "/" + asset.name, bytes: asset.file }))];
+    download(await C.createZip(files), folder + ".zip");
+    $("exportStatus").textContent = "ZIPを書き出しました。解凍したフォルダを blog/articles に置いてください。";
+    await saveDraft();
+  }
+  async function saveFolder() {
+    validate();
+    if (!window.showDirectoryPicker) throw new Error("このブラウザでは画像込みZIPを使って保存してください。");
+    const data = metadata(), html = source(), snapshotAssets = [...assets];
+    const root = await window.showDirectoryPicker({ mode: "readwrite" });
+    const dir = await root.getDirectoryHandle(C.folderName(data), { create: true });
+    for (const file of [{ name: "index.html", file: html }, ...snapshotAssets]) {
+      const handle = await dir.getFileHandle(file.name, { create: true });
+      const writer = await handle.createWritable(); await writer.write(file.file); await writer.close();
+    }
+    $("exportStatus").textContent = "記事フォルダを保存しました。blog/articles に配置してください。";
+    await saveDraft();
+  }
+  async function copy(text) {
+    if (!navigator.clipboard) throw new Error("コピーに対応していません。HTMLのダウンロードをご利用ください。");
+    await navigator.clipboard.writeText(text);
+    $("exportStatus").textContent = "コピーしました。";
+  }
+  function on(id, event, callback) {
+    $(id).addEventListener(event, async (e) => {
+      try { await callback(e); }
+      catch (error) {
+        if (error.name === "AbortError") return;
+        const message = error.message || "操作できませんでした。もう一度お試しください。";
+        const target = $("exportDialog").open ? $("exportStatus") : $("importDialog").open ? $("importStatus") : $("appStatus");
+        target.textContent = message;
+      }
+    });
+  }
+
+  document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
+  $("formatToolbar").addEventListener("mousedown", (event) => { if (event.target.closest("button")) event.preventDefault(); else captureRange(); });
+  document.querySelectorAll("[data-command]").forEach((button) => button.addEventListener("click", () => command(button.dataset.command)));
+  document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => $(button.dataset.close).close()));
+  on("blockFormat", "change", () => command("formatBlock", $("blockFormat").value));
+  on("highlightBtn", "click", () => command("hiliteColor", "#fff0a8"));
+  on("dividerBtn", "click", () => insertHtml("<hr><p><br></p>", true));
+  on("undoBtn", "click", () => undoRedo(-1));
+  on("redoBtn", "click", () => undoRedo(1));
+  on("visualModeBtn", "click", () => setMode("visual"));
+  on("htmlModeBtn", "click", () => setMode("html"));
+  on("previewBtn", "click", () => { previewing = !previewing; updatePanels(); refresh(); });
+  on("linkBtn", "click", () => openInsert("link"));
+  on("videoBtn", "click", () => openInsert("video"));
+  on("insertForm", "submit", (event) => {
+    event.preventDefault();
+    const url = insertKind === "video" ? C.youtubeUrl($("insertUrl").value.trim()) : C.safeUrl($("insertUrl").value);
+    if (!url) { $("insertError").textContent = insertKind === "video" ? "YouTubeの動画URLを入力してください。" : "有効なURLを入力してください。"; return; }
+    $("insertDialog").close();
+    if (insertKind === "video") insertHtml(`<div class="embed"><iframe src="${esc(url)}" title="YouTube動画" loading="lazy" allowfullscreen></iframe></div><p><br></p>`, true);
+    else if (linkNode && body.contains(linkNode)) {
+      recordHistory(); linkNode.href = url;
+      const label = $("insertText").value.trim() || url;
+      if (label !== linkNode.textContent.trim()) linkNode.textContent = label;
+      changed(true);
+    } else insertHtml(`<a href="${esc(url)}">${esc($("insertText").value.trim() || url)}</a>`);
+  });
+  on("unlinkBtn", "click", () => {
+    recordHistory();
+    if (linkNode && body.contains(linkNode)) linkNode.replaceWith(...linkNode.childNodes);
+    $("insertDialog").close(); changed(true);
+  });
+  on("body", "input", () => { if (!composing) changed(); });
+  on("body", "compositionstart", () => { composing = true; clearTimeout(historyTimer); });
+  on("body", "compositionend", () => { composing = false; changed(); });
+  on("body", "beforeinput", (event) => {
+    if (event.inputType === "historyUndo" || event.inputType === "historyRedo") {
+      event.preventDefault(); undoRedo(event.inputType === "historyUndo" ? -1 : 1);
+    }
+  });
+  on("body", "keydown", (event) => {
+    if (event.isComposing || composing) return;
+    const embed = event.target.closest(".embed");
+    if (embed && ["Delete", "Backspace"].includes(event.key)) {
+      event.preventDefault(); recordHistory(); embed.remove(); changed(true); return;
+    }
+    if (event.ctrlKey || event.metaKey) {
+      const key = event.key.toLowerCase();
+      if (key === "z" || key === "y") { event.preventDefault(); undoRedo(key === "y" || event.shiftKey ? 1 : -1); }
+      else if (key === "k") { event.preventDefault(); openInsert("link"); }
+      else if (["b", "i", "u"].includes(key)) { event.preventDefault(); command({ b: "bold", i: "italic", u: "underline" }[key]); }
+      return;
+    }
+    if (selectedMedia && ["Delete", "Backspace"].includes(event.key)) { event.preventDefault(); removeMedia(); return; }
+    const selection = window.getSelection();
+    const node = selection.anchorNode?.nodeType === 1 ? selection.anchorNode : selection.anchorNode?.parentElement;
+    if (event.key === "Enter" && !event.shiftKey && node?.closest("figcaption")) {
+      event.preventDefault(); const figure = node.closest("figure");
+      const paragraph = document.createElement("p"); paragraph.innerHTML = "<br>"; figure.after(paragraph);
+      const range = document.createRange(); range.selectNodeContents(paragraph); range.collapse(true); savedRange = range; restoreRange(); changed(true);
+    } else if (event.key === "Escape") { closeMedia(); command("formatBlock", "p"); }
+    else if (event.key === "Enter" && !event.shiftKey) {
+      const block = node?.closest("h2,h3,blockquote,pre");
+      if (block && !block.textContent.trim()) { event.preventDefault(); command("formatBlock", "p"); }
+    }
+  });
+  on("body", "click", (event) => {
+    if (event.target.closest("a")) event.preventDefault();
+    if (event.target.localName === "img") selectMedia(event.target); else closeMedia();
+  });
+  on("body", "paste", (event) => {
+    event.preventDefault(); captureRange();
+    const images = [...event.clipboardData.files].filter(isImage);
+    if (images.length) { addFiles(images, "insert"); return; }
+    const html = event.clipboardData.getData("text/html");
+    const plain = event.clipboardData.getData("text/plain");
+    insertHtml(html || plain.split(/\r?\n\r?\n/).map((paragraph) => "<p>" + esc(paragraph).replace(/\r?\n/g, "<br>") + "</p>").join(""));
+  });
+  on("body", "dragstart", (event) => { if (event.target.closest("figure")) event.preventDefault(); });
+  on("mediaAlt", "input", () => { if (selectedMedia) { selectedMedia.alt = $("mediaAlt").value; changed(); } });
+  on("mediaSize", "change", () => {
+    if (!selectedMedia) return;
+    recordHistory();
+    let figure = selectedMedia.closest("figure");
+    if (!figure) { figure = document.createElement("figure"); selectedMedia.replaceWith(figure); figure.append(selectedMedia); }
+    figure.classList.remove("small-media", "medium-media");
+    if ($("mediaSize").value) figure.classList.add($("mediaSize").value);
+    prepareBody(); changed(true);
+  });
+  on("removeMediaBtn", "click", removeMedia);
+  on("closeMediaBtn", "click", closeMedia);
+  on("htmlSource", "input", () => changed());
+  on("htmlSource", "keydown", (event) => {
+    if (event.isComposing || !(event.ctrlKey || event.metaKey)) return;
+    const key = event.key.toLowerCase();
+    if (key === "z" || key === "y") { event.preventDefault(); undoRedo(key === "y" || event.shiftKey ? 1 : -1); }
+  });
+  on("insertImageBtn", "click", () => { captureRange(); $("imageFiles").dataset.action = "insert"; $("imageFiles").click(); });
+  on("addImagesBtn", "click", () => { $("imageFiles").dataset.action = "library"; $("imageFiles").click(); });
+  on("imageFiles", "change", () => { addFiles($("imageFiles").files, $("imageFiles").dataset.action || "library"); $("imageFiles").value = ""; });
+  on("addCoverBtn", "click", () => $("coverFile").click());
+  on("coverFile", "change", () => { addFiles($("coverFile").files, "cover"); $("coverFile").value = ""; });
+  on("removeCoverBtn", "click", () => { fields.image.value = ""; changed(); });
+  on("assetList", "click", (event) => {
+    const button = event.target.closest("[data-action]"), item = button?.closest("[data-asset]");
+    const asset = item && assets.find((asset) => asset.id === item.dataset.asset);
+    if (!asset) return;
+    if (button.dataset.action === "insert") { if (previewing) { previewing = false; updatePanels(); } insertImages([asset]); }
+    else if (button.dataset.action === "cover") { fields.image.value = assetPath(asset); changed(); }
+    else if (button.dataset.action === "download") download(asset.file, asset.name);
+    else if (button.dataset.action === "remove") {
+      if (assetReferenced(asset)) { notify("本文やカバーで使用中です。先に記事から画像を外してください。"); return; }
+      assets = assets.filter((item) => item !== asset); URL.revokeObjectURL(asset.url);
+      // 画像のない履歴を復元しないよう、素材を破棄した時点で履歴を区切る。
+      history = []; historyIndex = -1; renderAssets(); changed(true);
+    }
+  });
+  for (const [id, action] of [["body", "insert"], ["coverArea", "cover"], ["addImagesBtn", "library"]]) {
+    const zone = $(id);
+    zone.addEventListener("dragover", (event) => { if ([...event.dataTransfer.types].includes("Files")) { event.preventDefault(); zone.classList.add("is-dragging"); } });
+    zone.addEventListener("dragleave", (event) => { if (!zone.contains(event.relatedTarget)) zone.classList.remove("is-dragging"); });
+    zone.addEventListener("drop", (event) => {
+      zone.classList.remove("is-dragging");
+      if (!event.dataTransfer.files.length && id !== "body") return;
+      event.preventDefault();
+      if (id === "body") {
+        const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
+        const range = position ? document.createRange() : document.caretRangeFromPoint?.(event.clientX, event.clientY);
+        if (position) { range.setStart(position.offsetNode, position.offset); range.collapse(true); }
+        if (range && body.contains(range.startContainer)) savedRange = range;
+      }
+      if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files, action);
+      else {
+        const html = event.dataTransfer.getData("text/html");
+        const text = event.dataTransfer.getData("text/plain");
+        if (html || text) insertHtml(html || esc(text).replace(/\r?\n/g, "<br>"));
+      }
+    });
+  }
+  // ファイルを領域外へ落としてページが移動し、原稿を失うのを防ぐ。
+  window.addEventListener("dragover", (e) => { if ([...e.dataTransfer.types].includes("Files")) e.preventDefault(); });
+  window.addEventListener("drop", (e) => { if (e.dataTransfer.files.length) e.preventDefault(); });
+  fieldNames.forEach((key) => fields[key].addEventListener("input", (event) => {
+    if (key === "title" && !fields.slug.dataset.touched) fields.slug.value = C.slugify(fields.title.value);
+    if (key === "slug") fields.slug.dataset.touched = "true";
+    if (!event.isComposing) changed();
+  }));
+  on("openImportBtn", "click", () => { $("importStatus").textContent = ""; $("importDialog").showModal(); });
+  on("chooseHtmlBtn", "click", () => $("importHtmlFile").click());
+  on("chooseFolderBtn", "click", () => $("importFolder").click());
+  on("importHtmlFile", "change", async () => { try { await importFiles($("importHtmlFile").files); } finally { $("importHtmlFile").value = ""; } });
+  on("importFolder", "change", async () => { try { await importFiles($("importFolder").files, true); } finally { $("importFolder").value = ""; } });
+  on("appendHtmlBtn", "click", appendHtml);
+  on("replaceHtmlBtn", "click", () => {
+    if (!$("htmlInput").value.trim() || !confirmReplace()) return;
+    const data = C.parseArticle($("htmlInput").value);
+    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
+    applyData(data); renderAssets(); history = []; historyIndex = -1; changed(true); $("importDialog").close();
+  });
+  on("outline", "click", (event) => {
+    const button = event.target.closest("[data-heading]");
+    if (!button) return;
+    setMode("visual");
+    const heading = body.querySelectorAll("h2,h3")[Number(button.dataset.heading)];
+    if (heading) {
+      heading.scrollIntoView({ block: "center", behavior: "auto" });
+      const range = document.createRange(); range.selectNodeContents(heading); range.collapse(false); savedRange = range; restoreRange();
+    }
+  });
+  on("saveDraftBtn", "click", () => saveDraft(true));
+  on("newArticleBtn", "click", () => {
+    if (!confirmReplace()) return;
+    assets.forEach((asset) => URL.revokeObjectURL(asset.url)); assets = [];
+    applyData({ body: "", date: C.localDate(), slug: "new-article" });
+    delete fields.slug.dataset.touched; renderAssets(); history = []; historyIndex = -1; changed(true); fields.title.focus();
+  });
+  on("openExportBtn", "click", () => { refresh(); renderChecklist(); $("exportStatus").textContent = ""; $("exportDialog").showModal(); });
+  on("exportFolderBtn", "click", exportZip);
+  on("saveFolderBtn", "click", saveFolder);
+  on("downloadBtn", "click", () => { validate(); download(new Blob([source()], { type: "text/html;charset=utf-8" }), "index.html"); $("exportStatus").textContent = "HTMLを書き出しました。画像は別途、同じ記事フォルダに配置してください。"; });
+  on("copyBtn", "click", () => { validate(); return copy(source()); });
+  on("copyPermalinkBtn", "click", () => copy("https://xenoah.github.io" + C.permalink(metadata())));
+  on("copyTreeBtn", "click", () => copy(C.folderName(metadata()) + "/\n" + ["index.html", ...assets.map((asset) => asset.name)].map((name) => "  ├─ " + name).join("\n")));
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") { event.preventDefault(); saveDraft(true); }
+  });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && revision !== savedRevision) saveDraft(); });
+  window.addEventListener("beforeunload", (event) => { if (ready && revision !== savedRevision) { event.preventDefault(); event.returnValue = ""; } });
+  const header = document.querySelector(".blog-header");
+  if (header && window.ResizeObserver) new ResizeObserver(() => app.style.setProperty("--blog-header-height", header.getBoundingClientRect().height + "px")).observe(header);
+  // 復元中の入力で前回の下書きを上書きしない。
+  app.inert = true;
+  restoreDraft().then((restored) => {
+    if (!restored) saveState("自動保存が有効です");
+  }).catch(() => saveState("下書きを読み込めませんでした", "error")).finally(() => {
+    ready = true; app.inert = false; prepareBody(); renderAssets(); refresh(); recordHistory();
+    document.execCommand("defaultParagraphSeparator", false, "p");
+  });
 })();

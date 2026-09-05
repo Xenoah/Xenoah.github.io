@@ -2,212 +2,142 @@
 layout: blog
 title: ブログ記事エディター
 title_en: Blog Article Editor
-description: HTML記事と画像を同じフォルダで管理して公開するためのリアルタイムプレビュー付きエディター。
-description_en: A live-preview editor for creating and exporting HTML blog articles together with their image assets.
+description: 見出しや画像を見ながら書けるブログエディター。下書きを自動保存し、記事と画像をまとめて書き出せます。
+description_en: A visual blog editor with automatic drafts and article folder exports.
 robots: noindex,follow
 permalink: /blog/editor.html
 ---
-<section class="blog-index-head editor-hero">
-  <div>
-    <p class="section-label">HTML Editor</p>
-    <h1>書いた瞬間、そのまま記事になる。</h1>
-    <p>HTMLコードを書きながら右側で即プレビュー。画像込みで記事フォルダを書き出せます。</p>
+<link rel="stylesheet" href="{{ '/blog/assets/editor.css' | relative_url }}">
+<div id="editorApp" class="writing-app">
+  <header class="writing-header">
+    <div class="writing-heading">
+      <p class="writing-eyebrow">XENOAH / BLOG STUDIO</p>
+      <h1>記事を書く</h1>
+      <span id="draftSaved" class="save-indicator" role="status">下書きを確認中…</span>
+    </div>
+    <div class="writing-actions">
+      <button id="openImportBtn" class="writing-button quiet" type="button">記事を開く</button>
+      <button id="previewBtn" class="writing-button" type="button" aria-pressed="false">プレビュー</button>
+      <button id="openExportBtn" class="writing-button primary" type="button">書き出す <span aria-hidden="true">↗</span></button>
+    </div>
+  </header>
+  <div class="writing-layout">
+    <section class="manuscript" aria-label="記事の編集">
+      <div class="writing-mode-bar">
+        <div class="mode-switch" role="group" aria-label="編集モード">
+          <button id="visualModeBtn" type="button" aria-pressed="true">ビジュアル</button>
+          <button id="htmlModeBtn" type="button" aria-pressed="false">HTML</button>
+        </div>
+        <span class="writing-count"><strong id="charCount">0</strong> 文字 <span class="count-divider">/</span> 約 <span id="readTime">1</span> 分</span>
+      </div>
+      <div id="formatToolbar" class="format-toolbar" role="group" aria-label="本文の書式">
+        <select id="blockFormat" aria-label="段落の種類" title="段落の種類">
+          <option value="p">本文</option><option value="h2">大見出し</option><option value="h3">小見出し</option><option value="blockquote">引用</option><option value="pre">コード</option>
+        </select>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button type="button" data-command="bold" title="太字 (Ctrl / ⌘ + B)" aria-label="太字" aria-pressed="false"><b>B</b></button>
+        <button type="button" data-command="italic" title="斜体 (Ctrl / ⌘ + I)" aria-label="斜体" aria-pressed="false"><i>I</i></button>
+        <button type="button" data-command="underline" title="下線 (Ctrl / ⌘ + U)" aria-label="下線" aria-pressed="false"><u>U</u></button>
+        <button type="button" data-command="strikeThrough" title="取り消し線" aria-label="取り消し線" aria-pressed="false"><s>S</s></button>
+        <button type="button" id="highlightBtn" title="マーカー" aria-label="マーカー"><span class="marker-icon">A</span></button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button type="button" data-command="insertUnorderedList" title="箇条書き" aria-label="箇条書き" aria-pressed="false">• ≡</button>
+        <button type="button" data-command="insertOrderedList" title="番号付きリスト" aria-label="番号付きリスト" aria-pressed="false">1. ≡</button>
+        <button type="button" id="linkBtn" title="リンク (Ctrl / ⌘ + K)" aria-label="リンクを挿入">↗</button>
+        <button type="button" id="insertImageBtn" class="text-tool" title="画像を追加">画像</button>
+        <button type="button" id="videoBtn" class="text-tool" title="YouTube動画を挿入">動画</button>
+        <button type="button" id="dividerBtn" title="区切り線" aria-label="区切り線を挿入">―</button>
+        <button type="button" data-command="removeFormat" title="文字装飾を解除" aria-label="文字装飾を解除">Tx</button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="undoBtn" type="button" title="元に戻す (Ctrl / ⌘ + Z)" aria-label="元に戻す" disabled>↶</button>
+        <button id="redoBtn" type="button" title="やり直す (Ctrl / ⌘ + Shift + Z)" aria-label="やり直す" disabled>↷</button>
+      </div>
+      <div id="mediaTools" class="media-tools" hidden>
+        <label>画像の説明 <input id="mediaAlt" type="text" placeholder="画像が伝える内容"></label>
+        <label>表示幅 <select id="mediaSize"><option value="">通常</option><option value="medium-media">中</option><option value="small-media">小</option></select></label>
+        <button id="removeMediaBtn" class="writing-button quiet danger" type="button">画像を削除</button>
+        <button id="closeMediaBtn" class="writing-button quiet" type="button" aria-label="画像の設定を閉じる">×</button>
+      </div>
+      <div id="visualPanel" class="writing-paper">
+        <div id="coverArea" class="cover-area">
+          <img id="coverPreview" alt="カバー画像のプレビュー" hidden>
+          <button id="addCoverBtn" class="cover-add" type="button"><span aria-hidden="true">＋</span> カバー画像を追加</button>
+          <button id="removeCoverBtn" class="writing-button cover-remove" type="button" hidden>カバーを外す</button>
+        </div>
+        <label class="sr-only" for="title">記事タイトル</label>
+        <textarea id="title" class="article-title-input" rows="1" placeholder="記事タイトル" maxlength="250"></textarea>
+        <p class="writing-hint" id="bodyHint">思いついたことから、自由に。文字を選んで装飾したり、画像をドロップできます。</p>
+        <div id="body" class="article-body rich-editor" contenteditable="true" role="textbox" aria-label="記事本文" aria-multiline="true" aria-describedby="bodyHint" data-placeholder="ここから本文を書きましょう…" spellcheck="true"><p><br></p></div>
+      </div>
+      <div id="htmlPanel" class="source-panel" hidden>
+        <label for="htmlSource">本文のHTML</label>
+        <p class="writing-hint">ビジュアル編集と同じ本文です。記事情報は右側で設定できます。</p>
+        <textarea id="htmlSource" spellcheck="false" aria-label="本文のHTML"></textarea>
+      </div>
+      <section id="previewPanel" class="reading-preview" aria-label="記事プレビュー" hidden>
+        <div class="preview-notice">公開時の見え方 <span>この画面からは編集できません</span></div>
+        <div id="preview"></div>
+      </section>
+      <footer class="paper-footer"><span>Enter で段落、Shift + Enter で改行</span><span>下書きはこのブラウザに保存</span></footer>
+    </section>
+    <aside class="writing-sidebar" aria-label="記事の設定と素材">
+      <details class="settings-card" open>
+        <summary>記事の設定 <span>公開前に整える</span></summary>
+        <div class="settings-content">
+          <div class="field"><label for="date">公開日</label><input id="date" type="date" required></div>
+          <div class="field"><label for="tags">タグ</label><input id="tags" type="text" placeholder="日記, VRChat, ものづくり"><small>カンマで区切って追加</small></div>
+          <div class="field"><label for="description">記事の説明 <span id="descriptionCount">0 / 160</span></label><textarea id="description" rows="3" placeholder="この記事について、ひとこと。検索結果やSNSに表示されます。"></textarea></div>
+          <div class="field"><label for="slug">URLの末尾</label><input id="slug" type="text" value="new-article" spellcheck="false" placeholder="my-first-post"><small id="permalinkPreview"></small></div>
+          <details class="advanced-settings"><summary>その他の設定</summary>
+            <div class="field"><label for="image">カバー画像のURL</label><input id="image" type="text" placeholder="https://… または /blog/articles/…"></div>
+            <div class="field"><label for="title_en">英語のタイトル（任意）</label><input id="title_en" type="text"></div>
+            <div class="field"><label for="description_en">英語の説明（任意）</label><textarea id="description_en" rows="2"></textarea></div>
+          </details>
+        </div>
+      </details>
+      <details class="settings-card" id="imagesCard" open>
+        <summary>画像ライブラリ <span><span id="imageCount">0</span> 枚</span></summary>
+        <div class="settings-content">
+          <button id="addImagesBtn" class="image-upload-zone" type="button"><span aria-hidden="true">＋</span> 画像を選ぶ<small>複数選択・ドロップに対応</small></button>
+          <div id="assetList" class="image-library"></div>
+          <p class="writing-hint">画像を押すと本文へ挿入。カバーにも設定できます。</p>
+        </div>
+      </details>
+      <details class="settings-card"><summary>記事の目次 <span>見出しへ移動</span></summary><nav id="outline" class="settings-content article-outline" aria-label="編集中の記事の目次"></nav></details>
+      <div class="draft-note"><span class="draft-dot" aria-hidden="true"></span><div>あなたのペースで書こう。<p>本文も画像も自動保存。続きはこのブラウザで。</p><button id="saveDraftBtn" type="button">今すぐ保存</button><button id="newArticleBtn" type="button">新しい記事</button></div></div>
+    </aside>
   </div>
-  <aside class="editor-live-badge" aria-label="Preview status">
-    <span>Live</span>
-    <small>Preview</small>
-  </aside>
-</section>
-
-<div class="editor-workspace">
-  <section class="panel editor-assist" aria-label="HTML code assistance">
-    <div class="panel-head panel-head-row">
-      <div>
-        <p class="panel-kicker">HTMLコード支援</p>
-        <h2>よく使うHTMLをすぐ挿入</h2>
-      </div>
-      <span id="draftSaved" class="mini-status">下書き待機中</span>
-    </div>
-    <div class="assist-surface">
-      <div class="assist-group">
-        <span>構造</span>
-        <div class="editor-toolbar" aria-label="Structure snippets">
-          <button class="tool-button secondary" type="button" data-insert="<h2>見出し</h2>">H2</button>
-          <button class="tool-button secondary" type="button" data-insert="<h3>小見出し</h3>">H3</button>
-          <button class="tool-button secondary" type="button" data-insert="<p>本文をここに書きます。</p>">P</button>
-          <button class="tool-button secondary" type="button" data-insert="<figure>&#10;  <img loading=&quot;lazy&quot; src=&quot;/blog/articles/YYYY-MM-DD-slug/image.png&quot; alt=&quot;&quot;>&#10;  <figcaption>キャプション</figcaption>&#10;</figure>">Figure</button>
-        </div>
-      </div>
-      <div class="assist-group">
-        <span>装飾</span>
-        <div class="editor-toolbar" aria-label="Inline snippets">
-          <button class="tool-button secondary" type="button" data-before="<strong>" data-after="</strong>">太字</button>
-          <button class="tool-button secondary" type="button" data-before="<em>" data-after="</em>">斜体</button>
-          <button class="tool-button secondary" type="button" data-before="<code>" data-after="</code>">コード</button>
-          <button class="tool-button secondary" type="button" data-before="<a href=&quot;https://example.com&quot;>" data-after="</a>">リンク</button>
-        </div>
-      </div>
-      <div class="assist-group">
-        <span>ブロック</span>
-        <div class="editor-toolbar" aria-label="Block snippets">
-          <button class="tool-button secondary" type="button" data-insert="<ul>&#10;  <li>箇条書き</li>&#10;</ul>">リスト</button>
-          <button class="tool-button secondary" type="button" data-insert="<ol>&#10;  <li>番号付き</li>&#10;</ol>">番号</button>
-          <button class="tool-button secondary" type="button" data-insert="<blockquote>&#10;  <p>引用</p>&#10;</blockquote>">引用</button>
-          <button class="tool-button secondary" type="button" data-insert="<pre><code>console.log(&quot;hello&quot;);</code></pre>">コードブロック</button>
-        </div>
-      </div>
-      <div class="assist-import">
-        <div class="field">
-          <label for="htmlInput">HTML取り込み</label>
-          <textarea id="htmlInput" class="html-input" placeholder="<h2>見出し</h2><p>本文...</p>"></textarea>
-        </div>
-        <div class="button-row">
-          <button class="tool-button" id="convertHtmlReplaceBtn" type="button">置き換え</button>
-          <button class="tool-button secondary" id="convertHtmlAppendBtn" type="button">末尾へ追加</button>
-        </div>
-        <p class="status" id="htmlStatus"></p>
-      </div>
-    </div>
-  </section>
-
-  <section class="editor-stage" aria-label="HTML editor and live preview">
-    <section class="panel editor-code-panel">
-      <div class="panel-head panel-head-row">
-        <div>
-          <p class="panel-kicker">HTMLコード</p>
-          <h2>本文</h2>
-        </div>
-        <span class="mini-status">左で編集</span>
-      </div>
-      <textarea id="body" class="html-editor-input" spellcheck="false"><h2>はじめに</h2>
-
-<p>ここに本文をHTMLで書きます。</p>
-
-<ul>
-  <li>本文はそのままHTMLとして扱われます</li>
-  <li>下書きはこのブラウザに自動保存されます</li>
-  <li>ZIPを書き出すと、<code>index.html</code> と画像が記事フォルダにまとまります</li>
-</ul>
-
-<p>画像は下の画像パネルから複数追加できます。</p></textarea>
-    </section>
-
-    <section class="panel preview-panel editor-preview-panel">
-      <div class="panel-head panel-head-row">
-        <div>
-          <p class="panel-kicker">HTMLプレビュー</p>
-          <h2>記事プレビュー</h2>
-        </div>
-        <span class="mini-status" id="previewStatus">リアルタイム</span>
-      </div>
-      <div id="preview" class="preview article-preview"></div>
-    </section>
-  </section>
-
-  <section class="editor-meta-grid" aria-label="Article management">
-    <aside class="panel">
-      <div class="panel-head">
-        <h2>記事設定</h2>
-      </div>
-      <div class="panel-body">
-        <div class="field">
-          <label for="title">タイトル</label>
-          <input id="title" type="text" value="新しい記事">
-        </div>
-        <div class="field field-inline">
-          <div>
-            <label for="date">公開日</label>
-            <input id="date" type="date">
-          </div>
-          <div>
-            <label for="slug">URL用スラッグ</label>
-            <input id="slug" type="text" value="new-article" inputmode="latin">
-          </div>
-        </div>
-        <div class="field">
-          <label for="description">説明文 SEO / SNS</label>
-          <textarea id="description">検索結果やSNSカードに表示する短い説明文。</textarea>
-        </div>
-        <div class="field field-inline">
-          <div>
-            <label for="tags">タグ カンマ区切り</label>
-            <input id="tags" type="text" value="note, blog">
-          </div>
-          <div>
-            <label for="image">アイキャッチ画像パス</label>
-            <input id="image" type="text" placeholder="/blog/articles/YYYY-MM-DD-slug/cover.png">
-          </div>
-        </div>
-        <div class="output-box">
-          <span>記事フォルダ</span>
-          <code id="articleFolderPath">blog/articles/YYYY-MM-DD-slug/</code>
-          <span>HTML配置先</span>
-          <code id="postPath">blog/articles/YYYY-MM-DD-slug/index.html</code>
-        </div>
-      </div>
-    </aside>
-
-    <aside class="panel">
-      <div class="panel-head">
-        <h2>書き出し / 下書き</h2>
-      </div>
-      <div class="panel-body">
-        <div class="stats-grid" aria-label="Article stats">
-          <div><strong id="charCount">0</strong><span>文字</span></div>
-          <div><strong id="imageCount">0</strong><span>画像</span></div>
-          <div><strong id="readTime">1</strong><span>分</span></div>
-        </div>
-        <div class="button-row stack">
-          <button class="tool-button" id="exportFolderBtn" type="button">画像込みZIPを書き出し</button>
-          <button class="tool-button secondary" id="saveFolderBtn" type="button">フォルダへ保存</button>
-          <button class="ghost-button" id="downloadBtn" type="button">index.htmlだけ書き出し</button>
-          <button class="ghost-button" id="copyBtn" type="button">HTML全文コピー</button>
-        </div>
-        <div class="button-row stack">
-          <button class="ghost-button" id="saveDraftBtn" type="button">下書きを保存</button>
-          <button class="ghost-button" id="loadDraftBtn" type="button">下書きを復元</button>
-          <button class="ghost-button" id="clearDraftBtn" type="button">下書きを削除</button>
-        </div>
-        <div class="field file-field">
-          <label for="importHtmlFile">既存index.htmlを読み込み</label>
-          <input id="importHtmlFile" type="file" accept=".html,.htm,text/html,text/plain">
-        </div>
-        <p class="status" id="exportStatus"></p>
-        <p class="status" id="draftStatus"></p>
-      </div>
-    </aside>
-
-    <aside class="panel">
-      <div class="panel-head">
-        <h2>画像</h2>
-      </div>
-      <div class="panel-body">
-        <div class="field file-field">
-          <label for="imageFiles">画像ファイル 複数可</label>
-          <input id="imageFiles" type="file" accept="image/*" multiple>
-        </div>
-        <div class="asset-list" id="assetList">
-          <p class="empty-state">画像を選ぶとここに並びます。</p>
-        </div>
-        <p class="help-text">本文には `<figure>` として `/blog/articles/.../image.png` の形で挿入されます。</p>
-        <p class="status" id="imageStatus"></p>
-      </div>
-    </aside>
-
-    <aside class="panel">
-      <div class="panel-head">
-        <h2>公開前チェック</h2>
-      </div>
-      <div class="panel-body">
-        <ul class="check-list" id="publishChecklist"></ul>
-        <div class="button-row stack">
-          <button class="ghost-button" id="copyPermalinkBtn" type="button">公開URLをコピー</button>
-          <button class="ghost-button" id="copyTreeBtn" type="button">フォルダ構成をコピー</button>
-        </div>
-        <p class="status" id="checkStatus"></p>
-      </div>
-    </aside>
-  </section>
+  <p id="appStatus" class="app-status" role="status" aria-live="polite"></p>
+  <input id="imageFiles" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif,image/svg+xml" multiple hidden>
+  <input id="coverFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif,image/svg+xml" hidden>
+  <input id="importHtmlFile" type="file" accept=".html,.htm" hidden>
+  <input id="importFolder" type="file" webkitdirectory multiple hidden>
+  <dialog id="insertDialog" class="writing-dialog" aria-labelledby="insertDialogTitle">
+    <form id="insertForm">
+      <div class="dialog-heading"><h2 id="insertDialogTitle">リンクを挿入</h2><button class="dialog-close" type="button" data-close="insertDialog" aria-label="閉じる">×</button></div>
+      <div class="field"><label for="insertUrl">URL</label><input id="insertUrl" type="text" inputmode="url" placeholder="https://…" required></div>
+      <div id="linkTextField" class="field"><label for="insertText">表示する文字</label><input id="insertText" type="text" placeholder="リンクの名前"></div>
+      <p id="insertError" class="dialog-error" role="alert"></p>
+      <div class="dialog-actions"><button id="unlinkBtn" class="writing-button quiet" type="button">リンクを解除</button><button class="writing-button" type="button" data-close="insertDialog">キャンセル</button><button class="writing-button primary" type="submit">挿入する</button></div>
+    </form>
+  </dialog>
+  <dialog id="importDialog" class="writing-dialog" aria-labelledby="importDialogTitle">
+    <div class="dialog-heading"><h2 id="importDialogTitle">記事を開く</h2><button class="dialog-close" type="button" data-close="importDialog" aria-label="閉じる">×</button></div>
+    <p class="writing-hint">記事フォルダを選ぶと、本文と画像をまとめて読み込めます。</p>
+    <div class="dialog-actions vertical"><button id="chooseFolderBtn" class="writing-button primary" type="button">記事フォルダを選ぶ</button><button id="chooseHtmlBtn" class="writing-button" type="button">HTMLファイルを選ぶ</button></div>
+    <details class="advanced-settings"><summary>HTMLを貼り付けて取り込む</summary><div class="field"><label class="sr-only" for="htmlInput">取り込むHTML</label><textarea id="htmlInput" class="import-source" placeholder="記事のHTMLを貼り付け"></textarea></div><div class="dialog-actions"><button id="appendHtmlBtn" class="writing-button" type="button">本文の末尾に追加</button><button id="replaceHtmlBtn" class="writing-button" type="button">記事を置き換え</button></div></details>
+    <p id="importStatus" class="dialog-error" role="status"></p>
+  </dialog>
+  <dialog id="exportDialog" class="writing-dialog" aria-labelledby="exportDialogTitle">
+    <div class="dialog-heading"><div><p class="writing-eyebrow">READY TO SHARE</p><h2 id="exportDialogTitle">記事を書き出す</h2></div><button class="dialog-close" type="button" data-close="exportDialog" aria-label="閉じる">×</button></div>
+    <p class="writing-hint">画像と記事をひとつに。解凍したフォルダを <code>blog/articles</code> に置くと、いつもの記事形式で公開できます。</p>
+    <ul id="publishChecklist" class="export-checks"></ul>
+    <div class="export-destination"><span>保存先</span><code id="postPath"></code></div>
+    <div class="dialog-actions vertical"><button id="exportFolderBtn" class="writing-button primary" type="button">画像込みZIPをダウンロード</button><button id="saveFolderBtn" class="writing-button" type="button">フォルダへ保存</button></div>
+    <details class="advanced-settings"><summary>ほかの書き出し方法</summary><div class="dialog-actions"><button id="downloadBtn" class="writing-button" type="button">HTMLのみ</button><button id="copyBtn" class="writing-button" type="button">HTMLをコピー</button><button id="copyPermalinkBtn" class="writing-button" type="button">公開URLをコピー</button><button id="copyTreeBtn" class="writing-button" type="button">フォルダ構成をコピー</button></div></details>
+    <p id="exportStatus" class="export-status" role="status"></p>
+    <p class="writing-hint">書き出しだけではサイトに公開されません。</p>
+  </dialog>
 </div>
-
+<script src="{{ '/blog/assets/editor-core.js' | relative_url }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}"></script>

@@ -1,0 +1,11 @@
+{
+  "name": "xenoah-blog-editor-checks",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/editor.test.cjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.4",
+    "jsdom": "26.1.0"
+  }
+}
