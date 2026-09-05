@@ -2,7 +2,7 @@
   "name": "xenoah-blog-editor-checks",
   "private": true,
   "scripts": {
-    "test": "node --test tests/editor.test.cjs"
+    "test": "node --test tests/*.test.cjs"
   },
   "devDependencies": {
     "fake-indexeddb": "6.2.4",

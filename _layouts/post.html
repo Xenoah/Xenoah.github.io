@@ -71,7 +71,7 @@
         {% if page.description %}<p class="article-lead">{{ page.description | escape }}</p>{% endif %}
         {% if page.tags %}
         <div class="tag-row" aria-label="Tags">
-          {% for tag in page.tags %}<span>{{ tag | escape }}</span>{% endfor %}
+          {% for tag in page.tags %}<a href="{{ '/blog/' | relative_url }}?tag={{ tag | uri_escape | escape }}">{{ tag | escape }}</a>{% endfor %}
         </div>
         {% endif %}
       </header>
@@ -86,10 +86,20 @@
       </div>
     </article>
     <nav class="post-nav" aria-label="Post navigation">
-      {% if page.previous %}<a href="{{ page.previous.url | relative_url | escape }}">Newer: {{ page.previous.title | escape }}</a>{% endif %}
-      <a href="{{ '/blog/' | relative_url | escape }}">All articles</a>
-      {% if page.next %}<a href="{{ page.next.url | relative_url | escape }}">Older: {{ page.next.title | escape }}</a>{% endif %}
+      {% include blog_articles.html %}
+      {% assign newer_article = nil %}{% assign older_article = nil %}
+      {% for article in all_articles %}
+        {% if article.url == page.url %}
+          {% unless forloop.first %}{% assign newer_index = forloop.index0 | minus: 1 %}{% assign newer_article = all_articles[newer_index] %}{% endunless %}
+          {% unless forloop.last %}{% assign older_index = forloop.index0 | plus: 1 %}{% assign older_article = all_articles[older_index] %}{% endunless %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      {% if newer_article %}<a rel="next" href="{{ newer_article.url | relative_url | escape }}">新しい記事: {{ newer_article.title | escape }}</a>{% endif %}
+      <a href="{{ '/blog/' | relative_url | escape }}">記事一覧へ</a>
+      {% if older_article %}<a rel="prev" href="{{ older_article.url | relative_url | escape }}">以前の記事: {{ older_article.title | escape }}</a>{% endif %}
     </nav>
   </main>
+  <script src="{{ '/blog/assets/reader.js' | relative_url }}" defer></script>
 </body>
 </html>
