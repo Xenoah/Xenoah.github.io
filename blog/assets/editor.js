@@ -566,6 +566,7 @@
   }
   let exportRoot = null;
   function folderLabel() {
+    $("publicArticleLink").href = "https://xenoah.github.io" + C.permalink(metadata());
     $("savedFolderLabel").textContent = exportRoot ? `保存先: ${exportRoot.name} / ${C.folderName(metadata())}` : "blog/articles フォルダダイアログで一度選ぶと、次回も同じ場所へ保存できます。";
     $("changeFolderBtn").hidden = !window.showDirectoryPicker;
     $("saveFolderBtn").hidden = !window.showDirectoryPicker;
@@ -645,7 +646,7 @@
     const y = event.clientY || (mode === "html" ? source : body).getBoundingClientRect().top + 24;
     contextMenu.style.left = Math.max(8, Math.min(x, window.innerWidth - contextMenu.offsetWidth - 8)) + "px";
     contextMenu.style.top = Math.max(8, Math.min(y, window.innerHeight - contextMenu.offsetHeight - 8)) + "px";
-    contextMenu.querySelector("button:not([disabled]):not([hidden])")?.focus();
+    contextMenu.querySelector("button:not([disabled]):not([hidden])")?.focus({ preventScroll: true });
   }
   async function contextClipboard(action) {
     const source = $("htmlSource"), revisionAtClick = revision;
@@ -703,7 +704,11 @@
   });
   document.addEventListener("pointerdown", (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); });
   window.addEventListener("resize", () => closeContextMenu());
-  window.addEventListener("scroll", (event) => { if (!(event.target instanceof Node) || !contextMenu.contains(event.target)) closeContextMenu(); }, true);
+  // Focus and image tools can trigger layout scrolling after contextmenu fires.
+  // Dismiss only for deliberate scrolling, so the freshly opened menu stays open.
+  for (const eventName of ["wheel", "touchmove"]) {
+    document.addEventListener(eventName, (event) => { if (!contextMenu.contains(event.target)) closeContextMenu(); }, { passive: true });
+  }
 
   document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
   $("formatToolbar").addEventListener("mousedown", (event) => { if (event.target.closest("button")) event.preventDefault(); else captureRange(); });
@@ -935,6 +940,21 @@
   on("exportFolderBtn", "click", exportZip);
   on("saveFolderBtn", "click", saveFolder);
   on("changeFolderBtn", "click", chooseExportRoot);
+  on("checkDeploymentBtn", "click", async () => {
+    const status = $("deploymentStatus");
+    status.textContent = "GitHubの公開状況を確認しています…";
+    $("checkDeploymentBtn").disabled = true;
+    try {
+      const response = await fetch("https://api.github.com/repos/Xenoah/Xenoah.github.io/actions/runs?branch=main&per_page=30", { signal: AbortSignal.timeout(15000) });
+      if (!response.ok) throw new Error("公開状況を取得できませんでした。「公開ページを開く」から確認してください。");
+      const data = await response.json();
+      const deployment = data.workflow_runs.find((run) => ["pages build and deployment", "Publish site"].includes(run.name));
+      if (!deployment) throw new Error("直近の公開処理が見つかりません。GitHub Actionsで確認してください。");
+      const state = deployment.status !== "completed" ? "処理中" : deployment.conclusion === "success" ? "成功" : deployment.conclusion === "cancelled" ? "取り消し" : "失敗";
+      status.textContent = `サイト全体の直近の公開: ${state} / ${deployment.head_sha.slice(0, 7)} / ${new Date(deployment.updated_at).toLocaleString("ja-JP")}。この記事の変更が含まれるかは公開ページで確認してください。`;
+    } catch (error) { status.textContent = error.message; }
+    finally { $("checkDeploymentBtn").disabled = false; }
+  });
   on("downloadBtn", "click", () => { validate(); download(new Blob([source()], { type: "text/html;charset=utf-8" }), "index.html"); $("exportStatus").textContent = "HTMLを書き出しました。画像は別途、同じ記事フォルダに配置してください。"; });
   on("copyBtn", "click", () => { validate(); return copy(source()); });
   on("copyPermalinkBtn", "click", () => copy("https://xenoah.github.io" + C.permalink(metadata())));

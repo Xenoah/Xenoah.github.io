@@ -2,7 +2,7 @@
 (function (root) {
   "use strict";
   class DraftStore {
-    constructor(factory = root.indexedDB) { this.factory = factory; }
+    constructor(factory = root.indexedDB) { this.factory = factory; this.imageBytes = new WeakMap(); }
     open() {
       return this.connection ||= new Promise((resolve, reject) => {
         const request = this.factory.open("xenoah-blog-studio", 2);
@@ -50,8 +50,10 @@
       if (!record) return null;
       const data = version == null ? record.data : record.history.find((entry) => entry.seq === version)?.data;
       if (!data) throw new Error("この保存履歴は見つかりません。");
-      return { ...record, data: { ...data, assets: await Promise.all((data.assets || []).map(async (asset) =>
-        ({ ...asset, file: await this.get("assets", asset.id) }))) } };
+      return { ...record, data: { ...data, assets: await Promise.all((data.assets || []).map(async (asset) => {
+        const stored = await this.get("assets", asset.id);
+        return { ...asset, file: stored?.bytes ? new root.Blob([stored.bytes], { type: stored.type }) : stored };
+      })) } };
     }
     async current() {
       const id = await this.setting("activeDraft");
@@ -64,6 +66,12 @@
       return this.read("legacy-current");
     }
     async save(id, data, expected, checkpoint = false) {
+      // Binary records avoid WebKit's Blob serialization stalls. Read the bytes
+      // before opening the transaction, and cache them while the file is in use.
+      const images = await Promise.all((data.assets || []).filter((asset) => asset.file).map(async (asset) => {
+        if (!this.imageBytes.has(asset.file)) this.imageBytes.set(asset.file, asset.file.arrayBuffer());
+        return { id: asset.id, bytes: await this.imageBytes.get(asset.file), type: asset.file.type };
+      }));
       const db = await this.open();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(["documents", "assets", "settings"], "readwrite");
@@ -77,10 +85,9 @@
             tx.abort(); return;
           }
           const snapshot = { ...data, draftId: id, assets: (data.assets || []).map(({ file, ...asset }) => asset) };
-          for (const asset of data.assets || []) {
-            if (!asset.file) continue;
+          for (const asset of images) {
             const present = blobs.getKey(asset.id);
-            present.onsuccess = () => { if (present.result === undefined) blobs.put(asset.file, asset.id); };
+            present.onsuccess = () => { if (present.result === undefined) blobs.put({ bytes: asset.bytes, type: asset.type }, asset.id); };
           }
           const history = [...(previous?.history || [])];
           const changed = previous && JSON.stringify({ ...previous.data, savedAt: "" }) !== JSON.stringify({ ...snapshot, savedAt: "" });

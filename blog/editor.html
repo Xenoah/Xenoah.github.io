@@ -171,6 +171,8 @@ permalink: /blog/editor.html
     <details class="advanced-settings"><summary>ほかの書き出し方法</summary><div class="dialog-actions"><button id="downloadBtn" class="writing-button" type="button">HTMLのみ</button><button id="copyBtn" class="writing-button" type="button">HTMLをコピー</button><button id="copyPermalinkBtn" class="writing-button" type="button">公開URLをコピー</button><button id="copyTreeBtn" class="writing-button" type="button">フォルダ構成をコピー</button></div></details>
     <p id="exportStatus" class="export-status" role="status"></p>
     <p class="writing-hint">書き出しだけではサイトに公開されません。</p>
+    <div class="dialog-actions"><button id="checkDeploymentBtn" class="writing-button quiet" type="button">サイトの公開状況を確認</button><a id="publicArticleLink" class="writing-button quiet" target="_blank" rel="noopener noreferrer">公開ページを開く</a></div>
+    <p id="deploymentStatus" class="writing-hint" role="status"></p>
   </dialog>
 </div>
 <script src="{{ '/blog/assets/editor-core.js' | relative_url }}"></script>
