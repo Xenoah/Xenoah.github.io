@@ -6,6 +6,18 @@ lang: ja
 timezone: Asia/Tokyo
 author: Xenoah
 
+# ブログの開発用ファイルを公開成果物へ含めない。
+exclude:
+  - blog/node_modules
+  - blog/.npm-cache
+  - blog/tests
+  - blog/scripts
+  - blog/package.json
+  - blog/package-lock.json
+  - blog/playwright.config.cjs
+  - blog/playwright-report
+  - blog/test-results
+
 # _posts と記事生成スクリプトで同じ公開URL形式を共有する。
 permalink: /blog/:year/:month/:day/:title/
 
