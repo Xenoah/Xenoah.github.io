@@ -153,6 +153,7 @@ permalink: /blog/editor.html
     <div class="dialog-heading"><h2 id="importDialogTitle">記事を開く</h2><button class="dialog-close" type="button" data-close="importDialog" aria-label="閉じる">×</button></div>
     <p class="writing-hint">記事フォルダを選ぶと、本文と画像をまとめて読み込めます。</p>
     <div class="dialog-actions vertical"><button id="chooseFolderBtn" class="writing-button primary" type="button">記事フォルダを選ぶ</button><button id="chooseHtmlBtn" class="writing-button" type="button">HTMLファイルを選ぶ</button></div>
+    <details class="advanced-settings"><summary>公開済みの記事から選ぶ</summary><button id="loadPublishedBtn" class="writing-button" type="button">記事一覧を読み込む</button><div id="publishedList" class="draft-list"></div></details>
     <details class="advanced-settings"><summary>HTMLを貼り付けて取り込む</summary><div class="field"><label class="sr-only" for="htmlInput">取り込むHTML</label><textarea id="htmlInput" class="import-source" placeholder="記事のHTMLを貼り付け"></textarea></div><div class="dialog-actions"><button id="appendHtmlBtn" class="writing-button" type="button">本文の末尾に追加</button><button id="replaceHtmlBtn" class="writing-button" type="button">記事を置き換え</button></div></details>
     <p id="importStatus" class="dialog-error" role="status"></p>
   </dialog>

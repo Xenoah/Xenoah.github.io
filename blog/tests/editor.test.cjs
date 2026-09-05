@@ -23,6 +23,7 @@ async function editor(options = {}) {
   const w = dom.window, downloads = [], urls = new Map(), clipboard = [];
   w.Blob = Blob; w.TextEncoder = TextEncoder; w.Uint8Array = Uint8Array;
   w.indexedDB = options.database || new IDBFactory();
+  w.fetch = options.fetch || (async () => ({ ok: true, json: async () => [] }));
   w.confirm = () => true;
   w.document.execCommand = () => true; // Native editing is deliberately not simulated/tested here.
   w.document.queryCommandState = () => false;
@@ -193,6 +194,25 @@ test("multiple drafts remain available and concurrent edits fork without overwri
   assert.equal(entries.length, 3);
   entries.find((button) => button.textContent.includes("First draft updated")).click(); await tick();
   assert.equal(e.$("title").value, "First draft updated");
+});
+
+test("published article opens with its original metadata and local image bytes", async (t) => {
+  const article = { title: "Published", title_en: "English title", description: "Summary", description_en: "English summary", date: "2026-09-05", url: "/blog/2026/09/05/published/", image: "/blog/articles/2026-09-05-published/photo.png", tags: ["diary"] };
+  const e = await editor({ fetch: async (url) => {
+    if (String(url).endsWith("articles.json")) return { ok: true, json: async () => [article] };
+    if (String(url).endsWith("photo.png")) return { ok: true, headers: new Headers({ "content-type": "image/png" }), blob: async () => new Blob(["image"]) };
+    return { ok: true, text: async () => '<link rel="canonical" href="https://editor.test/blog/2026/09/05/published/"><div class="article-body"><p>Original body</p><img src="/blog/articles/2026-09-05-published/photo.png"></div>' };
+  } });
+  t.after(() => e.dom.window.close());
+  await e.click("openImportBtn"); await e.click("loadPublishedBtn");
+  e.$("publishedList").querySelector("button").click();
+  await until(() => e.$("title").value === "Published");
+  assert.equal(e.$("title_en").value, "English title");
+  assert.equal(e.$("description_en").value, "English summary");
+  assert.equal(e.$("tags").value, "diary");
+  assert.match(e.$("body").querySelector("img").src, /^blob:/);
+  await e.click("openExportBtn"); await e.click("copyBtn");
+  assert.match(e.clipboard.at(-1), /permalink: \/blog\/2026\/09\/05\/published\//);
 });
 
 test("draft store retains image bytes across bounded revisions and rejects stale writes", async () => {

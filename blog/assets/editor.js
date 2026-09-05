@@ -219,7 +219,8 @@
     fields.date.value ||= C.localDate();
     fields.slug.value ||= "new-article";
     fields.slug.dataset.touched = "true";
-    extra = Object.fromEntries(["author", "robots", "last_modified_at"].filter((key) => typeof data[key] === "string").map((key) => [key, data[key]]));
+    extra = Object.fromEntries(["author", "robots", "last_modified_at", "originalPermalink"].filter((key) => typeof data[key] === "string").map((key) => [key, data[key]]));
+    if (!extra.originalPermalink && data.permalink) extra.originalPermalink = new URL(data.permalink, location.href).pathname;
     mode = "visual";
     previewing = false;
     setBody(data.body);
@@ -464,6 +465,48 @@
     renderAssets(); history = []; historyIndex = -1; changed(true);
     $("importDialog").close();
     notify(`${file.name} を読み込みました。${folder ? "画像も一緒に編集できます。" : "画像が表示されない場合は記事フォルダごと開いてください。"}`);
+  }
+  let catalog = null;
+  async function readCatalog() {
+    const response = await fetch("/blog/articles.json", { cache: "no-cache", signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error("公開済みの記事一覧を取得できませんでした。");
+    const result = await response.json();
+    if (!Array.isArray(result) || result.some((item) => typeof item.title !== "string" || typeof item.url !== "string")) throw new Error("記事一覧の形式を確認できません。");
+    catalog = result;
+    return catalog;
+  }
+  async function openPublished(index) {
+    const article = catalog?.[index];
+    if (!article) return;
+    const url = new URL(article.url, location.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith("/blog/")) throw new Error("記事のURLを確認してください。");
+    $("importStatus").textContent = "本文と画像を読み込んでいます…";
+    const response = await fetch(url, { cache: "no-cache", signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error("記事を読み込めませんでした。");
+    const html = await response.text();
+    if (!new DOMParser().parseFromString(html, "text/html").querySelector(".article-body")) throw new Error("公開記事の本文が見つかりません。");
+    const data = { ...C.parseArticle(html), ...article, originalPermalink: url.pathname,
+      tags: Array.isArray(article.tags) ? article.tags.join(", ") : article.tags || "", assets: [] };
+    const doc = new DOMParser().parseFromString(data.body, "text/html");
+    const refs = new Set([data.image, ...[...doc.querySelectorAll("img[src], [poster], [style]")].flatMap((node) =>
+      [node.getAttribute("src"), node.getAttribute("poster"), node.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1]])].filter(Boolean));
+    let missing = 0;
+    for (const ref of refs) {
+      const imageUrl = new URL(ref, url);
+      if (imageUrl.origin !== location.origin) continue;
+      try {
+        const image = await fetch(imageUrl, { signal: AbortSignal.timeout(15000) });
+        if (!image.ok || !/^image\//.test(image.headers.get("content-type") || "")) throw new Error("image");
+        const blob = await image.blob();
+        const original = decodeURIComponent(imageUrl.pathname.split("/").pop()).replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-");
+        let name = original, suffix = 2;
+        while (data.assets.some((asset) => asset.name === name)) name = suffix++ + "-" + original;
+        data.assets.push({ id: crypto.randomUUID(), name, file: blob, aliases: [ref, imageUrl.href, imageUrl.pathname] });
+      } catch { missing++; }
+    }
+    await retainCurrent();
+    loadDocument(data); changed(true); $("importDialog").close();
+    notify(missing ? `記事を開きました。${missing}件の画像を取得できません。書き出す前に追加してください。` : "公開済みの記事を画像と一緒に開きました。");
   }
   function appendHtml() {
     const html = C.sanitize($("htmlInput").value);
@@ -778,6 +821,20 @@
   on("openImportBtn", "click", () => { $("importStatus").textContent = ""; $("importDialog").showModal(); });
   on("chooseHtmlBtn", "click", () => $("importHtmlFile").click());
   on("chooseFolderBtn", "click", () => $("importFolder").click());
+  on("loadPublishedBtn", "click", async () => {
+    $("importStatus").textContent = "記事一覧を読み込んでいます…";
+    const articles = await readCatalog();
+    $("publishedList").innerHTML = articles.map((article, index) => `<button class="writing-button" type="button" data-published="${index}">${esc(article.title)}<small> ${esc(article.date)}</small></button>`).join("");
+    $("importStatus").textContent = articles.length ? "開く記事を選んでください。" : "公開済みの記事はありません。";
+  });
+  let openingPublished = false;
+  on("publishedList", "click", async (event) => {
+    const button = event.target.closest("[data-published]");
+    if (!button || openingPublished) return;
+    openingPublished = true; button.disabled = true;
+    try { await openPublished(Number(button.dataset.published)); }
+    finally { openingPublished = false; button.disabled = false; }
+  });
   on("importHtmlFile", "change", async () => { try { await importFiles($("importHtmlFile").files); } finally { $("importHtmlFile").value = ""; } });
   on("importFolder", "change", async () => { try { await importFiles($("importFolder").files, true); } finally { $("importFolder").value = ""; } });
   on("appendHtmlBtn", "click", appendHtml);

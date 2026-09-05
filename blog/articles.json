@@ -8,10 +8,15 @@ sitemap: false
 {% for article in all_articles %}
   {
     "title": {{ article.title | jsonify }},
+    "title_en": {{ article.title_en | default: "" | jsonify }},
     "date": {{ article.date | date: "%Y-%m-%d" | jsonify }},
     "url": {{ article.url | relative_url | jsonify }},
     "source": {{ article.path | jsonify }},
     "description": {{ article.description | default: "" | jsonify }},
+    "description_en": {{ article.description_en | default: "" | jsonify }},
+    "author": {{ article.author | default: site.author | jsonify }},
+    "robots": {{ article.robots | default: "" | jsonify }},
+    "last_modified_at": {{ article.last_modified_at | default: "" | jsonify }},
     "image": {{ article.image | default: "" | jsonify }},
     "tags": {{ article.tags | default: empty | jsonify }}
   }{% unless forloop.last %},{% endunless %}
