@@ -554,17 +554,38 @@
     $("exportStatus").textContent = "ZIPを書き出しました。解凍したフォルダを blog/articles に置いてください。";
     await saveDraft();
   }
+  let exportRoot = null;
+  function folderLabel() {
+    $("savedFolderLabel").textContent = exportRoot ? `保存先: ${exportRoot.name} / ${C.folderName(metadata())}` : "blog/articles フォルダダイアログで一度選ぶと、次回も同じ場所へ保存できます。";
+    $("changeFolderBtn").hidden = !window.showDirectoryPicker;
+    $("saveFolderBtn").hidden = !window.showDirectoryPicker;
+  }
+  draftStore.setting("exportRoot").then((handle) => { exportRoot = handle || null; folderLabel(); }).catch(folderLabel);
+  async function chooseExportRoot() {
+    const handle = await window.showDirectoryPicker({ mode: "readwrite", id: "blog-articles" });
+    exportRoot = handle; folderLabel();
+    try { await draftStore.setting("exportRoot", handle); }
+    catch { notify("今回の保存先を選びました。このブラウザでは保存先を記憶できません。"); }
+    return handle;
+  }
   async function saveFolder() {
     validate();
     if (!window.showDirectoryPicker) throw new Error("このブラウザでは画像込みZIPを使って保存してください。");
     const data = metadata(), html = source(), snapshotAssets = [...assets];
-    const root = await window.showDirectoryPicker({ mode: "readwrite" });
+    const root = exportRoot || await chooseExportRoot();
+    if (root.queryPermission && await root.queryPermission({ mode: "readwrite" }) !== "granted" &&
+      await root.requestPermission({ mode: "readwrite" }) !== "granted") throw new Error("フォルダへの保存を許可してください。");
     const dir = await root.getDirectoryHandle(C.folderName(data), { create: true });
-    for (const file of [{ name: "index.html", file: html }, ...snapshotAssets]) {
+    try {
+      await dir.getFileHandle("index.html");
+      if (!window.confirm(`${root.name}/${C.folderName(data)}/index.html を更新しますか？`)) return;
+    } catch (error) { if (error.name !== "NotFoundError") throw error; }
+    // Images first: a failed image write must not replace the existing article.
+    for (const file of [...snapshotAssets, { name: "index.html", file: html }]) {
       const handle = await dir.getFileHandle(file.name, { create: true });
       const writer = await handle.createWritable(); await writer.write(file.file); await writer.close();
     }
-    $("exportStatus").textContent = "記事フォルダを保存しました。blog/articles に配置してください。";
+    $("exportStatus").textContent = `${root.name}/${C.folderName(data)} に保存しました。Gitでcommit・pushすると公開されます。`;
     await saveDraft();
   }
   async function copy(text) {
@@ -892,7 +913,7 @@
     field.scrollIntoView({ block: "center" }); field.focus();
   });
   on("openExportBtn", "click", async () => {
-    refresh(); renderChecklist(); $("exportStatus").textContent = "公開URLを確認しています…"; $("exportDialog").showModal();
+    refresh(); renderChecklist(); folderLabel(); $("exportStatus").textContent = "公開URLを確認しています…"; $("exportDialog").showModal();
     const buttons = ["exportFolderBtn", "saveFolderBtn", "downloadBtn", "copyBtn"].map($);
     buttons.forEach((button) => { button.disabled = true; });
     try { await readCatalog(); $("exportStatus").textContent = ""; }
@@ -901,6 +922,7 @@
   });
   on("exportFolderBtn", "click", exportZip);
   on("saveFolderBtn", "click", saveFolder);
+  on("changeFolderBtn", "click", chooseExportRoot);
   on("downloadBtn", "click", () => { validate(); download(new Blob([source()], { type: "text/html;charset=utf-8" }), "index.html"); $("exportStatus").textContent = "HTMLを書き出しました。画像は別途、同じ記事フォルダに配置してください。"; });
   on("copyBtn", "click", () => { validate(); return copy(source()); });
   on("copyPermalinkBtn", "click", () => copy("https://xenoah.github.io" + C.permalink(metadata())));

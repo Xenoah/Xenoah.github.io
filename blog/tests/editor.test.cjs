@@ -259,6 +259,25 @@ test("publishing blocks empty bodies, missing images and another article's URL",
   assert.ok(C.publicationIssues({ title: "A", date: "2026-09-05", slug: "a", body: "<p>Body</p>", description: "検索結果やSNSカードに表示する短い説明文。" }).some((issue) => issue.field === "description"));
 });
 
+test("folder export reuses the destination, confirms replacement and writes images before HTML", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  let picks = 0, exists = false, failImage = false; const writes = [];
+  const directory = { async getFileHandle(name, options) {
+    if (!options && !exists) throw Object.assign(new Error("Missing"), { name: "NotFoundError" });
+    return { async createWritable() { return { async write() { if (failImage && name !== "index.html") throw new Error("Disk full"); writes.push(name); }, async close() { exists = true; } }; } };
+  } };
+  e.w.showDirectoryPicker = async () => { picks++; return { name: "articles", getDirectoryHandle: async () => directory }; };
+  e.input("title", "Folder export"); await e.click("htmlModeBtn"); e.input("htmlSource", "<p>Body</p>");
+  await e.fileInput("coverFile", [new File(["photo"], "photo.png", { type: "image/png" })]);
+  await e.click("openExportBtn"); await e.click("saveFolderBtn");
+  assert.deepEqual(writes, ["photo.png", "index.html"]);
+  e.w.confirm = () => false; await e.click("saveFolderBtn");
+  assert.equal(writes.length, 2); assert.equal(picks, 1);
+  e.w.confirm = () => true; failImage = true; await e.click("saveFolderBtn");
+  assert.equal(writes.length, 2);
+  assert.match(e.$("exportStatus").textContent, /Disk full/);
+});
+
 test("context menu preserves selected text, supports keyboard dismissal and native-menu opt out", async (t) => {
   const e = await editor(); t.after(() => e.dom.window.close());
   await e.click("htmlModeBtn"); e.input("htmlSource", "<p>選択した文章</p>"); await e.click("visualModeBtn");
