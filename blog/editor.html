@@ -101,6 +101,8 @@ permalink: /blog/editor.html
         <summary>画像ライブラリ <span><span id="imageCount">0</span> 枚</span></summary>
         <div class="settings-content">
           <button id="addImagesBtn" class="image-upload-zone" type="button"><span aria-hidden="true">＋</span> 画像を選ぶ<small>複数選択・ドロップに対応</small></button>
+          <label class="writing-hint"><input id="optimizeImages" type="checkbox" checked> 追加する写真を軽くする</label>
+          <p class="writing-hint">JPEG・静止PNGを最大1920pxのWebPへ。アニメーションと、記事フォルダから読み込む画像は元のままです。</p>
           <div id="assetList" class="image-library"></div>
           <p class="writing-hint">画像を押すと本文へ挿入。カバーにも設定できます。</p>
         </div>
@@ -173,4 +175,5 @@ permalink: /blog/editor.html
 </div>
 <script src="{{ '/blog/assets/editor-core.js' | relative_url }}"></script>
 <script src="{{ '/blog/assets/editor-storage.js' | relative_url }}"></script>
+<script src="{{ '/blog/assets/editor-images.js' | relative_url }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}"></script>

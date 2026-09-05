@@ -46,7 +46,12 @@
     container.querySelectorAll("[src], [poster], [style]").forEach((node) => {
       for (const attr of ["src", "poster"]) {
         const asset = findAsset(node.getAttribute(attr));
-        if (asset) node.setAttribute(attr, local ? asset.url : assetPath(asset));
+        if (asset) {
+          node.setAttribute(attr, local ? asset.url : assetPath(asset));
+          if (node.localName === "img" && asset.width && asset.height) {
+            node.setAttribute("width", asset.width); node.setAttribute("height", asset.height);
+          }
+        }
       }
       const background = node.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
       const asset = background && findAsset(background);
@@ -85,7 +90,7 @@
   }
   function dataSnapshot(includeFiles = true) {
     const data = { ...metadata(), body: getBody(), savedAt: new Date().toISOString(), version: 3, draftId };
-    data.assets = assets.map(({ id, name, file, aliases }) => ({ id, name, aliases: [...aliases], ...(includeFiles ? { file } : {}) }));
+    data.assets = assets.map(({ id, name, file, aliases, width, height, originalSize }) => ({ id, name, width, height, originalSize, aliases: [...aliases], ...(includeFiles ? { file } : {}) }));
     return data;
   }
   function growTitle() {
@@ -419,22 +424,27 @@
     while (assets.some((asset) => asset.name.toLowerCase() === name.toLowerCase())) name = `${base}-${index++}${ext}`;
     return name;
   }
-  function addFiles(fileList, action = "library", prefix = "") {
+  async function addFiles(fileList, action = "library", prefix = "") {
     const incoming = Array.from(fileList || []), added = [];
-    for (const file of incoming) {
-      if (!isImage(file)) continue;
+    const targetDraft = draftId, startingRevision = revision;
+    for (const incomingFile of incoming) {
+      if (!isImage(incomingFile)) continue;
+      const prepared = prefix ? { file: incomingFile } : await window.BlogImageTools.prepare(incomingFile, $("optimizeImages").checked);
+      if (draftId !== targetDraft) { notify("記事が切り替わったため、画像の追加を中止しました。"); return []; }
+      const file = prepared.file;
       const name = uniqueName(file.name);
       const aliases = [C.folderPath(metadata()) + encodeURIComponent(name)];
       if (prefix) aliases.push(prefix + file.name, prefix + encodeURIComponent(file.name), file.name, file.webkitRelativePath?.split("/").slice(1).join("/") || file.name);
-      const asset = { id: crypto.randomUUID(), name, file, url: URL.createObjectURL(file), aliases };
+      const asset = { ...prepared, id: crypto.randomUUID(), name, file, url: URL.createObjectURL(file), aliases };
       assets.push(asset); added.push(asset);
     }
     if (!added.length) { notify("PNG・JPEG・GIF・WebP・AVIF・SVGの画像を選んでください。"); return []; }
     renderAssets();
-    if (action === "insert") insertImages(added);
+    if (action === "insert" && revision === startingRevision) insertImages(added);
     else if (action === "cover") { fields.image.value = assetPath(added[0]); changed(); }
     else { prepareBody(); changed(); }
-    if (added.length < incoming.length) notify("対応している画像のみ追加しました。");
+    if (action === "insert" && revision !== startingRevision && !body.querySelector(`img[src="${added[0].url}"]`)) notify("編集中の位置が変わったため、画像をライブラリに追加しました。画像を押して挿入できます。");
+    else if (added.length < incoming.length) notify("対応している画像のみ追加しました。");
     return added;
   }
   function insertImages(items) {
@@ -443,7 +453,7 @@
   function renderAssets() {
     $("assetList").innerHTML = assets.map((asset) => `<div class="library-item" data-asset="${esc(asset.id)}">
       <button class="library-image" type="button" data-action="insert" aria-label="${esc(asset.name)}を本文に挿入"><img src="${esc(asset.url)}" alt=""></button>
-      <span title="${esc(asset.name)}">${esc(asset.name)}</span>
+      <span title="${esc(asset.name)}">${esc(asset.name)}<small> ${Math.max(1, Math.round(asset.file.size / 1024)).toLocaleString()} KB${asset.originalSize > asset.file.size ? `・${Math.round((1 - asset.file.size / asset.originalSize) * 100)}% 削減` : ""}</small></span>
       <div class="library-actions"><button type="button" data-action="cover">カバーに</button><button type="button" data-action="download" aria-label="${esc(asset.name)}を保存">保存</button><button type="button" data-action="remove" aria-label="${esc(asset.name)}を削除">×</button></div></div>`).join("");
   }
   function assetReferenced(asset) {
@@ -457,7 +467,7 @@
     const data = C.parseArticle(await file.text());
     await retainCurrent();
     loadDocument(data);
-    if (folder) addFiles(files.filter(isImage), "library", C.folderPath(data));
+    if (folder && files.some(isImage)) await addFiles(files.filter(isImage), "library", C.folderPath(data));
     // 相対パスで書かれた既存記事も、記事フォルダ内の画像として解決する。
     setBody(data.body);
     const coverAsset = findAsset(fields.image.value);
@@ -765,10 +775,10 @@
     if (event.target.closest("a")) event.preventDefault();
     if (event.target.localName === "img") selectMedia(event.target); else closeMedia();
   });
-  on("body", "paste", (event) => {
+  on("body", "paste", async (event) => {
     event.preventDefault(); captureRange();
     const images = [...event.clipboardData.files].filter(isImage);
-    if (images.length) { addFiles(images, "insert"); return; }
+    if (images.length) { await addFiles(images, "insert"); return; }
     const html = event.clipboardData.getData("text/html");
     const plain = event.clipboardData.getData("text/plain");
     insertHtml(html || plain.split(/\r?\n\r?\n/).map((paragraph) => "<p>" + esc(paragraph).replace(/\r?\n/g, "<br>") + "</p>").join(""));
@@ -794,9 +804,9 @@
   });
   on("insertImageBtn", "click", () => { captureRange(); $("imageFiles").dataset.action = "insert"; $("imageFiles").click(); });
   on("addImagesBtn", "click", () => { $("imageFiles").dataset.action = "library"; $("imageFiles").click(); });
-  on("imageFiles", "change", () => { addFiles($("imageFiles").files, $("imageFiles").dataset.action || "library"); $("imageFiles").value = ""; });
+  on("imageFiles", "change", async () => { await addFiles($("imageFiles").files, $("imageFiles").dataset.action || "library"); $("imageFiles").value = ""; });
   on("addCoverBtn", "click", () => $("coverFile").click());
-  on("coverFile", "change", () => { addFiles($("coverFile").files, "cover"); $("coverFile").value = ""; });
+  on("coverFile", "change", async () => { await addFiles($("coverFile").files, "cover"); $("coverFile").value = ""; });
   on("removeCoverBtn", "click", () => { fields.image.value = ""; changed(); });
   on("assetList", "click", (event) => {
     const button = event.target.closest("[data-action]"), item = button?.closest("[data-asset]");
@@ -816,7 +826,7 @@
     const zone = $(id);
     zone.addEventListener("dragover", (event) => { if ([...event.dataTransfer.types].includes("Files")) { event.preventDefault(); zone.classList.add("is-dragging"); } });
     zone.addEventListener("dragleave", (event) => { if (!zone.contains(event.relatedTarget)) zone.classList.remove("is-dragging"); });
-    zone.addEventListener("drop", (event) => {
+    zone.addEventListener("drop", async (event) => {
       zone.classList.remove("is-dragging");
       if (!event.dataTransfer.files.length && id !== "body") return;
       event.preventDefault();
@@ -826,7 +836,9 @@
         if (position) { range.setStart(position.offsetNode, position.offset); range.collapse(true); }
         if (range && body.contains(range.startContainer)) savedRange = range;
       }
-      if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files, action);
+      if (event.dataTransfer.files.length) {
+        try { await addFiles(event.dataTransfer.files, action); } catch (error) { notify(error.message); }
+      }
       else {
         const html = event.dataTransfer.getData("text/html");
         const text = event.dataTransfer.getData("text/plain");

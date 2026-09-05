@@ -38,7 +38,9 @@ async function editor(options = {}) {
     w.indexedDB = { open() { throw new Error("Storage denied"); } };
     w.Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); };
   }
-  w.eval(coreSource); w.eval(fs.readFileSync(path.join(root, "assets/editor-storage.js"), "utf8")); w.eval(editorSource);
+  w.eval(coreSource);
+  for (const file of ["editor-storage.js", "editor-images.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
+  w.eval(editorSource);
   await until(() => w.document.getElementById("editorApp").inert === false);
   const $ = (id) => w.document.getElementById(id);
   const input = (id, value) => { $(id).value = value; $(id).dispatchEvent(new w.Event("input", { bubbles: true })); };

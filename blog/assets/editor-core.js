@@ -81,7 +81,9 @@
         node.setAttribute("allowfullscreen", "");
         node.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
       }
-      if (node.localName === "img") node.setAttribute("loading", "lazy");
+      if (node.localName === "img") {
+        node.setAttribute("loading", "lazy"); node.setAttribute("decoding", "async");
+      }
       if (node.localName === "a" && blank) {
         node.setAttribute("target", "_blank");
         node.setAttribute("rel", [...new Set(["noopener", "noreferrer", ...rel.split(/\s+/).filter((x) => ["nofollow", "ugc", "sponsored"].includes(x))])].join(" "));
