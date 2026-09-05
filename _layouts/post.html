@@ -6,7 +6,7 @@
   <!-- front matter が不足してもSNS用説明・画像が空にならないよう既定値を補う -->
   {% assign fallback_description = page.excerpt | strip_html | strip_newlines | truncate: 160 %}
   {% assign raw_description = page.description | default: fallback_description %}
-  {% capture seo_title %}{{ page.title | escape }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
+  {% capture seo_title %}{{ page.title }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
   {% capture meta_description %}{{ raw_description }}{% if page.description_en %} / {{ page.description_en }}{% endif %}{% endcapture %}
   {% assign page_image = page.image | default: '/favicon_katakana.png' %}
   <title>{{ seo_title | strip | escape }}</title>
