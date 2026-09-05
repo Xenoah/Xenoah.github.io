@@ -39,4 +39,4 @@ permalink: /blog/
   </article>
   {% else %}<p class="empty-state">記事を準備しています。</p>{% endfor %}
 </section>
-<script src="{{ '/blog/assets/reader.js' | relative_url }}" defer></script>
+<script src="{{ '/blog/assets/reader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

@@ -30,7 +30,7 @@
   <meta name="twitter:description" content="{{ meta_description | escape }}">
   <meta name="twitter:image" content="{{ page_image | absolute_url | escape }}">
   <link rel="icon" href="{{ '/favicon.ico' | relative_url | escape }}">
-  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}">
+  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}?v={{ site.time | date: '%s' }}">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -100,6 +100,6 @@
       {% if older_article %}<a rel="prev" href="{{ older_article.url | relative_url | escape }}">以前の記事: {{ older_article.title | escape }}</a>{% endif %}
     </nav>
   </main>
-  <script src="{{ '/blog/assets/reader.js' | relative_url }}" defer></script>
+  <script src="{{ '/blog/assets/reader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 </body>
 </html>

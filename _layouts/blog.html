@@ -24,7 +24,7 @@
   <meta name="twitter:title" content="{{ seo_title | strip | escape }}">
   <meta name="twitter:description" content="{{ meta_description | escape }}">
   <link rel="icon" href="{{ '/favicon.ico' | relative_url | escape }}">
-  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}">
+  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}?v={{ site.time | date: '%s' }}">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
