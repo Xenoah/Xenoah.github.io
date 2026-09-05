@@ -1,83 +1,83 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: 'ja' }}">
+<html lang="{{ site.lang | default: 'ja' | escape }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- front matter が不足してもSNS用説明・画像が空にならないよう既定値を補う -->
   {% assign fallback_description = page.excerpt | strip_html | strip_newlines | truncate: 160 %}
   {% assign raw_description = page.description | default: fallback_description %}
-  {% capture seo_title %}{{ page.title }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
+  {% capture seo_title %}{{ page.title | escape }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
   {% capture meta_description %}{{ raw_description }}{% if page.description_en %} / {{ page.description_en }}{% endif %}{% endcapture %}
   {% assign page_image = page.image | default: '/favicon_katakana.png' %}
-  <title>{{ seo_title | strip }}</title>
-  <meta name="description" content="{{ meta_description }}">
-  <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' }}">
+  <title>{{ seo_title | strip | escape }}</title>
+  <meta name="description" content="{{ meta_description | escape }}">
+  <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' | escape }}">
   <meta name="author" content="Xenoah">
-  <link rel="canonical" href="{{ page.url | absolute_url }}">
-  <link rel="alternate" type="application/rss+xml" title="{{ site.title }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url }}">
-  <meta property="og:site_name" content="{{ site.title }}">
+  <link rel="canonical" href="{{ page.url | absolute_url | escape }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url | escape }}">
+  <meta property="og:site_name" content="{{ site.title | escape }}">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="{{ seo_title | strip }}">
-  <meta property="og:description" content="{{ meta_description }}">
-  <meta property="og:url" content="{{ page.url | absolute_url }}">
-  <meta property="og:image" content="{{ page_image | absolute_url }}">
+  <meta property="og:title" content="{{ seo_title | strip | escape }}">
+  <meta property="og:description" content="{{ meta_description | escape }}">
+  <meta property="og:url" content="{{ page.url | absolute_url | escape }}">
+  <meta property="og:image" content="{{ page_image | absolute_url | escape }}">
   <meta property="og:locale" content="ja_JP">
-  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
-  {% if page.last_modified_at %}<meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">{% endif %}
-  {% for tag in page.tags %}<meta property="article:tag" content="{{ tag }}">{% endfor %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema | escape }}">
+  {% if page.last_modified_at %}<meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema | escape }}">{% endif %}
+  {% for tag in page.tags %}<meta property="article:tag" content="{{ tag | escape }}">{% endfor %}
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{{ seo_title | strip }}">
-  <meta name="twitter:description" content="{{ meta_description }}">
-  <meta name="twitter:image" content="{{ page_image | absolute_url }}">
-  <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url }}">
+  <meta name="twitter:title" content="{{ seo_title | strip | escape }}">
+  <meta name="twitter:description" content="{{ meta_description | escape }}">
+  <meta name="twitter:image" content="{{ page_image | absolute_url | escape }}">
+  <link rel="icon" href="{{ '/favicon.ico' | relative_url | escape }}">
+  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": {{ seo_title | strip | jsonify }},
-    "description": {{ meta_description | jsonify }},
-    "datePublished": {{ page.date | date_to_xmlschema | jsonify }},
-    "dateModified": {{ page.last_modified_at | default: page.date | date_to_xmlschema | jsonify }},
+    "headline": {{ seo_title | strip | jsonify | replace: '<', '\u003c' }},
+    "description": {{ meta_description | jsonify | replace: '<', '\u003c' }},
+    "datePublished": {{ page.date | date_to_xmlschema | jsonify | replace: '<', '\u003c' }},
+    "dateModified": {{ page.last_modified_at | default: page.date | date_to_xmlschema | jsonify | replace: '<', '\u003c' }},
     "author": {
       "@type": "Person",
-      "name": {{ page.author | default: site.author | default: site.title | jsonify }}
+      "name": {{ page.author | default: site.author | default: site.title | jsonify | replace: '<', '\u003c' }}
     },
     "publisher": {
       "@type": "Person",
-      "name": {{ site.author | default: site.title | jsonify }}
+      "name": {{ site.author | default: site.title | jsonify | replace: '<', '\u003c' }}
     },
-    "mainEntityOfPage": {{ page.url | absolute_url | jsonify }},
-    "image": {{ page_image | absolute_url | jsonify }}
+    "mainEntityOfPage": {{ page.url | absolute_url | jsonify | replace: '<', '\u003c' }},
+    "image": {{ page_image | absolute_url | jsonify | replace: '<', '\u003c' }}
   }
   </script>
 </head>
 <body>
   <header class="blog-header">
-    <a class="brand" href="{{ '/blog/' | relative_url }}" aria-label="Blog home">
-      <img src="{{ '/file_index/xenoah_banner.png' | relative_url }}" alt="Xenoah">
+    <a class="brand" href="{{ '/blog/' | relative_url | escape }}" aria-label="Blog home">
+      <img src="{{ '/file_index/xenoah_banner.png' | relative_url | escape }}" alt="Xenoah">
     </a>
     <nav class="blog-nav" aria-label="Blog navigation">
-      <a href="{{ '/blog/' | relative_url }}">Articles</a>
-      <a href="{{ '/blog/editor.html' | relative_url }}">Editor</a>
-      <a href="{{ '/top.htm' | relative_url }}">Home</a>
+      <a href="{{ '/blog/' | relative_url | escape }}">Articles</a>
+      <a href="{{ '/blog/editor.html' | relative_url | escape }}">Editor</a>
+      <a href="{{ '/top.htm' | relative_url | escape }}">Home</a>
     </nav>
   </header>
   <main class="article-wrap">
     <article class="article">
       <header class="article-head">
         <p class="article-kicker">{{ page.date | date: "%Y.%m.%d" }}</p>
-        <h1>{{ page.title }}</h1>
-        {% if page.description %}<p class="article-lead">{{ page.description }}</p>{% endif %}
+        <h1>{{ page.title | escape }}</h1>
+        {% if page.description %}<p class="article-lead">{{ page.description | escape }}</p>{% endif %}
         {% if page.tags %}
         <div class="tag-row" aria-label="Tags">
-          {% for tag in page.tags %}<span>{{ tag }}</span>{% endfor %}
+          {% for tag in page.tags %}<span>{{ tag | escape }}</span>{% endfor %}
         </div>
         {% endif %}
       </header>
       {% if page.image %}
       <figure class="eyecatch">
-        <img src="{{ page.image | relative_url }}" alt="">
+        <img src="{{ page.image | relative_url | escape }}" alt="">
       </figure>
       {% endif %}
       <div class="article-body">
@@ -86,9 +86,9 @@
       </div>
     </article>
     <nav class="post-nav" aria-label="Post navigation">
-      {% if page.previous %}<a href="{{ page.previous.url | relative_url }}">Newer: {{ page.previous.title }}</a>{% endif %}
-      <a href="{{ '/blog/' | relative_url }}">All articles</a>
-      {% if page.next %}<a href="{{ page.next.url | relative_url }}">Older: {{ page.next.title }}</a>{% endif %}
+      {% if page.previous %}<a href="{{ page.previous.url | relative_url | escape }}">Newer: {{ page.previous.title | escape }}</a>{% endif %}
+      <a href="{{ '/blog/' | relative_url | escape }}">All articles</a>
+      {% if page.next %}<a href="{{ page.next.url | relative_url | escape }}">Older: {{ page.next.title | escape }}</a>{% endif %}
     </nav>
   </main>
 </body>

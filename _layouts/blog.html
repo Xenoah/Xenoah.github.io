@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: 'ja' }}">
+<html lang="{{ site.lang | default: 'ja' | escape }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +8,46 @@
   {% assign raw_description = page.description | default: site.description %}
   {% capture seo_title %}{{ page_title }}{% if page.title_en %} | {{ page.title_en }}{% endif %} | Xenoah{% endcapture %}
   {% capture meta_description %}{{ raw_description | strip_html | strip_newlines }}{% if page.description_en %} / {{ page.description_en | strip_html | strip_newlines }}{% endif %}{% endcapture %}
-  <title>{{ seo_title | strip }}</title>
-  <meta name="description" content="{{ meta_description }}">
-  <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' }}">
+  <title>{{ seo_title | strip | escape }}</title>
+  <meta name="description" content="{{ meta_description | escape }}">
+  <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' | escape }}">
   <meta name="author" content="Xenoah">
-  <link rel="canonical" href="{{ page.url | absolute_url }}">
-  <link rel="alternate" type="application/rss+xml" title="{{ site.title }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url }}">
-  <meta property="og:site_name" content="{{ site.title }}">
+  <link rel="canonical" href="{{ page.url | absolute_url | escape }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url | escape }}">
+  <meta property="og:site_name" content="{{ site.title | escape }}">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ seo_title | strip }}">
-  <meta property="og:description" content="{{ meta_description }}">
-  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <meta property="og:title" content="{{ seo_title | strip | escape }}">
+  <meta property="og:description" content="{{ meta_description | escape }}">
+  <meta property="og:url" content="{{ page.url | absolute_url | escape }}">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="{{ seo_title | strip }}">
-  <meta name="twitter:description" content="{{ meta_description }}">
-  <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url }}">
+  <meta name="twitter:title" content="{{ seo_title | strip | escape }}">
+  <meta name="twitter:description" content="{{ meta_description | escape }}">
+  <link rel="icon" href="{{ '/favicon.ico' | relative_url | escape }}">
+  <link rel="stylesheet" href="{{ '/blog/assets/blog.css' | relative_url | escape }}">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": {{ seo_title | strip | jsonify }},
-    "description": {{ meta_description | jsonify }},
-    "url": {{ page.url | absolute_url | jsonify }},
+    "name": {{ seo_title | strip | jsonify | replace: '<', '\u003c' }},
+    "description": {{ meta_description | jsonify | replace: '<', '\u003c' }},
+    "url": {{ page.url | absolute_url | jsonify | replace: '<', '\u003c' }},
     "publisher": {
       "@type": "Person",
-      "name": {{ site.author | default: site.title | jsonify }}
+      "name": {{ site.author | default: site.title | jsonify | replace: '<', '\u003c' }}
     }
   }
   </script>
 </head>
 <body>
   <header class="blog-header">
-    <a class="brand" href="{{ '/blog/' | relative_url }}" aria-label="Blog home">
-      <img src="{{ '/file_index/xenoah_banner.png' | relative_url }}" alt="Xenoah">
+    <a class="brand" href="{{ '/blog/' | relative_url | escape }}" aria-label="Blog home">
+      <img src="{{ '/file_index/xenoah_banner.png' | relative_url | escape }}" alt="Xenoah">
     </a>
     <nav class="blog-nav" aria-label="Blog navigation">
-      <a href="{{ '/blog/' | relative_url }}">Articles</a>
-      <a href="{{ '/blog/editor.html' | relative_url }}">Editor</a>
-      <a href="{{ '/top.htm' | relative_url }}">Home</a>
+      <a href="{{ '/blog/' | relative_url | escape }}">Articles</a>
+      <a href="{{ '/blog/editor.html' | relative_url | escape }}">Editor</a>
+      <a href="{{ '/top.htm' | relative_url | escape }}">Home</a>
     </nav>
   </header>
   <main class="blog-shell">
