@@ -50,7 +50,7 @@ async function editor(options = {}) {
   return { dom, w, $, input, click, downloads, clipboard, fileInput };
 }
 
-test("both existing article sources retain text, media, metadata and article classes", () => {
+test("every article source retains text, media, metadata and its own permalink", () => {
   for (const entry of fs.readdirSync(path.join(root, "articles"), { withFileTypes: true }).filter((entry) => entry.isDirectory())) {
     const folder = entry.name;
     const raw = fs.readFileSync(path.join(root, "articles", folder, "index.html"), "utf8");
@@ -64,7 +64,7 @@ test("both existing article sources retain text, media, metadata and article cla
       assert.equal(result.querySelectorAll(selector).length, original.querySelectorAll(selector).length, selector);
     }
     assert.match(exported, /^---\nlayout: post\nblog_article: true\n/);
-    assert.match(exported, /permalink: \/blog\/2026\/05\/(?:05\/vrchat|08\/blog-start)\//);
+    assert.equal(again.permalink, parsed.permalink, folder + ": permalink changed");
     if (folder.includes("vrchat")) assert.match(result.querySelector(".link-card-image").style.backgroundImage, /aba9a7ce/);
   }
 });
