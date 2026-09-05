@@ -1,0 +1,26 @@
+name: Publish site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: publish-site
+  cancel-in-progress: true
+jobs:
+  checks:
+    uses: ./.github/workflows/blog-checks.yml
+  deploy:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish tested output
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,11 +1,9 @@
 name: Blog checks
 on:
-  push:
-    branches: [main]
-    paths: ['blog/**', '_layouts/**', '_includes/blog_articles.html', '_config.yml', 'sitemap.xml', 'scripts/check_blog_article_assets.js', '.github/workflows/blog-checks.yml']
   pull_request:
     paths: ['blog/**', '_layouts/**', '_includes/blog_articles.html', '_config.yml', 'sitemap.xml', 'scripts/check_blog_article_assets.js', '.github/workflows/blog-checks.yml']
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 concurrency:
@@ -42,6 +40,13 @@ jobs:
       - name: Test native editor and reader
         working-directory: blog
         run: npm run test:browser
+      - name: Remove generated test fixtures from publication output
+        run: node blog/scripts/clean-ci-fixtures.cjs
+      - name: Upload tested site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
       - uses: actions/upload-artifact@v4
         if: always()
         with:

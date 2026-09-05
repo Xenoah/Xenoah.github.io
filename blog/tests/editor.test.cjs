@@ -229,6 +229,26 @@ test("draft store retains image bytes across bounded revisions and rejects stale
   assert.equal((await store.read("a")).data.title, "revision 14");
   (await store.open()).close();
 });
+
+test("version-one image drafts migrate without changing the original bytes", async () => {
+  const database = new IDBFactory();
+  await new Promise((resolve, reject) => {
+    const request = database.open("xenoah-blog-studio", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("drafts");
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result, tx = db.transaction("drafts", "readwrite");
+      tx.objectStore("drafts").put({ title: "Legacy", body: "<p>Original</p>", savedAt: "2026-09-05T00:00:00Z", assets: [{ id: "legacy-image", name: "legacy.png", file: new Blob(["legacy bytes"]) }] }, "current");
+      tx.oncomplete = () => { db.close(); resolve(); }; tx.onabort = () => reject(tx.error);
+    };
+  });
+  const DraftStore = require("../assets/editor-storage.js"), store = new DraftStore(database);
+  const restored = await store.current();
+  assert.equal(restored.data.title, "Legacy");
+  assert.equal(await restored.data.assets[0].file.text(), "legacy bytes");
+  assert.equal((await store.list()).length, 1);
+  (await store.open()).close();
+});
 test("missing title blocks export and script source cannot execute in preview", async (t) => {
   const e = await editor(); t.after(() => e.dom.window.close());
   await e.click("openExportBtn"); await e.click("exportFolderBtn");

@@ -14,6 +14,7 @@ on:
 permissions:
   contents: write
   pages: read
+  actions: read
 
 concurrency:
   group: sitemap-thumbnails
@@ -40,16 +41,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           for i in $(seq 1 20); do
-            status="$(gh api "repos/${{ github.repository }}/pages/builds/latest" --jq '.status' 2>/dev/null || echo unknown)"
-            commit="$(gh api "repos/${{ github.repository }}/pages/builds/latest" --jq '.commit' 2>/dev/null || echo unknown)"
-            echo "pages build: status=$status commit=$commit (want ${{ github.sha }})"
-            if [ "$status" = "built" ] && [ "$commit" = "${{ github.sha }}" ]; then
+            status="$(gh run list --repo "${{ github.repository }}" --workflow publish-site.yml --commit "$GITHUB_SHA" --limit 1 --json conclusion --jq '.[0].conclusion // "pending"' 2>/dev/null || echo unknown)"
+            echo "publish workflow: status=$status (commit $GITHUB_SHA)"
+            if [ "$status" = "success" ]; then
               echo "Pages deployment finished."
               exit 0
             fi
             sleep 15
           done
-          echo "Timed out waiting for Pages deployment; capturing anyway."
+          echo "Deployment did not succeed before timeout."
+          exit 1
 
       - name: Capture thumbnails
         run: bash scripts/update_sitemap_thumbs.sh

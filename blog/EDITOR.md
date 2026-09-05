@@ -43,8 +43,15 @@
     cd blog
     npm ci
     npm test
+    npm run check:articles
 
-テストにはNode.js、npm、Pythonが必要です。DOMテストは記事の読み書き、画像参照、保存・復元、HTMLの除染とZIPの互換性を検証します。ブラウザ固有の文字装飾・日本語IME・ドラッグ操作と画面レイアウトは、実ブラウザで別途確認する対象です。
+テストにはNode.js、npm、Pythonが必要です。DOMテストは記事の読み書き、画像参照、保存・復元、HTMLの除染とZIPの互換性を検証します。記事検査は画像の参照切れや重複URLがあれば失敗します。
+
+GitHub Actionsの「Blog checks」はJekyllで実際のHTMLを生成し、Chromium・Firefox・WebKit・スマートフォン幅で文字入力、装飾、右クリック、画像処理、キャプション、保存・再読み込み、ZIP出力、記事検索と目次を検査します。失敗時はスクリーンショットと操作記録を7日間保存します。日本語IMEの変換候補操作とOSからのファイルドラッグは手動確認の対象です。
+
+mainへpushすると「Publish site」が検査を呼び出します。検査に成功した同じビルド成果物だけをGitHub Pagesへ公開します。失敗した場合は、それまでの公開ページを維持します。検査用の記事は公開成果物から除去します。
+
+ローカルでブラウザテストを実行する場合は、リポジトリ直下の `_site` にJekyllのビルド結果を用意し、`cd blog` → `npx playwright install` → `npm run test:browser` の順で実行します。
 
 ツールバーの文字装飾にはブラウザの `contenteditable` / `execCommand` を使用しています。`execCommand` は非推奨APIのため、ブラウザを更新する際は編集操作を確認してください。[MDNのAPI資料](https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand)
 ## 下書きの管理
@@ -70,3 +77,6 @@
 「追加する写真を軽くする」が有効なとき、新しいJPEG・静止PNGは長辺1920px以内のWebPに変換します。10%以上小さくなる場合だけ採用し、ライブラリに容量と削減率を表示します。画像の縦横サイズも本文へ出力します。
 
 GIF・APNGなどのアニメーション、SVG、既存記事フォルダの画像は変換しません。原寸が必要な画像はチェックを外して追加してください。処理できない形式やブラウザでは元ファイルを使います。
+## 公開状況
+
+「書き出す」画面の「サイトの公開状況を確認」で、GitHub Actionsの直近の公開結果を確認できます。「公開ページを開く」で記事の反映を確認してください。表示する公開結果はサイト全体の状態です。書き出し後は記事フォルダをcommit・pushする必要があります。
