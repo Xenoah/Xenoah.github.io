@@ -37,8 +37,9 @@
     return range;
   }
   function mount({ body, $, on, edit, command, insertHtml, notify, clipboard }) {
-    let painter = null, markerId = 0;
+    let painter = null, markerId = 0, typing = null;
     const pending = new Map();
+    const sameCaret = (a, b) => a.collapsed && b.collapsed && a.startContainer === b.startContainer && a.startOffset === b.startOffset;
     function normalizeTyping() {
       for (const node of body.querySelectorAll("font[face],span[style]")) {
         const key = (node.getAttribute("face") || node.style.fontFamily).replaceAll('"', "").replaceAll("'", "");
@@ -49,14 +50,17 @@
     }
     function applyText(styles) {
       edit((range) => {
-        if (!range.collapsed) return styleText(body, range, styles);
+        if (!range.collapsed) { typing = null; return styleText(body, range, styles); }
         // Preserve the caret's native typing state without inserting placeholder text.
         const element = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
         const marker = "blogTyping" + (++markerId);
-        pending.set(marker, { fontFamily: getComputedStyle(element).fontFamily, ...styles });
+        const merged = { fontFamily: getComputedStyle(element).fontFamily, ...(typing && sameCaret(range, typing.range) ? typing.styles : {}), ...styles };
+        pending.set(marker, merged);
         document.execCommand("fontName", false, marker);
         normalizeTyping();
-        return window.getSelection().getRangeAt(0);
+        typing = { range: getSelection().getRangeAt(0).cloneRange(), styles: merged };
+        // Reinstalling even the same Range clears native pending typing styles.
+        return undefined;
       });
     }
     function applyBlocks(callback) {
@@ -204,9 +208,11 @@
     });
     function state(node, range) {
       const style = getComputedStyle(node);
-      if (document.activeElement !== $("fontSize")) $("fontSize").value = Math.round(parseFloat(style.fontSize) * .75) || 12;
+      if (typing && !sameCaret(range, typing.range)) typing = null;
+      const fontSize = typing?.styles.fontSize || style.fontSize;
+      if (document.activeElement !== $("fontSize")) $("fontSize").value = Math.round(parseFloat(fontSize) * (fontSize.endsWith("pt") ? 1 : .75)) || 12;
       if (document.activeElement !== $("fontFamily")) {
-        const family = style.fontFamily.split(",")[0].replace(/['"]/g, "").trim().toLowerCase();
+        const family = (typing?.styles.fontFamily || style.fontFamily).split(",")[0].replace(/['"]/g, "").trim().toLowerCase();
         $("fontFamily").value = [...$("fontFamily").options].find((option) => option.value.split(",")[0].replace(/['"]/g, "").trim().toLowerCase() === family)?.value || "";
       }
       $("ribbonCutBtn").disabled = $("ribbonCopyBtn").disabled = !range || range.collapsed;
@@ -214,7 +220,7 @@
       if (document.activeElement !== $("lineSpacing")) $("lineSpacing").value = block?.style.lineHeight || "";
       document.querySelectorAll("[data-block]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.block === (block?.localName || "p"))));
     }
-    return { normalizeTyping, state, applyText };
+    return { normalizeTyping, state, applyText, align: (value) => applyBlocks((node) => { node.style.textAlign = value; }) };
   }
   root.BlogEditorFormatting = { mount, textParts, blocks, styleText };
 })(typeof window !== "undefined" ? window : globalThis);

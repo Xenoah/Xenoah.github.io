@@ -330,6 +330,8 @@
   }
   function command(name, value = null) {
     if (mode !== "visual" || previewing) return;
+    const alignment = { justifyLeft: "left", justifyCenter: "center", justifyRight: "right", justifyFull: "justify" }[name];
+    if (alignment) { formatting.align(alignment); return; }
     recordHistory(); restoreRange();
     // ネイティブの編集命令を使用。履歴は画像の挿入・削除も含めてアプリ側で統一。
     document.execCommand(name, false, value);
@@ -651,7 +653,8 @@
     contextMenu.querySelector("button:not([disabled]):not([hidden])")?.focus({ preventScroll: true });
   }
   async function contextClipboard(action, rich = false) {
-    const source = $("htmlSource"), revisionAtClick = revision;
+    const source = $("htmlSource"), revisionAtClick = revision, modeAtClick = mode;
+    const rangeAtClick = savedRange?.cloneRange(), sourceSelection = contextSourceSelection && { ...contextSourceSelection };
     if (action === "paste") {
       try {
         let text = "", html = "", files = [];
@@ -664,27 +667,28 @@
             if (type && !html) files.push(new File([await item.getType(type)], "clipboard." + type.split("/")[1], { type }));
           }
         } else text = await navigator.clipboard.readText();
-        if (revision !== revisionAtClick) { notify("本文が変更されたため、貼り付け位置を選び直してください。"); return; }
+        if (revision !== revisionAtClick || mode !== modeAtClick) { notify("本文が変更されたため、貼り付け位置を選び直してください。"); return; }
+        if (rangeAtClick) savedRange = rangeAtClick;
         if (mode === "html") {
-          recordHistory(); source.setRangeText(text, contextSourceSelection.start, contextSourceSelection.end, "end"); changed(true);
+          recordHistory(); source.setRangeText(text, sourceSelection.start, sourceSelection.end, "end"); changed(true);
         } else if (files.length && !html) await addFiles(files, "insert");
         else if (html || text) insertHtml(html || text.split(/\r?\n\r?\n/).map((p) => "<p>" + esc(p).replace(/\r?\n/g, "<br>") + "</p>").join(""));
       } catch { notify("貼り付けを許可するか、本文で Ctrl / ⌘ + V を使ってください。"); }
       return;
     }
-    const text = mode === "html" ? source.value.slice(contextSourceSelection.start, contextSourceSelection.end) : savedRange?.toString();
+    const text = mode === "html" ? source.value.slice(sourceSelection.start, sourceSelection.end) : rangeAtClick?.toString();
     if (!text) return;
     if (rich && mode === "visual" && navigator.clipboard.write && window.ClipboardItem) {
-      const holder = document.createElement("div"); holder.append(savedRange.cloneContents()); mapMedia(holder, false);
+      const holder = document.createElement("div"); holder.append(rangeAtClick.cloneContents()); mapMedia(holder, false);
       await navigator.clipboard.write([new ClipboardItem({
         "text/plain": new Blob([text], { type: "text/plain" }),
         "text/html": new Blob([C.sanitize(holder.innerHTML)], { type: "text/html" })
       })]);
     } else await navigator.clipboard.writeText(text);
-    if (action === "cut" && revision === revisionAtClick) {
+    if (action === "cut" && revision === revisionAtClick && mode === modeAtClick) {
       recordHistory();
-      if (mode === "html") source.setRangeText("", contextSourceSelection.start, contextSourceSelection.end, "end");
-      else { restoreRange().deleteContents(); captureRange(); }
+      if (mode === "html") source.setRangeText("", sourceSelection.start, sourceSelection.end, "end");
+      else { savedRange = rangeAtClick; restoreRange().deleteContents(); captureRange(); }
       changed(true);
     }
   }

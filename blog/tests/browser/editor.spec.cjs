@@ -131,6 +131,7 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
   await page.evaluate(() => scrollTo(0, 0));
   await testInfo.attach("Word ribbon", { body: await page.screenshot(), contentType: "image/png" });
   await page.locator("#openExportBtn").click();
+  await page.locator("#exportDialog details > summary").click();
   const downloadPromise = page.waitForEvent("download"); await page.locator("#downloadBtn").click();
   const download = await downloadPromise, stream = await download.createReadStream(), chunks = [];
   for await (const chunk of stream) chunks.push(chunk);
@@ -139,17 +140,19 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
 });
 
 test("caret formatting, format painter and inserted tables work with native editing", async ({ page }) => {
-  await enterHtml(page, "<p>Start </p><p>Target</p>");
+  await enterHtml(page, "<p>Start</p><p>Target</p>");
   const paragraphs = page.locator("#body > p");
   await paragraphs.first().evaluate((node) => {
     node.parentElement.focus(); const range = document.createRange(); range.selectNodeContents(node); range.collapse(false);
     getSelection().removeAllRanges(); getSelection().addRange(range); document.dispatchEvent(new Event("selectionchange"));
   });
   await page.locator("#fontSize").fill("24"); await page.locator("#fontSize").press("Enter");
-  await page.keyboard.type("Larger");
+  await changeColor(page, "fontColor", "#c42b37");
+  await page.keyboard.type(" Larger");
   await expect(paragraphs.first()).toHaveText("Start Larger");
   const large = paragraphs.first().locator("font,span").last();
   await expect(large).toHaveCSS("font-size", "32px");
+  await expect(large).toHaveCSS("color", "rgb(196, 43, 55)");
   await selectText(large);
   await page.locator("#formatPainterBtn").click();
   await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "true");

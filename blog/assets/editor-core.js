@@ -63,8 +63,10 @@
       if (!node.parentNode) continue;
       if (!tags.has(node.localName)) { node.replaceWith(...node.childNodes); continue; }
       const styles = {};
+      const alignment = (node.style.textAlign || node.getAttribute("align") || "").replace(/^-(?:moz|webkit)-/, "");
+      if (["left", "center", "right", "justify", "start", "end"].includes(alignment)) styles["text-align"] = alignment;
       for (const prop of ["color", "background-color", "font-weight", "font-style", "text-decoration", "text-align", "font-family", "vertical-align", "list-style-type"]) {
-        if (node.style[prop]) styles[prop] = node.style[prop];
+        if (node.style[prop] && prop !== "text-align") styles[prop] = node.style[prop];
       }
       const bounded = (prop, pattern, max) => {
         const value = node.style.getPropertyValue(prop);

@@ -365,3 +365,40 @@ test("image context menu removes the clicked image and undo restores it", async 
   assert.equal(e.$("body").querySelector("img").alt, "写真");
   assert.equal(e.$("body").querySelector("figcaption").textContent, "説明");
 });
+
+test("HTML clipboard paste preserves literal source and paragraph sorting keeps formatting", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  e.w.navigator.clipboard.readText = async () => '<p class="new">New &amp; safe</p>';
+  await e.click("htmlModeBtn"); e.input("htmlSource", "<p>Replace</p>"); e.$("htmlSource").select();
+  e.$("htmlSource").dispatchEvent(new e.w.MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+  e.$("editorContextMenu").querySelector('[data-context="paste"]').click(); await tick();
+  assert.equal(e.$("htmlSource").value, '<p class="new">New &amp; safe</p>');
+  e.input("htmlSource", '<p><b>Zulu</b></p><p><a href="https://example.com/">alpha</a></p><p>Echo</p>');
+  await e.click("visualModeBtn");
+  const range = e.w.document.createRange(); range.selectNodeContents(e.$("body"));
+  e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
+  await e.click("sortParagraphsBtn");
+  assert.deepEqual([...e.$("body").children].map((node) => node.textContent), ["alpha", "Echo", "Zulu"]);
+  assert.equal(e.$("body").querySelector("a").href, "https://example.com/");
+  assert.equal(e.$("body").querySelector("b").textContent, "Zulu");
+  e.$("letterCase").value = "upper"; e.$("letterCase").dispatchEvent(new e.w.Event("change"));
+  assert.deepEqual([...e.$("body").children].map((node) => node.textContent), ["ALPHA", "ECHO", "ZULU"]);
+  await e.click("undoBtn"); assert.deepEqual([...e.$("body").children].map((node) => node.textContent), ["alpha", "Echo", "Zulu"]);
+});
+
+test("clipboard permission delay cuts the original selection and keeps subsequent edits", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  await e.click("htmlModeBtn"); e.input("htmlSource", "<p>First</p><p>Second</p>"); await e.click("visualModeBtn");
+  const select = (index) => {
+    const range = e.w.document.createRange(); range.selectNodeContents(e.$("body").children[index]);
+    e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
+  };
+  let finish;
+  e.w.navigator.clipboard.writeText = () => new Promise((resolve) => { finish = resolve; });
+  select(0); e.$("ribbonCutBtn").click(); select(1); finish(); await tick();
+  assert.equal(e.$("body").textContent, "Second");
+  select(1); e.$("ribbonCutBtn").click();
+  e.$("body").children[1].append(" edited"); e.$("body").dispatchEvent(new e.w.Event("input"));
+  finish(); await tick();
+  assert.equal(e.$("body").textContent, "Second edited");
+});
