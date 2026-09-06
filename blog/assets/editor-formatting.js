@@ -173,6 +173,7 @@
         painter = Object.fromEntries(painterProps.map((prop) => [prop, style[prop]])); return range;
       }, false);
       $("formatPainterBtn").setAttribute("aria-pressed", "true"); body.classList.add("format-painting");
+      $("moreFormatting").hidden = true; $("moreFormattingBtn").setAttribute("aria-expanded", "false");
       notify("書式を適用する文字を選択してください。Escで解除できます。");
     });
     function paintSelection() {

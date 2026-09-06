@@ -3,6 +3,7 @@ const { test, expect } = require("@playwright/test");
 test.beforeEach(async ({ page }) => {
   await page.goto("/blog/editor.html");
   await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });
 async function selectText(locator) {
   await locator.evaluate((node) => {
@@ -161,13 +162,13 @@ test("caret formatting, format painter and inserted tables work with native edit
   await selectText(large);
   await page.locator("#moreFormattingBtn").click();
   await page.locator("#formatPainterBtn").click();
+  await expect(page.locator("#moreFormatting")).toBeHidden();
   await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "true");
   await selectText(paragraphs.nth(1));
   await paragraphs.nth(1).dispatchEvent("pointerup");
   await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "false");
   await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("font-size", "32px");
   await paragraphs.nth(1).click(); await page.keyboard.press("End");
-  await page.locator("#moreFormattingBtn").click(); await expect(page.locator("#moreFormatting")).toBeHidden();
   await page.locator("#insertTableBtn").click(); await page.locator("#tableColumns").fill("2"); await page.locator("#tableRows").fill("1");
   await page.locator("#tableForm button[type=submit]").click();
   const table = page.locator("#body table");
