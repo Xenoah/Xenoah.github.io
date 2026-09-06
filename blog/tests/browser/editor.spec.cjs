@@ -113,7 +113,7 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
   await expect(paragraph).toHaveCSS("margin-left", "24px");
   await expect(paragraph).toHaveCSS("border-bottom-width", "1px");
   const styled = paragraph.locator("span").last();
-  await expect(styled).toHaveCSS("font-size", /29\.33/);
+  expect(await styled.evaluate((node) => parseFloat(getComputedStyle(node).fontSize))).toBeCloseTo(22 * 4 / 3, 1);
   await expect(styled).toHaveCSS("color", "rgb(0, 0, 0)");
   await expect(styled).toHaveCSS("background-color", "rgb(255, 221, 136)");
   await page.locator("#showMarksBtn").click(); await expect(page.locator("#body")).toHaveClass(/show-marks/);
@@ -122,7 +122,7 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
   await page.locator("#previewBtn").click();
   await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
   await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
-  await expect(paragraph.locator("span").last()).toHaveCSS("font-size", /29\.33/);
+  expect(await paragraph.locator("span").last().evaluate((node) => parseFloat(getComputedStyle(node).fontSize))).toBeCloseTo(22 * 4 / 3, 1);
   await expect(paragraph).toHaveCSS("border-bottom-width", "1px");
   await page.locator("#htmlModeBtn").click();
   const html = await page.locator("#htmlSource").inputValue();
@@ -146,6 +146,9 @@ test("caret formatting, format painter and inserted tables work with native edit
     node.parentElement.focus(); const range = document.createRange(); range.selectNodeContents(node); range.collapse(false);
     getSelection().removeAllRanges(); getSelection().addRange(range); document.dispatchEvent(new Event("selectionchange"));
   });
+  await page.locator("#fontSize").fill("18"); await page.locator("#fontSize").press("Enter");
+  await page.locator('[data-command="removeFormat"]').click();
+  await expect(page.locator("#fontSize")).toHaveValue("12");
   await page.locator("#fontSize").fill("24"); await page.locator("#fontSize").press("Enter");
   await changeColor(page, "fontColor", "#c42b37");
   await page.keyboard.type(" Larger");

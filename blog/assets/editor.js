@@ -83,6 +83,7 @@
     });
   }
   function setBody(html) {
+    formatting?.resetTyping();
     closeMedia();
     body.innerHTML = C.sanitize(html) || "<p><br></p>";
     prepareBody();
@@ -322,6 +323,7 @@
     recordHistory();
     const next = historyIndex + direction;
     if (next < 0 || next >= history.length) return;
+    formatting?.resetTyping();
     historyIndex = next;
     const entry = history[historyIndex];
     if (mode === "html") $("htmlSource").value = entry.html; else { setBody(entry.html); restoreBookmark(entry.selection); }
@@ -332,6 +334,7 @@
     if (mode !== "visual" || previewing) return;
     const alignment = { justifyLeft: "left", justifyCenter: "center", justifyRight: "right", justifyFull: "justify" }[name];
     if (alignment) { formatting.align(alignment); return; }
+    if (name === "removeFormat") formatting.resetTyping();
     recordHistory(); restoreRange();
     // ネイティブの編集命令を使用。履歴は画像の挿入・削除も含めてアプリ側で統一。
     document.execCommand(name, false, value);

@@ -220,7 +220,7 @@
       if (document.activeElement !== $("lineSpacing")) $("lineSpacing").value = block?.style.lineHeight || "";
       document.querySelectorAll("[data-block]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.block === (block?.localName || "p"))));
     }
-    return { normalizeTyping, state, applyText, align: (value) => applyBlocks((node) => { node.style.textAlign = value; }) };
+    return { normalizeTyping, state, applyText, resetTyping: () => { typing = null; }, align: (value) => applyBlocks((node) => { node.style.textAlign = value; }) };
   }
   root.BlogEditorFormatting = { mount, textParts, blocks, styleText };
 })(typeof window !== "undefined" ? window : globalThis);
