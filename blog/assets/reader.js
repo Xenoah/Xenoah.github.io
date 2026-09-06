@@ -17,30 +17,58 @@
   const frameset = document.querySelector("frameset"), right = frameset?.querySelector('frame[name="right"]');
   if (window === window.top && right) {
     const initialTitle = document.title;
-    function sync() {
+    let expected = null, recordNavigation = false;
+    function sync(loaded = false) {
       try {
         const current = right.contentWindow.location;
         if (current.origin !== site.origin) return;
+        if (expected && current.href !== expected && !loaded) return;
         const article = blogUrl(current.href), visible = article ? new URL(article) : new URL(site);
         if (article) visible.searchParams.set("view", "menu");
-        // Frame navigation already creates a browser history entry. Replacing its
-        // address avoids duplicate entries and keeps Back/Forward tied to the frame.
-        if (location.href !== visible.href) history.replaceState(null, "", visible);
+        const path = current.pathname + current.search + current.hash;
+        const push = recordNavigation && history.state?.xenoahFrame !== path;
+        expected = null; recordNavigation = false;
+        // Own the history in the parent. Native frame history + replaceState can
+        // restore an article as the top page in WebKit, losing the left menu.
+        history[push ? "pushState" : "replaceState"]({ xenoahFrame: path }, "", visible);
         document.title = right.contentDocument.title || initialTitle;
         const canonical = document.querySelector('link[rel="canonical"]');
         if (canonical) canonical.href = article?.href.split("?")[0].split("#")[0] || site.href;
       } catch { /* The menu also has external destinations; leave them independent. */ }
     }
-    window.BlogFrameNavigation = { sync };
-    right.addEventListener("load", sync);
+    function navigate(value, record = true) {
+      let url;
+      try { url = new URL(value, site); } catch { return false; }
+      if (url.origin !== site.origin || url.protocol !== site.protocol) return false;
+      url = blogUrl(url.href) || url;
+      expected = url.href; recordNavigation = record;
+      right.contentWindow.location.replace(url.href);
+      return true;
+    }
+    window.BlogFrameNavigation = { sync, navigate };
+    right.addEventListener("load", () => sync(true));
+    window.addEventListener("popstate", (event) => {
+      navigate(event.state?.xenoahFrame || blogUrl(location.href)?.href || new URL("top.htm", site).href, false);
+    });
     window.addEventListener("message", (event) => {
       if (event.origin === site.origin && event.source === right.contentWindow && event.data === "blog-route-change") sync();
     });
     // Absolute frame sources continue to work after the parent's address changes.
     const left = frameset.querySelector('frame[name="left"]');
-    if (left) left.src = new URL("menu.htm", site).href;
+    if (left) {
+      left.addEventListener("load", () => {
+        try {
+          left.contentDocument.addEventListener("click", (event) => {
+            const link = event.target.closest('a[target="right"]');
+            if (!link || event.defaultPrevented || event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            if (navigate(link.href)) event.preventDefault();
+          });
+        } catch { /* Keep native links if the menu is not available. */ }
+      });
+      left.src = new URL("menu.htm", site).href;
+    }
     const requested = new URL(location.href).searchParams.get("blog");
-    right.src = blogUrl(requested || "")?.href || new URL("top.htm", site).href;
+    navigate(blogUrl(requested || "")?.href || new URL("top.htm", site).href, false);
     return;
   }
   const article = blogUrl(location.href);
@@ -69,6 +97,11 @@
     document.addEventListener("blog-route-change", updateToggle);
   }
   if (framed) {
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href]");
+      if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self" && link.target !== "right") || event.defaultPrevented || event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if (window.parent.BlogFrameNavigation?.navigate(link.href)) event.preventDefault();
+    });
     const notify = () => window.parent.postMessage("blog-route-change", site.origin);
     window.addEventListener("hashchange", notify);
     window.addEventListener("popstate", notify);
