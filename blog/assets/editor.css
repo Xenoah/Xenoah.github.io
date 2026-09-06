@@ -56,11 +56,29 @@ body:has(.writing-app) { background: #f5f6f5; }
 .tool-sub, .writing-toolbar button > sub { align-self: flex-end; font-size: 10px; }
 .tool-sup, .writing-toolbar button > sup { align-self: flex-start; font-size: 10px; }
 .marker-icon { padding: 0 2px; background: linear-gradient(transparent 55%, var(--marker-color, #fff0a8) 55%); font-size: 13px; font-weight: 700; }
+.color-split { display: flex; align-items: center; border: 1px solid #e2e9e5; border-radius: 6px; }
+.writing-toolbar .color-apply { position: relative; border-radius: 5px 0 0 5px; }
+.writing-toolbar .color-dropdown { min-width: 20px; width: 20px; padding-inline: 2px; border-left: 1px solid #e2e9e5; border-radius: 0 5px 5px 0; font-size: 13px; }
+.color-apply.font-color { padding-bottom: 8px; }
+.color-apply.font-color::after { position: absolute; bottom: 4px; left: 7px; right: 7px; height: 3px; border-radius: 2px; background: var(--swatch, #c42b37); content: ''; }
+.color-palette { position: fixed; z-index: 12; width: 280px; max-width: calc(100vw - 16px); overflow-y: auto; padding: 12px 14px 16px; border: 1px solid #dce5df; border-radius: 10px; background: #fff; box-shadow: 0 8px 32px #223a2926; }
+.color-palette-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
+.writing-toolbar .color-palette-heading button { height: 26px; min-width: 26px; }
+.color-swatches { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.writing-toolbar .color-palette .color-swatch { min-width: 0; width: 100%; height: 26px; padding: 0; border: 1px solid #263e352b; border-radius: 4px; background: var(--color); }
+.writing-toolbar .color-palette .color-swatch:is(:hover, [aria-pressed="true"]) { outline: 2px solid #087d68; outline-offset: 2px; }
+.color-custom-label { display: block; margin: 16px 0 7px; color: #748379; font-size: 11px; }
+.color-custom-row { display: flex; align-items: center; gap: 7px; }
+.color-custom-row input { min-width: 0; height: 34px; padding: 5px 7px; border: 1px solid #dce5df; border-radius: 5px; color: #43564c; background: #fff; font-size: 12px; }
+.color-custom-row input[type="color"] { flex-shrink: 0; width: 34px; padding: 2px; cursor: pointer; }
+.color-custom-row input[type="text"] { flex: 1; width: 80px; font-family: monospace; }
+.writing-toolbar .color-custom-row button { padding-inline: 10px; background: #eaf5ef; color: #086f5c; font-size: 12px; }
+.color-error { margin: 9px 0 0; color: #ae3547; font-size: 11px; line-height: 1.6; }
 .tool-color { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 32px; height: 34px; overflow: hidden; border: 1px solid #e2e9e5; border-radius: 6px; background: #fff; font-size: 16px; cursor: pointer; }
 .tool-color input[type="color"] { width: 26px; height: 28px; min-height: 0; padding: 3px; border: 0; border-radius: 4px; background: transparent; cursor: pointer; }
-.tool-color:is(.font-color, .paragraph-color) { padding-bottom: 6px; }
-.tool-color:is(.font-color, .paragraph-color) input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; opacity: 0; }
-.tool-color:is(.font-color, .paragraph-color)::after { position: absolute; bottom: 4px; left: 7px; right: 7px; height: 3px; border-radius: 2px; background: var(--swatch, #c42b37); content: ''; pointer-events: none; }
+.tool-color.paragraph-color { padding-bottom: 6px; }
+.tool-color.paragraph-color input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; opacity: 0; }
+.tool-color.paragraph-color::after { position: absolute; bottom: 4px; left: 7px; right: 7px; height: 3px; border-radius: 2px; content: ''; pointer-events: none; }
 .tool-color.paragraph-color::after { background: var(--swatch, #eef3f8); }
 .tool-color:focus-within { outline: 2px solid #69a998; outline-offset: -2px; }
 .more-formatting { display: grid; gap: 12px; max-height: 38vh; overflow-y: auto; padding: 15px 18px; border-top: 1px solid #dfe9e2; background: #f7faf8; }
@@ -89,6 +107,7 @@ body:has(.writing-app) { background: #f5f6f5; }
 @media (max-width: 800px) {
   .writing-toolbar .format-toolbar { padding: 6px; }
   .writing-toolbar button, .tool-color { min-width: 36px; height: 36px; }
+  .writing-toolbar .color-dropdown { min-width: 28px; width: 28px; }
   .more-formatting { padding: 12px; max-height: 32vh; }
   .tool-group-label { flex-basis: 100%; }
 }

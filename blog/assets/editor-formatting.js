@@ -49,7 +49,7 @@
       }
     }
     function applyText(styles) {
-      edit((range) => {
+      return edit((range) => {
         if (!range.collapsed) { typing = null; return styleText(body, range, styles); }
         // Preserve the caret's native typing state without inserting placeholder text.
         const element = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
@@ -87,15 +87,6 @@
     const sizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 88, 96];
     on("growFontBtn", "click", () => setSize(sizes.find((size) => size > Number($("fontSize").value)) || 96));
     on("shrinkFontBtn", "click", () => setSize([...sizes].reverse().find((size) => size < Number($("fontSize").value)) || 8));
-    on("fontColor", "change", () => {
-      $("fontColor").parentElement.style.setProperty("--swatch", $("fontColor").value);
-      applyText({ color: $("fontColor").value });
-    });
-    function highlight() {
-      applyText({ backgroundColor: $("highlightColor").value });
-      $("highlightBtn").style.setProperty("--marker-color", $("highlightColor").value);
-    }
-    on("highlightBtn", "click", highlight); on("highlightColor", "change", highlight);
     on("letterCase", "change", () => {
       const kind = $("letterCase").value; $("letterCase").value = "";
       if (!kind) return;

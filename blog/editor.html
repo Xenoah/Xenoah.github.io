@@ -52,9 +52,14 @@ permalink: /blog/editor.html
               <button type="button" data-command="removeFormat" title="文字の書式をクリア" aria-label="文字装飾を解除">T<span class="tool-sub" aria-hidden="true">×</span></button>
             </div>
             <div class="tool-group color-tools" role="group" aria-label="文字とマーカーの色">
-              <label class="tool-color font-color" title="文字の色"><span aria-hidden="true">A</span><input id="fontColor" type="color" value="#c42b37" aria-label="文字の色"></label>
-              <button id="highlightBtn" type="button" title="現在のマーカー色を適用" aria-label="マーカー"><span class="marker-icon">ab</span></button>
-              <label class="tool-color" title="マーカーの色"><input id="highlightColor" type="color" value="#fff0a8" aria-label="蛍光ペンの色"></label>
+              <div class="color-split">
+                <button id="fontColorBtn" class="color-apply font-color" type="button" aria-label="前回の文字色を適用"><span aria-hidden="true">A</span></button>
+                <button id="fontColorMenuBtn" class="color-dropdown" type="button" title="文字色を選ぶ" aria-label="文字色のパレット" aria-haspopup="dialog" aria-expanded="false" aria-controls="colorPalette"><span aria-hidden="true">⌄</span></button>
+              </div>
+              <div class="color-split">
+                <button id="highlightBtn" class="color-apply" type="button" aria-label="前回のマーカー色を適用"><span class="marker-icon" aria-hidden="true">ab</span></button>
+                <button id="highlightColorMenuBtn" class="color-dropdown" type="button" title="マーカー色を選ぶ" aria-label="マーカー色のパレット" aria-haspopup="dialog" aria-expanded="false" aria-controls="colorPalette"><span aria-hidden="true">⌄</span></button>
+              </div>
             </div>
           </div>
           <div class="toolbar-row toolbar-insert-row">
@@ -75,6 +80,17 @@ permalink: /blog/editor.html
             </div>
             <button id="moreFormattingBtn" class="labeled-tool more-tools-button" type="button" aria-expanded="false" aria-controls="moreFormatting"><span aria-hidden="true">⋯</span>詳細</button>
           </div>
+        </div>
+        <div id="colorPalette" class="color-palette" role="dialog" aria-label="色を選ぶ" aria-labelledby="colorPaletteTitle" hidden>
+          <div class="color-palette-heading"><strong id="colorPaletteTitle">文字色</strong><button id="closeColorPaletteBtn" type="button" aria-label="カラーパレットを閉じる">×</button></div>
+          <div id="colorSwatches" class="color-swatches" role="group" aria-label="標準の色"></div>
+          <label class="color-custom-label" for="colorHex">その他の色</label>
+          <div class="color-custom-row">
+            <input id="colorCustom" type="color" value="#c42b37" aria-label="任意の色を選ぶ">
+            <input id="colorHex" type="text" value="#c42b37" maxlength="7" spellcheck="false" autocapitalize="off" aria-label="カラーコード" aria-describedby="colorError">
+            <button id="applyCustomColorBtn" type="button">適用</button>
+          </div>
+          <p id="colorError" class="color-error" role="status" hidden>カラーコードを #RRGGBB 形式で入力してください。</p>
         </div>
         <div id="moreFormatting" class="more-formatting" hidden>
           <div class="advanced-tool-group" role="group" aria-label="クリップボード">
@@ -241,4 +257,5 @@ permalink: /blog/editor.html
 <script src="{{ '/blog/assets/editor-images.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor-formatting.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor-selection.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/blog/assets/editor-colors.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

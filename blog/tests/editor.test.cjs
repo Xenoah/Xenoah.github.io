@@ -39,7 +39,7 @@ async function editor(options = {}) {
     w.Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); };
   }
   w.eval(coreSource);
-  for (const file of ["editor-storage.js", "editor-images.js", "editor-formatting.js", "editor-selection.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
+  for (const file of ["editor-storage.js", "editor-images.js", "editor-formatting.js", "editor-selection.js", "editor-colors.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
   w.eval(editorSource);
   await until(() => w.document.getElementById("editorApp").inert === false);
   const $ = (id) => w.document.getElementById(id);
@@ -92,20 +92,56 @@ test("color picker keeps selection visible without changing the manuscript when 
   e.w.Range.prototype.getClientRects = () => [{ left: 20, top: 40, right: 120, bottom: 60 }];
   range.selectNodeContents(body.querySelector("strong"));
   e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
-  e.$("fontColor").focus();
+  await e.click("fontColorMenuBtn"); e.$("colorCustom").focus();
   const overlay = e.w.document.querySelector(".editor-selection-overlay");
   assert.equal(overlay.hidden, false); assert.equal(overlay.children.length, 1);
   e.w.getSelection().removeAllRanges(); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
   assert.equal(body.innerHTML, original);
-  e.$("fontColor").value = "#bb2244"; e.$("fontColor").dispatchEvent(new e.w.Event("change"));
+  e.$("colorCustom").value = "#bb2244";
+  for (const type of ["input", "change", "change"]) e.$("colorCustom").dispatchEvent(new e.w.Event(type));
+  assert.equal(body.innerHTML, original); // Native picker events never commit early.
+  await e.click("applyCustomColorBtn");
   assert.equal(e.w.getSelection().toString(), "selected");
   assert.equal(body.querySelector("strong span").style.color, "rgb(187, 34, 68)");
   assert.equal(body.querySelector("p").style.color, "");
   assert.equal(overlay.hidden, true);
-  e.$("fontColor").focus(); assert.equal(overlay.hidden, false);
-  e.$("fontColor").dispatchEvent(new e.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  await e.click("fontColorMenuBtn"); assert.equal(overlay.hidden, false);
+  e.$("colorCustom").dispatchEvent(new e.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert.equal(overlay.hidden, true); assert.equal(e.w.document.activeElement, body);
   await e.click("htmlModeBtn"); assert.doesNotMatch(e.$("htmlSource").value, /editor-selection/);
+});
+
+test("split buttons reapply the same colors to new selections and survive unavailable preference storage", async (t) => {
+  const e = await editor({ storageFailure: true }); t.after(() => e.dom.window.close());
+  await e.click("htmlModeBtn"); e.input("htmlSource", '<p>First <a href="https://example.com/">link</a></p><p>Second</p><p>Third</p>'); await e.click("visualModeBtn");
+  const body = e.$("body");
+  function select(index) {
+    body.focus(); const range = e.w.document.createRange(); range.selectNodeContents(body.children[index]);
+    e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
+  }
+  select(0); await e.click("fontColorMenuBtn");
+  const original = body.innerHTML;
+  e.input("colorHex", "invalid"); await e.click("applyCustomColorBtn");
+  assert.equal(e.$("colorError").hidden, false); assert.equal(body.innerHTML, original);
+  e.input("colorHex", "#b24"); await e.click("applyCustomColorBtn");
+  assert.equal(e.$("colorPalette").hidden, true);
+  assert.equal(body.querySelector("a span").style.color, "rgb(187, 34, 68)");
+  select(1); await e.click("fontColorBtn");
+  assert.equal(body.children[1].querySelector("span").style.color, "rgb(187, 34, 68)");
+  assert.equal(e.$("colorPalette").hidden, true);
+  // Choosing an unchanged default marker color must still apply.
+  await e.click("highlightColorMenuBtn");
+  e.$("colorSwatches").querySelector('[data-color="#fff0a8"]').click();
+  assert.equal(body.children[1].querySelector("span span").style.backgroundColor, "rgb(255, 240, 168)");
+  select(2); await e.click("highlightBtn");
+  assert.equal(body.children[2].querySelector("span").style.backgroundColor, "rgb(255, 240, 168)");
+  assert.equal(body.children[2].querySelector("span").style.color, "");
+  await e.click("undoBtn"); assert.equal(body.children[2].querySelector("span"), null);
+  await e.click("redoBtn"); assert.equal(body.children[2].querySelector("span").style.backgroundColor, "rgb(255, 240, 168)");
+  await e.click("fontColorMenuBtn"); e.input("colorHex", "#123456"); await e.click("closeColorPaletteBtn");
+  await e.click("fontColorBtn");
+  assert.equal(body.children[2].querySelector("span span").style.color, "rgb(187, 34, 68)");
+  assert.equal(body.textContent, "First linkSecondThird");
 });
 
 test("every article source retains text, media, metadata and its own permalink", () => {

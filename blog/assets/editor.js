@@ -7,8 +7,8 @@
   const $ = (id) => elements[id];
   const body = $("body"), app = $("editorApp");
   const selectionPaint = window.BlogEditorSelection.create(body, app);
-  let selectionPinned = false;
-  function releaseSelection() { selectionPinned = false; selectionPaint.clear(); }
+  let selectionPinned = false, colors;
+  function releaseSelection() { selectionPinned = false; selectionPaint.clear(); colors?.close(); }
   function pinSelection(event) {
     if (selectionPinned) return;
     if (event?.type !== "focusin") captureRange();
@@ -375,6 +375,8 @@
   }
   let formatting;
   function toolbarState() {
+    // A toolbar control's temporary native selection must not reset the typing style.
+    if (selectionPinned) return;
     const selection = window.getSelection();
     if (!selection.rangeCount || !body.contains(selection.anchorNode)) return;
     document.querySelectorAll("[data-command][aria-pressed]").forEach((button) => {
@@ -721,7 +723,7 @@
       if (mode === "html") { $("htmlSource").focus(); $("htmlSource").select(); }
       else { savedRange = document.createRange(); savedRange.selectNodeContents(body); restoreRange(); }
     } else if (action === "bold") command("bold");
-    else if (action === "highlight") command("hiliteColor", "#fff0a8");
+    else if (action === "highlight") colors.apply("highlight");
     else if (["h2", "h3", "p"].includes(action)) command("formatBlock", action);
     else if (action === "link") openInsert("link");
     else if (action === "image") { $("imageFiles").dataset.action = "insert"; $("imageFiles").click(); }
@@ -772,8 +774,10 @@
       captureRange();
       if (mutates) { prepareBody(); changed(true); }
       toolbarState();
+      return true;
     }
   });
+  colors = window.BlogEditorColors.mount({ $, on, applyText: formatting.applyText, cancel: restoreRange });
   document.querySelectorAll("[data-command]").forEach((button) => button.addEventListener("click", () => command(button.dataset.command)));
   document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => $(button.dataset.close).close()));
   on("blockFormat", "change", () => command("formatBlock", $("blockFormat").value));

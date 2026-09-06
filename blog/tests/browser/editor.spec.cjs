@@ -92,7 +92,9 @@ async function enterHtml(page, html) {
   await page.locator("#visualModeBtn").click();
 }
 async function changeColor(page, id, value) {
-  await page.locator("#" + id).evaluate((input, color) => { input.value = color; input.dispatchEvent(new Event("change", { bubbles: true })); }, value);
+  await page.locator("#" + id + "MenuBtn").click();
+  await page.locator("#colorHex").fill(value);
+  await page.locator("#applyCustomColorBtn").click();
 }
 test("light editor toolbar retains character and paragraph formatting in drafts and exports", async ({ page }, testInfo) => {
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
@@ -193,28 +195,71 @@ test("color picker focus keeps the editing target visible and applies only to th
   const original = await body.innerHTML();
   await text.scrollIntoViewIfNeeded();
   await selectText(text);
-  await page.locator("#fontColor").focus();
+  await page.locator("#fontColorMenuBtn").click(); await page.locator("#colorCustom").focus();
   const highlightText = () => page.evaluate(() => [...(CSS.highlights.get("blog-editor-selection") || [])].map((range) => range.toString()).join(""));
   expect(await highlightText()).toBe("selected words");
   await page.evaluate(() => { getSelection().removeAllRanges(); document.dispatchEvent(new Event("selectionchange")); });
   expect(await highlightText()).toBe("selected words");
   expect(await body.innerHTML()).toBe(original);
   await testInfo.attach("Color selection retained", { body: await page.screenshot(), contentType: "image/png" });
-  await changeColor(page, "fontColor", "#bb2244");
+  await page.locator("#colorCustom").evaluate((input) => {
+    input.value = "#bb2244";
+    for (const type of ["input", "change", "change"]) input.dispatchEvent(new Event(type, { bubbles: true }));
+  });
+  expect(await body.innerHTML()).toBe(original);
+  await page.locator("#applyCustomColorBtn").click();
   await expect(text.locator("span").last()).toHaveCSS("color", "rgb(187, 34, 68)");
   expect(await page.evaluate(() => getSelection().toString())).toBe("selected words");
   await expect(body.locator("p").first()).not.toHaveCSS("color", "rgb(187, 34, 68)");
   expect(await highlightText()).toBe("");
-  await page.locator("#highlightColor").focus();
+  await page.locator("#highlightColorMenuBtn").click();
   expect(await highlightText()).toBe("selected words");
-  await changeColor(page, "highlightColor", "#fff0a8");
+  await page.locator('#colorSwatches [data-color="#fff0a8"]').click();
   await expect(text.locator("span").last()).toHaveCSS("background-color", "rgb(255, 240, 168)");
-  await page.locator("#fontColor").focus(); await page.keyboard.press("Escape");
+  await page.locator("#fontColorMenuBtn").click(); await page.keyboard.press("Escape");
   await expect(body).toBeFocused(); expect(await highlightText()).toBe("");
   expect(await page.evaluate(() => getSelection().toString())).toBe("selected words");
-  await page.locator("#fontColor").focus(); await page.locator("#title").click();
+  await page.locator("#fontColorMenuBtn").click(); await page.locator("#title").click();
   expect(await highlightText()).toBe("");
   await page.locator("#htmlModeBtn").click();
   expect(await page.locator("#htmlSource").inputValue()).not.toContain("blog-editor-selection");
   expect(await page.locator("#htmlSource").inputValue()).not.toContain("editor-selection-overlay");
+});
+
+test("split color buttons remember colors, reapply unchanged choices and keep palettes inside the viewport", async ({ page }, testInfo) => {
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await enterHtml(page, '<p>First <a href="https://example.com/">link</a></p><p>Second</p><p>Third</p>');
+  const paragraphs = page.locator("#body > p"), palette = page.locator("#colorPalette");
+  await selectText(paragraphs.first());
+  await page.locator("#fontColorMenuBtn").click();
+  await expect(palette).toBeVisible();
+  await testInfo.attach("Split color palette", { body: await page.screenshot(), contentType: "image/png" });
+  const box = await palette.boundingBox(), viewport = page.viewportSize();
+  expect(box.x).toBeGreaterThanOrEqual(0); expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  await page.locator('#colorSwatches [data-color="#2980b9"]').click();
+  await expect(paragraphs.first().locator("a span")).toHaveCSS("color", "rgb(41, 128, 185)");
+  await selectText(paragraphs.nth(1)); await page.locator("#fontColorBtn").click();
+  await expect(palette).toBeHidden();
+  await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("color", "rgb(41, 128, 185)");
+  await selectText(paragraphs.nth(2));
+  await page.locator("#fontColorMenuBtn").click();
+  await page.locator('#colorSwatches [data-color="#2980b9"]').click();
+  await expect(paragraphs.nth(2).locator("span").last()).toHaveCSS("color", "rgb(41, 128, 185)");
+  await page.locator("#highlightColorMenuBtn").click();
+  await page.locator('#colorSwatches [data-color="#caffbf"]').click();
+  await expect(paragraphs.nth(2).locator("span").last()).toHaveCSS("background-color", "rgb(202, 255, 191)");
+  await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
+  await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
+  await selectText(paragraphs.nth(1)); await page.locator("#highlightBtn").click();
+  await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("background-color", "rgb(202, 255, 191)");
+  await page.locator("#fontColorMenuBtn").focus(); await page.keyboard.press("ArrowDown");
+  await expect(page.locator('#colorSwatches [data-color="#2980b9"]')).toBeFocused();
+  await page.keyboard.press("Home"); await page.keyboard.press("Enter");
+  await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("color", "rgb(0, 0, 0)");
+  await page.locator("#undoBtn").click();
+  await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("color", "rgb(41, 128, 185)");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  expect(errors).toEqual([]);
 });
