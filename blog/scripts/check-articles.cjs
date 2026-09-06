@@ -13,6 +13,8 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true }).filter((entry)
   const issues = C.publicationIssues(data);
   if (!/^layout:\s*post\s*$/m.test(source) || !/^blog_article:\s*true\s*$/m.test(source)) issues.push({ message: "layout: post and blog_article: true are required" });
   if (!data.permalink) issues.push({ message: "permalink is required" });
+  if (!/^\/blog\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/.test(data.permalink || "")) issues.push({ message: "Article permalink must use /blog/YYYY/MM/DD/ascii-slug/" });
+  if (data.permalink && data.permalink !== C.permalink(data)) issues.push({ message: "Article permalink must agree with its date and slug" });
   const url = decodeURIComponent(data.permalink || C.permalink(data));
   if (urls.has(url)) issues.push({ message: "Duplicate permalink: " + url });
   urls.add(url);

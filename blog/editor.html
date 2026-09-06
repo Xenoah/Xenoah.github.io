@@ -154,7 +154,7 @@ permalink: /blog/editor.html
           <div class="field"><label for="tags">タグ</label><input id="tags" type="text" placeholder="日記, VRChat, ものづくり"><small>カンマで区切って追加</small></div>
           <div class="field"><label for="description">記事の説明 <span id="descriptionCount">0 / 160</span></label><textarea id="description" rows="3" placeholder="この記事について、ひとこと。検索結果やSNSに表示されます。"></textarea></div>
           <button id="makeDescriptionBtn" class="writing-button quiet" type="button">本文から説明を作る</button>
-          <div class="field"><label for="slug">URLの末尾</label><input id="slug" type="text" value="new-article" spellcheck="false" placeholder="my-first-post"><small id="permalinkPreview"></small></div>
+          <div class="field"><label for="slug">URLの末尾</label><input id="slug" type="text" value="new-article" spellcheck="false" autocapitalize="off" placeholder="my-first-post" aria-describedby="slugHint permalinkPreview"><small id="slugHint">半角英数字とハイフン。日本語は英数字のIDへ自動変換します。</small><small id="permalinkPreview"></small></div>
           <details class="advanced-settings"><summary>その他の設定</summary>
             <div class="field"><label for="image">カバー画像のURL</label><input id="image" type="text" placeholder="https://… または /blog/articles/…"></div>
             <div class="field"><label for="title_en">英語のタイトル（任意）</label><input id="title_en" type="text"></div>
@@ -259,3 +259,4 @@ permalink: /blog/editor.html
 <script src="{{ '/blog/assets/editor-selection.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor-colors.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/blog/assets/editor.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/blog/assets/reader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

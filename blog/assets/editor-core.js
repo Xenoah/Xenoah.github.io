@@ -4,8 +4,17 @@
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
-  const slugify = (value) => String(value || "").normalize("NFKC").toLowerCase().trim()
-    .replace(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "article";
+  function slugify(value) {
+    const text = String(value || "").normalize("NFKC").toLowerCase().trim();
+    const latin = text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    const base = latin.replace(/[^a-z0-9]+/g, "-").slice(0, 80).replace(/^-+|-+$/g, "");
+    if (!/[^\x00-\x7f]/.test(latin)) return base || "article";
+    // Keep Japanese titles distinct without putting Unicode in article URLs.
+    // A stable ID also keeps drafts, image paths and repeated exports consistent.
+    let hash = 14695981039346656037n;
+    for (const char of text) hash = BigInt.asUintN(64, (hash ^ BigInt(char.codePointAt(0))) * 1099511628211n);
+    return (base.slice(0, 60).replace(/-+$/, "") || "article") + "-" + hash.toString(36);
+  }
   const localDate = () => {
     const now = new Date();
     return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");

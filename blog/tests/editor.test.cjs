@@ -53,6 +53,38 @@ async function editor(options = {}) {
   return { dom, w, $, input, click, downloads, clipboard, fileInput };
 }
 
+test("article slugs are stable ASCII identifiers for Japanese, mixed and accented titles", () => {
+  for (const title of ["日本語の記事", "日本語の別記事", "VRChat の日記", "VRChat の別の日記", "Ｃａｆé の話", "x".repeat(80) + "日本語", "😀日記", "Hello World!"]) {
+    const slug = C.slugify(title);
+    assert.match(slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    assert.equal(C.slugify(slug), slug);
+    const data = { title, slug, date: "2026-09-06", body: "<p>本文</p>" };
+    const parsed = C.parseArticle(C.articleSource(data));
+    assert.equal(parsed.title, title); assert.equal(parsed.permalink, C.permalink(data));
+    assert.match(C.folderName(data), /^[a-z0-9-]+$/);
+  }
+  assert.notEqual(C.slugify("日本語の記事"), C.slugify("日本語の別記事"));
+  assert.notEqual(C.slugify("VRChat の日記"), C.slugify("VRChat の別の日記"));
+  assert.equal(C.slugify("blog-start"), "blog-start");
+  assert.equal(C.slugify("Café"), "cafe");
+  assert.equal(C.slugify("x".repeat(80)), "x".repeat(80));
+});
+
+test("editor normalizes Japanese URL input and restored drafts without changing article text", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  e.input("title", "日本語で書く記事");
+  assert.match(e.$("slug").value, /^article-[a-z0-9]+$/);
+  e.input("slug", "日本語のURL"); e.$("slug").dispatchEvent(new e.w.Event("change"));
+  const slug = e.$("slug").value;
+  assert.match(slug, /^[a-z0-9-]+$/);
+  e.input("title", "タイトルを修正"); assert.equal(e.$("slug").value, slug);
+  const restored = await editor({ legacy: { title: "以前の記事", date: "2026-09-05", slug: "以前の記事", body: "<p>以前の本文</p>" } });
+  t.after(() => restored.dom.window.close());
+  assert.match(restored.$("slug").value, /^article-[a-z0-9]+$/);
+  assert.equal(restored.$("body").textContent, "以前の本文");
+  assert.equal(restored.$("title").value, "以前の記事");
+});
+
 test("editor styles survive article serialization without allowing layout injection", () => {
   const result = new DOMParser().parseFromString(C.sanitize('<p style="line-height:1.5;margin-left:24px;border:1px solid #123456;position:fixed;inset:0"><font face="Georgia" size="5" color="#000000">Title</font><span style="font-size:22pt;font-weight:normal;background-color:#ffeeaa">text</span></p><p style="font-size:999px;margin-left:999px;line-height:99">bounded</p>'), "text/html");
   const p = result.querySelector("p"), spans = result.querySelectorAll("span");

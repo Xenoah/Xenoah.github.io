@@ -1,3 +1,83 @@
+/* Keep the legacy menu frames and shareable blog URLs in sync. */
+(function () {
+  "use strict";
+  const script = document.currentScript;
+  if (!script?.src) return;
+  const site = new URL("../../", script.src), blog = new URL("../", script.src).pathname;
+  function blogUrl(value) {
+    try {
+      const url = new URL(value, site);
+      if (url.origin !== site.origin || !url.pathname.startsWith(blog)) return null;
+      const path = url.pathname.slice(blog.length);
+      if (path !== "" && path !== "editor.html" && !/^\d{4}\/\d{2}\/\d{2}\/[^/]+\/$/.test(path)) return null;
+      if (url.searchParams.get("view") === "menu") url.searchParams.delete("view");
+      return url;
+    } catch { return null; }
+  }
+  const frameset = document.querySelector("frameset"), right = frameset?.querySelector('frame[name="right"]');
+  if (window === window.top && right) {
+    const initialTitle = document.title;
+    function sync() {
+      try {
+        const current = right.contentWindow.location;
+        if (current.origin !== site.origin) return;
+        const article = blogUrl(current.href), visible = article ? new URL(article) : new URL(site);
+        if (article) visible.searchParams.set("view", "menu");
+        // Frame navigation already creates a browser history entry. Replacing its
+        // address avoids duplicate entries and keeps Back/Forward tied to the frame.
+        if (location.href !== visible.href) history.replaceState(null, "", visible);
+        document.title = right.contentDocument.title || initialTitle;
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.href = article?.href.split("?")[0].split("#")[0] || site.href;
+      } catch { /* The menu also has external destinations; leave them independent. */ }
+    }
+    window.BlogFrameNavigation = { sync };
+    right.addEventListener("load", sync);
+    window.addEventListener("message", (event) => {
+      if (event.origin === site.origin && event.source === right.contentWindow && event.data === "blog-route-change") sync();
+    });
+    // Absolute frame sources continue to work after the parent's address changes.
+    const left = frameset.querySelector('frame[name="left"]');
+    if (left) left.src = new URL("menu.htm", site).href;
+    const requested = new URL(location.href).searchParams.get("blog");
+    right.src = blogUrl(requested || "")?.href || new URL("top.htm", site).href;
+    return;
+  }
+  const article = blogUrl(location.href);
+  if (!article) return;
+  let framed = false;
+  try { framed = window.parent !== window && window.parent.document.querySelector('frameset frame[name="right"]')?.contentWindow === window; } catch { /* Standalone in other sites' embeds. */ }
+  if (window === window.top && new URL(location.href).searchParams.get("view") === "menu") {
+    const entry = new URL(site); entry.searchParams.set("blog", article.pathname + article.search + article.hash);
+    location.replace(entry.href);
+    return;
+  }
+  const nav = document.querySelector(".blog-nav");
+  if (nav) {
+    const toggle = document.createElement("a"); toggle.dataset.blogView = "";
+    toggle.textContent = framed ? "単独で開く" : "サイトメニュー";
+    toggle.target = "_top";
+    function updateToggle() {
+      const url = blogUrl(location.href);
+      if (!url) return;
+      if (!framed) url.searchParams.set("view", "menu");
+      toggle.href = url.href;
+    }
+    updateToggle(); nav.append(toggle);
+    window.addEventListener("hashchange", updateToggle);
+    window.addEventListener("popstate", updateToggle);
+    document.addEventListener("blog-route-change", updateToggle);
+  }
+  if (framed) {
+    const notify = () => window.parent.postMessage("blog-route-change", site.origin);
+    window.addEventListener("hashchange", notify);
+    window.addEventListener("popstate", notify);
+    window.addEventListener("pageshow", notify);
+    document.addEventListener("blog-route-change", notify);
+    notify();
+  }
+})();
+
 (function () {
   "use strict";
   const filters = document.getElementById("articleFilters");
@@ -34,6 +114,7 @@
           if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
         }
         history.replaceState(null, "", url);
+        document.dispatchEvent(new Event("blog-route-change"));
       }
     }
     filters.hidden = false; status.hidden = false; restoreQuery(); filter(false);

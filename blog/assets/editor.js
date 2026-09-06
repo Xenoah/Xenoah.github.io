@@ -233,7 +233,7 @@
   function applyData(data) {
     for (const key of fieldNames) fields[key].value = typeof data[key] === "string" ? data[key] : "";
     fields.date.value ||= C.localDate();
-    fields.slug.value ||= "new-article";
+    fields.slug.value = C.slugify(fields.slug.value || "new-article");
     fields.slug.dataset.touched = "true";
     extra = Object.fromEntries(["author", "robots", "last_modified_at", "originalPermalink"].filter((key) => typeof data[key] === "string").map((key) => [key, data[key]]));
     if (!extra.originalPermalink && data.permalink) extra.originalPermalink = new URL(data.permalink, location.href).pathname;
@@ -943,6 +943,10 @@
     if (key === "slug") fields.slug.dataset.touched = "true";
     if (!event.isComposing) changed();
   }));
+  on("slug", "change", () => {
+    if (!fields.slug.value.trim()) return;
+    fields.slug.value = C.slugify(fields.slug.value); changed();
+  });
   on("openImportBtn", "click", () => { $("importStatus").textContent = ""; $("importDialog").showModal(); });
   on("chooseHtmlBtn", "click", () => $("importHtmlFile").click());
   on("chooseFolderBtn", "click", () => $("importFolder").click());
