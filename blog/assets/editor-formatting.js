@@ -1,4 +1,4 @@
-/* Word-style ribbon operations; article contents remain ordinary HTML. */
+/* Visual editor formatting; article contents remain ordinary HTML. */
 (function (root) {
   "use strict";
   const blockSelector = "p,h2,h3,h4,h5,h6,pre,blockquote,li,figcaption,td,th";
@@ -73,24 +73,10 @@
         selected.forEach(callback); return range;
       });
     }
-    const tabIds = ["ribbonHomeTab", "ribbonInsertTab"];
-    function showTab(id, focus = false) {
-      for (const tabId of tabIds) {
-        const tab = $(tabId), active = tabId === id;
-        tab.setAttribute("aria-selected", String(active)); tab.tabIndex = active ? 0 : -1;
-        $(tab.getAttribute("aria-controls")).hidden = !active;
-      }
-      $("formatToolbar").scrollLeft = 0;
-      if (focus) $(id).focus();
-    }
-    for (const id of tabIds) {
-      on(id, "click", () => showTab(id));
-      on(id, "keydown", (event) => {
-        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-        event.preventDefault();
-        showTab(event.key === "Home" ? tabIds[0] : event.key === "End" ? tabIds[1] : tabIds[1 - tabIds.indexOf(id)], true);
-      });
-    }
+    on("moreFormattingBtn", "click", () => {
+      const open = $("moreFormatting").hidden;
+      $("moreFormatting").hidden = !open; $("moreFormattingBtn").setAttribute("aria-expanded", String(open));
+    });
     on("fontFamily", "change", () => applyText({ fontFamily: $("fontFamily").value || getComputedStyle(body).fontFamily }));
     const setSize = (value) => {
       if (!Number.isFinite(value) || value < 8 || value > 96) { $("fontSize").value = 12; notify("文字サイズは 8〜96 pt で指定してください。"); return; }

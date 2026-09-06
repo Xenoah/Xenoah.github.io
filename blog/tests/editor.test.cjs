@@ -39,7 +39,7 @@ async function editor(options = {}) {
     w.Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); };
   }
   w.eval(coreSource);
-  for (const file of ["editor-storage.js", "editor-images.js", "editor-formatting.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
+  for (const file of ["editor-storage.js", "editor-images.js", "editor-formatting.js", "editor-selection.js"]) w.eval(fs.readFileSync(path.join(root, "assets", file), "utf8"));
   w.eval(editorSource);
   await until(() => w.document.getElementById("editorApp").inert === false);
   const $ = (id) => w.document.getElementById(id);
@@ -53,7 +53,7 @@ async function editor(options = {}) {
   return { dom, w, $, input, click, downloads, clipboard, fileInput };
 }
 
-test("Word ribbon styles survive article serialization without allowing layout injection", () => {
+test("editor styles survive article serialization without allowing layout injection", () => {
   const result = new DOMParser().parseFromString(C.sanitize('<p style="line-height:1.5;margin-left:24px;border:1px solid #123456;position:fixed;inset:0"><font face="Georgia" size="5" color="#000000">Title</font><span style="font-size:22pt;font-weight:normal;background-color:#ffeeaa">text</span></p><p style="font-size:999px;margin-left:999px;line-height:99">bounded</p>'), "text/html");
   const p = result.querySelector("p"), spans = result.querySelectorAll("span");
   assert.equal(p.style.lineHeight, "1.5"); assert.equal(p.style.marginLeft, "24px"); assert.equal(p.style.borderTopWidth, "1px");
@@ -82,6 +82,30 @@ test("partial formatting across paragraphs preserves links, unselected text and 
     await click("redoBtn"); assert.equal($("body").querySelectorAll("span").length, 2);
     await click("htmlModeBtn"); assert.match($("htmlSource").value, /font-size: 22pt/);
   } finally { dom.window.close(); }
+});
+
+test("color picker keeps selection visible without changing the manuscript when native selection disappears", async (t) => {
+  const e = await editor(); t.after(() => e.dom.window.close());
+  await e.click("htmlModeBtn"); e.input("htmlSource", "<p>Before <strong>selected</strong> after</p>"); await e.click("visualModeBtn");
+  const body = e.$("body"), original = body.innerHTML, range = e.w.document.createRange();
+  body.getBoundingClientRect = () => ({ left: 0, top: 0, right: 600, bottom: 500 });
+  e.w.Range.prototype.getClientRects = () => [{ left: 20, top: 40, right: 120, bottom: 60 }];
+  range.selectNodeContents(body.querySelector("strong"));
+  e.w.getSelection().removeAllRanges(); e.w.getSelection().addRange(range); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
+  e.$("fontColor").focus();
+  const overlay = e.w.document.querySelector(".editor-selection-overlay");
+  assert.equal(overlay.hidden, false); assert.equal(overlay.children.length, 1);
+  e.w.getSelection().removeAllRanges(); e.w.document.dispatchEvent(new e.w.Event("selectionchange"));
+  assert.equal(body.innerHTML, original);
+  e.$("fontColor").value = "#bb2244"; e.$("fontColor").dispatchEvent(new e.w.Event("change"));
+  assert.equal(e.w.getSelection().toString(), "selected");
+  assert.equal(body.querySelector("strong span").style.color, "rgb(187, 34, 68)");
+  assert.equal(body.querySelector("p").style.color, "");
+  assert.equal(overlay.hidden, true);
+  e.$("fontColor").focus(); assert.equal(overlay.hidden, false);
+  e.$("fontColor").dispatchEvent(new e.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(overlay.hidden, true); assert.equal(e.w.document.activeElement, body);
+  await e.click("htmlModeBtn"); assert.doesNotMatch(e.$("htmlSource").value, /editor-selection/);
 });
 
 test("every article source retains text, media, metadata and its own permalink", () => {

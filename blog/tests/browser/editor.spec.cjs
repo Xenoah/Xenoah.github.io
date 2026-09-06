@@ -28,7 +28,6 @@ test("native typing, formatting, context menu, links and undo retain the manuscr
   await page.locator("#undoBtn").click(); await expect(body.locator("h2")).toHaveCount(0);
   await page.locator("#redoBtn").click(); await expect(body.locator("h2")).toHaveCount(1);
   await selectText(body.locator("h2"));
-  await page.locator("#ribbonInsertTab").click();
   await page.locator("#linkBtn").click();
   await page.locator("#insertUrl").fill("https://example.com/");
   await page.locator("#insertForm button[type=submit]").click();
@@ -94,10 +93,12 @@ async function enterHtml(page, html) {
 async function changeColor(page, id, value) {
   await page.locator("#" + id).evaluate((input, color) => { input.value = color; input.dispatchEvent(new Event("change", { bubbles: true })); }, value);
 }
-test("Word Home ribbon retains character and paragraph formatting in drafts and exports", async ({ page }, testInfo) => {
+test("light editor toolbar retains character and paragraph formatting in drafts and exports", async ({ page }, testInfo) => {
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
-  await page.locator("#title").fill("Word ribbon");
-  expect(await page.locator("#ribbonHome > [role=group]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("aria-label")))).toEqual(["クリップボード", "フォント", "段落", "スタイル"]);
+  await page.locator("#title").fill("新しいエディターで書く");
+  await expect(page.locator(".manuscript #editorToolbar")).toBeVisible();
+  await expect(page.locator("#editorToolbar")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page.locator("#editorApp")).toHaveCSS("color-scheme", "light");
   await enterHtml(page, "<p>Styled text</p><p>Other paragraph</p>");
   const paragraph = page.locator("#body > p").first();
   await selectText(paragraph);
@@ -106,6 +107,7 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
   await changeColor(page, "fontColor", "#000000");
   await changeColor(page, "highlightColor", "#ffdd88");
   await page.locator('[data-command="justifyCenter"]').click();
+  await page.locator("#moreFormattingBtn").click();
   await page.locator("#lineSpacing").selectOption("1.5");
   await page.locator("#indentBtn").click();
   await page.locator("#paragraphBorder").selectOption("bottom");
@@ -129,7 +131,7 @@ test("Word Home ribbon retains character and paragraph formatting in drafts and 
   expect(html).toContain("22pt"); expect(html).toContain("Georgia"); expect(html).toContain("line-height: 1.5"); expect(html).not.toContain("¶"); expect(html).not.toContain("blogTyping");
   await page.locator("#visualModeBtn").click();
   await page.evaluate(() => scrollTo(0, 0));
-  await testInfo.attach("Word ribbon", { body: await page.screenshot(), contentType: "image/png" });
+  await testInfo.attach("Light editor", { body: await page.screenshot(), contentType: "image/png" });
   await page.locator("#openExportBtn").click();
   await page.locator("#exportDialog details > summary").click();
   const downloadPromise = page.waitForEvent("download"); await page.locator("#downloadBtn").click();
@@ -157,6 +159,7 @@ test("caret formatting, format painter and inserted tables work with native edit
   await expect(large).toHaveCSS("font-size", "32px");
   await expect(large).toHaveCSS("color", "rgb(196, 43, 55)");
   await selectText(large);
+  await page.locator("#moreFormattingBtn").click();
   await page.locator("#formatPainterBtn").click();
   await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "true");
   await selectText(paragraphs.nth(1));
@@ -164,7 +167,7 @@ test("caret formatting, format painter and inserted tables work with native edit
   await expect(page.locator("#formatPainterBtn")).toHaveAttribute("aria-pressed", "false");
   await expect(paragraphs.nth(1).locator("span").last()).toHaveCSS("font-size", "32px");
   await paragraphs.nth(1).click(); await page.keyboard.press("End");
-  await page.locator("#ribbonInsertTab").click(); await expect(page.locator("#ribbonHome")).toBeHidden();
+  await page.locator("#moreFormattingBtn").click(); await expect(page.locator("#moreFormatting")).toBeHidden();
   await page.locator("#insertTableBtn").click(); await page.locator("#tableColumns").fill("2"); await page.locator("#tableRows").fill("1");
   await page.locator("#tableForm button[type=submit]").click();
   const table = page.locator("#body table");
@@ -177,7 +180,40 @@ test("caret formatting, format painter and inserted tables work with native edit
   await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
   await expect(table.locator("td").nth(2)).toHaveText("New row");
   await expect(page.locator("#body")).not.toContainText("blogTyping");
-  await page.locator("#ribbonHomeTab").focus(); await page.keyboard.press("ArrowRight");
-  await expect(page.locator("#ribbonInsertTab")).toBeFocused(); await expect(page.locator("#ribbonInsertTab")).toHaveAttribute("aria-selected", "true");
-  await page.keyboard.press("Home"); await expect(page.locator("#ribbonHomeTab")).toBeFocused();
+  await page.locator("#moreFormattingBtn").focus(); await page.keyboard.press("Enter");
+  await expect(page.locator("#moreFormatting")).toBeVisible();
+  await page.keyboard.press("Escape"); await expect(page.locator("#moreFormatting")).toBeHidden();
+  await expect(page.locator("#body")).toBeFocused();
+});
+
+test("color picker focus keeps the editing target visible and applies only to that selection", async ({ page }, testInfo) => {
+  await enterHtml(page, "<p>Before <strong>selected words</strong> after</p><p>Next paragraph</p>");
+  const body = page.locator("#body"), text = body.locator("strong");
+  const original = await body.innerHTML();
+  await text.scrollIntoViewIfNeeded();
+  await selectText(text);
+  await page.locator("#fontColor").focus();
+  const highlightText = () => page.evaluate(() => [...(CSS.highlights.get("blog-editor-selection") || [])].map((range) => range.toString()).join(""));
+  expect(await highlightText()).toBe("selected words");
+  await page.evaluate(() => { getSelection().removeAllRanges(); document.dispatchEvent(new Event("selectionchange")); });
+  expect(await highlightText()).toBe("selected words");
+  expect(await body.innerHTML()).toBe(original);
+  await testInfo.attach("Color selection retained", { body: await page.screenshot(), contentType: "image/png" });
+  await changeColor(page, "fontColor", "#bb2244");
+  await expect(text.locator("span").last()).toHaveCSS("color", "rgb(187, 34, 68)");
+  expect(await page.evaluate(() => getSelection().toString())).toBe("selected words");
+  await expect(body.locator("p").first()).not.toHaveCSS("color", "rgb(187, 34, 68)");
+  expect(await highlightText()).toBe("");
+  await page.locator("#highlightColor").focus();
+  expect(await highlightText()).toBe("selected words");
+  await changeColor(page, "highlightColor", "#fff0a8");
+  await expect(text.locator("span").last()).toHaveCSS("background-color", "rgb(255, 240, 168)");
+  await page.locator("#fontColor").focus(); await page.keyboard.press("Escape");
+  await expect(body).toBeFocused(); expect(await highlightText()).toBe("");
+  expect(await page.evaluate(() => getSelection().toString())).toBe("selected words");
+  await page.locator("#fontColor").focus(); await page.locator("#title").click();
+  expect(await highlightText()).toBe("");
+  await page.locator("#htmlModeBtn").click();
+  expect(await page.locator("#htmlSource").inputValue()).not.toContain("blog-editor-selection");
+  expect(await page.locator("#htmlSource").inputValue()).not.toContain("editor-selection-overlay");
 });

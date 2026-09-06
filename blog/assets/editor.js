@@ -6,6 +6,15 @@
   const elements = Object.fromEntries(Array.from(document.querySelectorAll("#editorApp, #editorApp [id]")).map((element) => [element.id, element]));
   const $ = (id) => elements[id];
   const body = $("body"), app = $("editorApp");
+  const selectionPaint = window.BlogEditorSelection.create(body, app);
+  let selectionPinned = false;
+  function releaseSelection() { selectionPinned = false; selectionPaint.clear(); }
+  function pinSelection(event) {
+    if (selectionPinned) return;
+    if (event?.type !== "focusin") captureRange();
+    selectionPinned = true;
+    selectionPaint.show(savedRange);
+  }
   const fieldNames = ["title", "date", "slug", "description", "tags", "image", "title_en", "description_en"];
   const fields = Object.fromEntries(fieldNames.map((key) => [key, $(key)]));
   const legacyKey = "xenoah_blog_editor_draft_html_v1";
@@ -83,6 +92,7 @@
     });
   }
   function setBody(html) {
+    releaseSelection();
     formatting?.resetTyping();
     closeMedia();
     body.innerHTML = C.sanitize(html) || "<p><br></p>";
@@ -267,10 +277,12 @@
 
   // ブラウザの選択範囲を保持し、ツールバーやダイアログの操作後も挿入位置を維持。
   function captureRange() {
+    if (selectionPinned) return;
     const selection = window.getSelection();
     if (selection.rangeCount && body.contains(selection.getRangeAt(0).commonAncestorContainer)) savedRange = selection.getRangeAt(0).cloneRange();
   }
   function restoreRange() {
+    releaseSelection();
     body.focus();
     const selection = window.getSelection();
     if (!savedRange || !body.contains(savedRange.commonAncestorContainer)) {
@@ -374,10 +386,11 @@
     formatting?.state(node, selection.getRangeAt(0));
   }
   function updatePanels() {
+    releaseSelection();
     $("visualPanel").hidden = previewing || mode !== "visual";
     $("htmlPanel").hidden = previewing || mode !== "html";
     $("previewPanel").hidden = !previewing;
-    $("wordRibbon").hidden = previewing || mode !== "visual";
+    $("editorToolbar").hidden = previewing || mode !== "visual";
     $("visualModeBtn").setAttribute("aria-pressed", String(mode === "visual" && !previewing));
     $("htmlModeBtn").setAttribute("aria-pressed", String(mode === "html" && !previewing));
     $("previewBtn").setAttribute("aria-pressed", String(previewing));
@@ -736,7 +749,19 @@
   }
 
   document.addEventListener("selectionchange", () => { if (!composing) { captureRange(); toolbarState(); } });
-  $("wordRibbon").addEventListener("mousedown", (event) => { captureRange(); if (event.target.closest("button")) event.preventDefault(); });
+  const toolbar = $("editorToolbar");
+  // Capture before focus leaves the manuscript. Color pickers may clear native selection.
+  toolbar.addEventListener("pointerdown", pinSelection);
+  toolbar.addEventListener("mousedown", (event) => { pinSelection(); if (event.target.closest("button")) event.preventDefault(); });
+  toolbar.addEventListener("focusin", pinSelection);
+  document.addEventListener("pointerdown", (event) => { if (!toolbar.contains(event.target)) releaseSelection(); });
+  document.addEventListener("focusin", (event) => { if (!toolbar.contains(event.target)) releaseSelection(); });
+  toolbar.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault(); restoreRange();
+      $("moreFormatting").hidden = true; $("moreFormattingBtn").setAttribute("aria-expanded", "false");
+    }
+  });
   formatting = window.BlogEditorFormatting.mount({
     body, $, on, command, insertHtml, notify, clipboard: contextClipboard,
     edit(callback, mutates = true) {
