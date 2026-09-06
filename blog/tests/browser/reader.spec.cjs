@@ -91,7 +91,6 @@ test("old Japanese article links redirect to ASCII URLs and frame entry rejects 
   await expect(page).toHaveURL(new RegExp(current + "\\?view=menu$"));
   await expect(page.frameLocator('frame[name="right"]').locator(".article-head h1")).toContainText("まどマギ");
   await page.goto("/?blog=" + encodeURIComponent("https://example.com/blog/2026/09/05/other/"));
-  await expect(page.locator('frame[name="right"]')).toHaveAttribute("src", /\/top.htm$/);
   // top.htm has its own Twitter embeds; inspect only the navigation's right frame.
   await expect.poll(() => page.frame({ name: "right" })?.url()).toBe("http://127.0.0.1:4173/top.htm");
 });
