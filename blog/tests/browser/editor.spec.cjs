@@ -219,7 +219,12 @@ test("color picker focus keeps the editing target visible and applies only to th
   await page.locator("#fontColorMenuBtn").click(); await page.keyboard.press("Escape");
   await expect(body).toBeFocused(); expect(await highlightText()).toBe("");
   expect(await page.evaluate(() => getSelection().toString())).toBe("selected words");
-  await page.locator("#fontColorMenuBtn").click(); await page.locator("#title").click();
+  await page.locator("#fontColorMenuBtn").click(); await page.locator(".writing-heading h1").click();
+  await expect(page.locator("#colorPalette")).toBeHidden();
+  expect(await highlightText()).toBe("");
+  await selectText(text); await page.locator("#fontColorMenuBtn").click();
+  await page.locator("#title").focus();
+  await expect(page.locator("#colorPalette")).toBeHidden();
   expect(await highlightText()).toBe("");
   await page.locator("#htmlModeBtn").click();
   expect(await page.locator("#htmlSource").inputValue()).not.toContain("blog-editor-selection");
