@@ -255,8 +255,22 @@ test("split color buttons remember colors, reapply unchanged choices and keep pa
   await page.locator("#highlightColorMenuBtn").click();
   await page.locator('#colorSwatches [data-color="#caffbf"]').click();
   await expect(paragraphs.nth(2).locator("span").last()).toHaveCSS("background-color", "rgb(202, 255, 191)");
-  expect(await paragraphs.nth(2).locator("span").last().evaluate((node) => getComputedStyle(node, "::selection").color)).toBe("rgb(41, 128, 185)");
-  await testInfo.attach("Applied colors selected", { body: await page.screenshot(), contentType: "image/png" });
+  // Highlight currentColor resolves at paint time. Inspect the painted selection,
+  // since getComputedStyle(::selection) can report an ancestor's color in Chromium.
+  const selectedImage = await paragraphs.nth(2).screenshot();
+  const bluePixels = await page.evaluate(async (data) => {
+    const image = new Image(); image.src = "data:image/png;base64," + data; await image.decode();
+    const canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
+    const ctx = canvas.getContext("2d"); ctx.drawImage(image, 0, 0);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let blue = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i] < 100 && pixels[i + 2] > pixels[i] + 60 && pixels[i + 2] > pixels[i + 1] + 25) blue++;
+    }
+    return blue;
+  }, selectedImage.toString("base64"));
+  expect(bluePixels).toBeGreaterThan(3);
+  await testInfo.attach("Applied colors selected", { body: selectedImage, contentType: "image/png" });
   await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
   await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
   await selectText(paragraphs.nth(1)); await page.locator("#highlightBtn").click();
