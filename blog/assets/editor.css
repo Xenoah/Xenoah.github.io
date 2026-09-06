@@ -100,8 +100,9 @@ body:has(.writing-app) { background: #f5f6f5; }
 .writing-app .rich-editor pre { color: #345344; background: #f1f6f3; border-color: #dae6de; }
 .table-dimensions { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .table-header-option { display: flex; gap: 8px; align-items: center; font-size: 13px; }
-.rich-editor ::selection { background: #bfe5db; color: inherit; }
-::highlight(blog-editor-selection) { background-color: #bfe5db; }
+/* Keep applied text/marker colors visible beneath the selection overlay. */
+.rich-editor::selection, .rich-editor ::selection { background: #7bc2b14d; color: currentColor; }
+::highlight(blog-editor-selection) { background-color: #7bc2b14d; color: currentColor; }
 .editor-selection-overlay { position: fixed; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; }
 .editor-selection-overlay > span { position: absolute; background: #7bc2b15e; box-shadow: inset 0 -1px #37947d; }
 @media (max-width: 800px) {

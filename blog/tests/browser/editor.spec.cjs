@@ -255,6 +255,8 @@ test("split color buttons remember colors, reapply unchanged choices and keep pa
   await page.locator("#highlightColorMenuBtn").click();
   await page.locator('#colorSwatches [data-color="#caffbf"]').click();
   await expect(paragraphs.nth(2).locator("span").last()).toHaveCSS("background-color", "rgb(202, 255, 191)");
+  expect(await paragraphs.nth(2).locator("span").last().evaluate((node) => getComputedStyle(node, "::selection").color)).toBe("rgb(41, 128, 185)");
+  await testInfo.attach("Applied colors selected", { body: await page.screenshot(), contentType: "image/png" });
   await page.locator("#saveDraftBtn").click(); await expect(page.locator("#draftSaved")).toContainText("保存済み");
   await page.reload(); await expect(page.locator("#editorApp")).toHaveJSProperty("inert", false);
   await selectText(paragraphs.nth(1)); await page.locator("#highlightBtn").click();
