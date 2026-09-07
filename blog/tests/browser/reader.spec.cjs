@@ -83,7 +83,9 @@ test("menu frame navigation exposes article URLs and survives history, reload an
 
 test("old Japanese article links redirect to ASCII URLs and frame entry rejects external destinations", async ({ page }) => {
   const old = "/blog/2026/09/05/ネタバレ注意-まどマギ-ワルプルギスの廻天考察/";
-  const current = "/blog/2026/09/05/madoka-walpurgisnacht-rising-review/";
+  const current = "/blog/2026/09/05/madomagi/";
+  await page.goto("/blog/2026/09/05/madoka-walpurgisnacht-rising-review/");
+  await expect(page).toHaveURL(new RegExp(current + "$"));
   await page.goto(old + "#section-1");
   await expect(page).toHaveURL(new RegExp(current + "#section-1$"));
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://xenoah.github.io" + current);
