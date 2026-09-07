@@ -81,9 +81,12 @@ test("menu frame navigation exposes article URLs and survives history, reload an
   expect(errors).toEqual([]);
 });
 
-test("old Japanese article links redirect to ASCII URLs and frame entry rejects external destinations", async ({ page }) => {
+test("old Japanese article links redirect to ASCII URLs and frame entry rejects external destinations", async ({ page, request }) => {
   const old = "/blog/2026/09/05/ネタバレ注意-まどマギ-ワルプルギスの廻天考察/";
   const current = "/blog/2026/09/05/madomagi/";
+  const catalog = await (await request.get("/blog/articles.json")).json();
+  const article = catalog.find((entry) => entry.url === current);
+  expect(article).toBeTruthy();
   await page.goto("/blog/2026/09/05/madoka-walpurgisnacht-rising-review/");
   await expect(page).toHaveURL(new RegExp(current + "$"));
   await page.goto(old + "#section-1");
@@ -91,7 +94,7 @@ test("old Japanese article links redirect to ASCII URLs and frame entry rejects 
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://xenoah.github.io" + current);
   await page.goto(old + "?view=menu");
   await expect(page).toHaveURL(new RegExp(current + "\\?view=menu$"));
-  await expect(page.frameLocator('frame[name="right"]').locator(".article-head h1")).toContainText("まどマギ");
+  await expect(page.frameLocator('frame[name="right"]').locator(".article-head h1")).toHaveText(article.title);
   await page.goto("/?blog=" + encodeURIComponent("https://example.com/blog/2026/09/05/other/"));
   // top.htm has its own Twitter embeds; inspect only the navigation's right frame.
   await expect.poll(() => page.frame({ name: "right" })?.url()).toBe("http://127.0.0.1:4173/top.htm");
