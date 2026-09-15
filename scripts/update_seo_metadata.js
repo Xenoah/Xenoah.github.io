@@ -8,6 +8,16 @@ const siteName = "Xenoah";
 // 公開ページの検索表示文言を一元管理する。
 // titleは「日本語 | English | Xenoah」、descriptionは「日本語 / English」を基本とする。
 const pages = {
+  "games/train-simulator/shiokaze_train_sim.html": {
+    title: "汐風線・電車運転シミュレーター | Shiokaze Train Simulator | Xenoah",
+    description: "汐風線で電車の運転を体験するブラウザシミュレーターです。 / A browser train driving simulator set on the Shiokaze line.",
+    canonical: "/games/train-simulator/shiokaze_train_sim.html",
+  },
+  "games/long-rpg/mugen_kairo.html": {
+    title: "無限回廊・長く遊べるRPG | Mugen Kairo RPG | Xenoah",
+    description: "無限回廊を探索して遊ぶブラウザRPGです。 / Explore the endless corridors in this browser role-playing game.",
+    canonical: "/games/long-rpg/mugen_kairo.html",
+  },
   "index.html": {
     title: "Xenoahのホームページ | Xenoah's Homepage",
     description: "Webツール、ゲーム、数学教材、データベース、VRChat、電子工作などの制作物を公開するXenoahの個人サイトです。 / Xenoah's personal website featuring web tools, games, interactive math lessons, databases, VRChat and electronics projects.",
@@ -321,7 +331,10 @@ function updateHtml(file, config) {
 }
 
 for (const [file, config] of Object.entries(pages)) {
+  if (process.argv.length > 2 && !process.argv.slice(2).includes(file)) continue;
+  // Blog metadata is owned by Jekyll layouts; skip migrated or removed files.
+  if (!fs.existsSync(path.join(root, file)) || !/<head\b/i.test(fs.readFileSync(path.join(root, file), "utf8"))) continue;
   updateHtml(file, config);
 }
 
-console.log(`Updated SEO metadata for ${Object.keys(pages).length} pages.`);
+console.log("SEO metadata updated (Jekyll-managed pages are preserved).");

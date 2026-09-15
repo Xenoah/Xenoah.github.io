@@ -1,45 +1,22 @@
 // 公開用HTMLに必要なSEOタグが揃っているかを、更新後の一括確認に使う。
 const fs = require("fs");
 const path = require("path");
+const { htmlFiles } = require("./site-files");
 
 const root = process.cwd();
-const ignoredDirectories = new Set([".git", "node_modules", "_layouts", "blog/articles"]);
 const ignoredFiles = new Set(["google2c949125a44a6dd7.html"]);
 const errors = [];
 const indexableCanonicals = [];
 let checked = 0;
 
-function collectHtmlFiles(directory, relativeDirectory = "") {
-  const files = [];
-
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const relativePath = path.join(relativeDirectory, entry.name).replaceAll("\\", "/");
-
-    if (entry.isDirectory()) {
-      if (
-        ignoredDirectories.has(entry.name) ||
-        ignoredDirectories.has(relativePath)
-      ) {
-        continue;
-      }
-      files.push(...collectHtmlFiles(path.join(directory, entry.name), relativePath));
-      continue;
-    }
-
-    if (/\.(?:html?|htm)$/i.test(entry.name) && !ignoredFiles.has(entry.name)) {
-      files.push(relativePath);
-    }
-  }
-
-  return files;
-}
-
 function count(source, pattern) {
   return (source.match(pattern) || []).length;
 }
 
-for (const relativePath of collectHtmlFiles(root)) {
-  const source = fs.readFileSync(path.join(root, relativePath), "utf8");
+for (const relativePath of htmlFiles(root).filter((file) => !ignoredFiles.has(file))) {
+  let source;
+  try { source = new TextDecoder("utf-8", { fatal: true }).decode(fs.readFileSync(path.join(root, relativePath))); }
+  catch { errors.push(`${relativePath}: UTF-8として読み取れない`); continue; }
 
   // front matterからJekyllが生成するページは、レイアウト側で検査対象タグを管理する。
   if (!/<head\b/i.test(source)) {
@@ -48,6 +25,12 @@ for (const relativePath of collectHtmlFiles(root)) {
 
   checked += 1;
   const head = source.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || source;
+  if (!/<meta\b[^>]*charset\s*=\s*["']?utf-8\b/i.test(head)) errors.push(`${relativePath}: UTF-8のcharset宣言が必要`);
+  // Private study pages and legacy redirects deliberately opt out of indexing.
+  if (/<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*\bnoindex\b/i.test(head)) {
+    if (!/<title\b[^>]*>[^<]+<\/title>/i.test(head)) errors.push(`${relativePath}: titleが必要`);
+    continue;
+  }
   const checks = [
     ["html lang", count(source.slice(0, source.indexOf("<head")), /<html\b[^>]*\blang=["']ja["']/gi), 1],
     ["title", count(head, /<title\b[^>]*>[\s\S]*?<\/title>/gi), 1],
