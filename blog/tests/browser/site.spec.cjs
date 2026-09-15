@@ -2,7 +2,7 @@ const projectCount = require("../../../data/projects.json").length;
 const { test, expect } = require("@playwright/test");
 async function openMenu(page) {
   const menu = page.locator("#site-navigation");
-  if (!await menu.evaluate(node => node.open)) await menu.locator("summary").click();
+  if (!await menu.evaluate(node => node.open)) await menu.locator(":scope > summary").click();
   return menu;
 }
 test("ordinary page navigation shares URLs and survives back, forward and reload", async ({ page, request }, testInfo) => {
@@ -52,12 +52,13 @@ test("mobile menu supports keyboard dismissal and desktop resizing", async ({ pa
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/");
   const menu = page.locator("#site-navigation");
   await expect(menu).toHaveJSProperty("open", false);
-  await menu.locator("summary").focus(); await page.keyboard.press("Enter");
+  await menu.locator(":scope > summary").focus(); await page.keyboard.press("Enter");
   await expect(menu).toHaveJSProperty("open", true);
+  await menu.locator(".menu-search > summary").click();
   await menu.locator('[name="q"]').fill("SVG");
   await expect(menu.locator("[data-project]:visible")).toHaveCount(1);
   await page.keyboard.press("Escape"); await expect(menu).toHaveJSProperty("open", false);
-  await expect(menu.locator("summary")).toBeFocused();
+  await expect(menu.locator(":scope > summary")).toBeFocused();
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect(menu).toHaveJSProperty("open", true);
 });

@@ -32,12 +32,9 @@ layout: null
 <main class="site-content" id="main-content" tabindex="-1">
 <section class="home-hero">
 <img class="home-banner" src="/file_index/xenoah_banner.png" alt="Xenoahロゴ" width="420">
-<div class="home-brand"><img src="/file_index/xenoah_stand.png" alt="ゼノアのキャラクター" width="90"><div><h1>作って、遊んで、学ぶ。<br>Xenoahのホームページ</h1><p>音楽・画像のWebツール、ミニゲーム、数学教材、3Dモデル。<br>電子工作とプログラミングから生まれた制作物を公開しています。</p></div></div>
-<div class="home-actions"><a href="/projects.htm">やりたいことから作品を探す</a><a href="/portfolio.htm">制作実績を見る</a><a href="/blog/">ブログを読む</a></div>
+<div class="home-brand"><img src="/file_index/xenoah_stand.png" alt="ゼノアのキャラクター" width="90"><div><h1>Xenoahのホームページ</h1><p>ようこそ！ 自作のツールやゲーム、3Dモデルなどを置いています。<br>どうぞごゆっくり。</p></div></div>
+<div class="home-actions"><a href="/projects.htm">［ツール・ゲーム一覧］</a><a href="/portfolio.htm">［ポートフォリオ］</a><a href="/blog/">［ブログ］</a></div>
 </section>
-<section class="home-section"><h2>まずは、これを試してみて</h2>{% include featured_projects.html %}</section>
-<section class="home-section"><h2>最近更新された作品</h2>{% include recent_projects.html %}<p><a href="/changelog.htm">すべての更新履歴を見る</a></p></section>
-<section class="home-section"><h2>最近のブログ</h2><ul>{% include blog_articles.html %}{% for article in all_articles limit:3 %}<li><time datetime="{{ article.date | date: '%Y-%m-%d' }}">{{ article.date | date: '%Y/%m/%d' }}</time> · <a href="{{ article.url | relative_url }}">{{ article.title | escape }}</a></li>{% endfor %}</ul><a href="/blog/">記事一覧へ</a></section>
 <section class="home-section home-about"><h2>よう！ゼノアだ！</h2><p>
     　よう!俺の名前はゼノアだ!<br>
     名前の由来はXero-Entropy Nexus of Astral Horizonsだ。<br>
@@ -53,6 +50,10 @@ layout: null
     　それと文章が補完されたり、テーマを変えられたりして超便利なんだ!この文章も自動生成だ。<br>
     というか補完が優秀すぎて書きたい内容が見透かされているかのようだな。<br>
 </p><p><a href="https://twitter.com/shuminchuuu/status/1997546904138486069" target="_blank" rel="noopener">ホームページ公開時の投稿（2025年12月7日・別タブ）</a></p></section>
+<section class="home-section"><h2>◆ おすすめのツール・ゲーム</h2>{% include featured_projects.html %}</section>
+<section class="home-section"><h2>◆ 最近更新したもの</h2>{% include recent_projects.html %}<p><a href="/changelog.htm">すべての更新履歴を見る</a></p></section>
+<section class="home-section"><h2>◆ 最近のブログ</h2><ul>{% include blog_articles.html %}{% for article in all_articles limit:3 %}<li><time datetime="{{ article.date | date: '%Y-%m-%d' }}">{{ article.date | date: '%Y/%m/%d' }}</time> · <a href="{{ article.url | relative_url }}">{{ article.title | escape }}</a></li>{% endfor %}</ul><a href="/blog/">記事一覧へ</a></section>
+
 </main>
 </div>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NMPQ2W5W56"></script>

@@ -16,7 +16,7 @@
       const words = normalize(search.value).split(/\s+/).filter(Boolean);
       let visible = 0;
       entries.forEach((node) => {
-        node.hidden = !words.every(word => normalize(node.textContent).includes(word)) || !!category.value && node.dataset.category !== category.value;
+        node.hidden = !words.every(word => normalize(node.dataset.search || node.textContent).includes(word)) || !!category.value && node.dataset.category !== category.value;
         if (!node.hidden) visible++;
       });
       scope.querySelectorAll("[data-project-section]").forEach(section => { section.hidden = ![...section.querySelectorAll("[data-project]")].some(node => !node.hidden); });
@@ -27,7 +27,10 @@
         history.replaceState(null, "", url);
       }
     }
-    form.hidden = false; restore(); filter(false);
+    form.hidden = false;
+    const disclosure = form.closest(".menu-search");
+    if (disclosure) disclosure.hidden = false;
+    restore(); filter(false);
     form.addEventListener("submit", (event) => { event.preventDefault(); filter(); });
     search.addEventListener("input", () => filter()); category.addEventListener("change", () => filter());
     form.addEventListener("reset", (event) => { event.preventDefault(); search.value = ""; category.value = ""; filter(); search.focus(); });
