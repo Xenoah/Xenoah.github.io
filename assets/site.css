@@ -27,6 +27,7 @@ body.site-page { margin:0; padding:0; color:var(--site-ink); background:var(--si
 .site-content > h1 { font-size:clamp(24px,3vw,36px); line-height:1.4; }
 .site-content .blog-header { padding:0 0 20px; }
 .site-content .blog-shell { width:100%; max-width:1100px; padding:0; margin:0 auto; }
+.site-content .writing-heading h1 { scroll-margin-top:calc(var(--blog-header-height, 75px) + 20px); }
 .home-hero { border-bottom:2px solid var(--site-line); padding-bottom:28px; margin-bottom:28px; }
 .home-brand { display:flex; align-items:center; gap:20px; }
 .home-brand img { width:90px; max-height:150px; object-fit:contain; }

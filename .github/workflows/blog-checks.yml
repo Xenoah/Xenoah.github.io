@@ -1,7 +1,6 @@
-name: Blog checks
+name: Site and blog checks
 on:
   pull_request:
-    paths: ['blog/**', '_layouts/**', '_includes/blog_articles.html', '_config.yml', 'sitemap.xml', 'scripts/check_blog_article_assets.js', '.github/workflows/blog-checks.yml']
   workflow_dispatch:
   workflow_call:
 permissions:
@@ -23,6 +22,8 @@ jobs:
       - name: Install test dependencies
         working-directory: blog
         run: npm ci
+      - name: Validate project catalog, generated files, local links and page metadata
+        run: node scripts/check-site.js
       - name: Validate articles and application state
         working-directory: blog
         run: |

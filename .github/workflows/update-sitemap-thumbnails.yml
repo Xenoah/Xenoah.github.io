@@ -14,7 +14,7 @@ on:
 permissions:
   contents: write
   pages: read
-  actions: read
+  actions: write
 
 concurrency:
   group: sitemap-thumbnails
@@ -26,9 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # menu.htm に追加されたサイト内リンクを sitemap.htm / sitemap.xml / 撮影リストへ自動追記
-      - name: Sync sitemap from menu links
-        run: node scripts/sync_sitemap_from_menu.js
+      # JSON is the source of truth; do not parse the generated menu.
+      - name: Sync catalog and sitemap
+        run: node scripts/build-projects.js
 
       - name: Install Japanese fonts
         run: |
@@ -55,7 +55,12 @@ jobs:
       - name: Capture thumbnails
         run: bash scripts/update_sitemap_thumbs.sh
 
+      - name: Include newly available thumbnails in the sitemap
+        run: node scripts/build-projects.js
+
       - name: Commit and push updated sitemap and thumbnails
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -67,3 +72,5 @@ jobs:
           git commit -m "Update sitemap and thumbnails (auto)"
           git pull --rebase origin main
           git push origin main
+          # GITHUB_TOKEN pushes do not trigger push workflows; publish this tested revision explicitly.
+          gh workflow run publish-site.yml --ref main

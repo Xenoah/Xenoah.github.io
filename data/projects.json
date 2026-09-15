@@ -5,7 +5,8 @@
     "description": "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。",
     "category": "models",
     "pagesUrl": "https://xenoah.github.io/archive-3dmodels/",
-    "sourceUrl": "https://github.com/Xenoah/archive-3dmodels"
+    "sourceUrl": "https://github.com/Xenoah/archive-3dmodels",
+    "thumbnailSlug": "archive-3dmodels"
   },
   {
     "id": "xnh-bbs",
@@ -13,7 +14,8 @@
     "description": "ご意見・雑談用の掲示板",
     "category": "community",
     "pagesUrl": "https://xenoah.github.io/XNH_BBS/",
-    "sourceUrl": "https://github.com/Xenoah/XNH_BBS"
+    "sourceUrl": "https://github.com/Xenoah/XNH_BBS",
+    "thumbnailSlug": "xnh-bbs"
   },
   {
     "id": "seekdeck-webdj",
@@ -22,7 +24,8 @@
     "category": "music",
     "pagesUrl": "https://xenoah.github.io/seekdeck-webdj/dist/",
     "sourceUrl": "https://github.com/Xenoah/seekdeck-webdj",
-    "updated": "2026-09-14"
+    "updated": "2026-09-14",
+    "thumbnailSlug": "seekdeck-webdj"
   },
   {
     "id": "portavek-handheld-synthesizer",
@@ -32,7 +35,8 @@
     "pagesUrl": "https://xenoah.github.io/portavek-handheld-synthesizer/",
     "sourceUrl": "https://github.com/Xenoah/portavek-handheld-synthesizer",
     "updated": "2026-09-15",
-    "featured": true
+    "featured": true,
+    "thumbnailSlug": "portavek-handheld-synthesizer"
   },
   {
     "id": "voicemeld",
@@ -81,7 +85,8 @@
     "description": "QRコードの作成・読み取り",
     "category": "images",
     "pagesUrl": "https://xenoah.github.io/tools/qr-code-tool/qr-code-tool.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-code-tool"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-code-tool",
+    "thumbnailSlug": "qr-code-tool"
   },
   {
     "id": "qr-painting",
@@ -89,7 +94,8 @@
     "description": "テンプレートにペンと消しゴムで塗るQRコード塗り絵ツール",
     "category": "images",
     "pagesUrl": "https://xenoah.github.io/tools/qr-painting/qr-painting.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-painting"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-painting",
+    "thumbnailSlug": "qr-painting"
   },
   {
     "id": "webapp-pdf-editor",
@@ -97,7 +103,8 @@
     "description": "PDFの編集",
     "category": "tools",
     "pagesUrl": "https://xenoah.github.io/WEBAPP_PDF-EDITOR/",
-    "sourceUrl": "https://github.com/Xenoah/WEBAPP_PDF-EDITOR"
+    "sourceUrl": "https://github.com/Xenoah/WEBAPP_PDF-EDITOR",
+    "thumbnailSlug": "pdf-editor"
   },
   {
     "id": "moji-mic",
@@ -105,7 +112,8 @@
     "description": "マイク音声の文字起こし",
     "category": "tools",
     "pagesUrl": "https://xenoah.github.io/moji-mic/",
-    "sourceUrl": "https://github.com/Xenoah/moji-mic"
+    "sourceUrl": "https://github.com/Xenoah/moji-mic",
+    "thumbnailSlug": "moji-mic"
   },
   {
     "id": "wave-daw",
@@ -113,7 +121,8 @@
     "description": "Webで使える音楽作成ソフト（DAW）",
     "category": "music",
     "pagesUrl": "https://xenoah.github.io/wave-daw/",
-    "sourceUrl": "https://github.com/Xenoah/wave-daw"
+    "sourceUrl": "https://github.com/Xenoah/wave-daw",
+    "thumbnailSlug": "wave-daw"
   },
   {
     "id": "audio-converter",
@@ -121,7 +130,8 @@
     "description": "音声ファイル変換",
     "category": "music",
     "pagesUrl": "https://xenoah.github.io/tools/audio-converter/audio-converter.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-converter"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-converter",
+    "thumbnailSlug": "audio-converter"
   },
   {
     "id": "audio-to-arduino-tone",
@@ -129,7 +139,8 @@
     "description": "MP3 / WAVをArduinoのtone()用メロディーへ変換",
     "category": "music",
     "pagesUrl": "https://xenoah.github.io/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-to-arduino-tone"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-to-arduino-tone",
+    "thumbnailSlug": "audio-to-arduino-tone"
   },
   {
     "id": "svg-converter",
@@ -138,7 +149,8 @@
     "category": "images",
     "pagesUrl": "https://xenoah.github.io/tools/svg-converter/svg-converter.htm",
     "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/svg-converter",
-    "featured": true
+    "featured": true,
+    "thumbnailSlug": "svg-converter"
   },
   {
     "id": "gif-converter",
@@ -146,7 +158,8 @@
     "description": "GIFの変換",
     "category": "images",
     "pagesUrl": "https://xenoah.github.io/tools/gif-converter/gif-converter.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/gif-converter"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/gif-converter",
+    "thumbnailSlug": "gif-converter"
   },
   {
     "id": "scientific-calculator",
@@ -154,7 +167,8 @@
     "description": "高機能な電卓",
     "category": "tools",
     "pagesUrl": "https://xenoah.github.io/tools/scientific-calculator/scientific-calculator.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/scientific-calculator"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/scientific-calculator",
+    "thumbnailSlug": "scientific-calculator"
   },
   {
     "id": "webapp-2dcad",
@@ -162,7 +176,8 @@
     "description": "ブラウザで使える2D作図ツール",
     "category": "tools",
     "pagesUrl": "https://xenoah.github.io/WEBAPP_2DCAD/",
-    "sourceUrl": "https://github.com/Xenoah/WEBAPP_2DCAD"
+    "sourceUrl": "https://github.com/Xenoah/WEBAPP_2DCAD",
+    "thumbnailSlug": "2dcad"
   },
   {
     "id": "dtmf-toolkit",
@@ -170,7 +185,8 @@
     "description": "プッシュ音の生成・解析",
     "category": "music",
     "pagesUrl": "https://xenoah.github.io/tools/dtmf-toolkit/dtmf-toolkit.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/dtmf-toolkit"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/dtmf-toolkit",
+    "thumbnailSlug": "dtmf-toolkit"
   },
   {
     "id": "vj-fx-maker",
@@ -178,7 +194,8 @@
     "description": "簡易映像エフェクト作成",
     "category": "images",
     "pagesUrl": "https://xenoah.github.io/tools/vj-fx-maker/vj-fx-maker.htm",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/vj-fx-maker"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/vj-fx-maker",
+    "thumbnailSlug": "vj-fx-maker"
   },
   {
     "id": "font-sense",
@@ -186,7 +203,8 @@
     "description": "絶対フォント感・書体当てクイズ",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/font-sense/font-sense.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/font-sense"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/font-sense",
+    "thumbnailSlug": "font-sense"
   },
   {
     "id": "synth-wave-match",
@@ -194,7 +212,8 @@
     "description": "波形マッチング音ゲー",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/synth-wave-match/synth-wave-match.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/synth-wave-match"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/synth-wave-match",
+    "thumbnailSlug": "synth-wave-match"
   },
   {
     "id": "perfect-pitch-quiz",
@@ -202,7 +221,8 @@
     "description": "絶対音感トレーニング",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/perfect-pitch-quiz/perfect-pitch-quiz.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/perfect-pitch-quiz"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/perfect-pitch-quiz",
+    "thumbnailSlug": "perfect-pitch-quiz"
   },
   {
     "id": "chord-breaker",
@@ -210,7 +230,8 @@
     "description": "和音聴き取りクイズ",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/chord-breaker/chord-breaker.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/chord-breaker"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/chord-breaker",
+    "thumbnailSlug": "chord-breaker"
   },
   {
     "id": "train-simulator",
@@ -219,7 +240,8 @@
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/train-simulator/shiokaze_train_sim.html",
     "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/train-simulator",
-    "featured": true
+    "featured": true,
+    "thumbnailSlug": "train-simulator"
   },
   {
     "id": "skyracers-fpv",
@@ -227,7 +249,8 @@
     "description": "ドローン操縦シミュレーター",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/skyracers-fpv/skyracers-fpv.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/skyracers-fpv"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/skyracers-fpv",
+    "thumbnailSlug": "skyracers-fpv"
   },
   {
     "id": "game-sandbox",
@@ -235,7 +258,8 @@
     "description": "自由に遊べるブラウザ向けサンドボックスゲーム",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/game-sandbox/",
-    "sourceUrl": "https://github.com/Xenoah/game-sandbox"
+    "sourceUrl": "https://github.com/Xenoah/game-sandbox",
+    "thumbnailSlug": "game-sandbox"
   },
   {
     "id": "long-rpg",
@@ -243,7 +267,8 @@
     "description": "Fable 5で制作。オフラインで長く遊べる、無限生成型のブラウザRPG",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/long-rpg/mugen_kairo.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/long-rpg"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/long-rpg",
+    "thumbnailSlug": "long-rpg"
   },
   {
     "id": "haiku-generator",
@@ -251,7 +276,8 @@
     "description": "俳句をランダム生成",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/games/haiku-generator/haiku-generator.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/haiku-generator"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/games/haiku-generator",
+    "thumbnailSlug": "haiku-generator"
   },
   {
     "id": "5w1h-generator",
@@ -259,7 +285,8 @@
     "description": "\"5w1h-generatorを追加\"（メニューから自動追加）",
     "category": "games",
     "pagesUrl": "https://xenoah.github.io/5w1h-generator",
-    "sourceUrl": "https://github.com/Xenoah/5w1h-generator"
+    "sourceUrl": "https://github.com/Xenoah/5w1h-generator",
+    "thumbnailSlug": "5w1h-generator"
   },
   {
     "id": "intmath",
@@ -268,7 +295,8 @@
     "category": "learn",
     "pagesUrl": "https://xenoah.github.io/study/intmath/intmath.html",
     "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/study/intmath",
-    "featured": true
+    "featured": true,
+    "thumbnailSlug": "intmath"
   },
   {
     "id": "xnh-news-atlas",
@@ -276,7 +304,8 @@
     "description": "ニュースを地図で見る",
     "category": "data",
     "pagesUrl": "https://xenoah.github.io/XNH_news-atlas/",
-    "sourceUrl": "https://github.com/Xenoah/XNH_news-atlas"
+    "sourceUrl": "https://github.com/Xenoah/XNH_news-atlas",
+    "thumbnailSlug": "news-atlas"
   },
   {
     "id": "spacecraft",
@@ -284,7 +313,8 @@
     "description": "日本の人工衛星/探査機DB",
     "category": "data",
     "pagesUrl": "https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/database/SpaceCraft"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/database/SpaceCraft",
+    "thumbnailSlug": "db-spacecraft"
   },
   {
     "id": "scienceinstitue",
@@ -292,6 +322,7 @@
     "description": "日本の科学研究機関DB",
     "category": "data",
     "pagesUrl": "https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html",
-    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/database/ScienceInstitue"
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/database/ScienceInstitue",
+    "thumbnailSlug": "db-institutes"
   }
 ]

@@ -1,0 +1,18 @@
+name: Check external project links
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 0 * * 1'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check published Pages and GitHub URLs
+        run: node scripts/check-project-urls.js

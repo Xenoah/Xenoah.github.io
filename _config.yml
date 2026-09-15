@@ -8,6 +8,11 @@ author: Xenoah
 
 # ブログの開発用ファイルを公開成果物へ含めない。
 exclude:
+  - AGENTS.md
+  - README.md
+  - BLOGGING.md
+  - docs
+  - scripts
   - blog/node_modules
   - blog/.npm-cache
   - blog/tests
