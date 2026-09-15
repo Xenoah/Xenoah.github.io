@@ -8,6 +8,11 @@ const siteName = "Xenoah";
 // 公開ページの検索表示文言を一元管理する。
 // titleは「日本語 | English | Xenoah」、descriptionは「日本語 / English」を基本とする。
 const pages = {
+  "projects.htm": {
+    title: "作品を探す | Explore Projects | Xenoah",
+    description: "音楽、画像、ゲーム、学習、3Dモデルの制作物を目的やキーワードで探し、公開サイトとGitHubの両方を参照できます。 / Find tools, games, lessons and 3D projects by purpose with links to live sites and GitHub source.",
+    canonical: "/projects.htm",
+  },
   "games/train-simulator/shiokaze_train_sim.html": {
     title: "汐風線・電車運転シミュレーター | Shiokaze Train Simulator | Xenoah",
     description: "汐風線で電車の運転を体験するブラウザシミュレーターです。 / A browser train driving simulator set on the Shiokaze line.",
@@ -26,7 +31,8 @@ const pages = {
   "top.htm": {
     title: "トップページ | Home | Xenoah",
     description: "Xenoahの制作物、便利なWebツール、ゲーム、学習コンテンツ、ブログへの入口です。 / Home page for Xenoah's projects, browser tools, games, learning content and blog.",
-    canonical: "/top.htm",
+    canonical: "/",
+    robots: "noindex,follow",
   },
   "menu.htm": {
     title: "サイトメニュー | Site Menu | Xenoah",

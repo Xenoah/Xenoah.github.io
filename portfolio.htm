@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -58,8 +61,13 @@ details[open]>.project-head:after,details[open]>summary .project-head:after{cont
 .retro-box{background:var(--code);color:#d1fae5;border-radius:12px;padding:14px;font-family:Consolas,"Courier New",monospace;font-size:13px;overflow-x:auto}.footer{margin:36px 0 10px;padding-top:16px;border-top:1px solid var(--line);color:var(--sub);font-size:13px}
 @media(max-width:720px){body{padding:10px}.hero{padding:18px}.field{grid-template-columns:1fr;gap:2px}.project-head h3{margin-right:0}.project-head:after{position:static;display:inline-block;margin-top:8px}.metrics{grid-template-columns:1fr 1fr}}
 </style>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site-navigation.js" defer></script>
+<script src="/assets/project-filter.js" defer></script>
 </head>
-<body>
+<body class="site-page">
+{% include site_navigation.html %}
+<main class="site-content" id="main-content" tabindex="-1">
 
 <div class="site-banner">
   <img src="file_index/xenoah_banner.png" alt="Xenoahロゴ">
@@ -414,5 +422,7 @@ Demo / GitHub / Note として残す
   <p>最終更新：2026-07-18 / このページは Xenoah の制作ログ兼ポートフォリオです。完成品、試作品、課題ログをまとめています。</p>
 </div>
 
+</main>
+</div>
 </body>
 </html>

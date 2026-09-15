@@ -58,4 +58,3 @@ xnh-bbs XNH_BBS/
 5w1h-generator 5w1h-generator
 seekdeck-webdj seekdeck-webdj/dist/
 portavek-handheld-synthesizer portavek-handheld-synthesizer/
-voicemeld voicemeld/

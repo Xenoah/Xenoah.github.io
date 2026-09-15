@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -17,9 +20,15 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="更新履歴 | Website Changelog | Xenoah">
   <meta name="twitter:description" content="Xenoahのホームページに追加・更新したWebツール、ゲーム、記事、機能の履歴を新しい順に掲載します。 / Chronological updates to the tools, games, articles and features published on Xenoah's website.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site-navigation.js" defer></script>
+<script src="/assets/project-filter.js" defer></script>
 </head>
 
-<body bgcolor="#FFFFFF" text="#000000">
+<body class="site-page">
+{% include site_navigation.html %}
+<main class="site-content" id="main-content" tabindex="-1">
 
   <LEFT>
     <img src="file_index/xenoah_banner.png" alt="Xenoahロゴ">
@@ -34,6 +43,7 @@
   <p>最終更新日：2026/09/15</p>
 
   <ul>
+    <li>2026/09/15 トップに代表作・新着を追加。フレームを廃止し、スマホ対応の共通メニューと共有可能なURLへ移行。目的別の作品検索、GitHub PagesとGitHubのリンクを整備。VoiceMeldは公開URLが404のためGitHubへの案内に変更。</li>
     <!-- 以下6件の日付は各リポジトリのmain最終コミットのcommitter日時（日本時間）。日付リンクは取得元。 -->
     <li><a href="https://github.com/Xenoah/portavek-handheld-synthesizer/commit/9ade864f13a1bbf766d386191328d21f46d471a2" target="_blank" rel="noopener">2026/09/15</a> <a href="https://xenoah.github.io/portavek-handheld-synthesizer/" target="portavek">PortaVek</a>を追加。スマホでドラムとシンセを演奏できるブラウザ楽器。音作り、録音・WAV保存、プリセット保存に対応。</li>
     <li><a href="https://github.com/Xenoah/seekdeck-webdj/commit/3a0f8f4030e9f63883878ee35aa37abab8e261a5" target="_blank" rel="noopener">2026/09/14</a> <a href="https://xenoah.github.io/seekdeck-webdj/dist/" target="seekdeck-webdj">SeekDeck</a>を追加。音源を端末内で処理する4デッキのブラウザDJアプリ。波形表示、BPM同期、ホットキュー、ループ、EQ・エフェクト、録音に対応。</li>
@@ -93,6 +103,8 @@
     ※日付の新しいものを上に追加していくスタイルを想定しています。<br>
   </p>
 
+</main>
+</div>
 </body>
 
 </html>

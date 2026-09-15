@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -127,9 +130,15 @@ body:has(a[href*="note.com"]:hover) {
 </style>
 
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site-navigation.js" defer></script>
+<script src="/assets/project-filter.js" defer></script>
 </head>
 
-<body bgcolor="#FFFFFF" text="#000000">
+<body class="site-page">
+{% include site_navigation.html %}
+<main class="site-content" id="main-content" tabindex="-1">
 
 <left>
     <img src="file_index/xenoah_banner.png" alt="Xenoahロゴ">
@@ -192,5 +201,7 @@ body:has(a[href*="note.com"]:hover) {
 
 </div>
 
+</main>
+</div>
 </body>
 </html>

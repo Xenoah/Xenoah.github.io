@@ -51,8 +51,13 @@
     "image": {{ page_image | absolute_url | jsonify | replace: '<', '\u003c' }}
   }
   </script>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site-navigation.js" defer></script>
+<script src="/assets/project-filter.js" defer></script>
 </head>
-<body>
+<body class="site-page">
+{% include site_navigation.html %}
+<div class="site-content" id="main-content" tabindex="-1">
   <header class="blog-header">
     <a class="brand" href="{{ '/blog/' | relative_url | escape }}" aria-label="Blog home">
       <img src="{{ '/file_index/xenoah_banner.png' | relative_url | escape }}" alt="Xenoah">
@@ -60,7 +65,7 @@
     <nav class="blog-nav" aria-label="Blog navigation">
       <a href="{{ '/blog/' | relative_url | escape }}">Articles</a>
       <a href="{{ '/blog/editor.html' | relative_url | escape }}">Editor</a>
-      <a href="{{ '/top.htm' | relative_url | escape }}">Home</a>
+      <a href="{{ '/' | relative_url | escape }}">Home</a>
     </nav>
   </header>
   <main class="article-wrap">
@@ -101,5 +106,7 @@
     </nav>
   </main>
   <script src="{{ '/blog/assets/reader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+</div>
+</div>
 </body>
 </html>
