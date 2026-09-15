@@ -1,6 +1,6 @@
-:root { --site-ink:#000; --site-paper:#fff; --site-lilac:#e8e8ff; --site-line:#999; --site-link:#0000ee; }
-body.site-page { margin:0; padding:0; color:var(--site-ink); background:var(--site-paper); font:16px/1.6 "Times New Roman","Yu Mincho","Hiragino Mincho ProN",serif; }
-body.site-page:has(.blog-shell) { font:16px/1.7 "Yu Gothic",Meiryo,sans-serif; }
+:root { --site-ink:#000; --site-paper:#fff; --site-lilac:#e8e8ff; --site-line:#999; --site-link:#0000ee; --site-font:"MS Gothic","ＭＳ ゴシック",monospace; }
+body.site-page { margin:0; padding:0; color:var(--site-ink); background:var(--site-paper); font:16px/1.6 var(--site-font); }
+body.site-page:has(.blog-shell) { line-height:1.7; }
 .site-page *, .site-page *::before, .site-page *::after { box-sizing:border-box; }
 .site-page a { color:#0000ee; text-decoration:underline; text-underline-offset:1px; }
 .site-page a:visited { color:#551a8b; }
@@ -13,7 +13,7 @@ body.site-page:has(.blog-shell) { font:16px/1.7 "Yu Gothic",Meiryo,sans-serif; }
 .site-layout { display:grid; grid-template-columns:minmax(210px,18%) minmax(0,1fr); align-items:start; }
 .site-navigation { position:sticky; top:0; background:var(--site-lilac); border-right:3px ridge #ddd; max-height:100vh; overflow:auto; }
 .site-navigation > summary { padding:10px 8px; cursor:pointer; font-weight:bold; }
-.site-menu { padding:8px; overflow-wrap:anywhere; font:16px/1.5 "Times New Roman","Yu Mincho","Hiragino Mincho ProN",serif; }
+.site-menu { padding:8px; overflow-wrap:anywhere; font:16px/1.5 var(--site-font); }
 .site-menu .menu-brand { font-weight:bold; }
 .site-menu ul { list-style:none; margin:8px 0 16px; padding:0; }
 .site-menu li { margin:7px 0; padding:0; }
@@ -54,8 +54,8 @@ body.site-page:has(.blog-shell) { font:16px/1.7 "Yu Gothic",Meiryo,sans-serif; }
 .project-actions .source-only { font-size:14px; color:#333; }
 .project-filters { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:16px 0; padding:10px; border:2px groove #ddd; border-radius:0; background:#f0f0f0; }
 .project-filters label { flex:1; min-width:0; font-weight:bold; font-size:14px; }
-.project-filters input, .project-filters select { display:block; width:100%; min-width:0; padding:5px; border:2px inset #ddd; border-radius:0; background:white; color:#000; font:16px/1.4 Arial,"MS PGothic",sans-serif; }
-.project-filters button { padding:5px 9px; border:2px outset #ddd; background:#eee; border-radius:0; color:#000; font:14px/1.5 Arial,"MS PGothic",sans-serif; cursor:pointer; }
+.project-filters input, .project-filters select { display:block; width:100%; min-width:0; padding:5px; border:2px inset #ddd; border-radius:0; background:white; color:#000; font:16px/1.4 var(--site-font); }
+.project-filters button { padding:5px 9px; border:2px outset #ddd; background:#eee; border-radius:0; color:#000; font:14px/1.5 var(--site-font); cursor:pointer; }
 .project-filters button:active { border-style:inset; }
 .project-filters [role=status] { flex-basis:100%; margin:0; font-size:14px; }
 .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
