@@ -59,9 +59,10 @@ for (const file of htmlFiles(root)) {
   // Jekyll templates are inspected after rendering by the browser checks.
   for (const node of document.querySelectorAll("img[src],script[src],link[rel=stylesheet][href],a[href]")) {
     const value = node.getAttribute("src") || node.getAttribute("href");
-    if (!value || value.includes("{{") || value.includes("{%") || /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(value)) continue;
+    if (!value || value.includes("{{") || value.includes("{%") || value.startsWith("#")) continue;
     let url;
     try { url = new URL(value, `${origin}/${file}`); } catch { errors.push(`${file}: invalid URL ${value}`); continue; }
+    if (url.origin !== origin) continue;
     const route = decodeURIComponent(url.pathname);
     if (separateSites.includes(route.split("/")[1]) || generatedRoutes.has(route)) continue;
     const target = path.join(root, route);
