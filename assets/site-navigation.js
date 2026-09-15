@@ -14,6 +14,15 @@
   if (current.searchParams.get("view") === "menu") {
     current.searchParams.delete("view"); history.replaceState(null, "", current);
   }
+  // A permanently focusable ancestor can take focus away from WebKit editor controls.
+  // Make the skip destination focusable only while the skip link is being used.
+  document.querySelector(".skip-link")?.addEventListener("click", () => {
+    const content = document.getElementById("main-content");
+    if (!content) return;
+    const previous = content.getAttribute("tabindex");
+    content.setAttribute("tabindex", "-1"); content.focus({ preventScroll: true });
+    if (previous === null) content.addEventListener("blur", () => content.removeAttribute("tabindex"), { once: true });
+  });
   const menu = document.getElementById("site-navigation");
   if (menu) {
     const mobile = matchMedia("(max-width: 800px)");

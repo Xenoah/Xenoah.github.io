@@ -30,3 +30,12 @@ test("old menu parameter is removed while article search and fragment survive", 
   dom.window.eval(read("assets/site-navigation.js"));
   assert.equal(dom.window.location.href, "https://xenoah.github.io/blog/?q=SVG#section-1"); dom.window.close();
 });
+test("skip link focuses content without leaving a focusable ancestor around editor controls", () => {
+  const dom = new JSDOM('<a class="skip-link" href="#main-content">Skip</a><div id="main-content"><button id="control">Control</button></div>', { url: "https://xenoah.github.io/blog/editor.html", runScripts: "outside-only" });
+  const w = dom.window, d = w.document, content = d.getElementById("main-content");
+  w.eval(read("assets/site-navigation.js"));
+  assert.equal(content.hasAttribute("tabindex"), false);
+  d.querySelector("a").click(); assert.equal(d.activeElement, content);
+  d.getElementById("control").focus(); assert.equal(content.hasAttribute("tabindex"), false);
+  dom.window.close();
+});
