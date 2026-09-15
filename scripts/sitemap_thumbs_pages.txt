@@ -56,3 +56,6 @@ db-spacecraft database/SpaceCraft/DB_spacecraft_index.html
 db-institutes database/ScienceInstitue/DB_institutes_index.html
 xnh-bbs XNH_BBS/
 5w1h-generator 5w1h-generator
+seekdeck-webdj seekdeck-webdj/dist/
+portavek-handheld-synthesizer portavek-handheld-synthesizer/
+voicemeld voicemeld/
