@@ -1,5 +1,14 @@
 [
   {
+    "id": "xenoah-hp-pv",
+    "title": "ゼノアの全能庵・ホームページPV",
+    "description": "音楽付きの30秒の3Dアニメーション。再生・一時停止、シーク、全画面表示に対応。",
+    "category": "images",
+    "pagesUrl": "https://xenoah.github.io/scripted-animation/hp-pv/xenoah_pv.html",
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/scripted-animation/hp-pv",
+    "updated": "2026-09-26"
+  },
+  {
     "id": "archive-3dmodels",
     "title": "3Dモデル配布サイト",
     "description": "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。",
