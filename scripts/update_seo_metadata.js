@@ -8,6 +8,11 @@ const siteName = "Xenoah";
 // 公開ページの検索表示文言を一元管理する。
 // titleは「日本語 | English | Xenoah」、descriptionは「日本語 / English」を基本とする。
 const pages = {
+  "scripted-animation/hp-pv/xenoah_pv.html": {
+    title: "ゼノアの全能庵・ホームページPV | Homepage Promotion Video | Xenoah",
+    description: "ゼノアの全能庵を紹介する30秒の音楽付き3Dアニメーションです。ブラウザで再生・一時停止・シーク・全画面表示ができます。 / Watch a 30-second 3D homepage promotion with music, playback controls, seeking and fullscreen mode.",
+    canonical: "/scripted-animation/hp-pv/xenoah_pv.html",
+  },
   "projects.htm": {
     title: "作品を探す | Explore Projects | Xenoah",
     description: "音楽、画像、ゲーム、学習、3Dモデルの制作物を目的やキーワードで探し、公開サイトとGitHubの両方を参照できます。 / Find tools, games, lessons and 3D projects by purpose with links to live sites and GitHub source.",
