@@ -8,6 +8,11 @@ const siteName = "Xenoah";
 // 公開ページの検索表示文言を一元管理する。
 // titleは「日本語 | English | Xenoah」、descriptionは「日本語 / English」を基本とする。
 const pages = {
+  "scripted-animation/3a-hac/ZA_NAS_Film.html": {
+    title: "ЗА НАС・俺たちに | ZA NAS Dubstep Remix Film | Xenoah",
+    description: "ЗА НАСのダブステップリミックスに合わせた約3分34秒のCG映像です。ブラウザで再生・一時停止・シーク・画質変更・全画面表示ができます。 / Watch a CG film set to the ZA NAS dubstep remix, with playback, seeking, quality settings and fullscreen controls.",
+    canonical: "/scripted-animation/3a-hac/ZA_NAS_Film.html",
+  },
   "scripted-animation/hp-pv/xenoah_pv.html": {
     title: "ゼノアの全能庵・ホームページPV | Homepage Promotion Video | Xenoah",
     description: "ゼノアの全能庵を紹介する30秒の音楽付き3Dアニメーションです。ブラウザで再生・一時停止・シーク・全画面表示ができます。 / Watch a 30-second 3D homepage promotion with music, playback controls, seeking and fullscreen mode.",
