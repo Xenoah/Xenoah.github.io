@@ -6,10 +6,6 @@ sitemap: false
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://xenoah.github.io/scripted-animation/3a-hac/ZA_NAS_Film.html</loc>
-    <lastmod>2026-09-27</lastmod>
-  </url>
-  <url>
     <loc>https://xenoah.github.io/</loc>
     <lastmod>2026-09-15</lastmod>
     <changefreq>weekly</changefreq>
@@ -217,6 +213,7 @@ sitemap: false
   {% endfor %}
   <url><loc>https://xenoah.github.io/projects.htm</loc><lastmod>2026-09-15</lastmod></url>
 <!-- PROJECT-URLS:start -->
+  <url><loc>https://xenoah.github.io/scripted-animation/3a-hac/ZA_NAS_Film.html</loc><lastmod>2026-09-27</lastmod></url>
   <url><loc>https://xenoah.github.io/scripted-animation/hp-pv/xenoah_pv.html</loc><lastmod>2026-09-26</lastmod></url>
   <url><loc>https://xenoah.github.io/archive-3dmodels/</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/archive-3dmodels.jpg</image:loc></image:image></url>
   <url><loc>https://xenoah.github.io/XNH_BBS/</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/xnh-bbs.jpg</image:loc></image:image></url>
