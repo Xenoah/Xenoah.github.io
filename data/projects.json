@@ -1,5 +1,56 @@
 [
   {
+    "id": "map-autumn-leaves",
+    "title": "KOYO LIVE - 全国紅葉マップ",
+    "description": "全国の紅葉スポットを地図で検索。色づき状況・情報の更新日・ライブカメラへのリンクを確認できる。観測情報のない地点は未確認として表示。",
+    "category": "data",
+    "pagesUrl": "https://xenoah.github.io/map_autumn-leaves/",
+    "sourceUrl": "https://github.com/Xenoah/map_autumn-leaves",
+    "updated": "2026-10-18",
+    "thumbnailSlug": "map-autumn-leaves"
+  },
+  {
+    "id": "tsubuyai-tech",
+    "title": "つぶやいテック - 科学技術ニュース",
+    "description": "7人の架空の編集キャラクターが科学技術ニュースを紹介。分野別の絞り込み、出典の確認、記事の保存・購読に対応。",
+    "category": "data",
+    "pagesUrl": "https://xenoah.github.io/tsubuyai-tech/",
+    "sourceUrl": "https://github.com/Xenoah/tsubuyai-tech",
+    "updated": "2026-10-18",
+    "thumbnailSlug": "tsubuyai-tech"
+  },
+  {
+    "id": "meshcopia",
+    "title": "Meshcopia - 無料3Dモデル・テクスチャ",
+    "description": "無料の3Dモデル・テクスチャを検索・プレビュー・ダウンロードできる素材ライブラリ。AIエージェント向けJSONカタログも提供。",
+    "category": "models",
+    "pagesUrl": "https://xenoah.github.io/meshcopia/",
+    "sourceUrl": "https://github.com/Xenoah/meshcopia",
+    "updated": "2026-10-18",
+    "thumbnailSlug": "meshcopia"
+  },
+  {
+    "id": "owl-of-minerva",
+    "title": "哲学アキネーター - 梟のミネルヴァ",
+    "description": "質問への回答から近い思想を探す哲学ゲーム。診断・推理モードと226思想の図鑑を収録。",
+    "category": "games",
+    "pagesUrl": null,
+    "sourceUrl": "https://github.com/Xenoah/owl-of-minerva",
+    "sourceOnlyReason": "公開サイト準備中（現在はGitHubで参照）",
+    "pendingPagesUrl": "https://xenoah.github.io/owl-of-minerva/",
+    "updated": "2026-09-30"
+  },
+  {
+    "id": "dt-cue-precision-media-player",
+    "title": "dt-cue - 精密メディアプレイヤー",
+    "description": "ローカルの動画・音声を秒・フレーム・1ms刻みで確認するブラウザプレイヤー。波形・BPM・FFT表示、ホットキュー、MIDI操作に対応。",
+    "category": "music",
+    "pagesUrl": "https://xenoah.github.io/dt-cue_precision-media-player/",
+    "sourceUrl": "https://github.com/Xenoah/dt-cue_precision-media-player",
+    "updated": "2026-09-26",
+    "thumbnailSlug": "dt-cue-precision-media-player"
+  },
+  {
     "id": "za-nas-film",
     "title": "ЗА НАС・俺たちに — Dubstep Remix",
     "description": "ダブステップリミックスに合わせた約3分34秒のCG映像。再生・一時停止、シーク、画質変更、全画面表示に対応。",

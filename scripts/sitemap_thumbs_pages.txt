@@ -26,6 +26,10 @@ intmath-complex-analysis study/intmath/lessons/complex_analysis/
 intmath-factorization study/intmath/lessons/factorization/
 intmath-primes study/intmath/lessons/primes/
 # PROJECT-THUMBNAILS:start
+map-autumn-leaves map_autumn-leaves/
+tsubuyai-tech tsubuyai-tech/
+meshcopia meshcopia/
+dt-cue-precision-media-player dt-cue_precision-media-player/
 archive-3dmodels archive-3dmodels/
 xnh-bbs XNH_BBS/
 seekdeck-webdj seekdeck-webdj/dist/

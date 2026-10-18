@@ -213,6 +213,10 @@ sitemap: false
   {% endfor %}
   <url><loc>https://xenoah.github.io/projects.htm</loc><lastmod>2026-09-15</lastmod></url>
 <!-- PROJECT-URLS:start -->
+  <url><loc>https://xenoah.github.io/map_autumn-leaves/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://xenoah.github.io/tsubuyai-tech/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://xenoah.github.io/meshcopia/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://xenoah.github.io/dt-cue_precision-media-player/</loc><lastmod>2026-09-26</lastmod></url>
   <url><loc>https://xenoah.github.io/scripted-animation/3a-hac/ZA_NAS_Film.html</loc><lastmod>2026-09-27</lastmod></url>
   <url><loc>https://xenoah.github.io/scripted-animation/hp-pv/xenoah_pv.html</loc><lastmod>2026-09-26</lastmod></url>
   <url><loc>https://xenoah.github.io/archive-3dmodels/</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/archive-3dmodels.jpg</image:loc></image:image></url>
