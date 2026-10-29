@@ -13,6 +13,11 @@ const pages = {
     description: "ЗА НАСのダブステップリミックスに合わせた約3分34秒のCG映像です。ブラウザで再生・一時停止・シーク・画質変更・全画面表示ができます。 / Watch a CG film set to the ZA NAS dubstep remix, with playback, seeking, quality settings and fullscreen controls.",
     canonical: "/scripted-animation/3a-hac/ZA_NAS_Film.html",
   },
+  "scripted-animation/onkai-maoujou/onkai_maoujou.html": {
+    title: "音界魔王城 | Onkai Maoujou Beat Dungeon MV | Xenoah",
+    description: "勇者が夕暮れの村から音楽の世界の魔王城へ攻め込む約5分のMVです。敵ごとに19ジャンルの曲へ切り替わり、曲はブラウザ内で合成します。ドラムマシン風の音ゲーモード付き。 / A 5-minute browser music video where a hero storms a demon castle as the music shifts through 19 synthesized genres, with a drum-machine rhythm game mode.",
+    canonical: "/scripted-animation/onkai-maoujou/onkai_maoujou.html",
+  },
   "scripted-animation/hp-pv/xenoah_pv.html": {
     title: "ゼノアの全能庵・ホームページPV | Homepage Promotion Video | Xenoah",
     description: "ゼノアの全能庵を紹介する30秒の音楽付き3Dアニメーションです。ブラウザで再生・一時停止・シーク・全画面表示ができます。 / Watch a 30-second 3D homepage promotion with music, playback controls, seeking and fullscreen mode.",

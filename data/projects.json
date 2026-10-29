@@ -51,6 +51,15 @@
     "thumbnailSlug": "dt-cue-precision-media-player"
   },
   {
+    "id": "onkai-maoujou",
+    "title": "音界魔王城 — BEAT DUNGEON MV",
+    "description": "勇者が夕暮れの村から魔王城へ攻め込む約5分のMV。敵ごとに19ジャンルの曲へ切り替わり、曲はブラウザ内で合成。観るAUTOと、キック・スネア・ハイハット・ベースを叩くドラムマシン風の音ゲーモード（4段階）に対応。",
+    "category": "images",
+    "pagesUrl": "https://xenoah.github.io/scripted-animation/onkai-maoujou/onkai_maoujou.html",
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/scripted-animation/onkai-maoujou",
+    "updated": "2026-10-29"
+  },
+  {
     "id": "za-nas-film",
     "title": "ЗА НАС・俺たちに — Dubstep Remix",
     "description": "ダブステップリミックスに合わせた約3分34秒のCG映像。再生・一時停止、シーク、画質変更、全画面表示に対応。",
