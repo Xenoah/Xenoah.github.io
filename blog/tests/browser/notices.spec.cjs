@@ -3,7 +3,7 @@ test('home notices scroll left on a black dot-matrix display, stop/read/resume, 
  await page.goto('/');
  const box=page.locator('[data-notices]'), track=box.locator('.notices-track');
  await expect(box).toHaveClass(/notices-running/);
- await page.mouse.move(0,0);
+ await page.locator('.site-topbar').hover();
  expect(await box.locator('.notices-window').evaluate(n=>getComputedStyle(n).backgroundColor)).toBe('rgb(8, 8, 8)');
  expect(await box.locator('.notices-list li').first().evaluate(n=>getComputedStyle(n).backgroundImage)).toContain('radial-gradient');
  const first=await track.evaluate(n=>new DOMMatrix(getComputedStyle(n).transform).m41);
