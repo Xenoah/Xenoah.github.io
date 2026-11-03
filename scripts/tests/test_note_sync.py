@@ -8,6 +8,14 @@ class NoImages:
 def note(**updates):
  d={'key':'n123456789abc','user':{'id':m.USER_ID,'urlname':m.ACCOUNT},'status':'published','is_published':True,'is_draft':False,'price':0,'is_limited':False,'is_r18':False,'type':'TextNote','name':'試験','publish_at':'2026-11-02T15:01:00+00:00','body':'<p>Independent prose.</p>','eyecatch':None,'hashtag_notes':[]};d.update(updates);return d
 class TestSync(unittest.TestCase):
+ def test_checked_in_mirrors_use_native_dates(self):
+  root=Path(__file__).resolve().parents[2]
+  for file in (root/'blog/articles').glob('*-note-n*/index.html'):
+   text=file.read_text();self.assertRegex(text,r'(?m)^date: \d{4}-\d{2}-\d{2}$')
+ def test_checked_in_manifest_hashes(self):
+  root=Path(__file__).resolve().parents[2];manifest=json.loads((root/'blog/note-mirror.json').read_text())
+  for entry in manifest['articles']:
+   self.assertEqual(m.hashlib.sha256((root/entry['path']/'index.html').read_bytes()).hexdigest(),entry['content_sha256'])
  def test_strip_tweet_raw_and_image(self):
   body='<p>Independent.</p><figure embedded-service="twitter" data-src="https://x.com/shuminchuuu/status/123"><blockquote class="twitter-tweet">RAW THIRD PARTY<img src="https://evil.invalid/x.png"></blockquote></figure>'
   out,desc,count=m.clean_body(body,NoImages());self.assertNotIn('RAW',out);self.assertNotIn('evil',out);self.assertEqual(count,1);self.assertIn('status/123',out)
