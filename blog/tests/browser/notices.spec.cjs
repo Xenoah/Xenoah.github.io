@@ -1,12 +1,15 @@
 const { test, expect } = require('@playwright/test');
-test('home notices scroll upward, stop/read/resume, and retain accessible links', async ({page})=>{
+test('home notices scroll left on a black dot-matrix display, stop/read/resume, and retain accessible links', async ({page})=>{
  await page.goto('/');
  const box=page.locator('[data-notices]'), track=box.locator('.notices-track');
  await expect(box).toHaveClass(/notices-running/);
  await page.mouse.move(0,0);
- const first=await track.evaluate(n=>getComputedStyle(n).transform);
+ expect(await box.locator('.notices-window').evaluate(n=>getComputedStyle(n).backgroundColor)).toBe('rgb(8, 8, 8)');
+ expect(await box.locator('.notices-list li').first().evaluate(n=>getComputedStyle(n).backgroundImage)).toContain('radial-gradient');
+ const first=await track.evaluate(n=>new DOMMatrix(getComputedStyle(n).transform).m41);
  await page.waitForTimeout(300);
- expect(await track.evaluate(n=>getComputedStyle(n).transform)).not.toBe(first);
+ expect(await track.evaluate(n=>new DOMMatrix(getComputedStyle(n).transform).m41)).toBeLessThan(first);
+ expect(await track.evaluate(n=>new DOMMatrix(getComputedStyle(n).transform).m42)).toBe(0);
  await box.locator('button').click();await expect(box).not.toHaveClass(/notices-running/);
  await expect(box.locator('[data-notices-copy]')).toHaveCount(0);
  await expect(box.locator('a').first()).toBeVisible();

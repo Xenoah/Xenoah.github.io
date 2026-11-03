@@ -8,6 +8,10 @@
   if (!list || !track || !button || list.children.length < 2) return;
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let paused = false, copy;
+  function setSpeed() {
+    const width = list.getBoundingClientRect().width;
+    if (width > 0) root.style.setProperty("--notices-duration", `${width / 110}s`);
+  }
   function update() {
     const running = !paused && !motion.matches;
     if (copy) { copy.remove(); copy = null; }
@@ -20,6 +24,7 @@
       track.append(copy);
     }
     root.classList.toggle("notices-running", running);
+    setSpeed();
     button.hidden = motion.matches;
     if (help) help.hidden = !running;
     button.setAttribute("aria-pressed", String(paused));
@@ -27,5 +32,6 @@
   }
   button.addEventListener("click", () => { paused = !paused; update(); });
   motion.addEventListener("change", update);
+  if (window.ResizeObserver) new ResizeObserver(setSpeed).observe(list);
   update();
 })();
