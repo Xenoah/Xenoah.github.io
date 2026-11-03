@@ -85,11 +85,11 @@ body.site-page:has(.blog-shell) { line-height:1.7; }
 .notices-window a, .notices-window a:visited { color: #ffb52e; }
 .notices-running .notices-track { display: flex; width: max-content; animation: notices-left var(--notices-duration, 24s) linear infinite; }
 .notices-running .notices-list { display: flex; align-items: center; flex: none; list-style: none; padding: .5em 0; }
-.notices-running .notices-list li { white-space: nowrap; padding: 0 2.5em; font: bold clamp(24px, 2.3vw, 30px)/1.6 var(--site-font); letter-spacing: .06em; }
+.notices-running .notices-list li { white-space: nowrap; padding: 0 2.5em; font: bold clamp(28px, 2.8vw, 36px)/1.6 var(--site-font); letter-spacing: .06em; }
 .notices-running .notices-list li::before { content: "◆ "; }
 .notices-running .notices-list li, .notices-running .notices-list a, .notices-running .notices-list a:visited, .notices-running .notices-list time {
   color: #ffb52e;
-  background: radial-gradient(circle, #ffc14a .75px, transparent .95px) 0 0 / 2px 2px;
+  background: radial-gradient(circle, #ffc14a 1px, transparent 1.3px) 0 0 / 3px 3px;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
