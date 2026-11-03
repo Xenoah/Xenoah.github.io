@@ -4,3 +4,5 @@
 /blog/test-results/
 /blog/playwright-report/
 /blog/.npm-cache/
+
+__pycache__/

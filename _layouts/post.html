@@ -12,8 +12,8 @@
   <title>{{ seo_title | strip | escape }}</title>
   <meta name="description" content="{{ meta_description | escape }}">
   <meta name="robots" content="{{ page.robots | default: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' | escape }}">
-  <meta name="author" content="Xenoah">
-  <link rel="canonical" href="{{ page.url | absolute_url | escape }}">
+  <meta name="author" content="{{ page.author | default: site.author | escape }}">
+  <link rel="canonical" href="{{ page.canonical_url | default: page.url | absolute_url | escape }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }} Blog Feed" href="{{ '/blog/feed.xml' | absolute_url | escape }}">
   <meta property="og:site_name" content="{{ site.title | escape }}">
   <meta property="og:type" content="article">
@@ -82,7 +82,7 @@
       </header>
       {% if page.image %}
       <figure class="eyecatch">
-        <img src="{{ page.image | relative_url | escape }}" alt="">
+        <img src="{{ page.image | relative_url | escape }}" alt="{{ page.image_alt | default: '' | escape }}"{% if page.image_width %} width="{{ page.image_width | escape }}" height="{{ page.image_height | escape }}"{% endif %} decoding="async" fetchpriority="high">
       </figure>
       {% endif %}
       <div class="article-body">
@@ -108,5 +108,6 @@
   <script src="{{ '/blog/assets/reader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 </div>
 </div>
+{% if page.note_source %}<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>{% endif %}
 </body>
 </html>

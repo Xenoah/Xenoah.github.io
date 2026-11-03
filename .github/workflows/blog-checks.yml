@@ -3,6 +3,10 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      sync_note:
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -14,6 +18,16 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lightweight note mirror dependencies
+        run: python -m pip install -r scripts/note-sync-requirements.txt
+      - name: Test note mirror trust boundaries
+        run: python -m unittest discover -s scripts/tests -p 'test_note_sync.py'
+      - name: Mirror published note articles only
+        if: inputs.sync_note
+        run: python scripts/sync-note.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
