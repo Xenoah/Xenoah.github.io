@@ -75,3 +75,22 @@ body.site-page:has(.blog-shell) { line-height:1.7; }
   .home-hero h1 { font-size:22px; }
   .catalog-card { padding:12px 0; }
 }
+
+/* Small, progressively enhanced vertical announcement ticker. */
+.notices-controls { font-size: .85em; }
+.notices-controls button { font: inherit; color: #000; background: #eee; border: 2px outset #ddd; cursor: pointer; }
+.notices-window { border: 1px inset #ccc; background: #fff; }
+.notices-list { margin: 0; padding: .6em 1em .6em 2em; }
+.notices-list li { padding: .5em 0; overflow-wrap: anywhere; }
+.notices-running .notices-window { height: 7em; overflow: hidden; }
+.notices-running .notices-track { animation: notices-up 36s linear infinite; }
+.notices-running .notices-window:hover .notices-track { animation-play-state: paused; }
+.notices-running:focus-within .notices-window { height: auto; overflow: visible; }
+.notices-running:focus-within .notices-track { animation: none; }
+.notices-running:focus-within [data-notices-copy] { display: none; }
+@keyframes notices-up { to { transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .notices-running .notices-track { animation: none; }
+  .notices-running .notices-window { height: auto; overflow: visible; }
+  [data-notices-copy] { display: none; }
+}

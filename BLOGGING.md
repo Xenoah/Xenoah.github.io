@@ -67,3 +67,7 @@ npm --prefix blog run check:articles
 ```
 
 同期コマンドのログは件数と容量のみです。API 応答や埋め込み原文をファイル・公開ログへ保存しません。公開後は該当 SHA の Publish site 成功、`/blog/note-mirror.json` の記事 ID / 元 URL、実記事の本文・カバー・全出典リンクを照合してください。同期失敗を note の再公開で解消しません。
+
+## ブログ投稿と更新履歴
+
+ブログの記事投稿・転載・本文更新だけの場合、`changelog.htm` への追記は不要です。既存の履歴は削除しません。サイト機能や表示の改修は従来どおり更新履歴に記録します。日記import/syncはchangelogを変更しません。
