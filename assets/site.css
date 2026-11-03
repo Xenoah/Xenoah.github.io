@@ -96,12 +96,12 @@ body.site-page:has(.blog-shell) { line-height:1.7; }
   -webkit-text-fill-color: transparent;
 }
 .notices-running .notices-window:hover .notices-track { animation-play-state: paused; }
-.notices-running:focus-within .notices-track { display: block; width: auto; animation: none; }
-.notices-running:focus-within .notices-list { display: block; list-style: disc; padding: .6em 1em .6em 2em; }
-.notices-running:focus-within .notices-list li { white-space: normal; padding: .5em 0; font: inherit; }
-.notices-running:focus-within .notices-list li::before { content: none; }
-.notices-running:focus-within .notices-list li, .notices-running:focus-within .notices-list a, .notices-running:focus-within .notices-list time { background: none; -webkit-text-fill-color: currentColor; }
-.notices-running:focus-within [data-notices-copy] { display: none; }
+.notices-running:has(.notices-window:focus-within) .notices-track { display: block; width: auto; animation: none; }
+.notices-running:has(.notices-window:focus-within) .notices-list { display: block; list-style: disc; padding: .6em 1em .6em 2em; }
+.notices-running:has(.notices-window:focus-within) .notices-list li { white-space: normal; padding: .5em 0; font: inherit; }
+.notices-running:has(.notices-window:focus-within) .notices-list li::before { content: none; }
+.notices-running:has(.notices-window:focus-within) .notices-list li, .notices-running:has(.notices-window:focus-within) .notices-list a, .notices-running:has(.notices-window:focus-within) .notices-list time { background: none; -webkit-text-fill-color: currentColor; }
+.notices-running:has(.notices-window:focus-within) [data-notices-copy] { display: none; }
 @keyframes notices-left { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
   .notices-running .notices-track { display: block; width: auto; animation: none; }
