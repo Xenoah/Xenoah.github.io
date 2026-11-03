@@ -77,7 +77,9 @@ body.site-page:has(.blog-shell) { line-height:1.7; }
 }
 
 /* Black LED dot-matrix ticker. Static, wrapping fallback remains readable. */
-.notices-controls { font-size: .85em; }
+.site-notices { width: 100%; min-width: 0; margin: 0; }
+.site-notices h2 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.notices-controls { font-size: .85em; margin: 0; padding: 2px 8px; background: #eee; }
 .notices-controls button { font: inherit; color: #000; background: #eee; border: 2px outset #ddd; cursor: pointer; }
 .notices-window { border: 3px ridge #555; background: #080808; color: #ffb52e; padding: .25em 0; overflow: hidden; }
 .notices-list { margin: 0; padding: .6em 1em .6em 2em; }

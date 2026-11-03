@@ -10,7 +10,7 @@
   let paused = false, copy;
   function setSpeed() {
     const width = list.getBoundingClientRect().width;
-    if (width > 0) root.style.setProperty("--notices-duration", `${width / 110}s`);
+    if (width > 0) root.style.setProperty("--notices-duration", `${width / 180}s`);
   }
   function update() {
     const running = !paused && !motion.matches;

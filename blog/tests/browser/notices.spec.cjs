@@ -23,3 +23,19 @@ test('reduced motion gives a static complete notice list',async({page})=>{
  await expect(page.locator('[data-notices-copy]')).toHaveCount(0);
  await expect(page.locator('[data-notices-toggle]')).toBeHidden();
 });
+
+test('shared ticker is unique, page-wide and above header on home, blog and catalog',async({page})=>{
+ for(const url of ['/', '/blog/', '/projects.htm','/changelog.htm']) {
+  await page.goto(url);
+  const box=page.locator('[data-notices]');
+  await expect(box).toHaveCount(1);
+  await expect(box).toHaveClass(/notices-running/);
+  const bounds=await box.locator('.notices-window').boundingBox();
+  const header=await page.locator('.site-topbar').boundingBox();
+  expect(bounds.y).toBe(0); expect(bounds.x).toBe(0);
+  expect(bounds.width).toBe(await page.evaluate(()=>document.documentElement.clientWidth));
+  expect(header.y).toBeGreaterThan(bounds.y+bounds.height);
+  const speed=await box.evaluate(n=>n.querySelector('.notices-list').getBoundingClientRect().width / parseFloat(n.style.getPropertyValue('--notices-duration')));
+  expect(speed).toBeCloseTo(180);
+ }
+});
