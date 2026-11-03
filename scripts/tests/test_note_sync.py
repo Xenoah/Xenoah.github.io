@@ -31,7 +31,7 @@ class TestSync(unittest.TestCase):
     with self.assertRaises(m.SyncError):m.render(note(**override),Path(p))
  def test_jst_date_and_idempotency(self):
   with tempfile.TemporaryDirectory() as a,tempfile.TemporaryDirectory() as b:
-   first=m.render(note(),Path(a));second=m.render(note(),Path(b));self.assertEqual(first,second);self.assertIn('2026-11-03',first['path'])
+   first=m.render(note(),Path(a));second=m.render(note(),Path(b));self.assertEqual(first,second);self.assertIn('2026-11-03',first['path']);self.assertIn('date: 2026-11-03\n',(Path(a)/first['path'].split('/')[-1]/'index.html').read_text())
  def test_pinned_date_keeps_url(self):
   with tempfile.TemporaryDirectory() as p:
    entry=m.render(note(),Path(p),'2026-11-01');self.assertIn('/2026/11/01/',entry['permalink'])

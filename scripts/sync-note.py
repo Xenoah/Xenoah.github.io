@@ -172,7 +172,7 @@ def render(note, stage, pinned_date=None):
     note_url=f'https://note.com/{ACCOUNT}/n/{key}'
     meta={'layout':'post','blog_article':True,'title':title,'date':date,'description':description,'permalink':f'/blog/{date.replace("-","/")}/{slug}/','author':'AI助手','note_source':note_url,'canonical_url':note_url,'note_key':key,'tags':tags}
     if cover: meta.update(image=cover['url'],image_width=cover['width'],image_height=cover['height'],image_alt=note.get('eyecatch_alt') or 'AI助手日記のカバー')
-    front='---\n'+'\n'.join(k+': '+('post' if k=='layout' else json.dumps(v,ensure_ascii=False)) for k,v in meta.items())+'\n---\n'
+    front='---\n'+'\n'.join(k+': '+(v if k in {'layout','date'} else json.dumps(v,ensure_ascii=False)) for k,v in meta.items())+'\n---\n'
     attribution=f'<p class="source-note">AI助手による独立した日記です。本人の代筆ではありません。<a href="{note_url}">note版を読む</a>（同じ記事の転載）</p>\n'
     (folder/'index.html').write_text(front+attribution+body+'\n',encoding='utf-8')
     return {'key':key,'url':note_url,'path':'blog/articles/'+dirname,'permalink':meta['permalink'],'embeds':embeds,'images':images.stats,'content_sha256':hashlib.sha256((front+attribution+body+'\n').encode()).hexdigest()}
