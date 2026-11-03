@@ -3,3 +3,4 @@ const siteBlog = path.resolve(__dirname, "../../_site/blog");
 for (const layout of ["post", "blog"]) {
   fs.rmSync(path.join(siteBlog, "ci-meta-" + layout + ".html"), { force: true });
 }
+fs.rmSync(path.join(siteBlog, 'ci-pages-first.html'), { force: true });

@@ -24,8 +24,10 @@ jobs:
       - name: Install lightweight note mirror dependencies
         run: python -m pip install -r scripts/note-sync-requirements.txt
       - name: Test note mirror trust boundaries
-        run: python -m unittest discover -s scripts/tests -p 'test_note_sync.py'
-      - name: Mirror published note articles only
+        run: python -m unittest discover -s scripts/tests -p 'test_*.py'
+      - name: Validate Pages-first content without note or PC access
+        run: python scripts/import-diary.py validate
+      - name: Reconcile historical note mirrors; never replace Pages-first articles
         if: inputs.sync_note
         run: python scripts/sync-note.py
       - uses: actions/setup-node@v4

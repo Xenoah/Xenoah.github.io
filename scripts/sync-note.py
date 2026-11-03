@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mirror only public, free xenoah_memo prose. Never call X or persist API responses."""
 from __future__ import annotations
-import argparse, hashlib, html, io, json, os, re, shutil, tempfile
+import argparse, hashlib, html, importlib.util, io, json, os, re, shutil, tempfile
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
@@ -225,7 +225,23 @@ def publication_dates(manifest):
         result[key]=date
     return result
 
+def pages_first_entries(root):
+    spec=importlib.util.spec_from_file_location('pages_first',Path(__file__).with_name('import-diary.py'))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module.load_manifest(root)['articles']
+
+def pages_owns_note(note,entries):
+    url=f'https://note.com/{ACCOUNT}/n/{note.get("key","")}'
+    for entry in entries:
+        if entry['note_url']==url:return True
+        # A note published before its link receipt must not create a second article.
+        if note.get('name','').startswith(entry['date_jst']):
+            if note['name']!=entry['title']:raise SyncError('Pages-first date/title conflict; link requires review')
+            return True
+    return False
+
 def sync(root):
+    pages=pages_first_entries(root)
     keys=inventory()
     if not keys: raise SyncError('Empty account inventory; refusing mass removal')
     entries=[]
@@ -246,6 +262,7 @@ def sync(root):
         for key in keys:
             note=api('v3/notes/'+key)
             if note.get('key')!=key: raise SyncError('Detail identity mismatch')
+            if pages_owns_note(note,pages):continue
             entries.append(render(note,stage,pinned.get(key)))
         manifest={'schema_version':1,'account':ACCOUNT,'articles':sorted(entries,key=lambda e:e['key'])}
         install_snapshot(root, stage, manifest)
