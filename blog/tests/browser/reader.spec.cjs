@@ -25,7 +25,13 @@ test("published catalog agrees with search, article navigation, RSS and sitemap"
   for (const article of catalog) {
     expect(article.url).toMatch(/^\/blog\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/);
     expect(decodeURIComponent(rss)).toContain(decodeURIComponent(article.url));
-    expect(decodeURIComponent(sitemap)).toContain(decodeURIComponent(article.url));
+    const articleHtml = await (await request.get(article.url)).text();
+    const canonical = articleHtml.match(/<link rel="canonical" href="([^"]+)"/)[1];
+    if (canonical === "https://xenoah.github.io" + article.url && !/noindex/i.test(article.robots || "")) {
+      expect(decodeURIComponent(sitemap)).toContain(decodeURIComponent(article.url));
+    } else {
+      expect(decodeURIComponent(sitemap)).not.toContain(decodeURIComponent(article.url));
+    }
   }
   const withHeadings = catalog.find((article) => article.url.includes("vrchat"));
   if (withHeadings) {

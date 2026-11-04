@@ -7,7 +7,7 @@ sitemap: false
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://xenoah.github.io/</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-11-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -43,7 +43,7 @@ sitemap: false
   </url>
   <url>
     <loc>https://xenoah.github.io/changelog.htm</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-11-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <image:image>
@@ -79,7 +79,6 @@ sitemap: false
   </url>
   <url>
     <loc>https://xenoah.github.io/blog/</loc>
-    <lastmod>2026-05-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
@@ -87,15 +86,6 @@ sitemap: false
     </image:image>
   </url>
 <url>
-    <loc>https://xenoah.github.io/blog/2026/05/05/vrchat/</loc>
-    <lastmod>2026-05-09</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-    <image:image>
-      <image:loc>https://xenoah.github.io/images_sitemap/blog-vrchat.jpg</image:loc>
-    </image:image>
-  </url>
-  <url>
     <loc>https://xenoah.github.io/study/intmath/lessons/arithmetic/</loc>
     <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -205,11 +195,17 @@ sitemap: false
   </url>
   {% include blog_articles.html %}
   {% for article in all_articles %}
+  {% assign article_url = article.url | absolute_url %}
+  {% assign article_canonical = article.canonical_url | default: article.url | absolute_url %}
+  {% unless article.robots contains "noindex" %}
+  {% if article_canonical == article_url %}
   <url>
     <loc>{{ article.url | absolute_url | xml_escape }}</loc>
     <lastmod>{{ article.last_modified_at | default: article.date | date_to_xmlschema }}</lastmod>
     {% if article.image %}<image:image><image:loc>{{ article.image | absolute_url | xml_escape }}</image:loc></image:image>{% endif %}
   </url>
+  {% endif %}
+  {% endunless %}
   {% endfor %}
   <url><loc>https://xenoah.github.io/projects.htm</loc><lastmod>2026-09-15</lastmod></url>
 <!-- PROJECT-URLS:start -->

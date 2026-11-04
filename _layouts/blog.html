@@ -19,6 +19,8 @@
   <meta property="og:title" content="{{ seo_title | strip | escape }}">
   <meta property="og:description" content="{{ meta_description | escape }}">
   <meta property="og:url" content="{{ page.url | absolute_url | escape }}">
+  <meta property="og:image" content="{{ '/file_index/xenoah_banner.png' | absolute_url | escape }}">
+  <meta name="twitter:image" content="{{ '/file_index/xenoah_banner.png' | absolute_url | escape }}">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{{ seo_title | strip | escape }}">
@@ -47,7 +49,7 @@
 <div class="site-content" id="main-content">
   <header class="blog-header">
     <a class="brand" href="{{ '/blog/' | relative_url | escape }}" aria-label="Blog home">
-      <img src="{{ '/file_index/xenoah_banner.png' | relative_url | escape }}" alt="Xenoah">
+      <img src="{{ '/file_index/xenoah_banner.png' | relative_url | escape }}" alt="Xenoah" width="480" height="128">
     </a>
     <nav class="blog-nav" aria-label="Blog navigation">
       <a href="{{ '/blog/' | relative_url | escape }}">Articles</a>

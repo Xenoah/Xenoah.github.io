@@ -42,6 +42,7 @@ const pages = {
     title: "Xenoahのホームページ | Xenoah's Homepage",
     description: "Webツール、ゲーム、数学教材、データベース、VRChat、電子工作などの制作物を公開するXenoahの個人サイトです。 / Xenoah's personal website featuring web tools, games, interactive math lessons, databases, VRChat and electronics projects.",
     canonical: "/",
+    image: "/file_index/xenoah_banner.png",
   },
   "top.htm": {
     title: "トップページ | Home | Xenoah",
@@ -316,6 +317,9 @@ function updateHtml(file, config) {
   headSource = removeTag(headSource, /\s*<meta[^>]*\bproperty=(["'])og:(?:site_name|type|title|description|url|locale)\1[^>]*>\s*/gi);
   headSource = removeTag(headSource, /\s*<meta[^>]*\bname=(["'])twitter:(?:card|title|description)\1[^>]*>\s*/gi);
 
+  if (config.image) {
+    headSource = removeTag(headSource, /\s*<meta[^>]*\b(?:property|name)=(["'])(?:og:image|twitter:image)\1[^>]*>\s*/gi);
+  }
   const canonical = `${siteUrl}${config.canonical}`;
   const robots = config.robots || "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
   const seo = [
@@ -333,6 +337,10 @@ function updateHtml(file, config) {
     `  <meta name="twitter:card" content="summary">`,
     `  <meta name="twitter:title" content="${escapeAttr(config.title)}">`,
     `  <meta name="twitter:description" content="${escapeAttr(config.description)}">`,
+    ...(config.image ? [
+      `  <meta property="og:image" content="${escapeAttr(siteUrl + config.image)}">`,
+      `  <meta name="twitter:image" content="${escapeAttr(siteUrl + config.image)}">`,
+    ] : []),
   ].join("\n");
 
   const charsetPattern =

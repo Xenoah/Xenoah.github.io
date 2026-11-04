@@ -27,7 +27,7 @@ permalink: /blog/
   {% for article in all_articles %}
   <article class="post-card" data-tags="{{ article.tags | jsonify | escape }}" data-search="{{ article.title | escape }} {{ article.description | escape }} {{ article.content | strip_html | strip_newlines | escape }} {{ article.tags | join: ' ' | escape }}">
     <a href="{{ article.url | relative_url }}">
-      {% if article.image %}<span class="post-card-image"><img src="{{ article.image | relative_url | escape }}" alt="" loading="lazy"></span>
+      {% if article.image %}<span class="post-card-image"><img src="{{ article.image | relative_url | escape }}" alt="" loading="lazy" decoding="async"{% if article.image_width %} width="{{ article.image_width | escape }}" height="{{ article.image_height | escape }}"{% endif %}></span>
       {% else %}<span class="post-card-image post-card-image-empty" aria-hidden="true"></span>{% endif %}
       <span class="post-card-body">
         <time datetime="{{ article.date | date: '%Y-%m-%d' }}">{{ article.date | date: '%Y.%m.%d' }}</time>
