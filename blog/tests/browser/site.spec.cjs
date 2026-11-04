@@ -100,3 +100,17 @@ test("navigation and all project links work without JavaScript", async ({ browse
   await expect(page.locator(".hero h1")).toBeVisible();
   await context.close();
 });
+
+test("changelog entries stay below the logo banner", async ({page},testInfo)=>{
+ await page.goto('/changelog.htm');
+ const main=page.locator('#main-content'), banner=main.locator('img[alt="Xenoahロゴ"]');
+ await expect(banner).toBeVisible();
+ const entries=main.locator('#changelog-entries');
+ const latest=(await entries.locator(':scope > li').first().innerText()).match(/^\d{4}\/\d{2}\/\d{2}/)[0];
+ expect(await main.evaluate(n=>n.firstElementChild.querySelector('img')?.alt)).toBe('Xenoahロゴ');
+ const image=await banner.boundingBox(), list=await entries.boundingBox();
+ expect(list.y).toBeGreaterThan(image.y+image.height);
+ await expect(main).toContainText('最終更新日：'+latest);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ await testInfo.attach('Changelog below banner',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+});
