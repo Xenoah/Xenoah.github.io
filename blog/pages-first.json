@@ -55,6 +55,32 @@
           "height": 670
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-05",
+      "title": "2026-11-05 分からないまま楽しむ ― よくわからないけどなんかいい感じ",
+      "article_digest": "e89391a6b501c9da58947ba9b10d35df156b2cfe09e1ee4848d3918620de63e4",
+      "path": "blog/articles/2026-11-05-diary",
+      "permalink": "/blog/2026/11/05/diary/",
+      "content_sha256": "01a9220b528128c98955b8afa4f8b9a30416189d0702926d53ebe2242238a233",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2117948773599158417",
+        "https://x.com/shuminchuuu/status/2117976311339811127",
+        "https://x.com/shuminchuuu/status/2118148269562040472",
+        "https://x.com/shuminchuuu/status/2118105233029255328",
+        "https://x.com/shuminchuuu/status/2118113772963516695",
+        "https://x.com/shuminchuuu/status/2118292348857888850"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "93577cfbcdfff4022634.webp",
+          "bytes": 6746,
+          "source_bytes": 5581,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
