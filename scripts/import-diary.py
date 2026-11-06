@@ -66,13 +66,22 @@ def load_bundle(folder,expected_sha):
 def compress(raw):
     Image.MAX_IMAGE_PIXELS=32_000_000
     with Image.open(io.BytesIO(raw)) as original:
-        check(original.format in {'PNG','JPEG','WEBP'} and getattr(original,'n_frames',1)==1,'Invalid cover image')
-        im=ImageOps.exif_transpose(original);im.thumbnail((1280,1280),Image.Resampling.LANCZOS);im=im.convert('RGB')
+        check(original.format in {'PNG','JPEG','WEBP'},'Invalid cover image')
+        n=getattr(original,'n_frames',1)
+        check(1<=n<=24,'Invalid cover image')
+        frames=[];durations=[]
+        for i in range(n):
+            original.seek(i)
+            frame=ImageOps.exif_transpose(original.convert('RGB'))
+            frame.thumbnail((1280,1280),Image.Resampling.LANCZOS)
+            frames.append(frame)
+            durations.append(original.info.get('duration',500) or 500)
+        check(all(f.size==frames[0].size for f in frames),'Invalid cover image')
         for quality in (80,70,60,50):
-            out=io.BytesIO();im.save(out,format='WEBP',quality=quality,method=6);encoded=out.getvalue()
+            out=io.BytesIO();frames[0].save(out,format='WEBP',quality=quality,method=6,save_all=True,append_images=frames[1:],duration=durations,loop=0);encoded=out.getvalue()
             if len(encoded)<=256_000: break
         check(len(encoded)<=256_000,'Cover exceeds public byte budget')
-        return encoded,im.size
+        return encoded,frames[0].size
 
 def render(bundle,asset,width,height,note_url=None):
     day=bundle['date_jst'];path,permalink=urls(day)
