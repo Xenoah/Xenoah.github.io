@@ -44,6 +44,17 @@ body.site-page:has(.blog-shell) { line-height:1.7; }
 .home-section { margin:20px 0; }
 .home-section h2 { border:0; border-bottom:1px solid #999; padding:0 0 4px; font-size:20px; }
 .home-about { max-width:900px; }
+.env3-latest { max-width:900px; }
+.env3-values { display:flex; flex-wrap:wrap; gap:12px 28px; margin:12px 0; }
+.env3-values > div { min-width:125px; border-left:3px solid #999; padding-left:10px; }
+.env3-values dt { font-weight:bold; }
+.env3-values dd { margin:0; font-size:26px; font-variant-numeric:tabular-nums; }
+.env3-unit { font-size:16px; }
+.env3-note, .env3-recorded, .env3-status { font-size:14px; margin:8px 0; }
+.env3-latest[data-state="stale"] .env3-status, .env3-latest[data-state="error"] .env3-status,
+.env3-latest[data-state="partial"] .env3-status { color:#8a2500; }
+.env3-latest button { font:inherit; color:#000; background:#eee; border:2px outset #ddd; padding:3px 8px; cursor:pointer; }
+.env3-latest button:disabled { cursor:wait; }
 .catalog-grid { display:block; }
 .catalog-card { display:block; padding:12px 8px; border:0; border-bottom:1px dotted #999; border-radius:0; background:transparent; min-width:0; }
 .catalog-card h3 { font-size:17px; line-height:1.5; margin:0 0 4px; }

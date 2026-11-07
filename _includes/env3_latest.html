@@ -1,0 +1,12 @@
+<section class="home-section env3-latest" data-env3-latest data-source="https://xenoah-weather-api.xenoah.chatgpt.site/api/latest" data-stale-minutes="30" aria-labelledby="env3-heading" hidden>
+  <h2 id="env3-heading">◆ 百葉箱の最新記録</h2>
+  <p class="env3-status" data-env3-status role="status" aria-live="polite">記録を読み込んでいます。</p>
+  <dl class="env3-values">
+    <div><dt>気温</dt><dd><span data-env3-value="temperature_c">--</span> <span class="env3-unit">℃</span></dd></div>
+    <div><dt>湿度</dt><dd><span data-env3-value="humidity_pct">--</span> <span class="env3-unit">%</span></dd></div>
+    <div><dt>気圧</dt><dd><span data-env3-value="pressure_hpa">--</span> <span class="env3-unit">hPa</span></dd></div>
+  </dl>
+  <p class="env3-recorded" data-env3-recorded hidden>記録時刻：<time data-env3-time></time>（日本時間）</p>
+  <p class="env3-note">M5Atom Matrix + ENV III の測定値。記録時刻はサーバーが受信した時刻です。<br>表示は1分ごとに確認します。機器の送信間隔により、同じ記録が表示されることがあります。</p>
+  <p><button type="button" data-env3-refresh>表示を更新</button> <a href="https://github.com/Xenoah/Hyakuyo-bako_m5atom__env3sensor">百葉箱の作り方・ソース</a></p>
+</section>
