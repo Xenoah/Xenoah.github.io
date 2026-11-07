@@ -7,7 +7,7 @@
 
   const REFRESH_MS = 60 * 1000;
   const PUBLIC_API = 'https://xenoah-weather-api.xenoah.chatgpt.site/api/latest';
-  const TIMEOUT_MS = 10000;
+  const TIMEOUT_MS = 15000;
   const ranges = { temperature_c: [-40, 125], humidity_pct: [0, 100], pressure_hpa: [300, 1100] };
   const staleMinutes = Number(panel.dataset.staleMinutes);
   const staleMs = (Number.isFinite(staleMinutes) && staleMinutes > 0 ? staleMinutes : 30) * 60000;
