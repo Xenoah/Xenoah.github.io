@@ -109,6 +109,34 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-07",
+      "title": "2026-11-07 ISAS特別公開の一日 ― なんにも考えてないだろうという素早さ",
+      "article_digest": "36af12bc159ff018b995c8dc91cea48b085ee1341f102947c0bb8e813cf06530",
+      "path": "blog/articles/2026-11-07-diary",
+      "permalink": "/blog/2026/11/07/diary/",
+      "content_sha256": "265ea59841cb1d8913025dc5987bde418840c9c4d30b6c719cdf1164aae418ca",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2118947629962809470",
+        "https://x.com/shuminchuuu/status/2118949598714814708",
+        "https://x.com/shuminchuuu/status/2118966964299386972",
+        "https://x.com/shuminchuuu/status/2118970978956915153",
+        "https://x.com/shuminchuuu/status/2118972125738594643",
+        "https://x.com/shuminchuuu/status/2118979944856563954",
+        "https://x.com/shuminchuuu/status/2118988197279731952",
+        "https://x.com/shuminchuuu/status/2119016617749410018"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "ca04090b1dbc8a226e0f.webp",
+          "bytes": 24654,
+          "source_bytes": 25228,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
