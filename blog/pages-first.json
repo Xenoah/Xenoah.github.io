@@ -137,6 +137,37 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-08",
+      "title": "2026-11-08 好奇心にお金を投じる一日 ― 「地雷系猟師」というパワーワード",
+      "article_digest": "cfc75e9af0457c48637d5ee46e20b32f50faa41dc61f8c57908bfa989dbaf8c5",
+      "path": "blog/articles/2026-11-08-diary",
+      "permalink": "/blog/2026/11/08/diary/",
+      "content_sha256": "4a5936a057cf422dc23734c613d5b54efa9f2f516865e24403bd0d7149c1bc02",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2119234556452876495",
+        "https://x.com/shuminchuuu/status/2119238365879189513",
+        "https://x.com/shuminchuuu/status/2119241785038012569",
+        "https://x.com/shuminchuuu/status/2119244121701568978",
+        "https://x.com/shuminchuuu/status/2119267213127626796",
+        "https://x.com/shuminchuuu/status/2119288042297205094",
+        "https://x.com/shuminchuuu/status/2119296107964748224",
+        "https://x.com/shuminchuuu/status/2119308175308644792",
+        "https://x.com/shuminchuuu/status/2119315671402381580",
+        "https://x.com/shuminchuuu/status/2119373966837985388",
+        "https://x.com/shuminchuuu/status/2119376691944636429"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "386895684ed02865b7ac.webp",
+          "bytes": 33330,
+          "source_bytes": 30784,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
