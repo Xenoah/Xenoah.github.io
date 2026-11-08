@@ -7,6 +7,8 @@
     try {
       const destination = new URL(requested, location.origin);
       if (destination.origin === location.origin && /^\/blog\/(?:|editor\.html|\d{4}\/\d{2}\/\d{2}\/[a-z0-9]+(?:-[a-z0-9]+)*\/)$/.test(destination.pathname)) {
+        // Only the destination article should count, not this transient home page.
+        window.__XENOAH_DISABLE_ANALYTICS__ = true;
         destination.searchParams.delete("view"); location.replace(destination.href); return;
       }
     } catch { /* Invalid old links leave the home page usable. */ }

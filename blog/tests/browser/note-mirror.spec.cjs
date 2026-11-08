@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./fixtures.cjs');
 test('note mirrors keep attribution, lightweight covers and source-only embeds', async ({ page, request }) => {
   const response = await request.get('/blog/note-mirror.json');
   expect(response.ok()).toBeTruthy();

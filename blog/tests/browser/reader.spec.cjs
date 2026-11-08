@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures.cjs");
 test("Jekyll escapes quoted metadata once and keeps JSON-LD valid", async ({ page }) => {
   const title = '引用 "A&B" </script><img src=x onerror=alert(1)>';
   const description = '説明 "quoted" & <special> 日本語';

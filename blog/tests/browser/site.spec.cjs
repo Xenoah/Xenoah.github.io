@@ -1,5 +1,5 @@
 const projectCount = require("../../../data/projects.json").length;
-const { test, expect } = require("@playwright/test");
+const { test, expect, protectContext } = require("./fixtures.cjs");
 async function openMenu(page) {
   const menu = page.locator("#site-navigation");
   if (!await menu.evaluate(node => node.open)) await menu.locator(":scope > summary").click();
@@ -92,6 +92,7 @@ test("legacy editor entry retains local drafts with ordinary navigation", async 
 });
 test("navigation and all project links work without JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
+  await protectContext(context);
   const page = await context.newPage();
   await page.goto("http://127.0.0.1:4173/projects.htm");
   await expect(page.locator("#main-content [data-project]")).toHaveCount(projectCount);

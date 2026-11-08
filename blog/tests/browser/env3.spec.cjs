@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./fixtures.cjs');
 const good = (overrides = {}) => ({ ok: true, data: {
   timestamp: new Date(Date.now() - 60000).toISOString(),
   temperature_c: 21.6, humidity_pct: 41.2, pressure_hpa: 1008.4, ...overrides

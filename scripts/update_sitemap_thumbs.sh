@@ -35,11 +35,13 @@ while IFS=' ' read -r slug path; do
     case "$slug" in ''|'#'*) continue ;; esac
     [ "$path" = "/" ] && path=""
     url="${BASE_URL}${path}"
+    case "$url" in *\?*) url="${url}&analytics=off" ;; *) url="${url}?analytics=off" ;; esac
     raw="$tmp/$slug.png"
     jpg="$tmp/$slug.jpg"
     dst="$OUT_DIR/$slug.jpg"
 
     "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+        --host-resolver-rules="MAP *.google-analytics.com ~NOTFOUND, MAP google-analytics.com ~NOTFOUND, MAP *.googletagmanager.com ~NOTFOUND, MAP googletagmanager.com ~NOTFOUND, MAP *.analytics.google.com ~NOTFOUND, MAP analytics.google.com ~NOTFOUND, MAP *.doubleclick.net ~NOTFOUND, MAP doubleclick.net ~NOTFOUND" \
         --window-size="$CAPTURE_SIZE" --virtual-time-budget=9000 --timeout=25000 \
         --user-data-dir="$tmp/profile" --screenshot="$raw" "$url" >/dev/null 2>&1
     if [ ! -s "$raw" ]; then

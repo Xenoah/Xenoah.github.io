@@ -51,6 +51,7 @@ for (const file of htmlFiles(root)) {
   if (/\.htm$/.test(file) && source.startsWith("---") && !/^permalink:\s*\/[^\s]+\.htm\s*$/m.test(source)) errors.push(`${file}: explicit .htm permalink required`);
   const dom = new JSDOM(source), document = dom.window.document;
   const robots = document.querySelector('meta[name="robots"]')?.content || "";
+  if (/googletagmanager\.com\/gtag\/js|\bgtag\s*\(/.test(source)) errors.push(`${file}: use assets/analytics.js, not a direct Google tag`);
   if (/^(tools|games|database)\/[^/]+\/[^/]+\.html?$/.test(file) && !/\bnoindex\b/.test(robots)) {
     const canonical = document.querySelector('link[rel="canonical"]')?.href;
     if (!pageUrls.has(canonical)) errors.push(`${file}: register this public project in data/projects.json`);

@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./fixtures.cjs');
 test('home notices scroll left on a black dot-matrix display, stop/read/resume, and retain accessible links', async ({page})=>{
  await page.goto('/');
  const box=page.locator('[data-notices]'), track=box.locator('.notices-track');

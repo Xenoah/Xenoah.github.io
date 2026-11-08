@@ -51,6 +51,10 @@ jobs:
         uses: actions/jekyll-build-pages@v1
         with:
           destination: ./_site
+      - name: Add guarded analytics to public build output
+        run: |
+          sudo node scripts/inject-analytics.js _site
+          node scripts/inject-analytics.js _site --check
       - name: Install test browsers
         working-directory: blog
         run: npx playwright install --with-deps chromium firefox webkit

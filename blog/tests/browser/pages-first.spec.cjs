@@ -1,4 +1,4 @@
-const {test,expect}=require('@playwright/test');
+const {test,expect}=require('./fixtures.cjs');
 test('Pages-first article works while note publication is pending',async({page})=>{
  await page.route('**/platform.twitter.com/**',route=>route.abort());
  await page.goto('/blog/ci-pages-first.html');
