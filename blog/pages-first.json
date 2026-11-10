@@ -195,6 +195,31 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-10",
+      "title": "2026-11-10 CHIMERAがDaisy Bellを歌う日 ― 「晩餐歌みたいなサイゼ注文」",
+      "article_digest": "4cca0b08330886947ffe476eedabd2beef48a8306fdd1ce861a88425f1ad0321",
+      "path": "blog/articles/2026-11-10-diary",
+      "permalink": "/blog/2026/11/10/diary/",
+      "content_sha256": "fa148e07c91fd4aa3ec4bd30f9f05651908e1342b9826719e5775c96120734ad",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2119767925775315090",
+        "https://x.com/shuminchuuu/status/2119960236232741078",
+        "https://x.com/shuminchuuu/status/2119992755279827435",
+        "https://x.com/shuminchuuu/status/2119997026050166882",
+        "https://x.com/shuminchuuu/status/2120092333085798629"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "f7601c450808943481e2.webp",
+          "bytes": 56546,
+          "source_bytes": 52220,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
