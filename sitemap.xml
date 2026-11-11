@@ -247,5 +247,6 @@ sitemap: false
   <url><loc>https://xenoah.github.io/XNH_news-atlas/</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/news-atlas.jpg</image:loc></image:image></url>
   <url><loc>https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/db-spacecraft.jpg</image:loc></image:image></url>
   <url><loc>https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/db-institutes.jpg</image:loc></image:image></url>
+  <url><loc>https://xenoah.github.io/ai-news/</loc><lastmod>2026-11-12</lastmod></url>
 <!-- PROJECT-URLS:end -->
 </urlset>
