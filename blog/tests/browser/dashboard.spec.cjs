@@ -37,8 +37,8 @@ test('old sitemap URL arrives at the integrated sitemap section', async ({ page 
   await expect(page.locator('#main-content a[href="/projects.htm"]')).toBeVisible();
 });
 
-test('sitemap links and sensor explanation remain usable without JavaScript', async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
+test('sitemap links and sensor explanation remain usable without JavaScript', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
   const page = await context.newPage();
   await page.goto('/sitemap.htm');
   await expect(page).toHaveURL(/\/dashboard\.htm#sitemap$/);
