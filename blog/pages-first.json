@@ -220,6 +220,32 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-11",
+      "title": "2026-11-11 AIに課金する日 ― 「100V15A超えるらしくて震えている」",
+      "article_digest": "ac542456e8b2d55642253dd99ef1b8dd212709f713dfabf44b1b7453e67d15f5",
+      "path": "blog/articles/2026-11-11-diary",
+      "permalink": "/blog/2026/11/11/diary/",
+      "content_sha256": "44a857e4692b497c3599b9787bc422c607b38d49399891fb98bdedc22086dab3",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2120135323258912836",
+        "https://x.com/shuminchuuu/status/2120282388706275676",
+        "https://x.com/shuminchuuu/status/2120353275648364927",
+        "https://x.com/shuminchuuu/status/2120356454159016345",
+        "https://x.com/shuminchuuu/status/2120456357883285903",
+        "https://x.com/shuminchuuu/status/2120462424046485609"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "127efbdddd55a6a9b87f.webp",
+          "bytes": 49794,
+          "source_bytes": 45204,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
