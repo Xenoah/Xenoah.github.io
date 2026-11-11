@@ -35,7 +35,8 @@ test('portfolio remains readable and expandable at 320px without JavaScript', as
   await page.goto('/portfolio.htm');
   await expect(page.locator('#handmade')).toContainText('自分で制作');
   await page.locator('.portfolio-more summary').click();
-  await expect(page.locator('.portfolio-more')).toHaveJSProperty('open', true);
+  await expect(page.locator('.portfolio-more')).toHaveAttribute('open', '');
+  await expect(page.locator('.portfolio-more').getByRole('link', { name: '卓球台', exact: true })).toBeVisible();
   await expect(page.locator('#archive a[href="https://xenoah.github.io/archive-3dmodels/"]')).toBeVisible();
   await page.locator('.portfolio-index a[href="#ai-works"]').click();
   await expect(page).toHaveURL(/#ai-works$/);
