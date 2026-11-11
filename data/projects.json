@@ -402,5 +402,14 @@
     "pagesUrl": "https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html",
     "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/database/ScienceInstitue",
     "thumbnailSlug": "db-institutes"
+  },
+  {
+    "id": "ai-news",
+    "title": "AIモデル速報",
+    "description": "新しく発表・公開されたAIモデルを速報でまとめる。各モデルに出典リンクと公式発表ポスト（X）へのリンクを付け、検証したものは深掘り記事へつなぐ。",
+    "category": "data",
+    "pagesUrl": "https://xenoah.github.io/ai-news/",
+    "sourceUrl": "https://github.com/Xenoah/Xenoah.github.io/tree/main/ai-news",
+    "updated": "2026-11-12"
   }
 ]
