@@ -42,7 +42,9 @@ test('sitemap links and sensor explanation remain usable without JavaScript', as
   const page = await context.newPage();
   await page.goto('/sitemap.htm');
   await expect(page).toHaveURL(/\/dashboard\.htm#sitemap$/);
-  await expect(page.locator('noscript')).toContainText('JavaScriptを有効');
+  // Playwright excludes the noscript element itself from text matching. Check its rendered child.
+  await expect(page.locator('noscript p')).toContainText('JavaScriptを有効');
+  await expect(page.locator('noscript p')).toBeVisible();
   await expect(page.locator('#main-content a[href="/projects.htm"]')).toBeVisible();
   await expect(page.locator('#main-content a[href="/study/intmath/intmath.html"]')).toHaveCount(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
