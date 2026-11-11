@@ -56,10 +56,16 @@ const pages = {
     canonical: "/menu.htm",
     robots: "noindex,follow",
   },
+  "dashboard.htm": {
+    title: "ダッシュボード・サイトマップ | Dashboard and Sitemap | Xenoah",
+    description: "百葉箱の気温・湿度・気圧の最新記録と、Webツール、ゲーム、記事などのサイトマップをまとめたダッシュボードです。 / Latest temperature, humidity and pressure readings, with a categorized guide to Xenoah's tools, games and articles.",
+    canonical: "/dashboard.htm",
+  },
   "sitemap.htm": {
-    title: "サイトマップ・ガイド | Sitemap and Guide | Xenoah",
-    description: "Xenoahのホームページで公開しているWebツール、ゲーム、学習教材、記事、データベースをカテゴリ別に案内します。 / A categorized guide to Xenoah's web tools, games, learning resources, articles and databases.",
-    canonical: "/sitemap.htm",
+    title: "サイトマップの移動先 | Sitemap Moved | Xenoah",
+    description: "サイトマップはダッシュボードに統合しました。 / The sitemap is now part of the dashboard.",
+    canonical: "/dashboard.htm",
+    robots: "noindex,follow",
   },
   "links.htm": {
     title: "リンク集 | Links and Resources | Xenoah",

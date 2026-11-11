@@ -12,7 +12,7 @@ const menuProject = (p) => `<li data-project data-category="${p.category}" data-
 const card = (p) => `<article class="catalog-card" data-project data-category="${p.category}"><h3><a href="${esc(local(p.pagesUrl) || p.sourceUrl)}">${esc(p.title)}</a></h3><p>${esc(p.description)}</p>${p.updated ? `<p class="project-date">更新 <time datetime="${p.updated}">${p.updated}</time></p>` : ""}${actions(p)}</article>`;
 const filters = `<form class="project-filters" data-project-filters hidden role="search"><label>作品を検索<input type="search" name="q" placeholder="例：音声、SVG、数学" autocomplete="off"></label><label>やりたいこと<select name="category"><option value="">すべて</option>${Object.entries(categories).map(([id, title]) => `<option value="${id}">${title}</option>`).join("")}</select></label><button type="reset">条件をクリア</button><p role="status" data-project-status></p></form>`;
 const catalog = `${filters}\n<div class="catalog-grid">${projects.map(card).join("\n")}</div>`;
-const menuLinks = [["/", "🔴 トップ"], ["/projects.htm", "🔎 作品を探す"], ["/sitemap.htm", "🗺️ サイトマップ"], ["/portfolio.htm", "🟠 ポートフォリオ"], ["/blog/", "🟢 Blog"], ["/changelog.htm", "更新履歴"], ["/links.htm", "リンク集"], ["/vrchat.htm", "VRChatについて"], ["/environment.htm", "使用ソフト一覧"]];
+const menuLinks = [["/", "🔴 トップ"], ["/projects.htm", "🔎 作品を探す"], ["/dashboard.htm", "📊 ダッシュボード"], ["/portfolio.htm", "🟠 ポートフォリオ"], ["/blog/", "🟢 Blog"], ["/changelog.htm", "更新履歴"], ["/links.htm", "リンク集"], ["/vrchat.htm", "VRChatについて"], ["/environment.htm", "使用ソフト一覧"]];
 const menu = `<nav aria-label="サイト内メニュー" class="site-menu"><a class="menu-brand" href="/">Xenoahのホームページ</a><ul class="menu-main">${menuLinks.map(([url, title]) => `<li><a href="${url}">${title}</a></li>`).join("")}</ul><p><a href="https://github.com/Xenoah/Xenoah.github.io" target="_blank" rel="noopener">ホームページのGitHub ↗</a> · <a href="https://xenoah.github.io/" target="_top">GitHub Pages</a></p><details class="menu-search" hidden><summary>メニュー内を検索・絞り込み</summary>${filters}</details>${Object.entries(categories).map(([id, title]) => `<section data-project-section><h2>${title}</h2><ul>${projects.filter(p => p.category === id).map(menuProject).join("\n")}</ul></section>`).join("\n")}</nav>`;
 let stale = false;
 function output(file, source) {
@@ -34,12 +34,12 @@ function replaceBlock(source, start, end, contents) {
   if (from < 0 || to < from) throw new Error(`Missing generated block: ${start}`);
   return source.slice(0, from + start.length) + "\n" + contents + "\n" + source.slice(to);
 }
-let sitemap = fs.readFileSync(path.join(root, "sitemap.htm"), "utf8");
+let sitemap = fs.readFileSync(path.join(root, "dashboard.htm"), "utf8");
 for (const [group, categoryIds] of Object.entries(groups)) {
   const rows = projects.filter(p => categoryIds.includes(p.category)).map(p => `<li${thumb(p) ? ' class="has-thumb"' : ""}>${thumb(p) ? `<img class="thumb" src="${thumb(p)}" alt="" loading="lazy">` : ""}<div><a href="${esc(local(p.pagesUrl) || p.sourceUrl)}">${esc(p.title)}</a><span class="desc"${p.id === "archive-3dmodels" ? ' id="archive-model-count"' : ""}>${esc(p.description)}</span>${actions(p)}</div></li>`).join("\n");
   sitemap = replaceBlock(sitemap, `<!-- PROJECT-LIST:${group}:start -->`, `<!-- PROJECT-LIST:${group}:end -->`, rows);
 }
-output("sitemap.htm", sitemap);
+output("dashboard.htm", sitemap);
 const published = projects.filter(p => p.pagesUrl);
 const xmlRows = published.map(p => `  <url><loc>${esc(p.pagesUrl)}</loc>${p.updated ? `<lastmod>${p.updated}</lastmod>` : ""}${thumb(p) ? `<image:image><image:loc>https://xenoah.github.io/${thumb(p)}</image:loc></image:image>` : ""}</url>`).join("\n");
 output("sitemap.xml", replaceBlock(fs.readFileSync(path.join(root, "sitemap.xml"), "utf8"), "<!-- PROJECT-URLS:start -->", "<!-- PROJECT-URLS:end -->", xmlRows));

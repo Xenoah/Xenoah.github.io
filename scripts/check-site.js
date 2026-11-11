@@ -72,7 +72,7 @@ for (const file of htmlFiles(root)) {
   }
   dom.window.close();
 }
-for (const file of ["index.html", "projects.htm", "menu.htm", "sitemap.htm", "portfolio.htm", "links.htm", "environment.htm", "changelog.htm"]) {
+for (const file of ["index.html", "projects.htm", "menu.htm", "dashboard.htm", "sitemap.htm", "portfolio.htm", "links.htm", "environment.htm", "changelog.htm"]) {
   const source = fs.readFileSync(path.join(root, file), "utf8");
   if (!/name="viewport"/.test(source) || !/charset="UTF-8"/i.test(source) && !/charset=UTF-8/i.test(source)) errors.push(`${file}: UTF-8 and mobile viewport required`);
   if (/target=["']right["']/.test(source)) errors.push(`${file}: obsolete frame target`);

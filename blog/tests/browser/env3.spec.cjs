@@ -6,7 +6,7 @@ const good = (overrides = {}) => ({ ok: true, data: {
 
 test('unconfigured sensor stays hidden', async ({ page }) => {
   await page.route('https://xenoah-weather-api.xenoah.chatgpt.site/api/latest', route => route.fulfill({ headers: { 'access-control-allow-origin': '*' }, json: { ok: false, error: 'not configured' } }));
-  await page.goto('/');
+  await page.goto('/dashboard.htm');
   await expect(page.locator('[data-env3-latest]')).toHaveAttribute('data-state', 'unconfigured');
   await expect(page.locator('[data-env3-latest]')).toBeHidden();
 });
@@ -14,7 +14,7 @@ test('unconfigured sensor stays hidden', async ({ page }) => {
 test('latest values, units, recorded time and keyboard refresh fit the page', async ({ page }) => {
   let response = good(); let requests = 0;
   await page.route('https://xenoah-weather-api.xenoah.chatgpt.site/api/latest', route => { requests++; return route.fulfill({ headers: { 'access-control-allow-origin': '*' }, json: response }); });
-  await page.goto('/');
+  await page.goto('/dashboard.htm');
   const panel = page.locator('[data-env3-latest]');
   await expect(panel).toHaveAttribute('data-state', 'ready');
   await expect(panel.locator('[data-env3-value="temperature_c"]')).toHaveText('21.6');
@@ -33,7 +33,7 @@ test('latest values, units, recorded time and keyboard refresh fit the page', as
 test('empty, partial, old and failed data are visibly different and retry recovers', async ({ page }) => {
   let response = { ok: false, error: 'no data' }; let fail = false;
   await page.route('https://xenoah-weather-api.xenoah.chatgpt.site/api/latest', route => fail ? route.fulfill({ headers: { 'access-control-allow-origin': '*' }, status: 503, body: 'unavailable' }) : route.fulfill({ headers: { 'access-control-allow-origin': '*' }, json: response }));
-  await page.goto('/');
+  await page.goto('/dashboard.htm');
   const panel = page.locator('[data-env3-latest]');
   const button = panel.getByRole('button', { name: '表示を更新' });
   await expect(panel).toHaveAttribute('data-state', 'empty');
@@ -56,7 +56,7 @@ test('empty, partial, old and failed data are visibly different and retry recove
 
 test('navigation away and back leaves the sensor and site usable', async ({ page }) => {
   await page.route('https://xenoah-weather-api.xenoah.chatgpt.site/api/latest', route => route.fulfill({ headers: { 'access-control-allow-origin': '*' }, json: good() }));
-  await page.goto('/');
+  await page.goto('/dashboard.htm');
   await expect(page.locator('[data-env3-latest]')).toHaveAttribute('data-state', 'ready');
   await page.goto('/projects.htm');
   await page.goBack();

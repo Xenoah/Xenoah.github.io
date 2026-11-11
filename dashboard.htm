@@ -1,0 +1,631 @@
+---
+layout: null
+permalink: /dashboard.htm
+---
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+  <title>ダッシュボード・サイトマップ | Dashboard and Sitemap | Xenoah</title>
+  <meta name="description" content="百葉箱の気温・湿度・気圧の最新記録と、Webツール、ゲーム、記事などのサイトマップをまとめたダッシュボードです。 / Latest temperature, humidity and pressure readings, with a categorized guide to Xenoah's tools, games and articles.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="author" content="Xenoah">
+  <link rel="canonical" href="https://xenoah.github.io/dashboard.htm">
+  <meta property="og:site_name" content="Xenoah">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ダッシュボード・サイトマップ | Dashboard and Sitemap | Xenoah">
+  <meta property="og:description" content="百葉箱の気温・湿度・気圧の最新記録と、Webツール、ゲーム、記事などのサイトマップをまとめたダッシュボードです。 / Latest temperature, humidity and pressure readings, with a categorized guide to Xenoah's tools, games and articles.">
+  <meta property="og:url" content="https://xenoah.github.io/dashboard.htm">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ダッシュボード・サイトマップ | Dashboard and Sitemap | Xenoah">
+  <meta name="twitter:description" content="百葉箱の気温・湿度・気圧の最新記録と、Webツール、ゲーム、記事などのサイトマップをまとめたダッシュボードです。 / Latest temperature, humidity and pressure readings, with a categorized guide to Xenoah's tools, games and articles.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+body {
+    background: #fff;
+    color: #000;
+    font-family: "Segoe UI", "Meiryo", system-ui, sans-serif;
+    margin: 0;
+    padding: 18px 20px 40px;
+    line-height: 1.6;
+}
+
+h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+}
+
+.lead {
+    margin: 0 0 18px;
+    color: #333;
+    font-size: 14px;
+}
+
+.legend {
+    margin: 0 0 22px;
+    font-size: 12px;
+    color: #555;
+}
+
+.legend code {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #c4c4e0;
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+.section {
+    margin: 0 0 22px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid #c4c4e0;
+    border-radius: 0;
+    
+}
+
+.section h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    border-bottom: 2px solid #b9b9e6;
+    padding-bottom: 6px;
+}
+
+ul.map {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 8px;
+}
+
+ul.map li {
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid #d6d6ee;
+    border-radius: 0;
+}
+
+ul.map li.has-thumb {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+ul.map .thumb {
+    display: block;
+    width: 72px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #f4f4ff;
+    border: 1px solid #c4c4e0;
+    border-radius: 6px;
+}
+
+.archive-carousel {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    gap: 8px;
+    align-items: stretch;
+}
+
+ul.model-carousel {
+    display: flex;
+    grid-template-columns: none;
+    gap: 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    padding: 0 0 6px;
+}
+
+ul.model-carousel li {
+    flex: 0 0 clamp(190px, 42vw, 260px);
+    min-height: 190px;
+    scroll-snap-align: start;
+}
+
+ul.model-carousel li.has-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+ul.model-carousel .thumb {
+    width: 100%;
+    height: 118px;
+    aspect-ratio: auto;
+}
+
+.carousel-button {
+    border: 1px solid #c4c4e0;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.78);
+    color: #2330a8;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    min-height: 100%;
+}
+
+.carousel-button:hover,
+.carousel-button:focus-visible {
+    background: #fff;
+    outline: 2px solid #9ea7ff;
+    outline-offset: 1px;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.carousel-dots button {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 1px solid #9fa4d9;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+}
+
+.carousel-dots button.is-active {
+    background: #2330a8;
+    border-color: #2330a8;
+}
+
+ul.map a {
+    font-weight: 700;
+    text-decoration: none;
+    color: #2330a8;
+}
+
+ul.map a:hover {
+    text-decoration: underline;
+}
+
+ul.map .desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #555;
+    font-weight: 400;
+}
+
+.subhead {
+    margin: 12px 0 8px;
+    font-size: 13px;
+    color: #444;
+    font-weight: 700;
+}
+
+.ext::after {
+    content: "↗";
+    font-size: 11px;
+    color: #888;
+    margin-left: 3px;
+}
+
+footer {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+</style>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site-navigation.js" defer></script>
+<script src="/assets/project-filter.js" defer></script>
+<script src="/assets/env3-latest.js" defer></script>
+</head>
+<body class="site-page">
+{% include site_navigation.html %}
+<main class="site-content" id="main-content" tabindex="-1">
+
+<h1>ダッシュボード</h1>
+<p class="lead">百葉箱の最新記録と、ホームページ内の案内をまとめました。</p>
+<p><a href="#sitemap">サイトマップへ移動</a></p>
+
+{% include env3_latest.html %}
+<noscript><p>気温・湿度・気圧の最新記録を表示するにはJavaScriptを有効にしてください。サイトマップはこのまま利用できます。</p></noscript>
+
+<section aria-labelledby="sitemap">
+<h2 id="sitemap" tabindex="-1">🗺️ サイトマップ / ガイドマップ</h2>
+<p><a href="/projects.htm">キーワード・目的から作品を探す</a></p>
+<p class="lead">xenoah.github.io のページ一覧です。行きたいところへどうぞ。</p>
+<p class="legend">リンク末尾の <span class="ext"></span> は別タブで開くツール・アプリです。それ以外は通常のページとして開きます。</p>
+
+<div class="section">
+    <h3>🔴 メイン</h3>
+    <ul class="map">
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/top.jpg" alt="" loading="lazy"><div><a href="/">トップ</a><span class="desc">サイトの入口・自己紹介</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/sitemap.jpg" alt="" loading="lazy"><div><a href="dashboard.htm">ダッシュボード</a><span class="desc">百葉箱の最新記録・サイトマップ</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/links.jpg" alt="" loading="lazy"><div><a href="links.htm">リンク</a><span class="desc">関連リンク集</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/portfolio.jpg" alt="" loading="lazy"><div><a href="portfolio.htm">ポートフォリオ</a><span class="desc">制作物のまとめ</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/changelog.jpg" alt="" loading="lazy"><div><a href="changelog.htm">更新履歴</a><span class="desc">サイトの変更ログ</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/blog.jpg" alt="" loading="lazy"><div><a href="blog/">Blog</a><span class="desc">日記・記事</span></div></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>📝 Blog記事</h3>
+    <ul class="map">
+        {% include blog_articles.html %}{% for article in all_articles %}
+        <li><div><a href="{{ article.url | relative_url }}">{{ article.title | escape }}</a><span class="desc">{{ article.description | escape }}</span></div></li>
+        {% endfor %}
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/blog-editor.jpg" alt="" loading="lazy"><div><a href="blog/editor.html" target="_blank" rel="noopener" class="ext">Blog Editor</a><span class="desc">ブログ記事作成用の編集ツール</span></div></li>
+        <li><a href="blog/feed.xml" target="_blank" rel="noopener" class="ext">Blog RSS</a><span class="desc">ブログのRSSフィード</span></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>🔵 プロフィール / 環境</h3>
+    <ul class="map">
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/vrchat.jpg" alt="" loading="lazy"><div><a href="vrchat.htm">VRChatについて</a><span class="desc">メタバースでの活動</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/environment.jpg" alt="" loading="lazy"><div><a href="environment.htm">使用しているソフト一覧</a><span class="desc">愛用ツール・制作環境</span></div></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>🟣 3Dモデル配布</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:models:start -->
+<li><div><a href="/meshcopia/">Meshcopia - 無料3Dモデル・テクスチャ</a><span class="desc">無料の3Dモデル・テクスチャを検索・プレビュー・ダウンロードできる素材ライブラリ。AIエージェント向けJSONカタログも提供。</span><div class="project-actions"><a href="/meshcopia/">［公開サイト］</a><a href="https://github.com/Xenoah/meshcopia" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/archive-3dmodels.jpg" alt="" loading="lazy"><div><a href="/archive-3dmodels/">3Dモデル配布サイト</a><span class="desc" id="archive-model-count">制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。</span><div class="project-actions"><a href="/archive-3dmodels/">［公開サイト］</a><a href="https://github.com/Xenoah/archive-3dmodels" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:models:end -->
+
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/archive-3dmodels-terms.jpg" alt="" loading="lazy"><div><a href="https://xenoah.github.io/archive-3dmodels/terms/" target="_blank" rel="noopener" class="ext">3Dモデル ライセンス規約</a><span class="desc">配布モデルの利用規約</span></div></li>
+    </ul>
+    <p class="subhead">最新モデルハイライト</p>
+    <div class="archive-carousel" id="archive-carousel">
+        <button class="carousel-button" type="button" data-carousel-dir="-1" aria-label="前のモデル">‹</button>
+        <ul class="map model-carousel" id="archive-latest-models">
+            <li><a href="https://xenoah.github.io/archive-3dmodels/2022%E6%AE%8B%E6%9A%91%E8%A6%8B%E8%88%9E%E3%81%84%E3%82%B9%E3%83%86%E3%83%B3%E3%82%B7%E3%83%AB-v6/" target="_blank" rel="noopener" class="ext">2022残暑見舞いステンシル V6</a><span class="desc">最新モデルハイライト（2026-06-15時点）</span></li>
+            <li><a href="https://xenoah.github.io/archive-3dmodels/LCDtab-Stand-v7/" target="_blank" rel="noopener" class="ext">LCDtab Stand V7</a><span class="desc">最新モデルハイライト</span></li>
+            <li><a href="https://xenoah.github.io/archive-3dmodels/mawa-hanger-joint-v11/" target="_blank" rel="noopener" class="ext">Mawa Hanger Joint V11</a><span class="desc">最新モデルハイライト</span></li>
+        </ul>
+        <button class="carousel-button" type="button" data-carousel-dir="1" aria-label="次のモデル">›</button>
+    </div>
+    <div class="carousel-dots" id="archive-carousel-dots" aria-label="現在のモデル"></div>
+</div>
+
+<div class="section">
+    <h3>🎮 ミニゲーム</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:games:start -->
+<li><div><a href="https://github.com/Xenoah/owl-of-minerva">哲学アキネーター - 梟のミネルヴァ</a><span class="desc">質問への回答から近い思想を探す哲学ゲーム。診断・推理モードと226思想の図鑑を収録。</span><div class="project-actions"><span class="source-only">公開サイト準備中（現在はGitHubで参照）</span><a href="https://github.com/Xenoah/owl-of-minerva" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/font-sense.jpg" alt="" loading="lazy"><div><a href="/games/font-sense/font-sense.html">ABSOLUTE FONT SENSE</a><span class="desc">絶対フォント感・書体当てクイズ</span><div class="project-actions"><a href="/games/font-sense/font-sense.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/font-sense" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/synth-wave-match.jpg" alt="" loading="lazy"><div><a href="/games/synth-wave-match/synth-wave-match.html">SYNTH MATCH SPECTRA</a><span class="desc">波形マッチング音ゲー</span><div class="project-actions"><a href="/games/synth-wave-match/synth-wave-match.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/synth-wave-match" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/perfect-pitch-quiz.jpg" alt="" loading="lazy"><div><a href="/games/perfect-pitch-quiz/perfect-pitch-quiz.html">PERFECT PITCH QUIZ</a><span class="desc">絶対音感トレーニング</span><div class="project-actions"><a href="/games/perfect-pitch-quiz/perfect-pitch-quiz.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/perfect-pitch-quiz" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/chord-breaker.jpg" alt="" loading="lazy"><div><a href="/games/chord-breaker/chord-breaker.html">CHORD BREAKER</a><span class="desc">和音聴き取りクイズ</span><div class="project-actions"><a href="/games/chord-breaker/chord-breaker.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/chord-breaker" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/train-simulator.jpg" alt="" loading="lazy"><div><a href="/games/train-simulator/shiokaze_train_sim.html">電車シミュレーター</a><span class="desc">Fable 5で制作。加速、惰行、ブレーキを使い分けて駅停車を目指す電車運転シミュレーター</span><div class="project-actions"><a href="/games/train-simulator/shiokaze_train_sim.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/train-simulator" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/skyracers-fpv.jpg" alt="" loading="lazy"><div><a href="/games/skyracers-fpv/skyracers-fpv.html">FPVドローンゲーム</a><span class="desc">ドローン操縦シミュレーター</span><div class="project-actions"><a href="/games/skyracers-fpv/skyracers-fpv.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/skyracers-fpv" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/game-sandbox.jpg" alt="" loading="lazy"><div><a href="/game-sandbox/">サンドボックスゲーム</a><span class="desc">自由に遊べるブラウザ向けサンドボックスゲーム</span><div class="project-actions"><a href="/game-sandbox/">［公開サイト］</a><a href="https://github.com/Xenoah/game-sandbox" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/long-rpg.jpg" alt="" loading="lazy"><div><a href="/games/long-rpg/mugen_kairo.html">長く遊べるRPG</a><span class="desc">Fable 5で制作。オフラインで長く遊べる、無限生成型のブラウザRPG</span><div class="project-actions"><a href="/games/long-rpg/mugen_kairo.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/long-rpg" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/haiku-generator.jpg" alt="" loading="lazy"><div><a href="/games/haiku-generator/haiku-generator.html">ランダム俳句ジェネレーター</a><span class="desc">俳句をランダム生成</span><div class="project-actions"><a href="/games/haiku-generator/haiku-generator.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/games/haiku-generator" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/5w1h-generator">5w1h-generator</a><span class="desc">&quot;5w1h-generatorを追加&quot;（メニューから自動追加）</span><div class="project-actions"><a href="/5w1h-generator">［公開サイト］</a><a href="https://github.com/Xenoah/5w1h-generator" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:games:end -->
+    </ul>
+</div>
+
+<div class="section">
+    <h3>🛠️ 便利ツール</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:tools:start -->
+<li><div><a href="/dt-cue_precision-media-player/">dt-cue - 精密メディアプレイヤー</a><span class="desc">ローカルの動画・音声を秒・フレーム・1ms刻みで確認するブラウザプレイヤー。波形・BPM・FFT表示、ホットキュー、MIDI操作に対応。</span><div class="project-actions"><a href="/dt-cue_precision-media-player/">［公開サイト］</a><a href="https://github.com/Xenoah/dt-cue_precision-media-player" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/scripted-animation/onkai-maoujou/onkai_maoujou.html">音界魔王城 — BEAT DUNGEON MV</a><span class="desc">勇者が夕暮れの村から魔王城へ攻め込む約5分のMV。敵ごとに19ジャンルの曲へ切り替わり、曲はブラウザ内で合成。観るAUTOと、キック・スネア・ハイハット・ベースを叩くドラムマシン風の音ゲーモード（4段階）に対応。</span><div class="project-actions"><a href="/scripted-animation/onkai-maoujou/onkai_maoujou.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/scripted-animation/onkai-maoujou" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/scripted-animation/3a-hac/ZA_NAS_Film.html">ЗА НАС・俺たちに — Dubstep Remix</a><span class="desc">ダブステップリミックスに合わせた約3分34秒のCG映像。再生・一時停止、シーク、画質変更、全画面表示に対応。</span><div class="project-actions"><a href="/scripted-animation/3a-hac/ZA_NAS_Film.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/scripted-animation/3a-hac" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/scripted-animation/hp-pv/xenoah_pv.html">ゼノアの全能庵・ホームページPV</a><span class="desc">音楽付きの30秒の3Dアニメーション。再生・一時停止、シーク、全画面表示に対応。</span><div class="project-actions"><a href="/scripted-animation/hp-pv/xenoah_pv.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/scripted-animation/hp-pv" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/seekdeck-webdj/dist/">SeekDeck - WebでDJ</a><span class="desc">音源を端末内で処理する4デッキのブラウザDJアプリ。波形表示、BPM同期、ホットキュー、ループ、EQ・エフェクト、録音に対応</span><div class="project-actions"><a href="/seekdeck-webdj/dist/">［公開サイト］</a><a href="https://github.com/Xenoah/seekdeck-webdj" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/portavek-handheld-synthesizer/">PortaVek - スマホでドラム・シンセ演奏</a><span class="desc">スマホでドラムとシンセを演奏できるブラウザ楽器。音作り、録音・WAV保存、プリセット保存を端末内で処理</span><div class="project-actions"><a href="/portavek-handheld-synthesizer/">［公開サイト］</a><a href="https://github.com/Xenoah/portavek-handheld-synthesizer" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="https://github.com/Xenoah/voicemeld">VoiceMeld - リアルタイム音程補正・ハーモニー</a><span class="desc">マイク音声をMIDI鍵盤・コード・スケールに合わせてリアルタイム補正するブラウザ型ボイスハーモナイザー。最大6声のハーモニーと録音に対応</span><div class="project-actions"><span class="source-only">公開サイト準備中（現在はGitHubで参照）</span><a href="https://github.com/Xenoah/voicemeld" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="https://github.com/Xenoah/rpg-text-sfx_gpt-extensions">ChatGPT RPG Text SFX - 返信に文字送り音（Chrome拡張）</a><span class="desc">ChatGPTの返信表示に合わせてRPG風の文字送り音を鳴らすChrome拡張。4音色と音量・テンポ・音程の調整に対応</span><div class="project-actions"><span class="source-only">Chrome拡張機能</span><a href="https://github.com/Xenoah/rpg-text-sfx_gpt-extensions" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="https://github.com/Xenoah/chat-avatar_gpt-extensions">Chat Avatar - アバターチャット（Chrome拡張）</a><span class="desc">ChatGPTに立ち絵・VRMアバター、読み上げ、音声認識を備えた会話画面を追加するChrome拡張</span><div class="project-actions"><span class="source-only">Chrome拡張機能</span><a href="https://github.com/Xenoah/chat-avatar_gpt-extensions" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="https://github.com/Xenoah/audio-ayatori">Audio Ayatori - ノード式音声ルーティング（Windows）</a><span class="desc">Windows 10/11用のノード式オーディオ・パッチベイ。マイク・スピーカー・既存の仮想ケーブルを接続し、音声の分岐・ミックス・経路ごとの音量とミュートを設定</span><div class="project-actions"><span class="source-only">Windows用アプリ</span><a href="https://github.com/Xenoah/audio-ayatori" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/qr-code-tool.jpg" alt="" loading="lazy"><div><a href="/tools/qr-code-tool/qr-code-tool.htm">QRコード読取・生成</a><span class="desc">QRコードの作成・読み取り</span><div class="project-actions"><a href="/tools/qr-code-tool/qr-code-tool.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-code-tool" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/qr-painting.jpg" alt="" loading="lazy"><div><a href="/tools/qr-painting/qr-painting.htm">QR Painting Tool</a><span class="desc">テンプレートにペンと消しゴムで塗るQRコード塗り絵ツール</span><div class="project-actions"><a href="/tools/qr-painting/qr-painting.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/qr-painting" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/pdf-editor.jpg" alt="" loading="lazy"><div><a href="/WEBAPP_PDF-EDITOR/">PDFエディター</a><span class="desc">PDFの編集</span><div class="project-actions"><a href="/WEBAPP_PDF-EDITOR/">［公開サイト］</a><a href="https://github.com/Xenoah/WEBAPP_PDF-EDITOR" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/moji-mic.jpg" alt="" loading="lazy"><div><a href="/moji-mic/">文字起こしツール</a><span class="desc">マイク音声の文字起こし</span><div class="project-actions"><a href="/moji-mic/">［公開サイト］</a><a href="https://github.com/Xenoah/moji-mic" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/wave-daw.jpg" alt="" loading="lazy"><div><a href="/wave-daw/">Wave DAW - Webで使える音楽作成ソフト（DAW）</a><span class="desc">Webで使える音楽作成ソフト（DAW）</span><div class="project-actions"><a href="/wave-daw/">［公開サイト］</a><a href="https://github.com/Xenoah/wave-daw" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/audio-converter.jpg" alt="" loading="lazy"><div><a href="/tools/audio-converter/audio-converter.htm">Audio Converter-音声ファイル変換</a><span class="desc">音声ファイル変換</span><div class="project-actions"><a href="/tools/audio-converter/audio-converter.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-converter" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/audio-to-arduino-tone.jpg" alt="" loading="lazy"><div><a href="/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm">MP3/WAV→Arduino tone()</a><span class="desc">MP3 / WAVをArduinoのtone()用メロディーへ変換</span><div class="project-actions"><a href="/tools/audio-to-arduino-tone/audio-to-arduino-tone.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/audio-to-arduino-tone" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/svg-converter.jpg" alt="" loading="lazy"><div><a href="/tools/svg-converter/svg-converter.htm">SVGコンバーター</a><span class="desc">SVGの変換</span><div class="project-actions"><a href="/tools/svg-converter/svg-converter.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/svg-converter" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/gif-converter.jpg" alt="" loading="lazy"><div><a href="/tools/gif-converter/gif-converter.htm">GIFコンバーター</a><span class="desc">GIFの変換</span><div class="project-actions"><a href="/tools/gif-converter/gif-converter.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/gif-converter" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/scientific-calculator.jpg" alt="" loading="lazy"><div><a href="/tools/scientific-calculator/scientific-calculator.htm">科学計算機</a><span class="desc">高機能な電卓</span><div class="project-actions"><a href="/tools/scientific-calculator/scientific-calculator.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/scientific-calculator" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/2dcad.jpg" alt="" loading="lazy"><div><a href="/WEBAPP_2DCAD/">2D CAD</a><span class="desc">ブラウザで使える2D作図ツール</span><div class="project-actions"><a href="/WEBAPP_2DCAD/">［公開サイト］</a><a href="https://github.com/Xenoah/WEBAPP_2DCAD" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/dtmf-toolkit.jpg" alt="" loading="lazy"><div><a href="/tools/dtmf-toolkit/dtmf-toolkit.htm">DTMFコンバーター</a><span class="desc">プッシュ音の生成・解析</span><div class="project-actions"><a href="/tools/dtmf-toolkit/dtmf-toolkit.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/dtmf-toolkit" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/vj-fx-maker.jpg" alt="" loading="lazy"><div><a href="/tools/vj-fx-maker/vj-fx-maker.htm">VJ背景簡易映像エフェクトジェネレーター</a><span class="desc">簡易映像エフェクト作成</span><div class="project-actions"><a href="/tools/vj-fx-maker/vj-fx-maker.htm">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/tools/vj-fx-maker" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:tools:end -->
+    </ul>
+</div>
+
+<div class="section">
+    <h3>📚 すたでぃー（学習）</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:learn:start -->
+<li class="has-thumb"><img class="thumb" src="images_sitemap/intmath.jpg" alt="" loading="lazy"><div><a href="/study/intmath/intmath.html">Math Raid - 数学スコアアタック</a><span class="desc">四則演算、因数分解、三角関数、微分、確率の問題を解きながら敵を倒す数学ゲーム。</span><div class="project-actions"><a href="/study/intmath/intmath.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/study/intmath" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:learn:end -->
+
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-arithmetic.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/arithmetic/" target="_blank" rel="noopener" class="ext">Arithmetic</a><span class="desc">四則演算・基礎計算</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-trig-unit-circle.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/trig_unit_circle/" target="_blank" rel="noopener" class="ext">Trigonometry Unit Circle</a><span class="desc">三角関数と単位円</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-nd-coords.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/nd_coords/" target="_blank" rel="noopener" class="ext">N-D Coordinates</a><span class="desc">3D/4Dオブジェクトの2D投影</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-fourier.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/fourier/" target="_blank" rel="noopener" class="ext">Fourier</a><span class="desc">フーリエ解析の可視化</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-collatz.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/collatz/" target="_blank" rel="noopener" class="ext">Collatz</a><span class="desc">コラッツ予想の探索</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-linear-algebra.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/linear_algebra/" target="_blank" rel="noopener" class="ext">Linear Algebra</a><span class="desc">線形代数の可視化</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-calculus.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/calculus/" target="_blank" rel="noopener" class="ext">Calculus</a><span class="desc">微積分の可視化</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-chaos.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/chaos/" target="_blank" rel="noopener" class="ext">Chaos</a><span class="desc">カオス系のシミュレーション</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-probability.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/probability/" target="_blank" rel="noopener" class="ext">Probability</a><span class="desc">確率の可視化</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-complex-analysis.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/complex_analysis/" target="_blank" rel="noopener" class="ext">Complex Analysis</a><span class="desc">複素解析の可視化</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-factorization.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/factorization/" target="_blank" rel="noopener" class="ext">Factorization</a><span class="desc">素因数分解・数の構造</span></div></li>
+        <li class="has-thumb"><img class="thumb" src="images_sitemap/intmath-primes.jpg" alt="" loading="lazy"><div><a href="study/intmath/lessons/primes/" target="_blank" rel="noopener" class="ext">Primes</a><span class="desc">素数の探索と可視化</span></div></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>🗄️ データベース（自分用）</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:data:start -->
+<li><div><a href="/map_autumn-leaves/">KOYO LIVE - 全国紅葉マップ</a><span class="desc">全国の紅葉スポットを地図で検索。色づき状況・情報の更新日・ライブカメラへのリンクを確認できる。観測情報のない地点は未確認として表示。</span><div class="project-actions"><a href="/map_autumn-leaves/">［公開サイト］</a><a href="https://github.com/Xenoah/map_autumn-leaves" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li><div><a href="/tsubuyai-tech/">つぶやいテック - 科学技術ニュース</a><span class="desc">7人の架空の編集キャラクターが科学技術ニュースを紹介。分野別の絞り込み、出典の確認、記事の保存・購読に対応。</span><div class="project-actions"><a href="/tsubuyai-tech/">［公開サイト］</a><a href="https://github.com/Xenoah/tsubuyai-tech" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/news-atlas.jpg" alt="" loading="lazy"><div><a href="/XNH_news-atlas/">世界ニュースマップ</a><span class="desc">ニュースを地図で見る</span><div class="project-actions"><a href="/XNH_news-atlas/">［公開サイト］</a><a href="https://github.com/Xenoah/XNH_news-atlas" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/db-spacecraft.jpg" alt="" loading="lazy"><div><a href="/database/SpaceCraft/DB_spacecraft_index.html">日本の人工衛星/探査機DB</a><span class="desc">日本の人工衛星/探査機DB</span><div class="project-actions"><a href="/database/SpaceCraft/DB_spacecraft_index.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/database/SpaceCraft" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<li class="has-thumb"><img class="thumb" src="images_sitemap/db-institutes.jpg" alt="" loading="lazy"><div><a href="/database/ScienceInstitue/DB_institutes_index.html">日本の科学研究機関DB</a><span class="desc">日本の科学研究機関DB</span><div class="project-actions"><a href="/database/ScienceInstitue/DB_institutes_index.html">［公開サイト］</a><a href="https://github.com/Xenoah/Xenoah.github.io/tree/main/database/ScienceInstitue" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:data:end -->
+    </ul>
+</div>
+
+<div class="section">
+    <h3>💬 コミュニティ</h3>
+    <ul class="map">
+<!-- PROJECT-LIST:community:start -->
+<li class="has-thumb"><img class="thumb" src="images_sitemap/xnh-bbs.jpg" alt="" loading="lazy"><div><a href="/XNH_BBS/">ご意見・雑談は→☑GIT-BBS</a><span class="desc">ご意見・雑談用の掲示板</span><div class="project-actions"><a href="/XNH_BBS/">［公開サイト］</a><a href="https://github.com/Xenoah/XNH_BBS" target="_blank" rel="noopener">［GitHub・ソース ↗］<span class="visually-hidden">（別タブ）</span></a></div></div></li>
+<!-- PROJECT-LIST:community:end -->
+    </ul>
+</div>
+
+<footer>
+    機械可読のサイトマップ（検索エンジン向け）は <a href="sitemap.xml">sitemap.xml</a> にあります。
+</footer>
+</section>
+
+<script>
+(function () {
+    const latestList = document.getElementById("archive-latest-models");
+    const countText = document.getElementById("archive-model-count");
+    const carousel = document.getElementById("archive-carousel");
+    const dots = document.getElementById("archive-carousel-dots");
+    if (!latestList || !countText || !window.DOMParser) return;
+    let currentIndex = 0;
+    let autoTimer = null;
+    let realModelCount = 0;
+
+    function getItems() {
+        return Array.prototype.slice.call(latestList.querySelectorAll("li"));
+    }
+
+    function syncCurrentIndex() {
+        const items = getItems();
+        if (!items.length) return;
+        currentIndex = items.reduce(function (bestIndex, item, index) {
+            const bestDistance = Math.abs(items[bestIndex].offsetLeft - latestList.scrollLeft);
+            const distance = Math.abs(item.offsetLeft - latestList.scrollLeft);
+            return distance < bestDistance ? index : bestIndex;
+        }, 0);
+        updateDots();
+    }
+
+    function getRealIndex() {
+        if (!realModelCount) return 0;
+        return ((currentIndex % realModelCount) + realModelCount) % realModelCount;
+    }
+
+    function updateDots() {
+        if (!dots || !realModelCount) return;
+        const activeIndex = getRealIndex();
+        Array.prototype.forEach.call(dots.querySelectorAll("button"), function (dot, index) {
+            const active = index === activeIndex;
+            dot.classList.toggle("is-active", active);
+            dot.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+    }
+
+    function renderDots() {
+        if (!dots || !realModelCount) return;
+        dots.innerHTML = "";
+        for (let index = 0; index < realModelCount; index += 1) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.setAttribute("aria-label", "モデル " + (index + 1));
+            dot.setAttribute("aria-pressed", "false");
+            dot.addEventListener("click", function () {
+                scrollToModel(realModelCount + index);
+                restartAuto();
+            });
+            dots.appendChild(dot);
+        }
+        updateDots();
+    }
+
+    function jumpToModel(index) {
+        const items = getItems();
+        if (!items.length) return;
+        latestList.scrollTo({
+            left: items[index].offsetLeft,
+            behavior: "auto"
+        });
+        currentIndex = index;
+        updateDots();
+    }
+
+    function normalizeLoopPosition() {
+        if (!realModelCount) return;
+        if (currentIndex < realModelCount) {
+            jumpToModel(currentIndex + realModelCount);
+        } else if (currentIndex >= realModelCount * 2) {
+            jumpToModel(currentIndex - realModelCount);
+        }
+    }
+
+    function scrollToModel(index) {
+        const items = getItems();
+        if (!items.length) return;
+        currentIndex = Math.max(0, Math.min(index, items.length - 1));
+        latestList.scrollTo({
+            left: items[currentIndex].offsetLeft,
+            behavior: "smooth"
+        });
+        window.setTimeout(function () {
+            syncCurrentIndex();
+            normalizeLoopPosition();
+        }, 520);
+    }
+
+    function restartAuto() {
+        if (autoTimer) window.clearInterval(autoTimer);
+        autoTimer = window.setInterval(function () {
+            syncCurrentIndex();
+            scrollToModel(currentIndex + 1);
+        }, 3000);
+    }
+
+    if (carousel) {
+        Array.prototype.forEach.call(carousel.querySelectorAll("[data-carousel-dir]"), function (button) {
+            button.addEventListener("click", function () {
+                syncCurrentIndex();
+                scrollToModel(currentIndex + Number(button.getAttribute("data-carousel-dir")));
+                restartAuto();
+            });
+        });
+
+        carousel.addEventListener("mouseenter", function () {
+            if (autoTimer) window.clearInterval(autoTimer);
+        });
+        carousel.addEventListener("mouseleave", restartAuto);
+        carousel.addEventListener("focusin", function () {
+            if (autoTimer) window.clearInterval(autoTimer);
+        });
+        carousel.addEventListener("focusout", restartAuto);
+    }
+
+    latestList.addEventListener("scroll", function () {
+        window.clearTimeout(latestList._syncTimer);
+        latestList._syncTimer = window.setTimeout(function () {
+            syncCurrentIndex();
+            normalizeLoopPosition();
+        }, 160);
+    });
+    latestList.addEventListener("touchend", function () {
+        syncCurrentIndex();
+        normalizeLoopPosition();
+        restartAuto();
+    });
+
+    fetch("https://xenoah.github.io/archive-3dmodels/", { cache: "no-cache" })
+        .then(function (response) {
+            if (!response.ok) throw new Error("archive fetch failed");
+            return response.text();
+        })
+        .then(function (html) {
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            const cards = Array.prototype.slice.call(doc.querySelectorAll(".model-card"));
+            const latestCards = cards.sort(function (a, b) {
+                const uploaded = (b.dataset.uploaded || "").localeCompare(a.dataset.uploaded || "");
+                if (uploaded) return uploaded;
+                return (a.dataset.title || "").localeCompare(b.dataset.title || "", "ja");
+            }).slice(0, 10);
+
+            const models = latestCards.map(function (card) {
+                const link = card.querySelector(".card-main");
+                const image = card.querySelector(".thumb img");
+                return {
+                    href: link ? new URL(link.getAttribute("href"), "https://xenoah.github.io").href : "",
+                    title: card.dataset.title || (link ? link.textContent.trim() : ""),
+                    uploaded: card.dataset.uploaded || "",
+                    image: image ? new URL(image.getAttribute("src"), "https://xenoah.github.io").href : ""
+                };
+            }).filter(function (model) {
+                return model.href && model.title;
+            });
+
+            if (cards.length > 0) {
+                countText.textContent = "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。" + cards.length + "件公開中";
+            }
+            if (!models.length) return;
+
+            function appendModel(model) {
+                const item = document.createElement("li");
+                const textWrap = document.createElement("div");
+                const anchor = document.createElement("a");
+                const desc = document.createElement("span");
+
+                if (model.image) {
+                    const thumb = document.createElement("img");
+                    thumb.className = "thumb";
+                    thumb.src = model.image;
+                    thumb.alt = "";
+                    thumb.loading = "lazy";
+                    item.className = "has-thumb";
+                    item.appendChild(thumb);
+                }
+
+                anchor.href = model.href;
+                anchor.target = "_blank";
+                anchor.className = "ext";
+                anchor.textContent = model.title;
+
+                desc.className = "desc";
+                desc.textContent = model.uploaded ? "追加日: " + model.uploaded : "最新モデルハイライト（自動取得）";
+
+                textWrap.appendChild(anchor);
+                textWrap.appendChild(desc);
+                item.appendChild(textWrap);
+                latestList.appendChild(item);
+            }
+
+            latestList.innerHTML = "";
+            realModelCount = models.length;
+            [0, 1, 2].forEach(function () {
+                models.forEach(appendModel);
+            });
+            currentIndex = realModelCount;
+            renderDots();
+            window.requestAnimationFrame(function () {
+                jumpToModel(realModelCount);
+            });
+            restartAuto();
+        })
+        .catch(function () {
+            countText.textContent = "制作・配布している3Dモデルの検索、プレビュー、ZIPダウンロード。公開ページから確認できます";
+            const fallbackItems = getItems().map(function (item) {
+                return item.cloneNode(true);
+            });
+            if (fallbackItems.length) {
+                latestList.innerHTML = "";
+                realModelCount = fallbackItems.length;
+                [0, 1, 2].forEach(function () {
+                    fallbackItems.forEach(function (item) {
+                        latestList.appendChild(item.cloneNode(true));
+                    });
+                });
+                currentIndex = realModelCount;
+                renderDots();
+                window.requestAnimationFrame(function () {
+                    jumpToModel(realModelCount);
+                });
+            }
+            restartAuto();
+        });
+}());
+</script>
+
+</main>
+</div>
+</body>
+</html>

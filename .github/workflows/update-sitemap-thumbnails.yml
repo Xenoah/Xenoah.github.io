@@ -64,7 +64,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add images_sitemap sitemap.htm sitemap.xml scripts/sitemap_thumbs_pages.txt
+          git add images_sitemap dashboard.htm sitemap.xml scripts/sitemap_thumbs_pages.txt
           if git diff --cached --quiet; then
             echo "No sitemap or thumbnail changes."
             exit 0

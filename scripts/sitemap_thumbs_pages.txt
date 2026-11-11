@@ -3,7 +3,7 @@
 # ルートページはパスを "/" とする。作品は data/projects.json へ追加し、
 # node scripts/build-projects.js で生成する。生成ブロックを直接編集しない。
 index /
-sitemap sitemap.htm
+sitemap dashboard.htm
 links links.htm
 portfolio portfolio.htm
 changelog changelog.htm

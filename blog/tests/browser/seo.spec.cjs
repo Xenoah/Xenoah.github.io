@@ -45,7 +45,7 @@ test("homepage exposes its website identity and usable social preview images", a
 });
 
 test("core pages have exactly one self canonical and matching Open Graph URL", async ({ page, request }) => {
-  for (const path of ["/", "/projects.htm", "/portfolio.htm", "/links.htm", "/environment.htm", "/changelog.htm", "/sitemap.htm", "/blog/"]) {
+  for (const path of ["/", "/projects.htm", "/portfolio.htm", "/links.htm", "/environment.htm", "/changelog.htm", "/dashboard.htm", "/blog/"]) {
     const metadata = await readMetadata(page, request, path);
     expect(metadata.canonicals, path).toEqual([`${siteUrl}${path}`]);
     expect(metadata.ogUrl, path).toBe(metadata.canonicals[0]);

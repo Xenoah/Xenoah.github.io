@@ -15,8 +15,8 @@ sitemap: false
     </image:image>
   </url>
   <url>
-    <loc>https://xenoah.github.io/sitemap.htm</loc>
-    <lastmod>2026-09-15</lastmod>
+    <loc>https://xenoah.github.io/dashboard.htm</loc>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image>

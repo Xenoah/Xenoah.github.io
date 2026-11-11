@@ -144,5 +144,5 @@ test('turning publication off hides and clears previous values', async () => {
 
 test('shipped source contains no upstream deployment or secret value and keeps demo values out of production JSON', () => {
   assert.doesNotMatch(script + markup, /script\.google(?:usercontent)?\.com|AKfy|READ_TOKEN|GAS_URL/);
-  assert.match(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), /include env3_latest\.html/);
+  assert.match(fs.readFileSync(path.join(root, 'dashboard.htm'), 'utf8'), /include env3_latest\.html/);
 });
