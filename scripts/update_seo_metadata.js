@@ -74,7 +74,7 @@ const pages = {
   },
   "portfolio.htm": {
     title: "制作実績・ポートフォリオ | Projects and Portfolio | Xenoah",
-    description: "FA・制御、Web開発、PDF、CAD、音声処理、データベース、VRChatなどの制作実績と技術領域を紹介します。 / Portfolio of projects in industrial control, web development, PDF, CAD, audio processing, databases and VRChat.",
+    description: "Xenoahの自作3Dモデル、東海道の自転車走破、日光街道の徒歩制覇、AIを活用したWeb作品を紹介します。 / Xenoah's self-made 3D models, Tokaido cycling and Nikko Kaido walking achievements, and selected AI-assisted web projects.",
     canonical: "/portfolio.htm",
   },
   "changelog.htm": {

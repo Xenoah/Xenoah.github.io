@@ -14,7 +14,7 @@ test("ordinary page navigation shares URLs and survives back, forward and reload
   const menu = await openMenu(page);
   await menu.locator('.menu-main a[href="/portfolio.htm"]').click();
   await expect(page).toHaveURL(/\/portfolio.htm$/);
-  await page.reload(); await expect(page.locator(".hero h1")).toBeVisible();
+  await page.reload(); await expect(page.locator("#main-content h1")).toHaveText("Xenoahの制作と挑戦");
   await (await openMenu(page)).locator('.menu-main a[href="/blog/"]').click();
   await page.locator(".post-card a").first().click();
   const sharedUrl = page.url();
@@ -98,7 +98,7 @@ test("navigation and all project links work without JavaScript", async ({ browse
   await expect(page.locator("#main-content [data-project]")).toHaveCount(projectCount);
   await expect(page.locator("#main-content [data-project-filters]")).toBeHidden();
   await page.locator('.menu-main a[href="/portfolio.htm"]').click();
-  await expect(page.locator(".hero h1")).toBeVisible();
+  await expect(page.locator("#main-content h1")).toHaveText("Xenoahの制作と挑戦");
   await context.close();
 });
 
