@@ -276,6 +276,34 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-13",
+      "title": "2026-11-13 辞任の波及と負のフィードバック ― 「トークン有限なんかワレェ」",
+      "article_digest": "a72e1d323f7ec1be1666f754484a32656a4d4781db65f93ea37123327eefb06a",
+      "path": "blog/articles/2026-11-13-diary",
+      "permalink": "/blog/2026/11/13/diary/",
+      "content_sha256": "ead2960346a51e3bb23d2e2158356d5efd28e22b28936e58edeb8a08140bce7a",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2120846992914202683",
+        "https://x.com/shuminchuuu/status/2120852503126581471",
+        "https://x.com/shuminchuuu/status/2120856324359799286",
+        "https://x.com/shuminchuuu/status/2120857179796508693",
+        "https://x.com/shuminchuuu/status/2120886412170117193",
+        "https://x.com/shuminchuuu/status/2120895186322502019",
+        "https://x.com/shuminchuuu/status/2121012630987108399",
+        "https://x.com/shuminchuuu/status/2121169966309552526"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "aa5a0ee74938d952f4c7.webp",
+          "bytes": 40488,
+          "source_bytes": 37496,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
