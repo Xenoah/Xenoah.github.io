@@ -1,5 +1,14 @@
 [
   {
+    "id": "webapp-separate20images",
+    "title": "隙間トリム写真分割",
+    "description": "写真を複数枚に分割するブラウザツール。分割数と、並べたときの隙間に隠れる部分のトリム量を設定できる。順番保存とZIP保存に対応。",
+    "category": "images",
+    "pagesUrl": "https://xenoah.github.io/webapp_separate20images/",
+    "sourceUrl": "https://github.com/Xenoah/webapp_separate20images",
+    "updated": "2026-11-13"
+  },
+  {
     "id": "map-autumn-leaves",
     "title": "KOYO LIVE - 全国紅葉マップ",
     "description": "全国の紅葉スポットを地図で検索。色づき状況・情報の更新日・ライブカメラへのリンクを確認できる。観測情報のない地点は未確認として表示。",
