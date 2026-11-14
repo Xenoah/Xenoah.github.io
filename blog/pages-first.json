@@ -304,6 +304,31 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-14",
+      "title": "2026-11-14 ISSの通過と、素通りするUSB ― 「マウスキーボードです。通してください!!」",
+      "article_digest": "1ef4f134a441e6efb52bcf43727b107316b0e3f92de53a6f9b375f010383d5a4",
+      "path": "blog/articles/2026-11-14-diary",
+      "permalink": "/blog/2026/11/14/diary/",
+      "content_sha256": "f2001b0f70d0212e2334a79f8860ada5fba0dd4c135e3150b2732cf88521717e",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2121230635025002713",
+        "https://x.com/shuminchuuu/status/2121232256140534262",
+        "https://x.com/shuminchuuu/status/2121375490665763285",
+        "https://x.com/shuminchuuu/status/2121392321019470258",
+        "https://x.com/shuminchuuu/status/2121395307418366003"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "43fcd94abee4bd351015.webp",
+          "bytes": 47670,
+          "source_bytes": 43442,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
