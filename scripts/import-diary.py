@@ -31,7 +31,7 @@ def load_manifest(root):
     for e in value['articles']:
         check(isinstance(e,dict) and set(e)=={'date_jst','title','article_digest','path','permalink','content_sha256','source_urls','note_url','images'},'Unexpected Pages entry fields')
         day=e.get('date_jst',''); validate_day(day); path,permalink=urls(day)
-        check(label(e['title'],120) and e['title'].startswith(day),'Invalid Pages title')
+        check(label(e['title'],120) and (e['title'].startswith(day) or e['title'].startswith('【X日記】'+day))),'Invalid Pages title')
         sources=e['source_urls'];check(isinstance(sources,list) and 1<=len(sources)<=20 and all(isinstance(u,str) and SOURCE.fullmatch(u) for u in sources) and len(set(sources))==len(sources),'Invalid Pages sources')
         images=e['images'];check(isinstance(images,list) and len(images)==1,'Invalid Pages image list')
         i=images[0];check(isinstance(i,dict) and set(i)=={'file','bytes','source_bytes','width','height'} and re.fullmatch(r'[0-9a-f]{20}\.webp',i['file']) and all(type(i[k]) is int and i[k]>0 for k in ('bytes','source_bytes','width','height')) and i['bytes']<=256000 and max(i['width'],i['height'])<=1280,'Invalid Pages image')
@@ -51,7 +51,7 @@ def load_bundle(folder,expected_sha):
     value=json.loads(raw_bundle)
     check(isinstance(value,dict) and set(value)=={'schema_version','date_jst','title','tags','body_markdown','source_urls','cover','article_digest'} and value['schema_version']==1,'Unexpected public export fields')
     validate_day(value['date_jst'])
-    check(label(value['title'],120) and value['title'].startswith(value['date_jst']),'Invalid date title')
+    check(label(value['title'],120) and (value['title'].startswith(value['date_jst']) or value['title'].startswith('【X日記】'+value['date_jst'])),'Invalid date title')
     check(HEX.fullmatch(value['article_digest'] or ''),'Invalid reviewed digest')
     tags=value['tags'];check(isinstance(tags,list) and 0<len(tags)<=10 and all(label(t,30) for t in tags) and len(set(tags))==len(tags),'Invalid tags')
     sources=value['source_urls'];check(isinstance(sources,list) and 1<=len(sources)<=20 and all(isinstance(u,str) and SOURCE.fullmatch(u) for u in sources) and len(set(sources))==len(sources),'Invalid own sources')
