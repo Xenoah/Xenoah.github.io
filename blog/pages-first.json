@@ -329,6 +329,30 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-15",
+      "title": "【X日記】2026-11-15 短冊切りツール完成と第一等灯台 ― Let's スクロール!",
+      "article_digest": "e51e77cc8ede2bcafc4999b22e4ae36ba24d0d773f4e6e0de66b3e9d56090af3",
+      "path": "blog/articles/2026-11-15-diary",
+      "permalink": "/blog/2026/11/15/diary/",
+      "content_sha256": "43ec6bd22859c5cb1ac0d6d2b74e3b48cd173c92947e42fa2ca0e11f328af3f9",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2121886329193824288",
+        "https://x.com/shuminchuuu/status/2121893792899100909",
+        "https://x.com/shuminchuuu/status/2121905209622630557",
+        "https://x.com/shuminchuuu/status/2121915650151170462"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "ca403305cefa72a8de22.webp",
+          "bytes": 24736,
+          "source_bytes": 20984,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
