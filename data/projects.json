@@ -1,5 +1,14 @@
 [
   {
+    "id": "archive-music",
+    "title": "OTODANA（音楽アーカイブ）",
+    "description": "Xenoahの楽曲を検索・試聴できる音楽アーカイブ。ジャンル・BPMでの絞り込み、波形表示、お気に入り、ページ移動中の継続再生に対応。",
+    "category": "music",
+    "pagesUrl": "https://xenoah.github.io/archive_music/",
+    "sourceUrl": "https://github.com/Xenoah/archive_music",
+    "updated": "2026-11-15"
+  },
+  {
     "id": "webapp-separate20images",
     "title": "隙間トリム写真分割",
     "description": "写真を複数枚に分割するブラウザツール。分割数と、並べたときの隙間に隠れる部分のトリム量を設定できる。順番保存とZIP保存に対応。",
