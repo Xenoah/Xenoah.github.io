@@ -67,6 +67,34 @@ class TestSync(unittest.TestCase):
    obj=m.Images(Path(p),'/a')
    for i in range(8):obj.add(f'https://assets.st-note.com/img/{i}.png')
    with self.assertRaises(m.SyncError):obj.add('https://assets.st-note.com/img/9.png')
+ def test_gif_preserves_frames_timing_loop_and_strips_metadata(self):
+  for repeat, expected_loop in [(None,1),(0,0),(2,3)]:
+   raw=io.BytesIO();frames=[Image.new('RGBA',(40,24),color) for color in ['red','green','blue']]
+   frames[0].save(raw,'GIF',save_all=True,append_images=frames[1:],duration=[120,240,420],comment=b'private metadata',**({} if repeat is None else {'loop':repeat}))
+   with tempfile.TemporaryDirectory() as p,patch.object(m,'fetch',return_value=raw.getvalue()):
+    result=m.Images(Path(p),'/a').add('https://assets.st-note.com/img/animated.gif')
+    self.assertEqual((result['width'],result['height']),(40,24))
+    with Image.open(io.BytesIO(raw.getvalue())) as source,Image.open(next(Path(p).iterdir())) as output:
+     self.assertEqual(output.format,'WEBP');self.assertEqual(output.n_frames,3);self.assertEqual(output.info['loop'],expected_loop)
+     self.assertNotIn('comment',output.info);self.assertNotIn('exif',output.info)
+     for index,duration in enumerate([120,240,420]):
+      source.seek(index);output.seek(index);output.load()
+      self.assertEqual(output.info['duration'],duration)
+      self.assertEqual(source.convert('RGBA').tobytes(),output.convert('RGBA').tobytes())
+ def test_animation_rejects_frame_pixel_and_duration_overflow(self):
+  from types import SimpleNamespace
+  for count,width,height in [(121,2,2),(120,1000,1000)]:
+   with self.assertRaises(m.SyncError):m.encode_animated_gif(SimpleNamespace(format='GIF',n_frames=count,width=width,height=height))
+  for duration in [10,16000]:
+   raw=io.BytesIO();Image.new('RGB',(2,2),'red').save(raw,'GIF',save_all=True,append_images=[Image.new('RGB',(2,2),'blue')],duration=duration)
+   with Image.open(io.BytesIO(raw.getvalue())) as original:
+    with self.assertRaises(m.SyncError):m.encode_animated_gif(original)
+ def test_animation_oversize_output_does_not_write_a_file(self):
+  raw=io.BytesIO();Image.new('RGB',(2,2),'red').save(raw,'GIF',save_all=True,append_images=[Image.new('RGB',(2,2),'blue')],duration=100)
+  def oversized(image,buffer,**kwargs):buffer.write(b'x'*256001)
+  with tempfile.TemporaryDirectory() as p,patch.object(m,'fetch',return_value=raw.getvalue()),patch.object(Image.Image,'save',oversized):
+   with self.assertRaises(m.SyncError):m.Images(Path(p),'/a').add('https://assets.st-note.com/img/large.gif')
+   self.assertEqual(list(Path(p).iterdir()),[])
  def test_inventory_duplicates_rejected(self):
   with patch.object(m,'api',return_value={'totalCount':2,'contents':[{'key':'n123456789abc'}]*2,'isLastPage':True}):
    with self.assertRaises(m.SyncError):m.inventory()

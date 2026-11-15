@@ -67,6 +67,37 @@ def jekyll_escape(value):
     # Remote prose must not be interpreted as Liquid, including whitespace-control syntax.
     return value.replace('{', '&#123;').replace('}', '&#125;')
 
+def encode_animated_gif(original):
+    # Preserve every composited frame and its timing; bound decoding before allocating frames.
+    count = original.n_frames
+    if original.format != 'GIF': raise SyncError('Unsupported animated article image')
+    if count > 120 or original.width * original.height * count > 64_000_000:
+        raise SyncError('Animated image exceeds decoded frame budget')
+    # GIF stores repeat count after the first play; WebP stores total plays (0 = forever).
+    repeat = original.info.get('loop')
+    loop = 1 if repeat is None else (0 if repeat == 0 else repeat + 1)
+    if not 0 <= loop <= 65535: raise SyncError('Unsupported animation loop count')
+    frames, durations = [], []
+    for index in range(count):
+        original.seek(index)
+        duration = original.info.get('duration', 0)
+        if not isinstance(duration, int) or duration < 20:
+            raise SyncError('Animation timing needs review')
+        durations.append(duration)
+        if sum(durations) > 30_000: raise SyncError('Animation exceeds 30 second budget')
+        frame = original.convert('RGBA')
+        frame.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+        frame.info.clear()
+        frames.append(frame)
+    for quality in (None, 80, 70, 60, 50):
+        encoded = io.BytesIO()
+        frames[0].save(encoded, format='WEBP', save_all=True, append_images=frames[1:],
+                       duration=durations, loop=loop, method=6,
+                       **({'lossless': True} if quality is None else {'quality': quality}))
+        output = encoded.getvalue()
+        if len(output) <= 256_000: return output, frames[0]
+    raise SyncError('Compressed animation exceeds 256KB budget')
+
 class Images:
     def __init__(self, folder, public_path):
         self.folder, self.public_path = folder, public_path
@@ -80,23 +111,25 @@ class Images:
         raw = fetch(url, 12_000_000)
         if sum(i['source_bytes'] for i in self.stats)+len(raw) > 24_000_000: raise SyncError('Article image byte budget exceeded')
         with Image.open(io.BytesIO(raw)) as original:
-            if getattr(original,'n_frames',1) != 1: raise SyncError('Animated image needs explicit review')
-            if original.format not in {'PNG','JPEG','WEBP'}: raise SyncError('Unsupported article image')
-            im = ImageOps.exif_transpose(original)
-            im.thumbnail((1280,1280), Image.Resampling.LANCZOS)
-            im = im.convert('RGBA' if 'A' in im.getbands() or 'transparency' in im.info else 'RGB')
-            encoded = io.BytesIO(); im.save(encoded,format='WEBP',quality=80,method=6)
-            output=encoded.getvalue(); suffix='webp'
-            for quality in (70, 60, 50):
-                if len(output) <= 256_000: break
-                encoded=io.BytesIO(); im.save(encoded,format='WEBP',quality=quality,method=6); output=encoded.getvalue()
-            if len(output)>256_000: raise SyncError('Compressed image exceeds 256KB budget')
-            # A bounded lossless fallback avoids enlarging small originals.
-            if len(output) >= len(raw) and max(original.size)<=1280:
-                fallback=io.BytesIO()
-                fmt='PNG' if 'A' in im.getbands() or original.format=='PNG' else 'JPEG'
-                im.save(fallback,format=fmt,**({'optimize':True} if fmt=='PNG' else {'quality':85,'optimize':True}))
-                if len(fallback.getvalue()) < len(output): output=fallback.getvalue(); suffix='png' if fmt=='PNG' else 'jpg'
+            if getattr(original,'n_frames',1) != 1:
+                output, im = encode_animated_gif(original); suffix='webp'
+            else:
+                if original.format not in {'PNG','JPEG','WEBP','GIF'}: raise SyncError('Unsupported article image')
+                im = ImageOps.exif_transpose(original)
+                im.thumbnail((1280,1280), Image.Resampling.LANCZOS)
+                im = im.convert('RGBA' if 'A' in im.getbands() or 'transparency' in im.info else 'RGB')
+                encoded = io.BytesIO(); im.save(encoded,format='WEBP',quality=80,method=6)
+                output=encoded.getvalue(); suffix='webp'
+                for quality in (70, 60, 50):
+                    if len(output) <= 256_000: break
+                    encoded=io.BytesIO(); im.save(encoded,format='WEBP',quality=quality,method=6); output=encoded.getvalue()
+                if len(output)>256_000: raise SyncError('Compressed image exceeds 256KB budget')
+                # A bounded lossless fallback avoids enlarging small originals.
+                if len(output) >= len(raw) and max(original.size)<=1280:
+                    fallback=io.BytesIO()
+                    fmt='PNG' if 'A' in im.getbands() or original.format=='PNG' else 'JPEG'
+                    im.save(fallback,format=fmt,**({'optimize':True} if fmt=='PNG' else {'quality':85,'optimize':True}))
+                    if len(fallback.getvalue()) < len(output): output=fallback.getvalue(); suffix='png' if fmt=='PNG' else 'jpg'
             name=hashlib.sha256(output).hexdigest()[:20]+'.'+suffix
             (self.folder/name).write_bytes(output)
             result={'url':self.public_path+'/'+name,'width':im.width,'height':im.height}
