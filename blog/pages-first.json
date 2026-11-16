@@ -175,7 +175,7 @@
       "article_digest": "e60df0755e932ce8850c49d6c3b03a42c9066dc0c11ea62f92efcf8d1ab06693",
       "path": "blog/articles/2026-11-09-diary",
       "permalink": "/blog/2026/11/09/diary/",
-      "content_sha256": "45fb556613b08d32928cf2d23e1dbc5bd0883123517966eba0c55a21da78033c",
+      "content_sha256": "1e625ed3fdf53de3ac77c3c6adc97fceccde29faa380803d7f0423d2093c9148",
       "source_urls": [
         "https://x.com/shuminchuuu/status/2119390723258941673",
         "https://x.com/shuminchuuu/status/2119392507511587107",
@@ -349,6 +349,33 @@
           "file": "ca403305cefa72a8de22.webp",
           "bytes": 24736,
           "source_bytes": 20984,
+          "width": 800,
+          "height": 419
+        }
+      ]
+    },
+    {
+      "date_jst": "2026-11-16",
+      "title": "【X日記】2026-11-16 銚子の地層と実験機、「瑠璃の宝石」の日 ― 楽しめればええねん",
+      "article_digest": "de8e5ac284fdaea12e81f4dd207aa6cfe830017069a0cec057491b75f9bd9a2c",
+      "path": "blog/articles/2026-11-16-diary",
+      "permalink": "/blog/2026/11/16/diary/",
+      "content_sha256": "71a103ac0e5d7bbc6ce6f879482fb8deb58e41698251d22be0181c6711eab49e",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2121955097026703818",
+        "https://x.com/shuminchuuu/status/2122261270170603850",
+        "https://x.com/shuminchuuu/status/2122263725298290871",
+        "https://x.com/shuminchuuu/status/2122135104944480614",
+        "https://x.com/shuminchuuu/status/2121923083342885360",
+        "https://x.com/shuminchuuu/status/2121960494521303453",
+        "https://x.com/shuminchuuu/status/2122271115607425321"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "0791e0d9beeec1d61b0e.webp",
+          "bytes": 25616,
+          "source_bytes": 21924,
           "width": 800,
           "height": 419
         }
