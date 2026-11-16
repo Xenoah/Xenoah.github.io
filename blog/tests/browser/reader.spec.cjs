@@ -23,9 +23,9 @@ test("published catalog agrees with search, article navigation, RSS and sitemap"
   if (catalog.length > 1) await expect(page.locator(".post-nav a[rel=prev]")).toHaveAttribute("href", catalog[1].url);
   const rss = await (await request.get("/blog/feed.xml")).text();
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  const safeecode = (text) => { try { return decodeomponent(text); } catch { return text; } };
-  const rssext = safeecode(rss);
-  const sitemapext = safeecode(sitemap);
+  const safeDecode = (text) => { try { return decodeURIComponent(text); } catch { return text; } };
+  const rssText = safeDecode(rss);
+  const sitemapText = safeDecode(sitemap);
   for (const article of catalog) {
     expect(article.url).toMatch(/^\/blog\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/);
     expect(rssText).toContain(decodeURIComponent(article.url));
