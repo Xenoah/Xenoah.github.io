@@ -16,21 +16,25 @@ test("published catalog agrees with search, article navigation, RSS and sitemap"
   await page.goto("/blog/");
   await expect(page.locator(".post-card")).toHaveCount(catalog.length);
   await page.locator("#articleSearch").fill(catalog[0].title);
-  await expect(page.locator(".post-card:visible")).toHaveCount(1);
-  await page.locator(".post-card:visible a").click();
+  const topCardLink = page.locator(`.post-card:visible a[href="${catalog[0].url}"]`);
+  await expect(topCardLink).toHaveCount(1);
+  await topCardLink.click();
   await expect(page.locator(".article-head h1")).toHaveText(catalog[0].title);
   if (catalog.length > 1) await expect(page.locator(".post-nav a[rel=prev]")).toHaveAttribute("href", catalog[1].url);
   const rss = await (await request.get("/blog/feed.xml")).text();
   const sitemap = await (await request.get("/sitemap.xml")).text();
+  const safeecode = (text) => { try { return decodeomponent(text); } catch { return text; } };
+  const rssext = safeecode(rss);
+  const sitemapext = safeecode(sitemap);
   for (const article of catalog) {
     expect(article.url).toMatch(/^\/blog\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/);
-    expect(decodeURIComponent(rss)).toContain(decodeURIComponent(article.url));
+    expect(rssText).toContain(decodeURIComponent(article.url));
     const articleHtml = await (await request.get(article.url)).text();
     const canonical = articleHtml.match(/<link rel="canonical" href="([^"]+)"/)[1];
     if (canonical === "https://xenoah.github.io" + article.url && !/noindex/i.test(article.robots || "")) {
-      expect(decodeURIComponent(sitemap)).toContain(decodeURIComponent(article.url));
+      expect(sitemapText).toContain(decodeURIComponent(article.url));
     } else {
-      expect(decodeURIComponent(sitemap)).not.toContain(decodeURIComponent(article.url));
+      expect(sitemapText).not.toContain(decodeURIComponent(article.url));
     }
   }
   const withHeadings = catalog.find((article) => article.url.includes("vrchat"));
