@@ -380,6 +380,36 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-17",
+      "title": "【X日記】2026-11-17 恒星の寿命と鉄の光分解、原子炉の臨界 ― 原子炉起動すげぇえええ",
+      "article_digest": "137cbcbbc553a1d763f0dc807da86aee6cba6040609d499b0b14c507ba55632d",
+      "path": "blog/articles/2026-11-17-diary",
+      "permalink": "/blog/2026/11/17/diary/",
+      "content_sha256": "b1fd49459de8146ef72b849d04b2e3f4d310cb55c8d2c0e87f772f84fc9a0001",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2122306476157083877",
+        "https://x.com/shuminchuuu/status/2122314210390761548",
+        "https://x.com/shuminchuuu/status/2122319420471341238",
+        "https://x.com/shuminchuuu/status/2122321326371410123",
+        "https://x.com/shuminchuuu/status/2122329712810962949",
+        "https://x.com/shuminchuuu/status/2122336219308966211",
+        "https://x.com/shuminchuuu/status/2122456346876616750",
+        "https://x.com/shuminchuuu/status/2122461017238348270",
+        "https://x.com/shuminchuuu/status/2122572974503149574",
+        "https://x.com/shuminchuuu/status/2122639458461999267"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "fce9de96f43afdbbafe7.webp",
+          "bytes": 35852,
+          "source_bytes": 30560,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
