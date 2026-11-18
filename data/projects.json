@@ -1,5 +1,14 @@
 [
   {
+    "id": "webapp-otoware-generator",
+    "title": "音割れメーカー（Clipforge）",
+    "description": "音源のゲインを上げて音割れを作るブラウザツール。波形・オシロスコープ・FFTで変化を確認し、加工した複数曲をWAVで一括ZIP保存できる。",
+    "category": "music",
+    "pagesUrl": "https://xenoah.github.io/webapp_otoware-generator/",
+    "sourceUrl": "https://github.com/Xenoah/webapp_otoware-generator",
+    "updated": "2026-11-18"
+  },
+  {
     "id": "archive-music",
     "title": "OTODANA（音楽アーカイブ）",
     "description": "Xenoahの楽曲を検索・試聴できる音楽アーカイブ。ジャンル・BPMでの絞り込み、波形表示、お気に入り、ページ移動中の継続再生に対応。",
