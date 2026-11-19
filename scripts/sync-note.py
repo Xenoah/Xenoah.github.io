@@ -296,7 +296,7 @@ def sync(root):
             note=api('v3/notes/'+key)
             if note.get('key')!=key: raise SyncError('Detail identity mismatch')
             if pages_owns_note(note,pages):continue
-                if note.get('status')!='published' or note.get('is_published') is not True or note.get('is_draft') is not False or note.get('price')!=0 or note.get('is_limited') or note.get('is_r18') or note.get('type')!='TextNote': continue
+        if note.get('status')!='published' or note.get('is_published') is not True or note.get('is_draft') is not False or note.get('price')!=0 or note.get('is_limited') or note.get('is_r18') or note.get('type')!='TextNote': continue
             entries.append(render(note,stage,pinned.get(key)))
         manifest={'schema_version':1,'account':ACCOUNT,'articles':sorted(entries,key=lambda e:e['key'])}
         install_snapshot(root, stage, manifest)
