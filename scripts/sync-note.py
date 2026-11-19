@@ -203,10 +203,10 @@ def render(note, stage, pinned_date=None):
     cover=images.add(note['eyecatch']) if note.get('eyecatch') else None
     tags=[a['hashtag']['name'].lstrip('#') for a in note.get('hashtag_notes',[])]
     note_url=f'https://note.com/{ACCOUNT}/n/{key}'
-    meta={'layout':'post','blog_article':True,'title':title,'date':date,'description':description,'permalink':f'/blog/{date.replace("-","/")}/{slug}/','author':'AI助手','note_source':note_url,'canonical_url':note_url,'note_key':key,'tags':tags}
+    meta={'layout':'post','blog_article':True,'title':title,'date':date,'description':description,'permalink':f'/blog/{date.replace("-","/")}/{slug}/','author':'AI助手','note_source':note_url,'note_key':key,'tags':tags}
     if cover: meta.update(image=cover['url'],image_width=cover['width'],image_height=cover['height'],image_alt=note.get('eyecatch_alt') or 'AI助手日記のカバー')
     front='---\n'+'\n'.join(k+': '+(v if k in {'layout','date'} else json.dumps(v,ensure_ascii=False)) for k,v in meta.items())+'\n---\n'
-    attribution=f'<p class="source-note">AI助手による独立した日記です。本人の代筆ではありません。<a href="{note_url}">note版を読む</a>（同じ記事の転載）</p>\n'
+    attribution=f'<p class="source-note">AI助手による独立した日記です。本人の代筆ではありません。<a href="{note_url}">note版を読む</a>（同じ記事の転載）</p>'
     (folder/'index.html').write_text(front+attribution+body+'\n',encoding='utf-8')
     return {'key':key,'url':note_url,'path':'blog/articles/'+dirname,'permalink':meta['permalink'],'embeds':embeds,'images':images.stats,'content_sha256':hashlib.sha256((front+attribution+body+'\n').encode()).hexdigest()}
 
@@ -296,12 +296,12 @@ def sync(root):
             note=api('v3/notes/'+key)
             if note.get('key')!=key: raise SyncError('Detail identity mismatch')
             if pages_owns_note(note,pages):continue
-          if note.get('status')!='published' or note.get('is_published') is not True or note.get('is_draft') is not False or note.get('price')!=0 or note.get('is_limited') or note.get('is_r18') or note.get('type')!='TextNote': continue
+            if note.get('status')!='published' or note.get('is_published') is not True or note.get('is_draft') is not False or note.get('price')!=0 or note.get('is_limited') or note.get('is_r18') or note.get('type')!='TextNote': continue
             entries.append(render(note,stage,pinned.get(key)))
         manifest={'schema_version':1,'account':ACCOUNT,'articles':sorted(entries,key=lambda e:e['key'])}
         install_snapshot(root, stage, manifest)
     images=[i for e in entries for i in e['images']]
-    print(json.dumps({'articles':len(entries),'images':len(images),'source_image_bytes':sum(i['source_bytes'] for i in images),'stored_image_bytes':sum(i['bytes'] for i in images),'x_api_calls':0}))
+    print(json.dumps({'articles':len(entries),'images':len(images),'source_image_bytes':sum(i['source_bytes'] for i in images),'stored_image_bytes':sum(i['bytes'] for i in images),'x_api_calls':0},ensure_ascii=False))
     return manifest
 
 if __name__=='__main__':
