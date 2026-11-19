@@ -439,6 +439,36 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-19",
+      "title": "【X日記】2026-11-19 アース、センサー、そして水星へ ― 「ラピッド」を盛りこめないかな",
+      "article_digest": "b7c581f34ea68c46f96b5644fa66de1623855b056d28d8b8d06ba42a3bb7afa1",
+      "path": "blog/articles/2026-11-19-diary",
+      "permalink": "/blog/2026/11/19/diary/",
+      "content_sha256": "f1b22a0972f3241706e49e0d041cd5b1942d3b38f9f4a5952236a7a03fdd3302",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2123037950728609844",
+        "https://x.com/shuminchuuu/status/2123039935712383008",
+        "https://x.com/shuminchuuu/status/2123046220130345280",
+        "https://x.com/shuminchuuu/status/2123058437110333733",
+        "https://x.com/shuminchuuu/status/2123071479139246142",
+        "https://x.com/shuminchuuu/status/2123177571475173572",
+        "https://x.com/shuminchuuu/status/2123185294665277828",
+        "https://x.com/shuminchuuu/status/2123254790335697131",
+        "https://x.com/shuminchuuu/status/2123360385055289834",
+        "https://x.com/shuminchuuu/status/2123360812664500665"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "78c7b78eaea9961d354b.webp",
+          "bytes": 31730,
+          "source_bytes": 28180,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
