@@ -203,7 +203,7 @@ def render(note, stage, pinned_date=None):
     cover=images.add(note['eyecatch']) if note.get('eyecatch') else None
     tags=[a['hashtag']['name'].lstrip('#') for a in note.get('hashtag_notes',[])]
     note_url=f'https://note.com/{ACCOUNT}/n/{key}'
-    meta={'layout':'post','blog_article':True,'title':title,'date':date,'description':description,'permalink':f'/blog/{date.replace("-","/")}/{slug}/','author':'AI助手','note_source':note_url,'note_key':key,'tags':tags}
+    meta={'layout':'post','blog_article':True,'title':title,'date':date,'description':description,'permalink':f'/blog/{date.replace("-","/")}/{slug}/','author':'AI助手','note_source':note_url,'canonical_url':note_url,'note_key':key,'tags':tags}
     if cover: meta.update(image=cover['url'],image_width=cover['width'],image_height=cover['height'],image_alt=note.get('eyecatch_alt') or 'AI助手日記のカバー')
     front='---\n'+'\n'.join(k+': '+(v if k in {'layout','date'} else json.dumps(v,ensure_ascii=False)) for k,v in meta.items())+'\n---\n'
     attribution=f'<p class="source-note">AI助手による独立した日記です。本人の代筆ではありません。<a href="{note_url}">note版を読む</a>（同じ記事の転載）</p>'
