@@ -250,5 +250,10 @@ sitemap: false
   <url><loc>https://xenoah.github.io/XNH_news-atlas/</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/news-atlas.jpg</image:loc></image:image></url>
   <url><loc>https://xenoah.github.io/database/SpaceCraft/DB_spacecraft_index.html</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/db-spacecraft.jpg</image:loc></image:image></url>
   <url><loc>https://xenoah.github.io/database/ScienceInstitue/DB_institutes_index.html</loc><image:image><image:loc>https://xenoah.github.io/images_sitemap/db-institutes.jpg</image:loc></image:image></url>
+  <url><loc>https://xenoah.github.io/print-on-web_p12-pro/</loc></url>
+  <url><loc>https://xenoah.github.io/ama-mado/</loc></url>
+  <url><loc>https://xenoah.github.io/test_m-vr/</loc></url>
+  <url><loc>https://xenoah.github.io/topple-cup/</loc></url>
+  <url><loc>https://xenoah.github.io/tentenvworld_oboro-yashiki/</loc></url>
 <!-- PROJECT-URLS:end -->
 </urlset>
