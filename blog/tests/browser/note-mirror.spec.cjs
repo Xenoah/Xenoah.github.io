@@ -1,5 +1,8 @@
 const { test, expect } = require('./fixtures.cjs');
 test('note mirrors keep attribution, lightweight covers and source-only embeds', async ({ page, request }) => {
+  // This test visits every mirrored article, so its runtime grows with the
+  // archive; the default 30s budget is exhausted mid-loop on slow runners.
+  test.setTimeout(240_000);
   const response = await request.get('/blog/note-mirror.json');
   expect(response.ok()).toBeTruthy();
   const manifest = await response.json();
