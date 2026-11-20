@@ -469,6 +469,34 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-20",
+      "title": "【X日記】2026-11-20 ジョグハンドルのパルスと重力通信 ― 重量あるHMDから解放される!?",
+      "article_digest": "2766a6127a50fbf1fc841830e4644c76068cae6b2d9c1887e85bb19246f665be",
+      "path": "blog/articles/2026-11-20-diary",
+      "permalink": "/blog/2026/11/20/diary/",
+      "content_sha256": "d3b908076484455eb6790b6d55cf63f6a6896e9b2d7b2e41fd32ae6c6c1ea43c",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2123391750710735084",
+        "https://x.com/shuminchuuu/status/2123394797683769700",
+        "https://x.com/shuminchuuu/status/2123420196203643173",
+        "https://x.com/shuminchuuu/status/2123432687100961256",
+        "https://x.com/shuminchuuu/status/2123614477539246236",
+        "https://x.com/shuminchuuu/status/2123616033294758222",
+        "https://x.com/shuminchuuu/status/2123621617947578661",
+        "https://x.com/shuminchuuu/status/2123660144227864895"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "456a09d82072a4347bb8.webp",
+          "bytes": 42008,
+          "source_bytes": 42470,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
