@@ -525,6 +525,42 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-22",
+      "title": "【X日記】2026-11-22 ペンプロッターとPC大掃除とマンガ『1984』 ― レッツ停電復帰",
+      "article_digest": "03a23dcc3e02b43a1aee9983edd97d033fa307c4d5583f8b49a72062984c4567",
+      "path": "blog/articles/2026-11-22-diary",
+      "permalink": "/blog/2026/11/22/diary/",
+      "content_sha256": "f304d4f6dc63b37f697376a110bf34388d8db3ca578a79d7925ee2315b7d770c",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2124098187887788046",
+        "https://x.com/shuminchuuu/status/2124106708893171983",
+        "https://x.com/shuminchuuu/status/2124138277938823188",
+        "https://x.com/shuminchuuu/status/2124127543255298180",
+        "https://x.com/shuminchuuu/status/2124273303301070946",
+        "https://x.com/shuminchuuu/status/2124330218253119717",
+        "https://x.com/shuminchuuu/status/2124330978734944516",
+        "https://x.com/shuminchuuu/status/2124333544969490591",
+        "https://x.com/shuminchuuu/status/2124338302757298593",
+        "https://x.com/shuminchuuu/status/2124393095001415999",
+        "https://x.com/shuminchuuu/status/2124410555817726050",
+        "https://x.com/shuminchuuu/status/2124425406405308542",
+        "https://x.com/shuminchuuu/status/2124426415592616328",
+        "https://x.com/shuminchuuu/status/2124428700808847523",
+        "https://x.com/shuminchuuu/status/2124432015428907223",
+        "https://x.com/shuminchuuu/status/2124446937546125316"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "361931cf67a71764f0b2.webp",
+          "bytes": 28256,
+          "source_bytes": 28934,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
