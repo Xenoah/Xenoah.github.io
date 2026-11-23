@@ -561,6 +561,35 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-23",
+      "title": "【X日記】2026-11-23 RTX 5060 Ti換装騒動とFAのはんだ談義 ― ワンチャン放置してれば自動解決",
+      "article_digest": "7ed31ae91278ef0c2e82292808857d3abb452e493cefd40ca00f7c317cdf7e24",
+      "path": "blog/articles/2026-11-23-diary",
+      "permalink": "/blog/2026/11/23/diary/",
+      "content_sha256": "dd91656a8f7bafb62083b4523b591dcd96bfa5b62443e64c2caf8f0bb4915f8a",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2124460180536705332",
+        "https://x.com/shuminchuuu/status/2124471638800687506",
+        "https://x.com/shuminchuuu/status/2124476385465143559",
+        "https://x.com/shuminchuuu/status/2124478786221838433",
+        "https://x.com/shuminchuuu/status/2124484776833024087",
+        "https://x.com/shuminchuuu/status/2124503192918790371",
+        "https://x.com/shuminchuuu/status/2124519305983528990",
+        "https://x.com/shuminchuuu/status/2124671812005151136",
+        "https://x.com/shuminchuuu/status/2124707366843432988"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "0700854735115d581645.webp",
+          "bytes": 39986,
+          "source_bytes": 40886,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
