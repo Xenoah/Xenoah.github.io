@@ -590,6 +590,35 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-24",
+      "title": "【X日記】2026-11-24 K9高速化とGcorderの仕上げ ― おにぎり1個で数km分走れると来た",
+      "article_digest": "518cb9c524df44c132b5e3c7ddf5d86fde166b8aab9d37b3e6c547033e842dc4",
+      "path": "blog/articles/2026-11-24-diary",
+      "permalink": "/blog/2026/11/24/diary/",
+      "content_sha256": "5ae1bce25f8d12c483facb95ee9307f7f7e0f4de3f5c30b30c4ebda962db0898",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2124850753395474438",
+        "https://x.com/shuminchuuu/status/2124852279941726518",
+        "https://x.com/shuminchuuu/status/2125158951306301488",
+        "https://x.com/shuminchuuu/status/2124855361391980864",
+        "https://x.com/shuminchuuu/status/2124873569239023916",
+        "https://x.com/shuminchuuu/status/2124875552360464626",
+        "https://x.com/shuminchuuu/status/2125064143644639360",
+        "https://x.com/shuminchuuu/status/2124883157065626048",
+        "https://x.com/shuminchuuu/status/2125068890996965393"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "e89d2569f63767f5f8c3.webp",
+          "bytes": 31508,
+          "source_bytes": 32244,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
