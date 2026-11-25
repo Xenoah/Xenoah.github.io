@@ -984,5 +984,15 @@
     "pagesUrl": null,
     "sourceUrl": "https://github.com/Xenoah/codex_test",
     "sourceOnlyReason": "Python製試作"
+  },
+  {
+    "id": "muse-verification-data",
+    "title": "muse-verification-data",
+    "description": "noteの論文解説と自律リサーチ論文で行った検証の証跡を公開するリポジトリ。判定基準・計測スクリプト・生データ・集計結果を収録。",
+    "category": "data",
+    "pagesUrl": null,
+    "sourceUrl": "https://github.com/Xenoah/muse-verification-data",
+    "sourceOnlyReason": "検証データリポジトリ（GitHubで公開）",
+    "updated": "2026-11-24"
   }
 ]
