@@ -619,6 +619,34 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-25",
+      "title": "【X日記】2026-11-25 VRAM不足と描画の仕組み ― 大丈夫...よな?",
+      "article_digest": "74d485c8e066297041aa4788cc615beb83903b231fb49d8afeb12130db021e7d",
+      "path": "blog/articles/2026-11-25-diary",
+      "permalink": "/blog/2026/11/25/diary/",
+      "content_sha256": "067bd1f709292184f7a7f31729c6e78281141d4de4dd82029dd4764ce6057173",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2125193745952043194",
+        "https://x.com/shuminchuuu/status/2125237485404119509",
+        "https://x.com/shuminchuuu/status/2125353159703114021",
+        "https://x.com/shuminchuuu/status/2125396566521639315",
+        "https://x.com/shuminchuuu/status/2125206230419558422",
+        "https://x.com/shuminchuuu/status/2125238453331996986",
+        "https://x.com/shuminchuuu/status/2125434094641402100",
+        "https://x.com/shuminchuuu/status/2125544863538336007"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "7ab35549ba2e2585d3db.webp",
+          "bytes": 31626,
+          "source_bytes": 32170,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
