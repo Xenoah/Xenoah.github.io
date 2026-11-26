@@ -647,6 +647,37 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-26",
+      "title": "【X日記】2026-11-26 HDDが律速とペンプロッタの原点復帰 ― どこからが境界になるんやろ",
+      "article_digest": "1fa6ee3caaf6d561b1beede8c7955a93d36a1881d76e772d1136f0f08258950a",
+      "path": "blog/articles/2026-11-26-diary",
+      "permalink": "/blog/2026/11/26/diary/",
+      "content_sha256": "b1263264c396142d87813d3533c82fa59fc9dd14edc76de879b3fd3868a22b9c",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2125556426663973330",
+        "https://x.com/shuminchuuu/status/2125560847590424771",
+        "https://x.com/shuminchuuu/status/2125563110585229342",
+        "https://x.com/shuminchuuu/status/2125570997894144332",
+        "https://x.com/shuminchuuu/status/2125583858930417910",
+        "https://x.com/shuminchuuu/status/2125586171430682672",
+        "https://x.com/shuminchuuu/status/2125587349530886422",
+        "https://x.com/shuminchuuu/status/2125595137216770265",
+        "https://x.com/shuminchuuu/status/2125596892683972833",
+        "https://x.com/shuminchuuu/status/2125598737158619455",
+        "https://x.com/shuminchuuu/status/2125834396632801620"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "27477bc3be4076278374.webp",
+          "bytes": 31578,
+          "source_bytes": 32376,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
