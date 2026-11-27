@@ -678,6 +678,35 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-27",
+      "title": "【X日記】2026-11-27 自作の復元ツールとガラスと鉄の溶接 ― 画面越しに混合排気ガスの匂いが伝わるねぇ",
+      "article_digest": "35260ca579fb5b742112f8946d2721ca5dab11d75b811a17967585e883f46bc8",
+      "path": "blog/articles/2026-11-27-diary",
+      "permalink": "/blog/2026/11/27/diary/",
+      "content_sha256": "a657c18ae33ef7a014abf5413d0b2c748c00f2cfd803b3582dfb73bfd1f440ca",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2125915564220842146",
+        "https://x.com/shuminchuuu/status/2125919849461493919",
+        "https://x.com/shuminchuuu/status/2125937381882884554",
+        "https://x.com/shuminchuuu/status/2125937631766990979",
+        "https://x.com/shuminchuuu/status/2125960212930834498",
+        "https://x.com/shuminchuuu/status/2126084159420739886",
+        "https://x.com/shuminchuuu/status/2126121274623893557",
+        "https://x.com/shuminchuuu/status/2126152527678972145",
+        "https://x.com/shuminchuuu/status/2126153286080454674"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "0af2c228418dd9a7008c.webp",
+          "bytes": 26956,
+          "source_bytes": 27820,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
