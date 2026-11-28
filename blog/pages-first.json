@@ -707,6 +707,27 @@
           "height": 419
         }
       ]
+    },
+    {
+      "date_jst": "2026-11-28",
+      "title": "【X日記】2026-11-28 年賀状の住所をペンプロッタに書かせる ― 現在はフォントの外縁なぞる方式",
+      "article_digest": "f15b00c9ed957fced5066a95c7bcc8fd124ecfb2063d24bfdf378016777006b1",
+      "path": "blog/articles/2026-11-28-diary",
+      "permalink": "/blog/2026/11/28/diary/",
+      "content_sha256": "04140a0d77a1faaff1011a289b1dcc62f5d67292d57575153e4eed4210519765",
+      "source_urls": [
+        "https://x.com/shuminchuuu/status/2126316870102123001"
+      ],
+      "note_url": null,
+      "images": [
+        {
+          "file": "cd1ac692f127ac71e4db.webp",
+          "bytes": 27660,
+          "source_bytes": 28296,
+          "width": 800,
+          "height": 419
+        }
+      ]
     }
   ]
 }
